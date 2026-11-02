@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Country not open or wrong country on phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAFAFA}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; overflow: hidden; position: relative; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B"><header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 8px 16px; display: flex; align-items: center; gap: 8px; min-height: 60px"><a href="MainPhone.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: #18181B; font-weight: 800; font-size: 18px; flex: 1 1 auto"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>JobPrep</a></header><main style="flex: 1 1 auto; overflow-y: auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; background: #FFFFFF"><sc-if value="{{notOpen}}" hint-placeholder-val="{{ true }}">
+  <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; border: 1px solid #D4D4D8; border-radius: 999px; padding: 6px 12px"><span style="background: #18181B; color: #FFFFFF; border-radius: 4px; padding: 1px 5px; font-size: 11px">UG</span>Uganda</span>
+  <h1 style="margin: 0; font-size: 25px; letter-spacing: -0.02em; line-height: 1.2">JobPrep isn’t open in Uganda yet</h1>
+  <p style="margin: 0; font-size: 16px; color: #3F3F46; line-height: 1.55">We’re preparing mock tests for Ugandan recruitment exams. Leave your number and we’ll send one SMS when they’re ready — nothing else.</p>
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label for="wl-tel" style="font-weight: 700; font-size: 14px">Phone number</label>
+    <div style="display: flex; gap: 8px"><span style="flex: 0 0 auto; height: 52px; display: inline-flex; align-items: center; padding: 0 12px; border: 1px solid #D4D4D8; border-radius: 12px; background: #F4F4F5; font-weight: 700">+256</span><input id="wl-tel" type="tel" inputmode="numeric" placeholder="7XX XXX XXX" style="flex: 1 1 auto; height: 52px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 17px; color: #18181B; background: #FFFFFF; min-width: 0"></div>
+  </div>
+  <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">What are you preparing for? <span style="font-weight: 400; color: #52525B">Optional — it helps us choose which tests to build first.</span>
+    <input type="text" placeholder="e.g. Primary teacher, Accountant" style="height: 52px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 17px; color: #18181B; background: #FFFFFF; min-width: 0; font-weight: 400">
+  </label>
+  <button type="button" onClick="{{join}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px">Notify me</button>
+  <a href="CountryPickerPhone.dc.html" style="text-align: center; font-weight: 600; font-size: 15px; padding: 10px">Choose a different country</a>
+</sc-if>
+<sc-if value="{{joined}}" hint-placeholder-val="{{ false }}">
+  <span style="width: 64px; height: 64px; border-radius: 999px; background: #D1FAE5; color: #065F46; display: inline-flex; align-items: center; justify-content: center; align-self: flex-start"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+  <h1 role="status" style="margin: 0; font-size: 25px; letter-spacing: -0.02em">You’re on the list</h1>
+  <p style="margin: 0; font-size: 16px; color: #3F3F46; line-height: 1.55">We’ll send one SMS to +256 712 345 678 when Uganda opens. You can ask us to remove your number at any time.</p>
+  <a href="CountryPickerPhone.dc.html" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 48px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px">Choose a different country</a>
+</sc-if>
+<sc-if value="{{wrong}}" hint-placeholder-val="{{ false }}">
+  <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; border: 1px solid #D4D4D8; border-radius: 999px; padding: 6px 12px"><span style="background: #18181B; color: #FFFFFF; border-radius: 4px; padding: 1px 5px; font-size: 11px">KE</span>Kenya mock test</span>
+  <h1 style="margin: 0; font-size: 25px; letter-spacing: -0.02em; line-height: 1.2">This test is for Kenya</h1>
+  <p style="margin: 0; font-size: 16px; color: #3F3F46; line-height: 1.55">The link you opened is <strong style="color: #18181B">County Accountant — Mock 1</strong> in Kenya. Your account is set to <strong style="color: #18181B">Rwanda</strong>, so your Rwanda Full Access does not cover it.</p>
+  <a href="CatalogPhone.dc.html" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px">See similar tests in Rwanda</a>
+  <a href="ChangeCountryPhone.dc.html" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 48px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px">Switch my account to Kenya</a>
+  <p style="margin: 0; font-size: 13px; color: #52525B">Switching keeps your Rwanda results. Your Rwanda Full Access stays with Rwanda.</p>
+</sc-if></main></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["Country not open", "Joined waiting list", "Wrong country link"], "default": "Country not open"}, "$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, st = this.state || {}, p = this.props;
+    var s = st.s || (p.state ?? 'Country not open');
+    return { notOpen: s === 'Country not open', joined: s === 'Joined waiting list', wrong: s === 'Wrong country link', join: function () { self.setState({ s: 'Joined waiting list' }); } };
+  }
+}
+</script>
+</body>
+</html>

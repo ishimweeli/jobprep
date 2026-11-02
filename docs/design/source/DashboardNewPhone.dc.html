@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Dashboard for a new user on phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAFAFA}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 1300px; position: relative; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B"><header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 8px 16px; display: flex; align-items: center; gap: 8px; min-height: 60px"><a href="MainPhone.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: #18181B; font-weight: 800; font-size: 18px; flex: 1 1 auto"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>JobPrep</a></header><main style="flex: 1 1 auto; padding: 18px 16px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+  <h1 style="margin: 0; font-size: 26px; letter-spacing: -0.02em">Welcome, Aline</h1>
+  <p style="margin: 0; font-size: 15px; color: #3F3F46">Preparing for <strong style="color: #18181B">Secondary Mathematics Teacher</strong> in <strong style="color: #18181B">Rwanda</strong> · <a href="CatalogPhone.dc.html">Change goal</a></p>
+</div><section aria-labelledby="st-t" style="background: #FFFFFF; border: 2px solid #6D28D9; border-radius: 18px; padding: 21px; display: flex; flex-direction: column; gap: 10px">
+  <h2 id="st-t" style="margin: 0; font-size: 14px; font-weight: 700; color: #5B21B6">Start here</h2>
+  <p style="margin: 0; font-size: 20px; font-weight: 800; line-height: 1.3">Secondary Mathematics Teacher (S1–S3) — Mock 1</p>
+  <p style="margin: 0; font-size: 15px; color: #3F3F46">Free sample · 50 questions · 60 minutes. Take it once to see where you stand — we’ll point you to your weakest topics afterwards.</p>
+  <a href="ExamDetailPhone.dc.html" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px">Start free mock test</a>
+</section><section aria-labelledby="ma-t" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 id="ma-t" style="margin: 0; font-size: 18px">My access</h2><span style="font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: {{a.bg}}; color: {{a.ink}}">{{a.badge}}</span></div>
+  <p style="margin: 0; font-size: 17px; font-weight: 700">{{a.title}}</p>
+  <p style="margin: 0; font-size: 15px; color: #3F3F46; line-height: 1.5">{{a.body}}</p>
+  <sc-if value="{{a.hasBar}}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="height: 8px; background: #F4F4F5; border-radius: 999px; overflow: hidden"><div style="height: 8px; width: {{a.bar}}; background: {{a.barColor}}"></div></div></sc-if>
+  <sc-if value="{{a.hasCta}}" hint-placeholder-val="{{ true }}"><a href="{{a.href}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px">{{a.cta}}</a></sc-if>
+  <sc-if value="{{a.hasLink}}" hint-placeholder-val="{{ false }}"><a href="{{a.linkHref}}" style="font-size: 15px; font-weight: 600; padding: 6px 0">{{a.link}}</a></sc-if>
+</section><section aria-labelledby="sh-t" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+  <h2 id="sh-t" style="margin: 0; font-size: 18px">Score history</h2>
+  <div style="border: 1px dashed #A1A1AA; border-radius: 12px; padding: 28px 16px; text-align: center; display: flex; flex-direction: column; gap: 6px; align-items: center">
+    <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#52525B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10 M10 20V4 M16 20v-7 M22 20H2"></path></svg>
+    <p style="margin: 0; font-weight: 700; font-size: 16px">No scores yet</p>
+    <p style="margin: 0; font-size: 14px; color: #3F3F46">Your scores and strongest and weakest topics will appear here after your first mock test.</p>
+  </div>
+</section>
+<section aria-labelledby="sg-t" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+  <h2 id="sg-t" style="margin: 0; font-size: 18px">More for your goal</h2>
+  <sc-for list="{{more}}" as="m" hint-placeholder-count="3">
+    <a href="ExamDetailPhone.dc.html" style="display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 12px 0; border-top: 1px solid #F4F4F5; text-decoration: none; color: #18181B"><span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">{{m.t}}</span><span style="font-size: 13px; color: #52525B">{{m.meta}}</span></span><span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{m.bg}}; color: {{m.ink}}; white-space: nowrap">{{m.tag}}</span></a>
+  </sc-for>
+</section>
+</main><nav aria-label="Main" style="flex: 0 0 auto; position: sticky; bottom: 0; background: #FFFFFF; border-top: 1px solid #E4E4E7; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 4px 4px 8px"><a href="DashboardNewPhone.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #6D28D9; font-size: 12px; font-weight: 700; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Home</a><a href="CatalogPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 12px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5"></path></svg>Tests</a><a href="ResultsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 12px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10 M10 20V4 M16 20v-7 M22 20H2"></path></svg>Progress</a><a href="NavPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 12px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path></svg>Account</a></nav></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"access": {"editor": "enum", "options": ["No access (free only)", "Payment pending", "Active", "Ending soon", "Expired"], "default": "No access (free only)"}, "$preview": {"width": 390, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, st = this.state || {}, p = this.props;
+    var s = p.access ?? 'No access (free only)';
+    var A = {
+      'No access (free only)': { badge: 'Free', bg: '#F4F4F5', ink: '#3F3F46', title: 'You’re using free sample tests', body: 'Full Access unlocks every mock test in Rwanda for 30 days, with one payment of [PRICE]. Nothing renews.', hasBar: false, hasCta: true, cta: 'Get Full Access', href: 'Checkout.dc.html', hasLink: false },
+      'Payment pending': { badge: 'Pending', bg: '#FEF3C7', ink: '#92400E', title: 'Waiting for your MTN MoMo approval', body: 'We sent a prompt for [PRICE] to +250 788 123 456 at 21:05. Approve it on your phone with your PIN. If you don’t, you won’t be charged.', hasBar: false, hasCta: true, cta: 'Check payment', href: 'Checkout.dc.html', hasLink: true, link: 'Send the prompt again', linkHref: 'Checkout.dc.html' },
+      'Active': { badge: 'Active', bg: '#D1FAE5', ink: '#065F46', title: 'Full Access · 23 days left', body: 'Every mock test in Rwanda is unlocked until 24 Nov 2026.', hasBar: true, bar: '77%', barColor: '#6D28D9', hasCta: false, hasLink: true, link: 'Browse all mock tests', linkHref: 'Catalog.dc.html' },
+      'Ending soon': { badge: 'Ends in 2 days', bg: '#FEF3C7', ink: '#92400E', title: 'Full Access ends on 3 Nov 2026', body: 'After that, you keep your results but paid tests lock again. You can buy another 30 days at any time — it starts when the current access ends.', hasBar: true, bar: '7%', barColor: '#D97706', hasCta: true, cta: 'Add 30 more days', href: 'Checkout.dc.html', hasLink: false },
+      'Expired': { badge: 'Expired', bg: '#F4F4F5', ink: '#3F3F46', title: 'Full Access ended on 24 Oct 2026', body: 'Your results, scores and review notes are still here. Free sample tests stay open.', hasBar: false, hasCta: true, cta: 'Get Full Access again', href: 'Checkout.dc.html', hasLink: false }
+    };
+    var free = { tag: 'Free', bg: '#D1FAE5', ink: '#065F46' }, paid = { tag: 'Full Access', bg: '#EDE9FE', ink: '#5B21B6' };
+    return { a: A[s], more: [
+      Object.assign({ t: 'Teaching Profession & CBC Pedagogy', meta: '40 questions · 45 min' }, paid),
+      Object.assign({ t: 'Primary Teacher — General Mock 1', meta: '60 questions · 75 min' }, free),
+      Object.assign({ t: 'Secondary Mathematics (S4–S6) — Mock 1', meta: '50 questions · 60 min' }, paid)
+    ] };
+  }
+}
+</script>
+</body>
+</html>

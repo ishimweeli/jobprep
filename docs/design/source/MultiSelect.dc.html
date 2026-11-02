@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Multiple-select question</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAFAFA}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh; position: relative; display: flex; flex-direction: column"><header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7"><div style="max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px"><div style="flex: 1 1 320px; display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 16px">Secondary Mathematics Teacher (S1–S3) — Mock 1</span><span style="font-size: 13px; color: #047857">✓ All answers saved</span></div><div role="timer" aria-label="Time remaining" style="font-variant-numeric: tabular-nums; font-weight: 800; font-size: 22px; padding: 8px 14px; border-radius: 12px; background: #F4F4F5">18:42</div><a href="Results.dc.html" style="text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 18px; border-radius: 12px; background: #18181B; color: #FFFFFF">Submit exam</a></div></header><main style="flex: 1 1 auto; max-width: 1280px; width: 100%; margin: 0 auto; padding: 24px"><div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; border-radius: 18px; padding: 28px; display: flex; flex-direction: column; gap: 18px; max-width: 860px"><sc-if value="{{exam}}" hint-placeholder-val="{{ true }}">
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center">
+    <div style="display: flex; flex-direction: column"><span style="font-size: 13px; color: #52525B; font-weight: 600">Pedagogy &amp; CBC</span><h1 style="margin: 0; font-size: 19px">Question 38 of 50</h1></div>
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 999px; background: #EDE9FE; color: #5B21B6"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z M8 12l3 3 5-6"></path></svg>Choose 3</span>
+  </div>
+  <p style="margin: 0; font-size: 22px; line-height: 1.5; font-weight: 600">Which of the following are generic competences in Rwanda’s Competence-Based Curriculum? <span style="font-weight: 700">Choose 3.</span></p>
+  <div role="group" aria-label="Answer options, choose 3" style="display: flex; flex-direction: column; gap: 10px">
+    <sc-for list="{{opts}}" as="o" hint-placeholder-count="5">
+      <button type="button" role="checkbox" aria-checked="{{o.checked}}" onClick="{{o.toggle}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 14px; align-items: center; min-height: 58px; padding: 10px 14px; border-radius: 14px; border: {{o.border}}; background: {{o.bg}}; color: #18181B">
+        <span aria-hidden="true" style="flex: 0 0 auto; width: 26px; height: 26px; border-radius: 7px; border: {{o.boxBorder}}; background: {{o.boxBg}}; display: inline-flex; align-items: center; justify-content: center; color: #FFFFFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: {{o.tick}}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+        <span style="font-weight: 700; color: #3F3F46; width: 18px">{{o.key}}</span>
+        <span style="font-size: 18px; line-height: 1.4">{{o.text}}</span>
+      </button>
+    </sc-for>
+  </div>
+  <p role="status" style="margin: 0; font-size: 14px; font-weight: 600; color: {{countInk}}">{{countLabel}}</p>
+</sc-if>
+<sc-if value="{{review}}" hint-placeholder-val="{{ false }}">
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+    <span style="font-weight: 800; font-size: 16px">Question 38</span>
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #FFEDD5; color: #9A3412"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>Partly correct</span>
+    <span style="font-size: 13px; color: #52525B; font-weight: 600">0.33 of 1 mark</span>
+  </div>
+  <span style="font-size: 13px; color: #52525B; font-weight: 600">Pedagogy &amp; CBC · Choose 3</span>
+  <p style="margin: 0; font-size: 22px; line-height: 1.5; font-weight: 600">Which of the following are generic competences in Rwanda’s Competence-Based Curriculum? Choose 3.</p>
+  <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
+    <sc-for list="{{rev}}" as="r" hint-placeholder-count="5">
+      <li style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; border: {{r.border}}; background: {{r.bg}}">
+        <span style="display: flex; gap: 12px; align-items: center"><span aria-hidden="true" style="flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px; border: 2px solid {{r.boxLine}}; background: {{r.boxBg}}; display: inline-flex; align-items: center; justify-content: center; color: #FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: {{r.tick}}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="font-weight: 700; color: #3F3F46; width: 18px">{{r.key}}</span><span style="font-size: 16px">{{r.text}}</span></span>
+        <span style="font-size: 13px; font-weight: 700; color: {{r.noteInk}}; padding-left: 52px">{{r.note}}</span>
+      </li>
+    </sc-for>
+  </ul>
+  <div style="background: #F5F3FF; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+    <span style="font-size: 13px; font-weight: 700; color: #5B21B6">Explanation</span>
+    <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #27272A">The CBC’s generic competences apply across all subjects. They include critical thinking and problem solving, creativity and innovation, research, communication, cooperation, interpersonal relations and life skills, and lifelong learning. Memorising definitions is a learning activity, not a competence.</p>
+  </div>
+  <p style="margin: 0; font-size: 13px; color: #52525B; background: #F4F4F5; border-radius: 10px; padding: 10px 12px">How this exam scores “choose more than one”: [SCORING RULE — set per exam, e.g. one third of a mark per right choice, minus one third per wrong choice, never below 0].</p>
+</sc-if></div></main></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode": {"editor": "enum", "options": ["Exam", "Review: partly correct"], "default": "Exam"}, "$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: { A: true, C: true }, full: false }; }
+  renderVals() {
+    var self = this, st = this.state || {}, p = this.props;
+    var mode = p.mode ?? 'Exam';
+    var data = [['A', 'Critical thinking and problem solving', true], ['B', 'Memorisation of definitions', false], ['C', 'Lifelong learning', true], ['D', 'Strict obedience', false], ['E', 'Cooperation, interpersonal relations and life skills', true]];
+    var sel = st.sel || { A: true, C: true };
+    var n = Object.keys(sel).filter(function (k) { return sel[k]; }).length;
+    var opts = data.map(function (d) {
+      var on = !!sel[d[0]];
+      return { key: d[0], text: d[1], checked: on ? 'true' : 'false', border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF',
+        boxBorder: on ? '2px solid #6D28D9' : '2px solid #52525B', boxBg: on ? '#6D28D9' : '#FFFFFF', tick: on ? '1' : '0',
+        toggle: function () {
+          var s2 = Object.assign({}, self.state.sel || { A: true, C: true });
+          var cnt = Object.keys(s2).filter(function (k) { return s2[k]; }).length;
+          if (!s2[d[0]] && cnt >= 3) { self.setState({ full: true }); return; }
+          s2[d[0]] = !s2[d[0]]; self.setState({ sel: s2, full: false });
+        } };
+    });
+    var picked = { A: true, B: true, C: true };
+    var rev = data.map(function (d) {
+      var mine = !!picked[d[0]], right = d[2];
+      var note = right && mine ? '✓ Correct · your choice' : (right ? '✓ Correct · you missed this one' : (mine ? '✕ Not correct · your choice' : ''));
+      return { key: d[0], text: d[1], note: note, noteInk: right ? '#065F46' : '#991B1B',
+        border: right ? '2px solid #047857' : (mine ? '2px solid #B91C1C' : '1px solid #E4E4E7'), bg: right ? '#ECFDF5' : (mine ? '#FEF2F2' : '#FFFFFF'),
+        boxLine: mine ? '#18181B' : '#A1A1AA', boxBg: mine ? '#18181B' : '#FFFFFF', tick: mine ? '1' : '0' };
+    });
+    var label = st.full ? 'You’ve chosen 3. Unselect one to change your answer.' : (n === 3 ? '3 of 3 chosen' : n + ' of 3 chosen' + (n > 0 ? ' — choose ' + (3 - n) + ' more' : ''));
+    return { exam: mode === 'Exam', review: mode !== 'Exam', opts: opts, rev: rev, countLabel: label, countInk: st.full ? '#92400E' : (n === 3 ? '#065F46' : '#3F3F46') };
+  }
+}
+</script>
+</body>
+</html>

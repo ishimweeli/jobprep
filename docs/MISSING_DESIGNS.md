@@ -8,6 +8,29 @@ Priority: **P0** blocks a required flow or go-live · **P1** needed for a comple
 
 ---
 
+## Status after Batch 1 (designer delivered 2026-11-02; artboards copied into `docs/design/source`)
+
+| Item | Artboards | Status |
+|---|---|---|
+| C12 Sign-in | `SignIn`, `SignInPhone` | Drawn. **Copy must change**: code lifetime, tries and lockout do not match the backend (see below) |
+| C13 Signed-in header / account menu / sign out | `AccountMenu` | Drawn. Buildable as is |
+| C29 Phone navigation | `NavPhone` | Drawn. **Conflicts** with the older tab bar in `DashboardPhone` (owner to confirm C29 is the standard) |
+| C16 Dashboard new user + access states | `DashboardNew`, `DashboardNewPhone` | Drawn. Needs small API additions (start-here test, pending payment, "ending soon" threshold) |
+| C30 Details for an unlocked test | `ExamDetailUnlocked`, `ExamDetailUnlockedPhone` | Drawn. Buildable with existing data |
+| C17 Guest taps a paid test | `GuestPaid`, `GuestPaidPhone` | Drawn. Buildable |
+| C20 Checkout edge states | `CheckoutStates`, `CheckoutStatesPhone` | Drawn. "Number on another network" has no backend rule (owner decision) |
+| C23 Country not open / wrong country | `CountryGate`, `CountryGatePhone` | Drawn. Opt-out wording for the waiting-list SMS still open |
+| C26 System pages | `SystemPages`, `SystemPagesPhone` | Drawn. The error "Reference" code needs a request id from the API |
+| C3 + C5 Multiple-select, partly correct | `MultiSelect`, `MultiSelectPhone` | Drawn. **"Choose 3" needs a product decision and a backend field** |
+| C1 Practice runner | `Practice`, `PracticePhone` | Drawn. **"Untimed" conflicts** with the backend timer and the dashboard copy (owner decision) |
+| C7 + C8 Time up and offline, desktop | `TimeUpDesktop` | Drawn. Buildable |
+
+Backend facts the design must match (sign-in): a login code lasts **5 minutes**, allows **5 wrong tries** and is then
+dead (request a new one, resend wait **45 s**); at most **5 codes per phone per hour**, then "try again later". There is
+**no timed lockout** and the API does **not** return a tries-left number.
+
+---
+
 ## 0. Brief that applies to every screen
 
 **Product.** JobPrep is a mock-exam platform for recruitment exams (teacher recruitment first). Not a course

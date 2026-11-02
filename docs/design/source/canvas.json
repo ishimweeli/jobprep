@@ -337,6 +337,174 @@
    "w": 390,
    "h": 844,
    "title": "S2m · Changing country later (phone)"
+  },
+  "SignIn.dc.html": {
+   "x": 0,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C12 · Sign-in (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "SignInPhone.dc.html": {
+   "x": 0,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C12 · Sign-in (phone)",
+   "is_interactive": true
+  },
+  "AccountMenu.dc.html": {
+   "x": 1520,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C13 · Signed-in header and account menu",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "NavPhone.dc.html": {
+   "x": 1520,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C29 · Phone navigation (phone only)",
+   "is_interactive": true
+  },
+  "DashboardNew.dc.html": {
+   "x": 3040,
+   "y": 14540,
+   "w": 1440,
+   "h": 1100,
+   "title": "C16 · Dashboard: new user and access states (desktop)",
+   "expand": "fill"
+  },
+  "DashboardNewPhone.dc.html": {
+   "x": 3040,
+   "y": 16210,
+   "w": 390,
+   "h": 1300,
+   "title": "C16 · Dashboard: new user and access states (phone)"
+  },
+  "ExamDetailUnlocked.dc.html": {
+   "x": 4560,
+   "y": 14540,
+   "w": 1440,
+   "h": 1250,
+   "title": "C30 · Exam details: unlocked (desktop)",
+   "expand": "fill"
+  },
+  "ExamDetailUnlockedPhone.dc.html": {
+   "x": 4560,
+   "y": 16210,
+   "w": 390,
+   "h": 1300,
+   "title": "C30 · Exam details: unlocked (phone)"
+  },
+  "GuestPaid.dc.html": {
+   "x": 6080,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C17 · Guest taps a paid test (desktop)",
+   "expand": "fill"
+  },
+  "GuestPaidPhone.dc.html": {
+   "x": 6080,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C17 · Guest taps a paid test (phone)"
+  },
+  "CheckoutStates.dc.html": {
+   "x": 7600,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C20 · Checkout edge states (desktop)",
+   "expand": "fill"
+  },
+  "CheckoutStatesPhone.dc.html": {
+   "x": 7600,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C20 · Checkout edge states (phone)"
+  },
+  "CountryGate.dc.html": {
+   "x": 9120,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C23 · Country not open / wrong country (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "CountryGatePhone.dc.html": {
+   "x": 9120,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C23 · Country not open / wrong country (phone)",
+   "is_interactive": true
+  },
+  "SystemPages.dc.html": {
+   "x": 10640,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C26 · 404, error, maintenance, session expired (desktop)",
+   "expand": "fill"
+  },
+  "SystemPagesPhone.dc.html": {
+   "x": 10640,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C26 · 404, error, maintenance, session expired (phone)"
+  },
+  "MultiSelect.dc.html": {
+   "x": 12160,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C3 + C5 · Multiple-select question (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MultiSelectPhone.dc.html": {
+   "x": 12160,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C3 + C5 · Multiple-select question (phone)",
+   "is_interactive": true
+  },
+  "Practice.dc.html": {
+   "x": 13680,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C1 · Practice-set runner (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "PracticePhone.dc.html": {
+   "x": 13680,
+   "y": 16210,
+   "w": 390,
+   "h": 844,
+   "title": "C1 · Practice-set runner (phone)",
+   "is_interactive": true
+  },
+  "TimeUpDesktop.dc.html": {
+   "x": 15200,
+   "y": 14540,
+   "w": 1440,
+   "h": 900,
+   "title": "C7 + C8 · Time up and offline (desktop)",
+   "expand": "fill"
   }
  },
  "order": [
@@ -381,7 +549,28 @@
   "AdminCountriesPhone.dc.html",
   "SignUp.dc.html",
   "SignUpPhone.dc.html",
-  "ChangeCountryPhone.dc.html"
+  "ChangeCountryPhone.dc.html",
+  "SignIn.dc.html",
+  "SignInPhone.dc.html",
+  "AccountMenu.dc.html",
+  "NavPhone.dc.html",
+  "DashboardNew.dc.html",
+  "DashboardNewPhone.dc.html",
+  "ExamDetailUnlocked.dc.html",
+  "ExamDetailUnlockedPhone.dc.html",
+  "GuestPaid.dc.html",
+  "GuestPaidPhone.dc.html",
+  "CheckoutStates.dc.html",
+  "CheckoutStatesPhone.dc.html",
+  "CountryGate.dc.html",
+  "CountryGatePhone.dc.html",
+  "SystemPages.dc.html",
+  "SystemPagesPhone.dc.html",
+  "MultiSelect.dc.html",
+  "MultiSelectPhone.dc.html",
+  "Practice.dc.html",
+  "PracticePhone.dc.html",
+  "TimeUpDesktop.dc.html"
  ],
  "notes": {
   "row1": {
@@ -432,6 +621,20 @@
    "text": "Sign up — the country chosen here scopes everything the candidate sees",
    "kind": "title1",
    "maxW": 2380
+  },
+  "row8": {
+   "x": 0,
+   "y": 14240,
+   "text": "Batch 1 — missing screens (desktop)",
+   "kind": "title1",
+   "maxW": 16640
+  },
+  "row9": {
+   "x": 0,
+   "y": 15910,
+   "text": "Batch 1 — missing screens (phone)",
+   "kind": "title1",
+   "maxW": 16640
   }
  },
  "designSystems": []

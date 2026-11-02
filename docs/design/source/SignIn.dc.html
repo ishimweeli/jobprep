@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Sign in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAFAFA}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh; position: relative; display: flex; flex-direction: column"><header style="border-bottom: 1px solid #E4E4E7; background: #FFFFFF">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #18181B; font-weight: 800; font-size: 20px; letter-spacing: -0.02em"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>JobPrep</a>
+    <nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px 22px; flex: 1 1 auto; font-size: 15px"><a href="Catalog.dc.html" style="color: #3F3F46; font-weight: 500; text-decoration: none; padding: 10px 0;">Mock tests</a><a href="Pricing.dc.html" style="color: #3F3F46; font-weight: 500; text-decoration: none; padding: 10px 0;">Pricing</a></nav>
+    <div style="display: flex; gap: 10px; align-items: center"><a href="CountryPicker.dc.html" aria-label="Country: Rwanda · RWF. Change country" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #18181B; font-weight: 600; font-size: 14px; border: 1px solid #D4D4D8; border-radius: 999px; padding: 8px 12px"><span style="background: #18181B; color: #FFFFFF; border-radius: 4px; padding: 1px 5px; font-size: 11px; font-weight: 700">RW</span>Rwanda · RWF</a><a href="SignIn.dc.html" style="color: #18181B; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 14px">Sign in</a><a href="SignUp.dc.html" style="background: #6D28D9; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 18px; border-radius: 999px">Create account</a></div>
+  </div>
+</header><main style="flex: 1 1 auto; padding: 56px 16px; display: flex; justify-content: center; align-items: flex-start">
+  <div style="width: 100%; max-width: 460px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+<sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 26px; letter-spacing: -0.02em">Sign in</h1>
+    <p style="margin: 0; font-size: 15px; color: #3F3F46">Enter the phone number you signed up with. We’ll text you a 6-digit code — there is no password.</p>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label for="si-tel" style="font-weight: 700; font-size: 14px">Phone number</label>
+    <div style="display: flex; gap: 8px">
+      <a href="CountryPicker.dc.html" aria-label="Country code +250 Rwanda. Change" style="flex: 0 0 auto; height: 52px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid #A1A1AA; border-radius: 12px; background: #FFFFFF; font-weight: 700; color: #18181B; text-decoration: none"><span style="font-size: 11px; background: #18181B; color: #FFFFFF; border-radius: 4px; padding: 1px 4px">RW</span>+250 ▾</a>
+      <input id="si-tel" type="tel" inputmode="numeric" autocomplete="tel-national" value="{{phoneVal}}" aria-invalid="{{phoneInvalid}}" aria-describedby="si-err" style="flex: 1 1 auto; height: 52px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 17px; color: #18181B; background: #FFFFFF; min-width: 0; border-color: {{phoneBorder}}">
+    </div>
+    <sc-if value="{{phoneErr}}" hint-placeholder-val="{{ false }}"><p id="si-err" role="alert" style="margin: 0; font-size: 14px; color: #B91C1C; font-weight: 600">Enter a 9-digit Rwanda number, like 788 123 456.</p></sc-if>
+  </div>
+  <button type="button" onClick="{{send}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px">Send code</button>
+  <p style="margin: 0; font-size: 14px; color: #3F3F46">New to JobPrep? <a href="SignUp.dc.html" style="font-weight: 600">Create a free account</a></p>
+</sc-if>
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 26px; letter-spacing: -0.02em">Enter your code</h1>
+    <p style="margin: 0; font-size: 15px; color: #3F3F46">If <strong style="color: #18181B">+250 788 123 456</strong> has a JobPrep account, a code is on its way by SMS. It works for 10 minutes.</p>
+  </div>
+  <div role="group" aria-label="6-digit code" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px">
+    <sc-for list="{{digits}}" as="d" hint-placeholder-count="6">
+      <input type="text" inputmode="numeric" maxlength="1" value="{{d.v}}" aria-label="Digit {{d.n}}" aria-invalid="{{codeInvalid}}" style="height: 58px; min-width: 0; text-align: center; font: inherit; font-size: 24px; font-weight: 700; border: {{codeBorder}}; border-radius: 12px; color: #18181B; font-variant-numeric: tabular-nums">
+    </sc-for>
+  </div>
+  <sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+    <div role="alert" style="border-radius: 12px; padding: 12px 14px; background: {{errBg}}; border: 1px solid {{errLine}}; display: flex; flex-direction: column; gap: 2px">
+      <strong style="font-size: 15px; color: {{errInk}}">{{errTitle}}</strong><span style="font-size: 14px; color: {{errInk}}">{{errBody}}</span>
+    </div>
+  </sc-if>
+  <a href="{{doneHref}}" aria-disabled="{{locked}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px; opacity: {{verifyOp}}">Verify and sign in</a>
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 14px">
+    <button type="button" style="font: inherit; font-weight: 600; color: #6D28D9; background: transparent; border: 0; padding: 8px 0; cursor: pointer">{{resendLabel}}</button>
+    <button type="button" onClick="{{back}}" style="font: inherit; font-weight: 600; color: #3F3F46; background: transparent; border: 0; padding: 8px 0; cursor: pointer">Use a different number</button>
+  </div>
+  <p style="margin: 0; font-size: 13px; color: #52525B">No code after a few minutes? Check the number, or <a href="SignUp.dc.html">create an account</a> if you have not signed up yet.</p>
+</sc-if></div>
+</main></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"error": {"editor": "enum", "options": ["None", "Invalid phone", "Wrong code", "Code expired", "Too many tries", "No connection"], "default": "None"}, "doneHref": {"editor": "text", "default": "DashboardNew.dc.html"}, "$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 1 }; }
+  renderVals() {
+    var self = this, st = this.state || {}, p = this.props;
+    var e = p.error ?? 'None';
+    var step = st.step || 1;
+    var E = {
+      'Wrong code': ['That code is not right', 'Check the SMS and try again. 3 tries left.', '#FEF2F2', '#FCA5A5', '#991B1B'],
+      'Code expired': ['This code has expired', 'Codes work for 10 minutes. Send a new one below.', '#FFFBEB', '#FCD34D', '#78350F'],
+      'Too many tries': ['Too many tries', 'For your security, wait 15 minutes before trying again.', '#FEF2F2', '#FCA5A5', '#991B1B'],
+      'No connection': ['You seem to be offline', 'Check your connection, then tap Verify again.', '#FFFBEB', '#FCD34D', '#78350F']
+    };
+    var showStep = e === 'Invalid phone' ? 1 : (E[e] ? 2 : step);
+    var x = E[e] || ['', '', '', '', ''];
+    var bad = e === 'Wrong code' || e === 'Too many tries';
+    return {
+      s1: showStep === 1, s2: showStep === 2,
+      phoneErr: e === 'Invalid phone', phoneInvalid: e === 'Invalid phone' ? 'true' : 'false', phoneBorder: e === 'Invalid phone' ? '#B91C1C' : '#A1A1AA', phoneVal: e === 'Invalid phone' ? '78812' : '788 123 456',
+      send: function () { self.setState({ step: 2 }); }, back: function () { self.setState({ step: 1 }); },
+      digits: (e === 'None' ? ['4', '8', '1', '9', '', ''] : ['4', '8', '1', '9', '0', '2']).map(function (v, i) { return { v: v, n: i + 1 }; }),
+      hasErr: !!E[e], errTitle: x[0], errBody: x[1], errBg: x[2], errLine: x[3], errInk: x[4],
+      codeInvalid: bad ? 'true' : 'false', codeBorder: bad ? '2px solid #B91C1C' : '1px solid #A1A1AA',
+      locked: e === 'Too many tries' ? 'true' : 'false', verifyOp: e === 'Too many tries' ? '0.45' : '1',
+      doneHref: e === 'Too many tries' ? '#' : (p.doneHref ?? 'DashboardNew.dc.html'),
+      resendLabel: e === 'Too many tries' ? 'Resend available in 15:00' : (e === 'Code expired' ? 'Send a new code' : 'Resend code in 0:42')
+    };
+  }
+}
+</script>
+</body>
+</html>
