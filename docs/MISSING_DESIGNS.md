@@ -25,6 +25,21 @@ Priority: **P0** blocks a required flow or go-live · **P1** needed for a comple
 | C1 Practice runner | `Practice`, `PracticePhone` | Drawn. **"Untimed" conflicts** with the backend timer and the dashboard copy (owner decision) |
 | C7 + C8 Time up and offline, desktop | `TimeUpDesktop` | Drawn. Buildable |
 
+**All 12 Batch 1 items are now built** in `apps/web` (committed `fff344b`), with the copy corrected to the backend's real
+values (code lifetime, tries left and resend wait come from the API; practice shows "{n} questions" with no minutes;
+placeholders such as `[PRICE]` never render). Still inert because nothing is drawn for them: Language, Help and support,
+Change goal, Request this exam, and "Number on another network".
+
+### New gaps found while building Batch 1 (for the designer)
+- **Phone "Back online" banner** (only the desktop version of back-online is drawn).
+- **Jump-grid cell and legend for "Partly correct"** (the build added a minimal `7◐` and a legend entry; please draw it).
+- **"Finish practice" confirmation** and a **"Partly correct" feedback panel** in the practice runner.
+- **Practice results** (the existing results screen is reused, without comparison or history) and **results edge states**.
+- **Case passage in the answer review**, **reopening a finished attempt**, **desktop account page and profile editing**,
+  **Language picker**, **Help page**, **Terms and Privacy**, **change goal**, **request-this-exam form**.
+- **Country gate**: the optional "What are you preparing for?" field has no storage; the wrong-country page cannot name the test.
+- **"Review last attempt" / best score** need the API to separate practice sets from mock tests (API gap, not a design gap).
+
 Backend facts the design must match (sign-in): a login code lasts **5 minutes**, allows **5 wrong tries** and is then
 dead (request a new one, resend wait **45 s**); at most **5 codes per phone per hour**, then "try again later". There is
 **no timed lockout** and the API does **not** return a tries-left number.
