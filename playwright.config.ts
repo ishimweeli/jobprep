@@ -23,5 +23,11 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 60_000,
     },
+    {
+      command: 'npm run dev -w @jobprep/web',
+      url: 'http://localhost:5173',
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
   ],
 });

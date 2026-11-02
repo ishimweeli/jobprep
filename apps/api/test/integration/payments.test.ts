@@ -76,11 +76,13 @@ describe('creating a payment', () => {
 
   it('never accepts or stores a PIN, whatever the client sends', async () => {
     const u = await newUser();
-    const res = await pay(u.agent, { pin: '4821', password: '4821' });
+    // A long sentinel, not 4 digits: random ids and timestamps could contain a short number by chance.
+    const SENTINEL = 'PIN-SENTINEL-93817265';
+    const res = await pay(u.agent, { pin: SENTINEL, password: SENTINEL });
     expect(res.status).toBe(201);
     const rows = JSON.stringify(await prisma.payment.findMany({ where: { userId: u.userId } }));
     const events = JSON.stringify(await prisma.paymentEvent.findMany({ where: { paymentId: res.body.id } }));
-    expect(rows + events + JSON.stringify(res.body)).not.toContain('4821');
+    expect(rows + events + JSON.stringify(res.body)).not.toContain(SENTINEL);
   });
 
   it('rejects unavailable methods, bad numbers and unknown providers', async () => {

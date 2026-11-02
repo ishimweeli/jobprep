@@ -1,0 +1,49 @@
+@import '@fontsource-variable/inter/wght.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply m-0 bg-page font-sans text-ink antialiased;
+  }
+  /* Visible focus: 3px #A78BFA, offset 2px (design system). */
+  :focus-visible {
+    outline: 3px solid #a78bfa;
+    outline-offset: 2px;
+  }
+  input[type='search']::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+@layer components {
+  /* Inline text link, as in the design (violet, underlined). */
+  .link {
+    @apply text-brand underline underline-offset-2 hover:text-brand-hover;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

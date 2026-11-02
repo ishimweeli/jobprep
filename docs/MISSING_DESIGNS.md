@@ -171,6 +171,35 @@ Draw each as a state of checkout:
 ### C28 · Error-message catalogue — **P1** · copy table
 Friendly text for each situation the API reports (sign-in/sign-up, checkout, exam): invalid code · too many attempts · wait before resending ("Try again in 40 s") · hourly limit · account exists (offer sign in) · invalid phone · account suspended · country not open · wrong country · full access required · sign in required · exam already ended · answer saved failed · payment method unavailable · price not set · provider unavailable. One line each, plus the action offered.
 
+### Additional candidate gaps found while building the public screens
+
+### C29 · Navigation on phone — **P0** · phone
+- The landing, catalog and pricing artboards show a menu button but not what opens; the dashboard artboard has a bottom tab bar ("Mock tests, My progress, Access") but the other phone screens have none. Draw: the **phone menu** contents (links, country, language, Sign in / account), and **which screens carry the bottom tab bar** and the signed-out equivalent.
+
+### C30 · Exam details for a test the user has already unlocked — **P0** · desktop + phone
+- Only a small tag ("Unlocked · N days left") is drawn in `States.dc.html`. Draw the access card on exam details for: **free test** (drawn), **paid and locked** (drawn), **paid and unlocked** (Start button, "Full Access · N days left"), **paid, unlocked, with an unfinished attempt** ("Resume"), and the **"Review last attempt"** target.
+
+### C31 · Catalog pagination — **P1** · desktop + phone
+- The catalog will grow past one page (about 90 tests in Rwanda). Draw "Load more" or page controls, the loading-more state and the end-of-list state.
+
+### C32 · Catalog filters — **P1** · phone + desktop
+- The phone filter sheet should show **every filter the desktop has** (price, difficulty, language, subject); the artboards omit Subject and Language on phone. Decide **multi-select vs single-select** for difficulty and language, and add a **sort** control (the design mentions "free first").
+
+### C33 · Landing language toggle — **P1** · phone + desktop
+- Drawn only on the Kenya phone landing, with no rule for when it appears. Specify: shown when the country offers more than one language? where on desktop? what changes on tap?
+
+### C34 · Country picker "Detected from your connection" — **P2** · desktop + phone
+- The picker says "Detected from your connection: Rwanda". Decide whether this is wanted (it needs IP geolocation, which is not built). If not, remove the line from the design.
+
+### C35 · Switch-country sheet note about the job goal — **P1** · phone + desktop
+- Switching country **clears the exam goal**. The sheet lists what happens to access and results but does not mention the goal. Add the line, and draw the desktop version of the sheet.
+
+### C36 · Support contact — **P1** · desktop + phone
+- The pricing FAQ and error states refer to contacting support. Provide the **phone / WhatsApp / email** per country and where it appears.
+
+### C37 · Multiple-select visual treatment — interim — **P0** · exam desktop + phone
+- (See C3.) Until C3 is designed, the exam uses the **existing option buttons**, toggling several on and off, with no extra instruction text. This is behaviour only and is **not a design decision**; it must be replaced by the C3 design.
+
 ---
 
 ## A — Admin (System admin, Content editor, Support)

@@ -3,6 +3,17 @@
 > **Design rule (owner, 2026-11-02): nothing is built without a design.** Everything with no artboard is
 > listed in [MISSING_DESIGNS.md](MISSING_DESIGNS.md). Phase 7 (admin) is blocked on items 18–32 there.
 
+## Web app, part 1 — public screens ✅ (verified 2026-11-02)
+
+Landing, catalog, exam details, pricing, country picker, sign-up and the account / switch-country sheet,
+built from the artboards (details in [WEB_PROGRESS.md](WEB_PROGRESS.md); API gaps in [API_GAPS.md](API_GAPS.md)).
+Checked independently: `npm run typecheck`, `npm run lint` pass; `npm test` = 252 API + 47 web + 2 shared;
+`npx playwright test` = 138 passed, 10 skipped (phone-only or desktop-only cases) at 1440 and 390.
+Lighthouse mobile (agent-reported): landing 100/100/100/91, catalog 99/100/100/91; initial JS about 96 KB gzip.
+
+**Not usable yet:** there is no sign-in screen in the design, so returning users cannot get in (C12), and there
+is no sign-out (C13). Buttons whose next screen is not designed are drawn as in the artboards and inert.
+
 ## Phase 6 — Payments and access ✅ (backend; checkout, pending, confirmed and declined/expired are all designed)
 
 **Built**
