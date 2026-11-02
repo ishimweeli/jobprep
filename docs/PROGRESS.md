@@ -3,6 +3,19 @@
 > **Design rule (owner, 2026-11-02): nothing is built without a design.** Everything with no artboard is
 > listed in [MISSING_DESIGNS.md](MISSING_DESIGNS.md). Phase 7 (admin) is blocked on items 18–32 there.
 
+## Admin app (`apps/admin`) ✅ for every designed screen (2026-11-02)
+
+Sign-in, Overview, Users, Exams & questions (with the question editor), Payments, Settings and Countries, desktop and
+phone, built from the artboards and wired to the admin API. Navigation follows the role's permissions; a country-restricted
+admin only gets their countries. Details, inert controls and deviations: [ADMIN_PROGRESS.md](ADMIN_PROGRESS.md).
+Checked independently: typecheck and lint clean; `npm test` = 119 admin + 639 API + 255 web + 2 shared; admin and web builds succeed.
+Agent-reported: `npx playwright test e2e/admin` 88 passed, 4 skipped; axe passes on every screen at both sizes.
+
+**Inert until designed** (drawn as in the artboards, no handler): grant / extend access, suspend, send login code,
+view as candidate, manual payment grant, CSV import, new mock test, save plan, save country, invite admin and role changes,
+exports, and editing multiple-select or case-based questions (MISSING_DESIGNS A2–A6, A9, A10, A13, A14, A16).
+The APIs for all of these are built and tested; they need a dialog (reason, transaction id, confirmation) to exist first.
+
 ## Phase 7 — Admin, backend ✅ (2026-11-02)
 
 **Built** (`apps/api/src/routes/admin/*`, `src/admin/*`): admin sign-in; overview; users (list, filters, detail, grant/extend, suspend, un-suspend, send login code); payments (list, tabs, stuck, detail with timeline, check, manual grant); exams (list, test detail, publish, archive, create, edit), question editor (all types, validation, reports resolved on publish), categories, sections, topics, case studies, CSV import (dry run, row-level report); reports queue; countries (list, detail, go-live checklist, price, payment methods, disclaimer, legal flag); settings; admin team; audit log with readable sentences.

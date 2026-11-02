@@ -1,0 +1,57 @@
+@import '@fontsource-variable/inter/wght.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* the phone bottom bar is sticky: a focused control must not end up behind it */
+    scroll-padding-bottom: 88px;
+  }
+  body {
+    @apply m-0 bg-page font-sans text-ink antialiased;
+  }
+  /* The artboards: links are violet and underlined unless a link says otherwise. */
+  a {
+    @apply text-brand underline;
+  }
+  a:hover {
+    @apply text-brand-hover;
+  }
+  /* Visible focus: 3px #A78BFA, offset 2px (design system). */
+  :focus-visible {
+    outline: 3px solid #a78bfa;
+    outline-offset: 2px;
+  }
+  /* The artboards use the browser default (bold) for headings; Tailwind preflight resets it. */
+  h1,
+  h2,
+  h3 {
+    font-weight: 700;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+  input[type='search']::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

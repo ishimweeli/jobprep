@@ -242,6 +242,15 @@ Friendly text for each situation the API reports (sign-in/sign-up, checkout, exa
 
 ## A — Admin (System admin, Content editor, Support)
 
+**Status:** the designed admin screens are built (`apps/admin`); every API below is built and tested. What is still
+blocked on a design, and shown inert in the app: **A1** (admin sign-in: the candidate sign-in is reused; no sign-out control,
+no session-expired state), **A2** grant/extend dialog, **A3** suspend dialog, **A4** manual grant dialog, **A5** send login code
+result and "View as candidate", **A6** CSV import, **A7/A8** category, topic and case editors, **A9** new mock test form,
+**A10** multiple-select / case-based question editor and translations, **A11** reports queue, **A12** audit log screen
+(only the short list in Settings exists), **A13** invite and role change, **A14** price change reason, country save and
+go-live confirmation, **A15** demand views, **A16** exports, **A17** "no access" screen, **A18** admin loading/empty/error
+states. Also: the Overview's "support requests" row has no data source and is omitted.
+
 Existing: overview, users + user detail, exams + question editor, payments, pricing & settings (with team and a
 short audit list), countries with go-live checklist — desktop and phone. **Roles:** System admin (everything),
 Content editor (exams and questions only; optional country restriction), Support (view users, resend login codes,

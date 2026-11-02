@@ -88,3 +88,46 @@ Appended by the frontend engineer (`apps/web`). Each entry: what is needed, endp
 
 ### 21. "Practise N more" can only use one topic
 - A set built from three weak topics can be repeated for one topic only (`POST /api/countries/:code/practice {topicId}`), because there is no endpoint that takes several topic ids. The web app uses the topic with most questions in the set.
+
+## Admin (apps/admin)
+Found while building the admin screens against `/api/admin/*`. Each has a workaround in the app; nothing here changes the API.
+
+### A-1. The audit sentence for a sign-in reads "admin sign_in"
+- **Need:** `describeAudit` case for `admin.sign_in` (for instance "signed in") and for any other action without a case: the default turns `admin.sign_in` into "admin sign_in".
+- **Why:** the Settings audit list prints the server's `summary` after the actor's name: "Jean Bosco N. admin sign_in".
+- **Workaround:** none (the server's sentence is shown as it is, as designed).
+
+### A-2. "Needs attention" counts reports, not questions
+- **Need:** `needsAttention.reportedQuestions.count` as the number of distinct questions (and, if wanted, `reports` separately).
+- **Why:** the design says "4 questions reported by candidates"; the API counts open report rows, so two reports on one question read "2 questions".
+- **Workaround:** the number is shown as the API gives it with the artboard's words.
+
+### A-3. The user detail has no "tests taken" count
+- **Need:** `testsTaken` in `GET /admin/users/:id` (the list has it).
+- **Why:** the phone "Profile" card draws "Mock tests taken".
+- **Workaround:** the number of finished attempts in the response (the API returns the latest 10), shown as "10+" when it is 10.
+
+### A-4. No plan or provider summary on the Payments list
+- **Need:** the live country's plan price and payment-method names in `GET /admin/payments`.
+- **Why:** the page subtitle reads "Full Access · RWF 2,000 · MTN MoMo and Airtel Money"; Support has `payments:read` but not `countries:read`, so it cannot read them from the countries API.
+- **Workaround:** System admin builds the line from `GET /admin/countries` and `/countries/:code`; Support sees no subtitle.
+
+### A-5. The country list has no provider names and no user-facing "languages" summary
+- **Need:** `paymentMethods` labels on `GET /admin/countries` rows.
+- **Why:** the phone artboard writes "KES · price not set · M-Pesa" and "RWF 2,000 · MTN MoMo, Airtel".
+- **Workaround:** the summary uses price, tests and users (or waiting list) from the list.
+
+### A-6. Settings need `settings:write` even to read
+- **Need:** a read permission for `GET /admin/settings` (and for the team list), or an answer for roles without it.
+- **Why:** harmless today (only System admin has it) but the screen cannot show the stuck-after value to Support, who sees "Stuck" payments.
+- **Workaround:** none needed now; Settings is System admin only.
+
+### A-7. Admin sign-in codes: five an hour per phone, 45 s apart
+- Not a defect: it makes automated sign-in tests share one session per role (`e2e/admin-helpers.ts` keeps it in the temp directory) and wait out the cooldown.
+
+### A-8. The checklist labels carry no currency
+- **Need:** `label` such as "Set the Full Access price in KES" (the design writes the currency); the API's label is "Set the Full Access price".
+- **Workaround:** the API's label is shown as it is.
+
+### A-9. The exam list has no category id and no "reported by" totals for the header
+- Minor: the category filter uses the category `slug`, so the same slug in two countries (Rwanda and Kenya both have `teaching-positions`) filters both. The select shows each name once.

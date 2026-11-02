@@ -29,5 +29,20 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 60_000,
     },
+    // Admin app (e2e/admin-*.spec.ts): its own API instance on 4001 and Vite on 5174 (proxying /api to 4001).
+    {
+      command: 'npm run start -w @jobprep/api',
+      url: 'http://localhost:4001/api/health',
+      env: { PORT: '4001' },
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
+    {
+      command: 'npm run dev -w @jobprep/admin',
+      url: 'http://localhost:5174',
+      env: { ADMIN_API_URL: 'http://localhost:4001' },
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
   ],
 });
