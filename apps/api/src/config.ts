@@ -13,6 +13,8 @@ const schema = z.object({
   SESSION_SECRET: z.string().min(16),
   OTP_TTL_SECONDS: z.coerce.number().int().positive().default(300),
   OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
+  OTP_RESEND_COOLDOWN_SECONDS: z.coerce.number().int().nonnegative().default(45),
+  OTP_MAX_PER_HOUR: z.coerce.number().int().positive().default(5),
   PAYMENT_PROVIDER_MODE: z.enum(['fake', 'sandbox', 'live']).default('fake'),
   SMS_PROVIDER: z.enum(['console', 'live']).default('console'),
   ENABLE_TEST_ENDPOINTS: bool,

@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import { z } from 'zod';
+import { badRequest, notFound } from '../http/errors';
+import { normalizePhone } from '../domain/phone';
 import type { PrismaClient } from '@prisma/client';
 import { formatMoney, isSellable } from '../domain/pricing';
 
@@ -24,6 +27,41 @@ export function countriesRouter(prisma: PrismaClient) {
         selectable: c.status === 'LIVE',
       })),
     });
+  });
+
+  /** Job categories for a country (sign-up goal picker, landing cards). Only that country's categories. */
+  router.get('/:code/categories', async (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const country = await prisma.country.findUnique({ where: { code } });
+    if (!country) throw notFound('country_not_found');
+    const categories = await prisma.category.findMany({
+      where: { countryCode: code },
+      orderBy: { sortOrder: 'asc' },
+      include: { _count: { select: { mockTests: { where: { status: 'PUBLISHED' } } } } },
+    });
+    res.json({
+      categories: categories.map((c) => ({
+        id: c.id, slug: c.slug, name: c.name, description: c.description, icon: c.icon,
+        featured: c.featured, mockTestCount: c._count.mockTests,
+      })),
+    });
+  });
+
+  /** "Notify me when Kenya opens" — only for countries that are not live yet. */
+  router.post('/:code/waiting-list', async (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const country = await prisma.country.findUnique({ where: { code } });
+    if (!country) throw notFound('country_not_found');
+    if (country.status === 'LIVE') throw badRequest('country_already_live');
+    const { phone } = z.object({ phone: z.string().min(6).max(24) }).parse(req.body);
+    const e164 = normalizePhone(phone, country.dialCode);
+    if (!e164) throw badRequest('invalid_phone');
+    await prisma.waitingListEntry.upsert({
+      where: { countryCode_phone: { countryCode: code, phone: e164 } },
+      create: { countryCode: code, phone: e164 },
+      update: {},
+    });
+    res.status(201).json({ ok: true });
   });
 
   router.get('/:code', async (req, res) => {

@@ -24,6 +24,18 @@ Recorded so work can keep moving without blocking questions. Newest at the botto
 17. **`npm run db:reset` uses `prisma migrate reset`,** which Prisma blocks when run by an AI agent without explicit user consent. It works when you run it yourself. Tests use their own `truncateAll` on the `_test` database instead.
 18. **Design screenshots not exported.** The design is a private canvas, so I read each artboard's source (copy, tokens, data) directly instead of PNGs. `docs/design/` is empty; add PNGs there if you want pixel comparison in the web phase.
 
+## Phase 2 — Auth and country
+
+19. **Candidate auth is phone + OTP only, session in an httpOnly cookie** (, SameSite=Lax, Secure in production, 30 days). Only an HMAC of the token is stored. Cross-site use from the web app relies on same-site hosting (or a proxy), not on relaxing SameSite.
+20. **OTP rules:** 6 digits, 5-minute TTL, 45 s resend cooldown, 5 requests/hour/phone, 5 wrong guesses burn the code, single use, bound to purpose (sign-up vs sign-in). Limits are counted in Postgres so they survive restarts. Codes are never in API responses; the console SMS provider prints them and a test-only endpoint (, forced off in production) reads them. Per-IP limiting is Phase 8.
+21. **Account discovery:** sign-up tells you if a number already has an account (409; needed for the "Already have an account? Sign in" UX). Sign-in returns the identical response for unknown numbers and sends no SMS.
+22. **Sign-up only in LIVE countries.** Preparing/planned countries get a waiting list (, the design's "Notify me when Kenya opens"). The country is fixed by the phone's dial code + the chosen country and must match.
+23. **Changing country** ( preview,  with ): target must be LIVE. Grants, attempts and payments stay attached to their own country (access keeps running and returns if the user switches back); the job goal is cleared and language resets to the new country's default.
+24. **Guest → account ("Save my result"):**  on sign-up/sign-in, or . Only unowned attempts in the user's own country move; owned attempts are never taken.
+25. **Suspended users** cannot sign in and their existing sessions stop working immediately.
+26. **Admin sign-in is not built yet** (Phase 7); only the  column and seeded admins exist.
+27. **e2e against the dev DB creates throwaway users** with random +250789xxxxxx numbers; delete them with a normal  when you like.
+
 ## Not yet decided / needs the owner
 - Real provider credentials (MTN MoMo, Airtel, M-Pesa) and callback secrets.
 - Real SMS gateway for OTP and receipts.

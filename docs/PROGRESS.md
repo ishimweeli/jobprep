@@ -1,5 +1,36 @@
 # Progress
 
+## Phase 2 — Auth and country ✅ (backend)
+
+**Built**
+- Candidate sign-up and sign-in by phone OTP: , , , ; .
+- Country choice: sign-up in live countries only, waiting list for the rest,  for the job-goal picker (only that country's categories).
+- Change country with a preview endpoint (access days left, results kept) and explicit confirmation; access stays country-scoped.
+- Guest → account claiming (on sign-up/sign-in or later), country-checked and never stealing owned attempts.
+-  interface with a console provider; test-only OTP endpoint; zod validation and consistent error codes.
+
+**Test results** (2026-11-02)
+| Command | Result |
+|---|---|
+|  | pass |
+|  | pass |
+| Unknown command: "test"
+
+
+Did you mean this?
+  npm test # Test a package
+To see a list of supported npm commands, run:
+  npm help | 94 pass (92 API: 39 unit + 53 integration; 2 shared) |
+|  | 12 pass (6 specs × desktop-1440 and phone-390) |
+
+A real bug was caught by the tests: OTP  used the DB clock while cooldown/expiry used the app clock; it now uses the app clock.
+
+**Screenshots:** none — still no UI.
+
+**Known gaps**
+- No per-IP rate limiting yet (Phase 8). Admin OTP sign-in is Phase 7.
+- No React app yet, so the sign-up screens (S1, S1m, S2m, C1) are not built.
+
 ## Phase 1 — Foundation ✅ (backend)
 
 **Built**
