@@ -1,0 +1,33 @@
+# Netcup runs ONE jobprep replica; Contabo runs two (deploy/contabo). Same model as lesson-genius-tools and
+# isomo: while Netcup redeploys, the gateway sends everything to Contabo, so users never see a gap.
+#
+# CI runs this from the repo checkout (deploy/netcup), so the file is versioned with the code. Secrets are NOT
+# here: they live in /opt/jobprep/.env on the box (owned by the runner user, mode 0600) -- see docs/DEPLOY.md.
+services:
+  jobprep-1:
+    image: jobprep:v1
+    container_name: netcup-jobprep-1
+    restart: unless-stopped
+    mem_limit: 1g
+    # server.ts closes the listener and disconnects Prisma on SIGTERM; this leaves room for in-flight requests.
+    stop_grace_period: 20s
+    networks:
+      - netcup-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:18300:4000"
+    env_file: /opt/jobprep/.env
+    environment:
+      NODE_ENV: production
+      WEB_ORIGIN: "https://jobprep.nexvecta.com"
+      PUBLIC_API_URL: "https://jobprep.nexvecta.com"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  netcup-net:
+    external: true

@@ -1,0 +1,54 @@
+name: Deploy JobPrep
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Two deploys must never overlap: each one drains a box, and draining both at once would be an outage.
+concurrency:
+  group: deploy-jobprep
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - run: npm run typecheck
+      - run: npm run lint
+
+  # Sequential by design (same as the other apps): Netcup first, then Contabo. Netcup's single replica is taken
+  # out of the gateway while it restarts, so Contabo's two replicas serve; Contabo then rolls one replica at a time.
+  deploy-netcup:
+    needs: check
+    runs-on: [self-hosted, netcup]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t jobprep:v1 .
+      - name: Migrate database
+        # Once per deploy, BEFORE any replica changes, over a direct connection (PgBouncer's transaction mode
+        # cannot hold the advisory lock `migrate deploy` takes). Migrations must stay backward-compatible with the
+        # version still serving during the roll: add first, remove in a later release.
+        run: >
+          docker run --rm --add-host host.docker.internal:host-gateway
+          --env-file /opt/jobprep/migrate.env jobprep:v1 npx prisma migrate deploy
+      - name: Deploy (drains Netcup, Contabo serves)
+        run: /opt/cross-box-deploy.sh "$PWD/deploy/netcup" jobprep-1 http://localhost:18300/api/health
+
+  deploy-contabo:
+    needs: deploy-netcup
+    runs-on: [self-hosted, contabo]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t jobprep:v1 .
+      - name: Rolling deploy (one replica at a time)
+        run: /opt/rolling-deploy.sh "$PWD/deploy/contabo" jobprep http://localhost:18300/api/health http://localhost:18301/api/health

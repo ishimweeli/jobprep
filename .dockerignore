@@ -1,0 +1,14 @@
+**/node_modules
+.git
+.github
+.env
+.env.*
+!.env.example
+.playwright-mcp
+playwright-report
+test-results
+e2e
+docs
+deploy
+apps/web/dist
+**/*.log

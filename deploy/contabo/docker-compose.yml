@@ -1,0 +1,50 @@
+# Contabo runs TWO jobprep replicas and takes most of the traffic (gateway weight 5 each vs Netcup's 1).
+# rolling-deploy.sh updates them one at a time, health-gated, so there is always a live one.
+#
+# Contabo holds no data: the app reaches Postgres through this box's own PgBouncer, which reaches Netcup's
+# Postgres over the WireGuard tunnel. Secrets live in /opt/jobprep/.env on the box -- see docs/DEPLOY.md.
+services:
+  jobprep-1:
+    image: jobprep:v1
+    container_name: contabo-jobprep-1
+    restart: unless-stopped
+    mem_limit: 1g
+    stop_grace_period: 20s
+    networks:
+      - contabo-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:18300:4000"
+      - "10.10.10.2:18300:4000"
+    env_file: /opt/jobprep/.env
+    environment: &jobprep-env
+      NODE_ENV: production
+      WEB_ORIGIN: "https://jobprep.nexvecta.com"
+      PUBLIC_API_URL: "https://jobprep.nexvecta.com"
+    logging: &default-logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  jobprep-2:
+    image: jobprep:v1
+    container_name: contabo-jobprep-2
+    restart: unless-stopped
+    mem_limit: 1g
+    stop_grace_period: 20s
+    networks:
+      - contabo-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:18301:4000"
+      - "10.10.10.2:18301:4000"
+    env_file: /opt/jobprep/.env
+    environment: *jobprep-env
+    logging: *default-logging
+
+networks:
+  contabo-net:
+    external: true
