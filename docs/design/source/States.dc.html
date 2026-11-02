@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — States and components</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh">
+<main style="max-width: 1280px; margin: 0 auto; padding: 40px 24px 56px; display: flex; flex-direction: column; gap: 28px">
+  <h1 style="margin: 0; font-size: 30px; letter-spacing: -0.02em">States and core components</h1>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 18px">
+    <section aria-labelledby="s1" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="s1" style="margin: 0; font-size: 13px; font-weight: 700; color: #52525B">LOADING · catalog</h2>
+      <sc-for list="{{skeletons}}" as="k" hint-placeholder-count="3">
+        <div aria-hidden="true" style="border: 1px solid #E4E4E7; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+          <span style="width: 40%; height: 12px; border-radius: 6px; background: #F4F4F5"></span>
+          <span style="width: 85%; height: 16px; border-radius: 6px; background: #E4E4E7"></span>
+          <span style="width: 60%; height: 12px; border-radius: 6px; background: #F4F4F5"></span>
+        </div>
+      </sc-for>
+      <p role="status" style="margin: 0; font-size: 14px; color: #52525B">Loading mock tests…</p>
+    </section>
+
+    <section aria-labelledby="s2" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="s2" style="margin: 0; font-size: 13px; font-weight: 700; color: #52525B">EMPTY · no matching exam</h2>
+      <div style="border: 1px dashed #A1A1AA; border-radius: 14px; padding: 28px 18px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center">
+        <p style="margin: 0; font-weight: 700; font-size: 17px">No mock tests for “Veterinary officer” yet</p>
+        <p style="margin: 0; font-size: 15px; color: #3F3F46">Tell us you need it and we will text you when it is added.</p>
+        <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9">Request this exam</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="s3" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="s3" style="margin: 0; font-size: 13px; font-weight: 700; color: #52525B">ERROR · could not load</h2>
+      <div role="alert" style="border: 1px solid #FCA5A5; background: #FEF2F2; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+        <p style="margin: 0; font-weight: 700; font-size: 16px; color: #7F1D1D">We could not load the mock tests</p>
+        <p style="margin: 0; font-size: 15px; color: #7F1D1D">Check your internet connection and try again. Your saved progress is safe.</p>
+        <button type="button" style="align-self: flex-start; font: inherit; font-weight: 700; font-size: 15px; min-height: 44px; padding: 0 18px; border-radius: 12px; border: 0; background: #18181B; color: #FFFFFF">Try again</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="s4" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="s4" style="margin: 0; font-size: 13px; font-weight: 700; color: #52525B">RESUME · unfinished test after refresh</h2>
+      <div style="border: 1px solid #DDD6FE; background: #F5F3FF; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+        <p style="margin: 0; font-weight: 700; font-size: 16px">You have a test in progress</p>
+        <p style="margin: 0; font-size: 15px; color: #3F3F46">Secondary Mathematics — Mock 1 · 23 of 50 answered · 35:40 left</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <a href="Exam.dc.html" style="text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 18px; border-radius: 12px; background: #6D28D9; color: #FFFFFF">Resume</a>
+          <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B">Submit as it is</button>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="s5" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="s5" style="margin: 0; font-size: 13px; font-weight: 700; color: #52525B">PAYMENT · declined or timed out</h2>
+      <div role="alert" style="border: 1px solid #FCD34D; background: #FFFBEB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+        <p style="margin: 0; font-weight: 700; font-size: 16px; color: #78350F">Payment not completed</p>
+        <p style="margin: 0; font-size: 15px; color: #78350F">The MTN MoMo request expired before it was approved. You were not charged.</p>
+        <a href="Checkout.dc.html" style="align-self: flex-start; text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 18px; border-radius: 12px; background: #18181B; color: #FFFFFF">Try again</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="s6" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="s6" style="margin: 0; font-size: 13px; font-weight: 700; color: #52525B">ACCESS · free vs locked vs active</h2>
+      <sc-for list="{{access}}" as="a" hint-placeholder-count="3">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid #E4E4E7; border-radius: 12px; padding: 12px 14px">
+          <span style="font-size: 15px; font-weight: 600">{{a.title}}</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: {{a.bg}}; color: {{a.ink}}">{{a.label}}</span>
+        </div>
+      </sc-for>
+    </section>
+  </div>
+
+  <section aria-labelledby="cmp" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 16px">
+    <h2 id="cmp" style="margin: 0; font-size: 13px; font-weight: 700; color: #52525B">BUTTONS AND NAVIGATOR CELLS</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+      <button type="button" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 48px; padding: 0 22px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF">Primary</button>
+      <button type="button" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 48px; padding: 0 22px; border-radius: 12px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9">Secondary</button>
+      <button type="button" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 48px; padding: 0 22px; border-radius: 12px; border: 0; background: #18181B; color: #FFFFFF">Submit / final</button>
+      <button type="button" style="font: inherit; font-weight: 600; font-size: 16px; min-height: 48px; padding: 0 22px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B">Neutral</button>
+      <span style="width: 1px; height: 40px; background: #E4E4E7"></span>
+      <sc-for list="{{cells}}" as="c" hint-placeholder-count="4">
+        <span style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: #3F3F46">
+          <span style="width: 44px; height: 40px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; position: relative; border: {{c.border}}; background: {{c.bg}}; color: {{c.ink}}; box-shadow: {{c.ring}}">{{c.n}}</span>{{c.label}}
+        </span>
+      </sc-for>
+    </div>
+  </section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      skeletons: [1, 2, 3],
+      access: [
+        { title: 'Primary Teacher — General Mock 1', label: 'Free', bg: '#D1FAE5', ink: '#065F46' },
+        { title: 'Headteacher — Leadership Mock 2', label: 'Locked · Full Access', bg: '#F4F4F5', ink: '#3F3F46' },
+        { title: 'Accountant — Mock 3', label: 'Unlocked · 29 days left', bg: '#EDE9FE', ink: '#5B21B6' }
+      ],
+      cells: [
+        { n: 4, label: 'Answered', bg: '#6D28D9', ink: '#FFFFFF', border: '1px solid #6D28D9', ring: 'none' },
+        { n: 5, label: 'Not answered', bg: '#FFFFFF', ink: '#18181B', border: '1px solid #A1A1AA', ring: 'none' },
+        { n: 6, label: 'Flagged', bg: '#FEF3C7', ink: '#92400E', border: '1px solid #B45309', ring: 'none' },
+        { n: 7, label: 'Current', bg: '#FFFFFF', ink: '#18181B', border: '1px solid #A1A1AA', ring: '0 0 0 2px #FFFFFF, 0 0 0 4px #18181B' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

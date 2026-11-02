@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep Admin — Countries</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAFAFA}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch">
+
+<aside aria-label="Admin navigation" style="flex: 1 1 240px; max-width: 100%; background: #18181B; color: #FFFFFF; padding: 20px 14px; display: flex; flex-direction: column; gap: 20px">
+  <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    <span style="font-weight: 800; font-size: 18px">JobPrep</span>
+    <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #3F3F46; color: #E4E4E7">ADMIN</span>
+  </div>
+  <nav style="display: flex; flex-direction: column; gap: 4px">
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+      <a href="{{n.href}}" aria-current="{{n.current}}" style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600; background: {{n.bg}}; color: {{n.ink}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{n.icon}}"></path></svg>
+        <span style="flex: 1 1 auto">{{n.label}}</span>
+        <sc-if value="{{n.hasCount}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #F59E0B; color: #18181B">{{n.count}}</span></sc-if>
+      </a>
+    </sc-for>
+  </nav>
+  <div style="margin-top: auto; padding: 12px; border-top: 1px solid #3F3F46; display: flex; flex-direction: column; gap: 2px">
+    <span style="font-weight: 600; font-size: 14px">Jean Bosco N.</span>
+    <span style="font-size: 13px; color: #A1A1AA">System admin</span>
+  </div>
+</aside>
+
+<main style="flex: 999 1 640px; min-width: 0; padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 18px">
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.02em">Countries</h1>
+      <span style="font-size: 14px; color: #52525B">Each country has its own exams, price, currency, payment methods and languages. Candidates only see Live countries.</span>
+    </div>
+    <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #6D28D9; color: #FFFFFF">+ Add country</button>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+    <section aria-label="Country list" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{countries}}" as="c" hint-placeholder-count="4">
+        <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #18181B">
+          <span style="flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; background: #18181B; color: #FFFFFF; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
+          <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 16px">{{c.name}}</span><span style="font-size: 13px; color: #52525B">{{c.summary}}</span></span>
+          <span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{c.sBg}}; color: {{c.sInk}}">{{c.status}}</span>
+        </button>
+      </sc-for>
+    </section>
+
+    <section aria-labelledby="cn-t" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 18px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
+        <h2 id="cn-t" style="margin: 0; font-size: 21px">{{d.name}}</h2>
+        <span style="font-size: 13px; color: #52525B">{{d.url}}</span>
+      </div>
+
+      <sc-if value="{{d.hasChecklist}}" hint-placeholder-val="{{ false }}">
+        <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-weight: 700; font-size: 14px; color: #78350F">Before this country can go live</span>
+          <sc-for list="{{d.checklist}}" as="k" hint-placeholder-count="3">
+            <span style="font-size: 14px; color: #78350F; display: flex; gap: 8px"><span aria-hidden="true">{{k.mark}}</span>{{k.t}}</span>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 12px">
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Status<select style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"><option>{{d.status}}</option><option>Live</option><option>Preparing</option><option>Planned</option></select></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Currency<input type="text" value="{{d.cur}}" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Full Access price<input type="text" value="{{d.price}}" placeholder="Set price" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Access days<input type="number" value="30" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Phone prefix<input type="text" value="{{d.dial}}" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Default language<select style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"><option>{{d.lang1}}</option></select></label>
+      </div>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+        <legend style="font-weight: 700; font-size: 14px; padding: 0; margin-bottom: 8px">Payment methods</legend>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{d.pays}}" as="p" hint-placeholder-count="2">
+            <label style="display: flex; gap: 8px; align-items: center; border: 1px solid #D4D4D8; border-radius: 10px; padding: 10px 12px; font-size: 15px"><input type="checkbox" checked="{{p.on}}" style="width: 18px; height: 18px; accent-color: #6D28D9">{{p.n}}<span style="font-size: 12px; color: #52525B">{{p.state}}</span></label>
+          </sc-for>
+        </div>
+      </fieldset>
+
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+        <legend style="font-weight: 700; font-size: 14px; padding: 0; margin-bottom: 8px">Interface and question languages</legend>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{d.langs}}" as="l" hint-placeholder-count="2">
+            <span style="display: inline-flex; gap: 6px; align-items: center; border: 1px solid #D4D4D8; border-radius: 999px; padding: 8px 12px; font-size: 14px; font-weight: 600">{{l.n}}<span style="font-size: 12px; font-weight: 500; color: #52525B">{{l.done}}</span></span>
+          </sc-for>
+          <button type="button" style="font: inherit; font-weight: 600; font-size: 14px; min-height: 38px; padding: 0 12px; border-radius: 999px; border: 1px dashed #A1A1AA; background: #FFFFFF; color: #3F3F46">+ Language</button>
+        </div>
+      </fieldset>
+
+      <section aria-labelledby="cn-cat" style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline"><h3 id="cn-cat" style="margin: 0; font-size: 15px">Job categories</h3><button type="button" style="font: inherit; font-weight: 600; font-size: 14px; border: 0; background: transparent; color: #6D28D9; padding: 8px 0">Copy structure from Rwanda</button></div>
+        <sc-for list="{{d.cats}}" as="k" hint-placeholder-count="5">
+          <div style="display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid #F4F4F5; font-size: 14px"><span style="font-weight: 600">{{k.n}}</span><span style="color: #3F3F46">{{k.c}}</span></div>
+        </sc-for>
+      </section>
+
+      <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Independence notice shown in the footer and FAQ
+        <textarea rows="2" style="font: inherit; font-weight: 400; font-size: 15px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 10px 12px; color: #18181B">{{d.notice}}</textarea>
+      </label>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid #E4E4E7">
+        <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B">Preview as candidate</button>
+        <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #6D28D9; color: #FFFFFF">Save country</button>
+      </div>
+    </section>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 'KE' }; }
+  renderVals() {
+    var self = this, st = this.state || {};
+    var items = [
+      ['Overview', 'AdminOverview.dc.html', 'M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z'],
+      ['Users', 'AdminUsers.dc.html', 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9 M16 3.1a4 4 0 0 1 0 7.8'],
+      ['Exams & questions', 'AdminExams.dc.html', 'M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5'],
+      ['Payments', 'AdminPayments.dc.html', 'M3 6h18v13H3z M3 10h18'],
+      ['Countries', 'AdminCountries.dc.html', 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M2 12h20 M12 2a15 15 0 0 1 0 20 M12 2a15 15 0 0 0 0 20'],
+      ['Settings', 'AdminSettings.dc.html', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z']
+    ];
+    var nav = items.map(function (it, i) {
+      var on = i === 4;
+      return { label: it[0], href: it[1], icon: it[2], current: on ? 'page' : 'false', bg: on ? '#3F3F46' : 'transparent', ink: on ? '#FFFFFF' : '#D4D4D8', hasCount: i === 3, count: '3' };
+    });
+    var S = { Live: ['#D1FAE5', '#065F46'], Preparing: ['#FEF3C7', '#92400E'], Planned: ['#F4F4F5', '#3F3F46'] };
+    var data = [
+      { code: 'RW', name: 'Rwanda', status: 'Live', cur: 'RWF', price: '2,000', dial: '+250', url: 'jobprep.nexvecta.com/rw', lang1: 'English', summary: 'RWF 2,000 · 90 tests · 4,218 users',
+        pays: [{ n: 'MTN MoMo', on: true, state: 'live' }, { n: 'Airtel Money', on: true, state: 'live' }],
+        langs: [{ n: 'English', done: '100%' }, { n: 'Kinyarwanda', done: '64%' }],
+        cats: [{ n: 'Teaching positions', c: '38 tests' }, { n: 'School leadership', c: '9 tests' }, { n: 'Government administration', c: '14 tests' }, { n: 'Accounting & finance', c: '11 tests' }, { n: 'Procurement', c: '6 tests' }, { n: 'Other professional exams', c: '12 tests' }],
+        notice: 'Independent practice platform — not affiliated with MIFOTRA or REB.', checklist: [] },
+      { code: 'KE', name: 'Kenya', status: 'Preparing', cur: 'KES', price: '', dial: '+254', url: 'jobprep.nexvecta.com/ke', lang1: 'English', summary: 'Price not set · 24 tests in draft',
+        pays: [{ n: 'M-Pesa', on: true, state: 'sandbox' }, { n: 'Airtel Money', on: false, state: 'not connected' }],
+        langs: [{ n: 'English', done: '100%' }, { n: 'Kiswahili', done: '18%' }],
+        cats: [{ n: 'Teaching positions', c: '10 tests' }, { n: 'National public service', c: '5 tests' }, { n: 'County government', c: '3 tests' }, { n: 'Accounting & finance', c: '3 tests' }, { n: 'Procurement', c: '2 tests' }, { n: 'Other professional exams', c: '1 test' }],
+        notice: 'Independent practice platform — not affiliated with the TSC, the PSC or any county government.',
+        checklist: [{ mark: '✕', t: 'Set the Full Access price in KES' }, { mark: '✕', t: 'Move M-Pesa from sandbox to live' }, { mark: '✓', t: 'At least one free sample test in every category' }, { mark: '✕', t: 'Legal review of terms and refund policy for Kenya' }] },
+      { code: 'UG', name: 'Uganda', status: 'Planned', cur: 'UGX', price: '', dial: '+256', url: 'jobprep.nexvecta.com/ug', lang1: 'English', summary: 'No tests yet · 212 on waiting list',
+        pays: [{ n: 'MTN MoMo', on: false, state: 'not connected' }, { n: 'Airtel Money', on: false, state: 'not connected' }],
+        langs: [{ n: 'English', done: '100%' }], cats: [],
+        notice: 'Independent practice platform — not affiliated with any government recruitment body.',
+        checklist: [{ mark: '✕', t: 'Create job categories and free sample tests' }, { mark: '✕', t: 'Set the Full Access price in UGX' }, { mark: '✕', t: 'Connect a payment method' }] },
+      { code: 'TZ', name: 'Tanzania', status: 'Planned', cur: 'TZS', price: '', dial: '+255', url: 'jobprep.nexvecta.com/tz', lang1: 'Kiswahili', summary: 'No tests yet · 97 on waiting list',
+        pays: [{ n: 'M-Pesa', on: false, state: 'not connected' }, { n: 'Airtel Money', on: false, state: 'not connected' }],
+        langs: [{ n: 'Kiswahili', done: '100%' }, { n: 'English', done: '100%' }], cats: [],
+        notice: 'Independent practice platform — not affiliated with any government recruitment body.',
+        checklist: [{ mark: '✕', t: 'Create job categories and free sample tests' }, { mark: '✕', t: 'Set the Full Access price in TZS' }, { mark: '✕', t: 'Connect a payment method' }] }
+    ];
+    var sel = st.sel || 'KE';
+    var countries = data.map(function (c) {
+      var on = c.code === sel, s = S[c.status];
+      return { code: c.code, name: c.name, summary: c.summary, status: c.status, sBg: s[0], sInk: s[1], pressed: on ? 'true' : 'false',
+        border: on ? '2px solid #6D28D9' : '1px solid #E4E4E7', bg: on ? '#F5F3FF' : '#FFFFFF', pick: function () { self.setState({ sel: c.code }); } };
+    });
+    var d = data.filter(function (c) { return c.code === sel; })[0];
+    d = Object.assign({}, d, { hasChecklist: d.checklist.length > 0, cats: d.cats.length ? d.cats : [{ n: 'No categories yet', c: '' }] });
+    return { nav: nav, countries: countries, d: d };
+  }
+}
+</script>
+</body>
+</html>

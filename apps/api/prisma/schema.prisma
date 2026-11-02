@@ -427,8 +427,12 @@ model AttemptAnswer {
   /// Selected option keys. Empty = unanswered (a flag can exist without an answer).
   selected     String[]
   flagged      Boolean  @default(false)
-  /// Client-side sequence so out-of-order offline syncs never overwrite newer data.
-  clientSeq    Int      @default(0)
+  /// When the candidate made each change (client clock, clamped to the server's by the API).
+  /// Per field, so a late-arriving flag change never discards a newer answer and vice versa;
+  /// the latest change wins even across two devices or an offline queue replayed out of order.
+  selectedAt   DateTime?
+  flaggedAt    DateTime?
+  /// Server time of the last accepted write.
   savedAt      DateTime @default(now())
   isCorrect    Boolean?
   marksAwarded Decimal? @db.Decimal(5, 2)

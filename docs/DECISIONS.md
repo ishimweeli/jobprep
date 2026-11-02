@@ -48,6 +48,17 @@ Recorded so work can keep moving without blocking questions. Newest at the botto
 35. **Title sort is byte-order** (Postgres collation), so punctuation sorts differently from a browser's locale sort. Acceptable for English titles; revisit if Kinyarwanda titles need locale-aware ordering.
 36. **"Request this exam"** stores a row per request (no dedupe yet); the admin "requested 7 times" alert (Phase 7) will group by normalised query.
 
+## Phase 4 — Exam engine
+
+37. **Guests are identified by a secret `X-Guest-Token` header,** returned once when the attempt starts and kept by the web app in localStorage (`jobprep.guestTokens`, comma-joined in the header). Signed-in users are identified by their session. Anyone else, or a wrong token, gets 404 (not 403), so attempt ids can't be probed.
+38. **One running attempt per person per test:** `POST …/mock-tests/:slug/attempts` resumes it (200, `resumed:true`) instead of creating a second; an attempt that ran out while nobody looked is closed first and a fresh one starts.
+39. **Autosave is last-change-wins per field,** using the time the candidate made the change (client clock, clamped to never be in the future or before the attempt began). `selectedAt` and `flaggedAt` are stored separately so an old flag change never discards a newer answer. This makes the offline IndexedDB queue safe to replay out of order and in duplicate, and works across two devices. (Replaced the single `clientSeq` column by migration `attempt_answer_field_timestamps`.)
+40. **Per-change results** (`saved` / `stale` / `rejected` with a reason) let the client drop acknowledged items from its queue. A batch is one transaction with a row lock on the attempt, so parallel saves and a simultaneous submit are safe.
+41. **Late offline sync:** a change is accepted if the time it was made is no later than the deadline + 5 s grace, and the attempt is still running or was *auto*-submitted less than 10 minutes ago. Accepted late changes re-score the attempt and keep the original auto-submit time. This is how "go offline for 2 minutes, answers kept" and "Time is up … nothing you answered was lost" both hold. Trade-off: the client clock is trusted within those bounds. For a practice platform that is fine; a hostile client could back-date up to the deadline, not beyond.
+42. **A manual submit closes the attempt for good** (409 `attempt_closed`). Submitting after the deadline is recorded as an automatic submit stamped at the deadline.
+43. **Auto-submit happens three ways** so it never depends on the browser: lazily on any request that touches an expired attempt, on save/submit, and by a 30-second background sweeper in the server process (`sweepExpiredAttempts`). If the API is scaled to several instances they can all sweep; the row lock makes it safe.
+44. **The attempt state endpoint never returns correct answers or explanations** (asserted by tests); those arrive with the results/review endpoints after submission.
+
 ## Not yet decided / needs the owner
 - Real provider credentials (MTN MoMo, Airtel, M-Pesa) and callback secrets.
 - Real SMS gateway for OTP and receipts.

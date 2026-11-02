@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Answer review on phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
+  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 8px 16px 12px; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: center; gap: 4px">
+      <a href="ResultsPhone.dc.html" aria-label="Back to results" style="width: 44px; height: 44px; margin-left: -12px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #18181B; font-size: 20px">←</a>
+      <h1 style="margin: 0; font-size: 18px">Answer review</h1>
+    </div>
+    <div role="group" aria-label="Show" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="flex: 0 0 auto; font: inherit; font-weight: 600; font-size: 14px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: {{t.border}}; background: {{t.bg}}; color: {{t.ink}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+  </header>
+
+  <main style="flex: 1 1 auto; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
+      <span style="font-weight: 800; font-size: 16px">Question {{q.n}}</span>
+      <span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{q.badgeBg}}; color: {{q.badgeInk}}">{{q.badge}}</span>
+      <sc-if value="{{q.flagged}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #FEF3C7; color: #92400E">Flagged</span></sc-if>
+    </div>
+    <span style="font-size: 13px; color: #52525B; font-weight: 600">{{q.topic}}</span>
+    <p style="margin: 0; font-size: 18px; font-weight: 600; line-height: 1.5">{{q.text}}</p>
+    <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{q.opts}}" as="o" hint-placeholder-count="4">
+        <li style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 12px; border: {{o.border}}; background: {{o.bg}}">
+          <span style="display: flex; gap: 10px; align-items: center"><span style="flex: 0 0 auto; width: 26px; height: 26px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: #F4F4F5; color: #3F3F46">{{o.key}}</span><span style="font-size: 16px">{{o.text}}</span></span>
+          <sc-if value="{{o.isRight}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #065F46; padding-left: 36px">✓ Correct answer{{o.alsoYours}}</span></sc-if>
+          <sc-if value="{{o.isWrongPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #991B1B; padding-left: 36px">✕ Your answer</span></sc-if>
+        </li>
+      </sc-for>
+    </ul>
+    <div style="background: #F5F3FF; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 4px">
+      <span style="font-size: 13px; font-weight: 700; color: #5B21B6">Explanation</span>
+      <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #27272A">{{q.why}}</p>
+    </div>
+  </main>
+
+  <nav aria-label="Review navigation" style="flex: 0 0 auto; background: #FFFFFF; border-top: 1px solid #E4E4E7; padding: 10px 12px 14px; display: flex; gap: 8px; align-items: center">
+    <button type="button" onClick="{{prev}}" aria-label="Previous" style="font: inherit; width: 52px; height: 52px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; font-size: 20px">←</button>
+    <span style="flex: 1 1 auto; text-align: center; font-size: 14px; font-weight: 600; color: #3F3F46">{{position}}</span>
+    <button type="button" onClick="{{next}}" aria-label="Next" style="font: inherit; font-weight: 700; width: 84px; height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; font-size: 16px">Next</button>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'incorrect', i: 0 }; }
+  renderVals() {
+    var self = this, s = this.state, keys = ['A', 'B', 'C', 'D'];
+    var data = [
+      { n: 7, st: 'incorrect', flagged: true, topic: 'Statistics & probability', text: 'Two fair dice are rolled. What is the probability that the total is 7?', opts: ['1/6', '7/36', '1/12', '1/36'], right: 0, pick: 1,
+        why: 'There are 36 equally likely outcomes and six of them total 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). So P = 6/36 = 1/6.' },
+      { n: 12, st: 'correct', flagged: false, topic: 'Algebra & functions', text: 'Solve for x: 2x² − 5x − 3 = 0', opts: ['x = 3 or x = −½', 'x = −3 or x = ½', 'x = 3 or x = ½', 'x = −3 or x = −½'], right: 0, pick: 0,
+        why: 'Factorise: (2x + 1)(x − 3) = 0, so x = −½ or x = 3.' },
+      { n: 19, st: 'incorrect', flagged: false, topic: 'Pedagogy & CBC', text: 'Most learners answered a quiz question on fractions incorrectly. What is the most appropriate next step?', opts: ['Move on to the next unit', 'Give the same quiz again immediately', 'Reteach the idea in a different way and check understanding', 'Record the marks and report to the headteacher'], right: 2, pick: 1,
+        why: 'The quiz is formative assessment. When most learners miss an item, the teacher adjusts instruction — a new explanation or activity — and then checks understanding again.' },
+      { n: 24, st: 'unanswered', flagged: false, topic: 'Geometry & measurement', text: 'What is the size of each interior angle of a regular hexagon?', opts: ['108°', '120°', '135°', '60°'], right: 1, pick: -1,
+        why: 'Interior angles sum to (n − 2) × 180° = 720° for a hexagon. 720° ÷ 6 = 120°.' },
+      { n: 31, st: 'incorrect', flagged: false, topic: 'Statistics & probability', text: 'The median of 3, 8, 5, 12, 7 and 10 is…', opts: ['7', '7.5', '8', '7.5 and 8'], right: 1, pick: 0,
+        why: 'Order the data: 3, 5, 7, 8, 10, 12. With six values the median is the mean of the middle two: (7 + 8) ÷ 2 = 7.5.' }
+    ];
+    var list = data.filter(function (q) { return s.tab === 'all' ? true : (s.tab === 'flagged' ? q.flagged : q.st === s.tab); });
+    var i = Math.min(s.i, list.length - 1);
+    var badge = { correct: ['Correct', '#D1FAE5', '#065F46'], incorrect: ['Incorrect', '#FEE2E2', '#991B1B'], unanswered: ['Not answered', '#F4F4F5', '#3F3F46'] };
+    var raw = list[i], b = badge[raw.st];
+    var q = Object.assign({}, raw, { badge: b[0], badgeBg: b[1], badgeInk: b[2],
+      opts: raw.opts.map(function (t, k) {
+        var r = k === raw.right, p = k === raw.pick;
+        return { key: keys[k], text: t, isRight: r, isWrongPick: p && !r, alsoYours: r && p ? ' · your answer' : '',
+          border: r ? '2px solid #047857' : (p ? '2px solid #B91C1C' : '1px solid #E4E4E7'), bg: r ? '#ECFDF5' : (p ? '#FEF2F2' : '#FFFFFF') };
+      }) });
+    var names = { incorrect: 'incorrect', flagged: 'flagged', unanswered: 'unanswered', all: 'shown' };
+    var tabs = [['incorrect', 'Incorrect (11)'], ['flagged', 'Flagged (1)'], ['unanswered', 'Unanswered (3)'], ['all', 'All']].map(function (t) {
+      var on = s.tab === t[0];
+      return { label: t[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #18181B' : '1px solid #D4D4D8', bg: on ? '#18181B' : '#FFFFFF', ink: on ? '#FFFFFF' : '#18181B',
+        pick: function () { self.setState({ tab: t[0], i: 0 }); } };
+    });
+    return {
+      q: q, tabs: tabs,
+      position: (i + 1) + ' of ' + list.length + ' ' + names[s.tab],
+      prev: function () { self.setState({ i: Math.max(0, i - 1) }); },
+      next: function () { self.setState({ i: Math.min(list.length - 1, i + 1) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Mobile Money checkout</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
+  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 10px 8px; display: flex; align-items: center; gap: 4px">
+    <a href="ExamDetail.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #18181B; font-size: 20px">←</a>
+    <span style="font-weight: 700; font-size: 17px">Get Full Access</span>
+  </header>
+
+  <main style="flex: 1 1 auto; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px">
+    <section aria-label="Order summary" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; gap: 10px">
+        <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 16px">JobPrep Full Access</span><span style="font-size: 14px; color: #3F3F46">Every mock test, every category · 30 days</span></span>
+        <span style="font-weight: 800; font-size: 16px; white-space: nowrap">RWF 2,000</span>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #52525B; border-top: 1px solid #E4E4E7; padding-top: 10px">Access starts once payment is confirmed · until 1 Dec 2026</p>
+    </section>
+
+    <sc-if value="{{isForm}}" hint-placeholder-val="{{ true }}">
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+        <legend style="font-weight: 700; font-size: 16px; padding: 0; margin-bottom: 10px">Pay with</legend>
+        <sc-for list="{{providers}}" as="p" hint-placeholder-count="2">
+          <button type="button" onClick="{{p.pick}}" aria-pressed="{{p.pressed}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px 14px; border-radius: 14px; border: {{p.border}}; background: {{p.bg}}; color: #18181B">
+            <span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 9px; background: {{p.swatch}}"></span>
+            <span style="flex: 1 1 auto; display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 16px">{{p.name}}</span><span style="font-size: 13px; color: #52525B">{{p.hint}}</span></span>
+            <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid #52525B; display: inline-flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{p.dot}}"></span></span>
+          </button>
+        </sc-for>
+      </fieldset>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="msisdn" style="font-weight: 700; font-size: 16px">Mobile Money number</label>
+        <input id="msisdn" type="tel" inputmode="numeric" value="078 812 3456" style="height: 54px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 18px; letter-spacing: 0.02em; background: #FFFFFF; color: #18181B">
+        <span style="font-size: 13px; color: #52525B">You will approve on this phone with your PIN. We never ask for your PIN.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isPending}}" hint-placeholder-val="{{ false }}">
+      <section role="status" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px">
+        <span style="width: 64px; height: 64px; border-radius: 999px; background: #EDE9FE; display: inline-flex; align-items: center; justify-content: center">
+          <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#5B21B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"></rect><path d="M11 18h2"></path></svg>
+        </span>
+        <h1 style="margin: 0; font-size: 21px">Approve on your phone</h1>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3F3F46">A {{providerName}} prompt for <strong style="color: #18181B">RWF 2,000</strong> was sent to <strong style="color: #18181B">078 812 3456</strong>. Enter your PIN to confirm.</p>
+        <p style="margin: 0; font-size: 14px; color: #52525B">Waiting for confirmation…</p>
+        <a href="PayDone.dc.html" style="font-size: 14px; font-weight: 600">Simulate: payment confirmed</a>
+      </section>
+      <p style="margin: 0; font-size: 14px; color: #3F3F46; text-align: center">No prompt after a minute? <button type="button" style="font: inherit; font-weight: 600; color: #6D28D9; background: transparent; border: 0; padding: 8px 4px; cursor: pointer">Send again</button></p>
+    </sc-if>
+  </main>
+
+  <footer style="flex: 0 0 auto; background: #FFFFFF; border-top: 1px solid #E4E4E7; padding: 12px 16px 16px">
+    <sc-if value="{{isForm}}" hint-placeholder-val="{{ true }}">
+      <button type="button" onClick="{{pay}}" style="width: 100%; font: inherit; font-weight: 700; font-size: 17px; min-height: 56px; border-radius: 14px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer">Pay RWF 2,000</button>
+    </sc-if>
+    <sc-if value="{{isPending}}" hint-placeholder-val="{{ false }}">
+      <button type="button" onClick="{{back}}" style="width: 100%; font: inherit; font-weight: 600; font-size: 16px; min-height: 52px; border-radius: 14px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; cursor: pointer">Use a different number</button>
+    </sc-if>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 'form', provider: 'mtn' }; }
+  renderVals() {
+    var self = this, s = this.state;
+    var list = [
+      { id: 'mtn', name: 'MTN MoMo', hint: 'Numbers starting 078 or 079', swatch: '#FFCB05' },
+      { id: 'airtel', name: 'Airtel Money', hint: 'Numbers starting 072 or 073', swatch: '#E40000' }
+    ];
+    var providers = list.map(function (p) {
+      var on = s.provider === p.id;
+      return Object.assign({}, p, { pressed: on ? 'true' : 'false', border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF', dot: on ? '#6D28D9' : 'transparent',
+        pick: function () { self.setState({ provider: p.id }); } });
+    });
+    return {
+      providers: providers,
+      providerName: s.provider === 'mtn' ? 'MTN MoMo' : 'Airtel Money',
+      isForm: s.step === 'form', isPending: s.step === 'pending',
+      pay: function () { self.setState({ step: 'pending' }); },
+      back: function () { self.setState({ step: 'form' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

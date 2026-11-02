@@ -1,0 +1,438 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-01T21:20:00Z"
+ },
+ "title": "JobPrep — Mock Exam Platform",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 2700,
+   "title": "1 · Landing",
+   "expand": "fill"
+  },
+  "Catalog.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 1500,
+   "title": "2 · Exam discovery",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ExamDetail.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 1250,
+   "title": "3 · Exam details",
+   "expand": "fill"
+  },
+  "Exam.dc.html": {
+   "x": 4560,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "4 · Mock exam (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Results.dc.html": {
+   "x": 6080,
+   "y": 0,
+   "w": 1440,
+   "h": 1650,
+   "title": "5 · Results",
+   "expand": "fill"
+  },
+  "Review.dc.html": {
+   "x": 7600,
+   "y": 0,
+   "w": 1440,
+   "h": 1400,
+   "title": "6 · Answer review",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Dashboard.dc.html": {
+   "x": 9120,
+   "y": 0,
+   "w": 1440,
+   "h": 1450,
+   "title": "7 · Candidate dashboard",
+   "expand": "fill"
+  },
+  "Pricing.dc.html": {
+   "x": 10640,
+   "y": 0,
+   "w": 1440,
+   "h": 1350,
+   "title": "8 · Pricing",
+   "expand": "fill"
+  },
+  "ExamMobile.dc.html": {
+   "x": 4560,
+   "y": 3120,
+   "w": 390,
+   "h": 844,
+   "title": "4m · Mock exam (phone)",
+   "is_interactive": true
+  },
+  "TimeUp.dc.html": {
+   "x": 5030,
+   "y": 3120,
+   "w": 390,
+   "h": 844,
+   "title": "4m · Time up / reconnecting"
+  },
+  "Checkout.dc.html": {
+   "x": 11110,
+   "y": 3120,
+   "w": 390,
+   "h": 844,
+   "title": "8m · Mobile Money checkout",
+   "is_interactive": true
+  },
+  "PayDone.dc.html": {
+   "x": 11580,
+   "y": 3120,
+   "w": 390,
+   "h": 844,
+   "title": "8m · Payment confirmed"
+  },
+  "CaseExam.dc.html": {
+   "x": 0,
+   "y": 6040,
+   "w": 1440,
+   "h": 900,
+   "title": "4 · Case-based question (Accountant)",
+   "expand": "fill"
+  },
+  "States.dc.html": {
+   "x": 1990,
+   "y": 6040,
+   "w": 1440,
+   "h": 1000,
+   "title": "Components · empty, loading, error, offline",
+   "expand": "fill"
+  },
+  "MainPhone.dc.html": {
+   "x": 0,
+   "y": 3120,
+   "w": 390,
+   "h": 2500,
+   "title": "1m · Landing (phone)"
+  },
+  "CatalogPhone.dc.html": {
+   "x": 1520,
+   "y": 3120,
+   "w": 390,
+   "h": 844,
+   "title": "2m · Exam discovery (phone)",
+   "is_interactive": true
+  },
+  "ExamDetailPhone.dc.html": {
+   "x": 3040,
+   "y": 3120,
+   "w": 390,
+   "h": 1500,
+   "title": "3m · Exam details (phone)"
+  },
+  "ResultsPhone.dc.html": {
+   "x": 6080,
+   "y": 3120,
+   "w": 390,
+   "h": 1750,
+   "title": "5m · Results (phone)"
+  },
+  "ReviewPhone.dc.html": {
+   "x": 7600,
+   "y": 3120,
+   "w": 390,
+   "h": 844,
+   "title": "6m · Answer review (phone)",
+   "is_interactive": true
+  },
+  "DashboardPhone.dc.html": {
+   "x": 9120,
+   "y": 3120,
+   "w": 390,
+   "h": 1550,
+   "title": "7m · Dashboard (phone)"
+  },
+  "PricingPhone.dc.html": {
+   "x": 10640,
+   "y": 3120,
+   "w": 390,
+   "h": 1650,
+   "title": "8m · Pricing (phone)"
+  },
+  "CaseExamPhone.dc.html": {
+   "x": 1520,
+   "y": 6040,
+   "w": 390,
+   "h": 844,
+   "title": "4m · Case-based question (phone)",
+   "is_interactive": true
+  },
+  "AdminOverview.dc.html": {
+   "x": 0,
+   "y": 7460,
+   "w": 1440,
+   "h": 1250,
+   "title": "A1 · Admin overview",
+   "expand": "fill"
+  },
+  "AdminUsers.dc.html": {
+   "x": 1520,
+   "y": 7460,
+   "w": 1440,
+   "h": 1150,
+   "title": "A2 · Users and user detail",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AdminExams.dc.html": {
+   "x": 3040,
+   "y": 7460,
+   "w": 1440,
+   "h": 1250,
+   "title": "A3 · Exams and question editor",
+   "expand": "fill"
+  },
+  "AdminPayments.dc.html": {
+   "x": 4560,
+   "y": 7460,
+   "w": 1440,
+   "h": 1100,
+   "title": "A4 · Payments",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AdminSettings.dc.html": {
+   "x": 6080,
+   "y": 7460,
+   "w": 1440,
+   "h": 1100,
+   "title": "A5 · Pricing and settings",
+   "expand": "fill"
+  },
+  "AdminOverviewPhone.dc.html": {
+   "x": 0,
+   "y": 9180,
+   "w": 390,
+   "h": 1500,
+   "title": "A1m · Overview (phone)"
+  },
+  "AdminUsersPhone.dc.html": {
+   "x": 1520,
+   "y": 9180,
+   "w": 390,
+   "h": 844,
+   "title": "A2m · Users (phone)",
+   "is_interactive": true
+  },
+  "AdminUserPhone.dc.html": {
+   "x": 1990,
+   "y": 9180,
+   "w": 390,
+   "h": 1450,
+   "title": "A2m · User detail (phone)"
+  },
+  "AdminExamsPhone.dc.html": {
+   "x": 3040,
+   "y": 9180,
+   "w": 390,
+   "h": 1500,
+   "title": "A3m · Question editor (phone)"
+  },
+  "AdminPaymentsPhone.dc.html": {
+   "x": 4560,
+   "y": 9180,
+   "w": 390,
+   "h": 844,
+   "title": "A4m · Payments (phone)",
+   "is_interactive": true
+  },
+  "AdminSettingsPhone.dc.html": {
+   "x": 6080,
+   "y": 9180,
+   "w": 390,
+   "h": 1300,
+   "title": "A5m · Settings (phone)"
+  },
+  "CountryPicker.dc.html": {
+   "x": 0,
+   "y": 11100,
+   "w": 1440,
+   "h": 900,
+   "title": "C1 · Choose country (desktop)",
+   "expand": "fill"
+  },
+  "CountryPickerPhone.dc.html": {
+   "x": 1520,
+   "y": 11100,
+   "w": 390,
+   "h": 844,
+   "title": "C1m · Choose country (phone)",
+   "is_interactive": true
+  },
+  "MainKenyaPhone.dc.html": {
+   "x": 1990,
+   "y": 11100,
+   "w": 390,
+   "h": 1700,
+   "title": "C2m · Kenya landing (phone)"
+  },
+  "CheckoutKenyaPhone.dc.html": {
+   "x": 2460,
+   "y": 11100,
+   "w": 390,
+   "h": 844,
+   "title": "C3m · M-Pesa checkout (phone)"
+  },
+  "AdminCountries.dc.html": {
+   "x": 3040,
+   "y": 11100,
+   "w": 1440,
+   "h": 1200,
+   "title": "C4 · Admin: countries",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AdminCountriesPhone.dc.html": {
+   "x": 4560,
+   "y": 11100,
+   "w": 390,
+   "h": 1400,
+   "title": "C4m · Admin: countries (phone)"
+  },
+  "SignUp.dc.html": {
+   "x": 0,
+   "y": 13220,
+   "w": 1440,
+   "h": 900,
+   "title": "S1 · Sign up — country first (desktop)",
+   "is_interactive": true,
+   "expand": "fill"
+  },
+  "SignUpPhone.dc.html": {
+   "x": 1520,
+   "y": 13220,
+   "w": 390,
+   "h": 844,
+   "title": "S1m · Sign up — country first (phone)",
+   "is_interactive": true
+  },
+  "ChangeCountryPhone.dc.html": {
+   "x": 1990,
+   "y": 13220,
+   "w": 390,
+   "h": 844,
+   "title": "S2m · Changing country later (phone)"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Catalog.dc.html",
+  "ExamDetail.dc.html",
+  "Exam.dc.html",
+  "Results.dc.html",
+  "Review.dc.html",
+  "Dashboard.dc.html",
+  "Pricing.dc.html",
+  "MainPhone.dc.html",
+  "CatalogPhone.dc.html",
+  "ExamDetailPhone.dc.html",
+  "ExamMobile.dc.html",
+  "TimeUp.dc.html",
+  "ResultsPhone.dc.html",
+  "ReviewPhone.dc.html",
+  "DashboardPhone.dc.html",
+  "PricingPhone.dc.html",
+  "Checkout.dc.html",
+  "PayDone.dc.html",
+  "CaseExam.dc.html",
+  "CaseExamPhone.dc.html",
+  "States.dc.html",
+  "AdminOverview.dc.html",
+  "AdminUsers.dc.html",
+  "AdminExams.dc.html",
+  "AdminPayments.dc.html",
+  "AdminSettings.dc.html",
+  "AdminOverviewPhone.dc.html",
+  "AdminUsersPhone.dc.html",
+  "AdminUserPhone.dc.html",
+  "AdminExamsPhone.dc.html",
+  "AdminPaymentsPhone.dc.html",
+  "AdminSettingsPhone.dc.html",
+  "CountryPicker.dc.html",
+  "CountryPickerPhone.dc.html",
+  "MainKenyaPhone.dc.html",
+  "CheckoutKenyaPhone.dc.html",
+  "AdminCountries.dc.html",
+  "AdminCountriesPhone.dc.html",
+  "SignUp.dc.html",
+  "SignUpPhone.dc.html",
+  "ChangeCountryPhone.dc.html"
+ ],
+ "notes": {
+  "row1": {
+   "x": 0,
+   "y": -300,
+   "text": "Desktop journey — find → take → review → improve",
+   "kind": "title1",
+   "maxW": 12080
+  },
+  "row2": {
+   "x": 0,
+   "y": 2820,
+   "text": "Phone view of every screen",
+   "kind": "title1",
+   "maxW": 11970
+  },
+  "row3": {
+   "x": 0,
+   "y": 5740,
+   "text": "Case-based questions and system states",
+   "kind": "title1",
+   "maxW": 3430
+  },
+  "row4": {
+   "x": 0,
+   "y": 7160,
+   "text": "System admin — desktop",
+   "kind": "title1",
+   "maxW": 7520
+  },
+  "row5": {
+   "x": 0,
+   "y": 8880,
+   "text": "System admin — phone",
+   "kind": "title1",
+   "maxW": 6470
+  },
+  "row6": {
+   "x": 0,
+   "y": 10800,
+   "text": "Multiple countries — localised exams, currency, payments, language",
+   "kind": "title1",
+   "maxW": 4950
+  },
+  "row7": {
+   "x": 0,
+   "y": 12920,
+   "text": "Sign up — the country chosen here scopes everything the candidate sees",
+   "kind": "title1",
+   "maxW": 2380
+  }
+ },
+ "designSystems": []
+}

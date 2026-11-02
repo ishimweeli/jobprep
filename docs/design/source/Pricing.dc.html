@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Pricing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh">
+
+<header style="border-bottom: 1px solid #E4E4E7; background: #FFFFFF">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #18181B; font-weight: 800; font-size: 20px; letter-spacing: -0.02em">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      JobPrep
+    </a>
+    <nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px 22px; flex: 1 1 auto; font-size: 15px; font-weight: 500">
+      <a href="Catalog.dc.html" style="color: #3F3F46; text-decoration: none; padding: 10px 0">Mock tests</a>
+      <a href="Pricing.dc.html" aria-current="page" style="color: #18181B; font-weight: 700; text-decoration: none; padding: 10px 0; border-bottom: 2px solid #6D28D9">Pricing</a>
+      <a href="Dashboard.dc.html" style="color: #3F3F46; text-decoration: none; padding: 10px 0">My progress</a>
+    </nav>
+    <a href="Dashboard.dc.html" style="color: #18181B; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 14px">Sign in</a>
+  </div>
+</header>
+
+<main style="max-width: 1040px; margin: 0 auto; padding: 48px 24px 72px; display: flex; flex-direction: column; gap: 32px">
+  <div style="text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center">
+    <h1 style="margin: 0; font-size: 40px; letter-spacing: -0.025em">One price. Every mock test.</h1>
+    <p style="margin: 0; font-size: 18px; color: #3F3F46; max-width: 36em">Try free sample tests first. When you are ready, one payment unlocks everything for 30 days.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; align-items: stretch">
+    <section aria-labelledby="p-free" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+      <h2 id="p-free" style="margin: 0; font-size: 18px">Free samples</h2>
+      <p style="margin: 0; font-size: 40px; font-weight: 800; letter-spacing: -0.02em">RWF 0</p>
+      <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 16px; color: #3F3F46">
+        <sc-for list="{{freeList}}" as="f" hint-placeholder-count="4">
+          <li style="display: flex; gap: 10px"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#047857" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{f}}</li>
+        </sc-for>
+      </ul>
+      <a href="Catalog.dc.html" style="margin-top: auto; text-align: center; text-decoration: none; border: 1px solid #6D28D9; color: #6D28D9; font-weight: 700; font-size: 16px; padding: 14px; border-radius: 12px">Find a free test</a>
+    </section>
+
+    <section aria-labelledby="p-pack" style="background: #FFFFFF; border: 2px solid #6D28D9; border-radius: 20px; padding: 27px; display: flex; flex-direction: column; gap: 16px; position: relative">
+      <h2 id="p-pack" style="margin: 0; font-size: 18px">Full Access · 30 days</h2>
+      <p style="margin: 0; display: flex; align-items: baseline; gap: 8px"><span style="font-size: 40px; font-weight: 800; letter-spacing: -0.02em">RWF 2,000</span><span style="font-size: 15px; color: #52525B">paid once</span></p>
+      <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 16px; color: #3F3F46">
+        <sc-for list="{{packList}}" as="f" hint-placeholder-count="5">
+          <li style="display: flex; gap: 10px"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#6D28D9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{f}}</li>
+        </sc-for>
+      </ul>
+      <a href="Checkout.dc.html" style="margin-top: auto; text-align: center; text-decoration: none; background: #6D28D9; color: #FFFFFF; font-weight: 700; font-size: 16px; padding: 15px; border-radius: 12px">Continue to payment</a>
+      <p style="margin: 0; font-size: 13px; color: #52525B; text-align: center">Access ends automatically. No subscription, nothing renews.</p>
+    </section>
+  </div>
+
+  <section aria-labelledby="pay" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 20px; padding: 24px 28px; display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center">
+    <h2 id="pay" style="margin: 0; font-size: 18px; flex: 1 1 240px">Pay with Mobile Money</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px">
+      <span style="display: inline-flex; align-items: center; gap: 10px; border: 1px solid #E4E4E7; border-radius: 12px; padding: 10px 14px; font-weight: 700"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 8px; background: #FFCB05"></span>MTN MoMo</span>
+      <span style="display: inline-flex; align-items: center; gap: 10px; border: 1px solid #E4E4E7; border-radius: 12px; padding: 10px 14px; font-weight: 700"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 8px; background: #E40000"></span>Airtel Money</span>
+    </div>
+    <p style="margin: 0; flex: 1 1 100%; font-size: 15px; color: #3F3F46">You approve the payment on your phone with your Mobile Money PIN. JobPrep never asks for your PIN.</p>
+  </section>
+
+  <section aria-labelledby="faq" style="display: flex; flex-direction: column; gap: 10px">
+    <h2 id="faq" style="margin: 0 0 6px; font-size: 22px">Questions</h2>
+    <sc-for list="{{faq}}" as="q" hint-placeholder-count="4">
+      <details style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 16px 18px">
+        <summary style="font-weight: 600; font-size: 16px; cursor: pointer">{{q.q}}</summary>
+        <p style="margin: 10px 0 0; font-size: 15px; color: #3F3F46; line-height: 1.6">{{q.a}}</p>
+      </details>
+    </sc-for>
+  </section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1350}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      freeList: ['At least one sample test for every position', 'Full timer and question navigator', 'Score and answer explanations', 'No account needed to start'],
+      packList: ['Every mock test in every job category', 'Unlimited attempts for 30 days', 'Explanations for every question', 'Weak-topic practice sets', 'Score history across attempts'],
+      faq: [
+        { q: 'When does my access start?', a: 'Immediately after your Mobile Money payment is confirmed. The 30 days are counted from that moment.' },
+        { q: 'Can I prepare for more than one position?', a: 'Yes. Full Access covers every mock test on JobPrep, so one payment lets you practise for several positions.' },
+        { q: 'Are these the real examination questions?', a: 'No. JobPrep writes original practice questions on the topics recruitment exams cover. We are not affiliated with MIFOTRA or REB.' },
+        { q: 'My payment went through but I have no access.', a: 'Open My progress and tap “Check payment”. If it still shows pending after 10 minutes, contact support on [SUPPORT NUMBER] with your transaction ID.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

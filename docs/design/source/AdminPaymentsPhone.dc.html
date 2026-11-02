@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep Admin — Payments on phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
+  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 8px 16px 10px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 10px; min-height: 44px">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <h1 style="margin: 0; font-size: 19px; flex: 1 1 auto">Payments</h1>
+      <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #18181B; color: #FFFFFF">ADMIN</span>
+    </div>
+    <div role="group" aria-label="Status" style="display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px">
+      <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+        <button type="button" onClick="{{f.pick}}" aria-pressed="{{f.pressed}}" style="flex: 0 0 auto; font: inherit; font-size: 14px; font-weight: 600; min-height: 40px; padding: 0 14px; border-radius: 999px; border: {{f.border}}; background: {{f.bg}}; color: {{f.ink}}">{{f.label}}</button>
+      </sc-for>
+    </div>
+  </header>
+  <main style="flex: 1 1 auto; overflow-y: auto; padding: 14px 16px 20px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 12px; padding: 12px"><span style="display: block; font-size: 12px; color: #52525B; font-weight: 600">Paid today</span><span style="font-size: 20px; font-weight: 800">RWF 78,000</span></div>
+      <div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 12px; padding: 12px"><span style="display: block; font-size: 12px; color: #52525B; font-weight: 600">Pending now</span><span style="font-size: 20px; font-weight: 800">3</span></div>
+    </div>
+    <sc-for list="{{rows}}" as="p" hint-placeholder-count="6">
+      <article style="background: {{p.cardBg}}; border: 1px solid {{p.line}}; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; gap: 10px; align-items: flex-start">
+          <span style="display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 15px">{{p.who}}</span><span style="font-size: 13px; color: #52525B">{{p.phone}} · {{p.prov}}</span></span>
+          <span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{p.bg}}; color: {{p.ink}}">{{p.status}}</span>
+        </div>
+        <span style="font-size: 13px; color: #3F3F46">RWF 2,000 · {{p.time}} · {{p.note}}</span>
+        <sc-if value="{{p.hasAction}}" hint-placeholder-val="{{ false }}"><button type="button" style="font: inherit; font-weight: 700; font-size: 15px; min-height: 44px; border-radius: 10px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9">{{p.action}}</button></sc-if>
+      </article>
+    </sc-for>
+  </main>
+  <nav aria-label="Admin" style="flex: 0 0 auto; position: sticky; bottom: 0; background: #FFFFFF; border-top: 1px solid #E4E4E7; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 4px 2px 8px">
+    <a href="AdminOverviewPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z"></path></svg>Overview</a>
+    <a href="AdminUsersPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9"></path></svg>Users</a>
+    <a href="AdminExamsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5"></path></svg>Exams</a>
+    <a href="AdminPaymentsPhone.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #6D28D9; font-size: 11px; font-weight: 700; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v13H3z M3 10h18"></path></svg>Payments</a>
+    <a href="AdminSettingsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4.2 4.2l2.1 2.1 M17.7 17.7l2.1 2.1 M2 12h3 M19 12h3 M4.2 19.8l2.1-2.1 M17.7 6.3l2.1-2.1"></path></svg>Settings</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'all' }; }
+  renderVals() {
+    var self = this, st = this.state || {};
+    var S = { paid: ['Paid', '#D1FAE5', '#065F46'], pending: ['Pending', '#FEF3C7', '#92400E'], failed: ['Failed', '#FEE2E2', '#991B1B'] };
+    var all = [
+      { time: '21:12', who: 'Aline Uwase', phone: '078 812 3456', prov: 'MTN MoMo', s: 'paid', note: 'access until 1 Dec' },
+      { time: '21:05', who: 'Eric Habimana', phone: '073 455 2190', prov: 'Airtel Money', s: 'pending', note: 'waiting 9 min', action: 'Check status' },
+      { time: '20:47', who: 'Olivier Kayitare', phone: '078 677 2014', prov: 'MTN MoMo', s: 'pending', note: 'waiting 24 min', action: 'Grant access manually', stuck: true },
+      { time: '20:41', who: 'Patrick Nshimiye', phone: '078 990 1203', prov: 'MTN MoMo', s: 'failed', note: 'declined by user' },
+      { time: '20:37', who: 'Claudine Ingabire', phone: '078 544 8810', prov: 'MTN MoMo', s: 'paid', note: 'access until 1 Dec' },
+      { time: '20:30', who: 'Yvonne Uwera', phone: '072 309 4471', prov: 'Airtel Money', s: 'pending', note: 'waiting 13 min', action: 'Check status', stuck: true }
+    ];
+    var f = st.f || 'all';
+    var rows = all.filter(function (p) { return f === 'all' || p.s === f; }).map(function (p) {
+      var x = S[p.s];
+      return Object.assign({}, p, { status: x[0], bg: x[1], ink: x[2], hasAction: !!p.action, cardBg: p.stuck ? '#FFFBEB' : '#FFFFFF', line: p.stuck ? '#FCD34D' : '#E4E4E7' });
+    });
+    var filters = [['all', 'All'], ['pending', 'Pending (3)'], ['paid', 'Paid'], ['failed', 'Failed']].map(function (x) {
+      var on = f === x[0];
+      return { label: x[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #18181B' : '1px solid #D4D4D8', bg: on ? '#18181B' : '#FFFFFF', ink: on ? '#FFFFFF' : '#18181B',
+        pick: function () { self.setState({ f: x[0] }); } };
+    });
+    return { rows: rows, filters: filters };
+  }
+}
+</script>
+</body>
+</html>

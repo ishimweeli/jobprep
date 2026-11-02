@@ -1,5 +1,25 @@
 # Progress
 
+## Phase 4 — Exam engine ✅ (backend; the exam UI is in the frontend track)
+
+**Built** (`apps/api/src/services/attempts.ts`, `routes/attempts.ts`)
+- `POST /api/countries/:code/mock-tests/:slug/attempts` start or resume (free for guests; paid needs a same-country grant → 401 `sign_in_required` / 402 `full_access_required`).
+- `GET /api/attempts/:id` full exam state (questions without answers, case passages and tables, saved answers and flags, server timer); `GET …/timer` clock resync; `GET /api/attempts/in-progress` resume prompt data.
+- `PUT /api/attempts/:id/answers` autosave batches (≤100) with per-change results; `POST …/submit` (optionally flushing last changes), idempotent.
+- Server-authoritative timer, auto-submit at time-up (lazy + sweeper), late offline sync with re-scoring, per-topic breakdown stored on submit, negative marking only when configured, multiple-select partial credit, case-based questions.
+
+**Test results** (2026-11-02)
+| Command | Result |
+|---|---|
+| `npm run typecheck -w @jobprep/api` | pass |
+| `npm run lint -w @jobprep/api` | pass |
+| `npm test -w @jobprep/api` | 171 pass (39 unit + 132 integration; 38 are the new engine tests) |
+| `npx playwright test` (API specs) | 32 pass, both viewports, against the real server |
+
+Engine tests cover: guest/paid/expired-grant/wrong-country/draft start rules, resume, ownership (404s), per-field last-wins and out-of-order replay, future/invalid timestamps, validation, 8 parallel saves, timer on the server clock, time-up auto-submit, the sweeper, grace window, offline sync after time-up (kept, re-scored, bounded), manual-submit lockout, scoring incl. partial credit and negative marking, simultaneous submits, case-based exams, another-device resume, guest → account.
+
+**Not yet verified in a browser:** refresh mid-exam, offline mode for 2 minutes, and timer expiry through the real UI (IndexedDB queue, "N answers waiting to save"). Those need the exam screens (frontend track).
+
 ## Phase 3 — Discovery ✅ (backend)
 
 **Built**

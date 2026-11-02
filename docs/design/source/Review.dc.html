@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Answer review</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh">
+
+<header style="border-bottom: 1px solid #E4E4E7; background: #FFFFFF">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+    <a href="Results.dc.html" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; text-decoration: none; padding: 10px 0">← Back to results</a>
+    <span style="flex: 1 1 auto; font-weight: 700; font-size: 16px">Answer review · Secondary Mathematics (S1–S3) — Mock 1</span>
+    <a href="Exam.dc.html" style="text-decoration: none; background: #6D28D9; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 11px 16px; border-radius: 12px">Practise weak areas</a>
+  </div>
+</header>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+  <aside aria-label="Jump to a question" style="flex: 1 1 280px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+    <h2 style="margin: 0; font-size: 17px">All 50 questions</h2>
+    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+      <sc-for list="{{grid}}" as="g" hint-placeholder-count="50">
+        <a href="#rq{{g.n}}" aria-label="{{g.aria}}" style="height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 700; border: {{g.border}}; background: {{g.bg}}; color: {{g.ink}}">{{g.mark}}</a>
+      </sc-for>
+    </div>
+    <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #3F3F46">
+      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #D1FAE5; border: 1px solid #047857"></span>Correct (36)</li>
+      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FEE2E2; border: 1px solid #B91C1C"></span>Incorrect, marked ✕ (11)</li>
+      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FFFFFF; border: 1px dashed #52525B"></span>Unanswered, marked – (3)</li>
+    </ul>
+  </aside>
+
+  <main style="flex: 999 1 600px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+    <div role="group" aria-label="Show" style="display: flex; flex-wrap: wrap; gap: 8px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 16px; border-radius: 999px; cursor: pointer; border: {{t.border}}; background: {{t.bg}}; color: {{t.ink}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <sc-for list="{{items}}" as="q" hint-placeholder-count="3">
+      <article id="rq{{q.n}}" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+          <span style="font-weight: 800; font-size: 16px">Question {{q.n}}</span>
+          <span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: {{q.badgeBg}}; color: {{q.badgeInk}}">{{q.badge}}</span>
+          <sc-if value="{{q.flagged}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #FEF3C7; color: #92400E">Flagged</span></sc-if>
+          <span style="margin-left: auto; font-size: 14px; color: #52525B">{{q.topic}}</span>
+        </div>
+        <p style="margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5">{{q.text}}</p>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
+          <sc-for list="{{q.opts}}" as="o" hint-placeholder-count="4">
+            <li style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 14px; border-radius: 12px; border: {{o.border}}; background: {{o.bg}}">
+              <span style="width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: #F4F4F5; color: #3F3F46">{{o.key}}</span>
+              <span style="flex: 1 1 200px; font-size: 16px">{{o.text}}</span>
+              <sc-if value="{{o.isRight}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #065F46">✓ Correct answer</span></sc-if>
+              <sc-if value="{{o.isWrongPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #991B1B">✕ Your answer</span></sc-if>
+              <sc-if value="{{o.isRightPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #065F46">· Your answer</span></sc-if>
+            </li>
+          </sc-for>
+        </ul>
+        <div style="background: #F5F3FF; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 14px; font-weight: 700; color: #5B21B6">Explanation</span>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #27272A">{{q.why}}</p>
+        </div>
+      </article>
+    </sc-for>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'incorrect' }; }
+  renderVals() {
+    var self = this, s = this.state, keys = ['A', 'B', 'C', 'D'];
+    var data = [
+      { n: 7, st: 'incorrect', flagged: true, topic: 'Statistics & probability', text: 'Two fair dice are rolled. What is the probability that the total is 7?', opts: ['1/6', '7/36', '1/12', '1/36'], right: 0, pick: 1,
+        why: 'There are 6 × 6 = 36 equally likely outcomes. Six of them total 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). So P = 6/36 = 1/6. 7/36 comes from counting the total itself, not the outcomes.' },
+      { n: 12, st: 'correct', flagged: false, topic: 'Algebra & functions', text: 'Solve for x: 2x² − 5x − 3 = 0', opts: ['x = 3 or x = −½', 'x = −3 or x = ½', 'x = 3 or x = ½', 'x = −3 or x = −½'], right: 0, pick: 0,
+        why: 'Factorise: 2x² − 5x − 3 = (2x + 1)(x − 3). Setting each factor to zero gives x = −½ or x = 3.' },
+      { n: 19, st: 'incorrect', flagged: false, topic: 'Pedagogy & CBC', text: 'Most learners answered a quiz question on fractions incorrectly. What is the most appropriate next step?', opts: ['Move on to the next unit to stay on schedule', 'Give the same quiz again immediately', 'Reteach the idea in a different way and check understanding', 'Record the marks and report to the headteacher'], right: 2, pick: 1,
+        why: 'The quiz is formative assessment: its purpose is to show whether learning happened. When most learners miss an item, the gap is in understanding, so the teacher adjusts instruction — a new explanation or activity — then checks again. Repeating the same quiz measures the same gap.' },
+      { n: 24, st: 'unanswered', flagged: false, topic: 'Geometry & measurement', text: 'What is the size of each interior angle of a regular hexagon?', opts: ['108°', '120°', '135°', '60°'], right: 1, pick: -1,
+        why: 'The interior angles of an n-sided polygon sum to (n − 2) × 180°. For a hexagon: 4 × 180° = 720°, and 720° ÷ 6 = 120°.' },
+      { n: 31, st: 'incorrect', flagged: false, topic: 'Statistics & probability', text: 'The median of 3, 8, 5, 12, 7 and 10 is…', opts: ['7', '7.5', '8', '7.5 and 8'], right: 1, pick: 0,
+        why: 'First order the data: 3, 5, 7, 8, 10, 12. With an even number of values, the median is the mean of the two middle values: (7 + 8) ÷ 2 = 7.5.' },
+      { n: 38, st: 'correct', flagged: false, topic: 'Pedagogy & CBC', text: 'Which of the following is one of the generic competences in Rwanda’s Competence-Based Curriculum?', opts: ['Memorisation of definitions', 'Research and problem solving', 'Examination technique', 'Strict obedience'], right: 1, pick: 1,
+        why: 'The CBC lists generic competences that cut across all subjects, including critical thinking, creativity and innovation, research and problem solving, communication, cooperation, and lifelong learning.' }
+    ];
+    var badge = { correct: ['Correct', '#D1FAE5', '#065F46'], incorrect: ['Incorrect', '#FEE2E2', '#991B1B'], unanswered: ['Not answered', '#F4F4F5', '#3F3F46'] };
+    var items = data.filter(function (q) {
+      if (s.tab === 'all') return true;
+      if (s.tab === 'flagged') return q.flagged;
+      return q.st === s.tab;
+    }).map(function (q) {
+      var b = badge[q.st];
+      return Object.assign({}, q, { badge: b[0], badgeBg: b[1], badgeInk: b[2],
+        opts: q.opts.map(function (t, k) {
+          var r = k === q.right, p = k === q.pick;
+          return { key: keys[k], text: t, isRight: r, isWrongPick: p && !r, isRightPick: p && r,
+            border: r ? '2px solid #047857' : (p ? '2px solid #B91C1C' : '1px solid #E4E4E7'),
+            bg: r ? '#ECFDF5' : (p ? '#FEF2F2' : '#FFFFFF') };
+        }) });
+    });
+    var tabs = [['incorrect', 'Incorrect (11)'], ['flagged', 'Flagged (1)'], ['unanswered', 'Unanswered (3)'], ['all', 'All questions']].map(function (t) {
+      var on = s.tab === t[0];
+      return { label: t[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #18181B' : '1px solid #D4D4D8', bg: on ? '#18181B' : '#FFFFFF', ink: on ? '#FFFFFF' : '#18181B',
+        pick: function () { self.setState({ tab: t[0] }); } };
+    });
+    var wrong = [3, 7, 14, 19, 22, 27, 31, 35, 41, 44, 47], blank = [24, 49, 50];
+    var grid = [];
+    for (var i = 1; i <= 50; i++) {
+      var w = wrong.indexOf(i) >= 0, b2 = blank.indexOf(i) >= 0;
+      grid.push({ n: i, mark: w ? i + '✕' : (b2 ? i + '–' : String(i)),
+        aria: 'Question ' + i + (w ? ', incorrect' : b2 ? ', not answered' : ', correct'),
+        bg: w ? '#FEE2E2' : (b2 ? '#FFFFFF' : '#D1FAE5'), ink: w ? '#991B1B' : (b2 ? '#3F3F46' : '#065F46'),
+        border: w ? '1px solid #B91C1C' : (b2 ? '1px dashed #52525B' : '1px solid #047857') });
+    }
+    return { items: items, tabs: tabs, grid: grid };
+  }
+}
+</script>
+</body>
+</html>

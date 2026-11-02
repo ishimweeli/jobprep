@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep Admin — Countries on phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 1400px; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
+  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 8px 16px 10px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 10px; min-height: 44px">
+      <a href="AdminSettingsPhone.dc.html" aria-label="Back" style="width: 44px; height: 44px; margin-left: -12px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #18181B; font-size: 20px">←</a>
+      <h1 style="margin: 0; font-size: 19px; flex: 1 1 auto">Countries</h1>
+      <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #18181B; color: #FFFFFF">ADMIN</span>
+    </div>
+  </header>
+  <main style="flex: 1 1 auto; padding: 14px 16px 20px; display: flex; flex-direction: column; gap: 14px">
+    <p style="margin: 0; font-size: 14px; color: #3F3F46">Candidates only see Live countries.</p>
+    <sc-for list="{{countries}}" as="c" hint-placeholder-count="4">
+      <div style="background: #FFFFFF; border: {{c.border}}; border-radius: 14px; padding: 14px; display: flex; gap: 12px; align-items: center">
+        <span style="flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; background: #18181B; color: #FFFFFF; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
+        <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 15px">{{c.name}}</span><span style="font-size: 13px; color: #52525B">{{c.summary}}</span></span>
+        <span style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: {{c.sBg}}; color: {{c.sInk}}">{{c.status}}</span>
+      </div>
+    </sc-for>
+    <section aria-labelledby="kp-t" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <h2 id="kp-t" style="margin: 0; font-size: 17px">Kenya · ready to launch?</h2>
+      <sc-for list="{{checklist}}" as="k" hint-placeholder-count="4">
+        <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px"><span style="flex: 0 0 auto; width: 22px; height: 22px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background: {{k.bg}}; color: {{k.ink}}">{{k.mark}}</span><span>{{k.t}}</span></div>
+      </sc-for>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Full Access price (KES)
+        <input type="number" placeholder="Set price" style="height: 46px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 16px; color: #18181B">
+      </label>
+      <button type="button" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 50px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF">Save Kenya</button>
+      <a href="MainKenyaPhone.dc.html" style="text-align: center; font-weight: 600; font-size: 15px; padding: 8px">Preview as candidate</a>
+    </section>
+    <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 48px; border-radius: 12px; border: 1px dashed #A1A1AA; background: #FFFFFF; color: #3F3F46">+ Add country</button>
+  </main>
+  <nav aria-label="Admin" style="flex: 0 0 auto; position: sticky; bottom: 0; background: #FFFFFF; border-top: 1px solid #E4E4E7; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 4px 2px 8px">
+    <a href="AdminOverviewPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z"></path></svg>Overview</a>
+    <a href="AdminUsersPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9"></path></svg>Users</a>
+    <a href="AdminExamsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5"></path></svg>Exams</a>
+    <a href="AdminPaymentsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v13H3z M3 10h18"></path></svg>Payments</a>
+    <a href="AdminSettingsPhone.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #6D28D9; font-size: 11px; font-weight: 700; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4.2 4.2l2.1 2.1 M17.7 17.7l2.1 2.1 M2 12h3 M19 12h3 M4.2 19.8l2.1-2.1 M17.7 6.3l2.1-2.1"></path></svg>Settings</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, st = this.state || {};
+    var S = { Live: ['#D1FAE5', '#065F46'], Preparing: ['#FEF3C7', '#92400E'], Planned: ['#F4F4F5', '#3F3F46'] };
+    var c = [['RW', 'Rwanda', 'RWF 2,000 · MTN MoMo, Airtel', 'Live'], ['KE', 'Kenya', 'KES · price not set · M-Pesa', 'Preparing'], ['UG', 'Uganda', 'UGX · 212 waiting', 'Planned'], ['TZ', 'Tanzania', 'TZS · 97 waiting', 'Planned']];
+    var yes = { mark: '✓', bg: '#D1FAE5', ink: '#065F46' }, no = { mark: '✕', bg: '#FEE2E2', ink: '#991B1B' };
+    return {
+      countries: c.map(function (x) { var s = S[x[3]]; return { code: x[0], name: x[1], summary: x[2], status: x[3], sBg: s[0], sInk: s[1], border: x[0] === 'KE' ? '2px solid #6D28D9' : '1px solid #E4E4E7' }; }),
+      checklist: [Object.assign({ t: 'Free sample in every category' }, yes), Object.assign({ t: 'Full Access price in KES' }, no), Object.assign({ t: 'M-Pesa live (now sandbox)' }, no), Object.assign({ t: 'Legal review for Kenya' }, no)]
+    };
+  }
+}
+</script>
+</body>
+</html>

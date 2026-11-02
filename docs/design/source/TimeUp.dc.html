@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Time up and offline states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #FFFFFF; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
+
+  <sc-if value="{{isTimeUp}}" hint-placeholder-val="{{ true }}">
+    <main style="flex: 1 1 auto; padding: 32px 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 18px">
+      <span style="width: 88px; height: 88px; border-radius: 999px; background: #F4F4F5; display: inline-flex; align-items: center; justify-content: center">
+        <svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#18181B" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5 M9 2h6"></path></svg>
+      </span>
+      <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.02em">Time is up</h1>
+      <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3F3F46">Your exam was submitted automatically with <strong style="color: #18181B">47 of 50</strong> questions answered. Nothing you answered was lost.</p>
+      <a href="Results.dc.html" style="width: 100%; text-align: center; text-decoration: none; background: #6D28D9; color: #FFFFFF; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 14px; margin-top: 8px">See my results</a>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{isOffline}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="flex: 0 0 auto; background: #FEF3C7; border-bottom: 1px solid #F59E0B; padding: 12px 16px; display: flex; gap: 10px; align-items: flex-start">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#92400E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 1px"><path d="M2 8.8a15 15 0 0 1 4.2-2.7 M10.7 5.1A15 15 0 0 1 22 8.8 M5 12.5a10 10 0 0 1 5.2-2.7 M16.8 11.2a10 10 0 0 1 2.2 1.3 M8.5 16a5 5 0 0 1 7 0 M12 20h.01 M3 3l18 18"></path></svg>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #78350F"><strong>No connection.</strong> Keep answering — your answers are kept on this phone and will save when you are back online.</p>
+    </div>
+    <header style="flex: 0 0 auto; padding: 12px 16px; border-bottom: 1px solid #E4E4E7; display: flex; align-items: center; gap: 10px">
+      <div style="flex: 1 1 auto; display: flex; flex-direction: column">
+        <span style="font-size: 13px; color: #52525B">Sec. Mathematics (S1–S3) · Mock 1</span>
+        <span style="font-size: 12px; color: #92400E; font-weight: 600">3 answers waiting to save</span>
+      </div>
+      <div role="timer" style="font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px; padding: 8px 12px; border-radius: 10px; background: #F4F4F5">38:02</div>
+    </header>
+    <main style="flex: 1 1 auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-direction: column">
+        <span style="font-size: 13px; color: #52525B; font-weight: 600">Geometry &amp; measurement</span>
+        <h1 style="margin: 0; font-size: 17px">Question 15 of 50</h1>
+      </div>
+      <p style="margin: 0; font-size: 19px; line-height: 1.5; font-weight: 600">Find the area of a circle of radius 7 cm. (Take π = 22/7.)</p>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
+          <button type="button" aria-pressed="{{o.pressed}}" style="font: inherit; text-align: left; display: flex; gap: 12px; align-items: center; min-height: 56px; padding: 10px 14px; border-radius: 14px; border: {{o.border}}; background: {{o.bg}}; color: #18181B">
+            <span style="width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; background: {{o.keyBg}}; color: {{o.keyInk}}">{{o.key}}</span>
+            <span style="font-size: 17px">{{o.text}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #52525B">The timer keeps running while offline, exactly as it would in the exam room.</p>
+    </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["Time up","Offline"],"default":"Time up"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var st = this.props.state ?? 'Time up';
+    var on = { border: '2px solid #6D28D9', bg: '#F5F3FF', keyBg: '#6D28D9', keyInk: '#FFFFFF', pressed: 'true' };
+    var off = { border: '1px solid #D4D4D8', bg: '#FFFFFF', keyBg: '#F4F4F5', keyInk: '#3F3F46', pressed: 'false' };
+    return {
+      isTimeUp: st === 'Time up', isOffline: st === 'Offline',
+      opts: [
+        Object.assign({ key: 'A', text: '44 cm²' }, off),
+        Object.assign({ key: 'B', text: '154 cm²' }, on),
+        Object.assign({ key: 'C', text: '308 cm²' }, off),
+        Object.assign({ key: 'D', text: '49 cm²' }, off)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

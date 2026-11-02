@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Mock exam in progress</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh; position: relative">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E4E4E7">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px">
+    <div style="flex: 1 1 320px; min-width: 0; display: flex; align-items: center; gap: 12px">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" style="flex: 0 0 auto"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <div style="display: flex; flex-direction: column; min-width: 0">
+        <span style="font-weight: 700; font-size: 16px">Secondary Mathematics Teacher (S1–S3) — Mock 1</span>
+        <span style="font-size: 13px; color: #047857; display: flex; align-items: center; gap: 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          {{savedLabel}}
+        </span>
+      </div>
+    </div>
+    <div role="timer" aria-label="Time remaining" style="display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; font-weight: 800; font-size: 22px; padding: 8px 14px; border-radius: 12px; background: {{timerBg}}; color: {{timerInk}}">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5 M9 2h6"></path></svg>
+      {{clock}}
+    </div>
+    <button type="button" onClick="{{openConfirm}}" style="font: inherit; font-weight: 700; font-size: 15px; min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid #18181B; background: #18181B; color: #FFFFFF; cursor: pointer">Submit exam</button>
+  </div>
+</header>
+
+<div style="max-width: 1280px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+  <main style="flex: 999 1 600px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 28px; display: flex; flex-direction: column; gap: 22px">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 14px; color: #52525B; font-weight: 600">{{cur.topic}}</span>
+        <h1 style="margin: 0; font-size: 20px">Question {{num}} of 50</h1>
+      </div>
+      <button type="button" onClick="{{toggleFlag}}" aria-pressed="{{flagPressed}}" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 16px; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: {{flagBorder}}; background: {{flagBg}}; color: {{flagInk}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4 M5 4h11l-2 4 2 4H5"></path></svg>
+        {{flagLabel}}
+      </button>
+    </div>
+    <div style="height: 6px; background: #F4F4F5; border-radius: 999px; overflow: hidden" aria-hidden="true"><div style="height: 6px; background: #6D28D9; border-radius: 999px; width: {{progressPct}}"></div></div>
+
+    <p style="margin: 0; font-size: 22px; line-height: 1.5; font-weight: 600; max-width: 40em">{{cur.text}}</p>
+
+    <div role="group" aria-label="Answer options" style="display: flex; flex-direction: column; gap: 12px">
+      <sc-for list="{{options}}" as="o" hint-placeholder-count="4">
+        <button type="button" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 14px; align-items: center; min-height: 60px; padding: 12px 16px; border-radius: 14px; border: {{o.border}}; background: {{o.bg}}; color: #18181B">
+          <span style="flex: 0 0 auto; width: 34px; height: 34px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; background: {{o.keyBg}}; color: {{o.keyInk}}">{{o.key}}</span>
+          <span style="font-size: 18px; line-height: 1.45">{{o.text}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid #E4E4E7">
+      <button type="button" onClick="{{prev}}" disabled="{{atStart}}" style="font: inherit; font-weight: 600; font-size: 16px; min-height: 48px; padding: 0 20px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; cursor: pointer">← Previous</button>
+      <button type="button" onClick="{{next}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 48px; padding: 0 24px; border-radius: 12px; border: 1px solid #6D28D9; background: #6D28D9; color: #FFFFFF; cursor: pointer">{{nextLabel}}</button>
+    </div>
+  </main>
+
+  <aside aria-label="Question navigator" style="flex: 1 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline">
+      <h2 style="margin: 0; font-size: 17px">Questions</h2>
+      <span style="font-size: 14px; color: #3F3F46">{{answeredCount}} of 50 answered</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="50">
+        <button type="button" onClick="{{n.go}}" aria-label="{{n.aria}}" style="font: inherit; font-size: 14px; font-weight: 700; height: 40px; border-radius: 9px; cursor: pointer; position: relative; padding: 0; border: {{n.border}}; background: {{n.bg}}; color: {{n.ink}}; box-shadow: {{n.ring}}">
+          {{n.label}}
+          <sc-if value="{{n.flagged}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; top: 2px; right: 3px; width: 0; height: 0; border-left: 7px solid transparent; border-top: 7px solid #B45309"></span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+    <ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 13px; color: #3F3F46">
+      <li style="display: flex; align-items: center; gap: 8px"><span style="width: 16px; height: 16px; border-radius: 5px; background: #6D28D9"></span>Answered</li>
+      <li style="display: flex; align-items: center; gap: 8px"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FFFFFF; border: 1px solid #A1A1AA"></span>Not answered</li>
+      <li style="display: flex; align-items: center; gap: 8px"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FEF3C7; border: 1px solid #B45309"></span>Flagged ({{flagCount}})</li>
+      <li style="display: flex; align-items: center; gap: 8px"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FFFFFF; box-shadow: 0 0 0 2px #18181B"></span>Current</li>
+    </ul>
+  </aside>
+</div>
+
+<sc-if value="{{confirm}}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; inset: 0; background: rgba(24,24,27,0.55); display: flex; align-items: flex-start; justify-content: center; padding: 120px 16px 16px">
+    <div role="dialog" aria-modal="true" aria-labelledby="sub-t" style="width: 100%; max-width: 480px; background: #FFFFFF; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 24px 64px rgba(0,0,0,0.25)">
+      <h2 id="sub-t" style="margin: 0; font-size: 24px">Submit your exam?</h2>
+      <p style="margin: 0; font-size: 16px; color: #3F3F46">You still have <strong style="color: #18181B">{{clock}}</strong>. After submitting you cannot change your answers.</p>
+      <dl style="margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; text-align: center">
+        <div style="background: #F5F3FF; border-radius: 12px; padding: 12px; display: flex; flex-direction: column-reverse"><dt style="font-size: 13px; color: #3F3F46">Answered</dt><dd style="margin: 0; font-size: 24px; font-weight: 800; color: #5B21B6">{{answeredCount}}</dd></div>
+        <div style="background: #F4F4F5; border-radius: 12px; padding: 12px; display: flex; flex-direction: column-reverse"><dt style="font-size: 13px; color: #3F3F46">Unanswered</dt><dd style="margin: 0; font-size: 24px; font-weight: 800">{{unansweredCount}}</dd></div>
+        <div style="background: #FEF3C7; border-radius: 12px; padding: 12px; display: flex; flex-direction: column-reverse"><dt style="font-size: 13px; color: #92400E">Flagged</dt><dd style="margin: 0; font-size: 24px; font-weight: 800; color: #92400E">{{flagCount}}</dd></div>
+      </dl>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <button type="button" onClick="{{goUnanswered}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 48px; border-radius: 12px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9; cursor: pointer">Go to first unanswered question</button>
+        <a href="Results.dc.html" style="text-align: center; text-decoration: none; font-weight: 700; font-size: 16px; padding: 14px; border-radius: 12px; background: #18181B; color: #FFFFFF">Submit now</a>
+        <button type="button" onClick="{{closeConfirm}}" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; border: 0; background: transparent; color: #3F3F46; cursor: pointer">Keep working</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var answers = {};
+    var seed = [0, 2, 1, 0, 3, 1, 2, 0, 1, 3, 2];
+    for (var i = 0; i < 11; i++) answers[i] = seed[i];
+    this.state = { idx: 11, answers: answers, flags: { 6: true }, secs: 42 * 60 + 18, confirm: false };
+  }
+  componentDidMount() {
+    var self = this;
+    this._t = setInterval(function () { self.setState({ secs: Math.max(0, self.state.secs - 1) }); }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+  renderVals() {
+    var self = this, s = this.state;
+    var pool = [
+      { topic: 'Statistics & probability', text: 'Find the mean of 4, 7, 9, 10 and 15.', opts: ['8', '9', '10', '9.5'] },
+      { topic: 'Algebra & functions', text: 'Solve for x: 2x² − 5x − 3 = 0', opts: ['x = 3 or x = −½', 'x = −3 or x = ½', 'x = 3 or x = ½', 'x = −3 or x = −½'] },
+      { topic: 'Algebra & functions', text: 'A straight line passes through (2, 3) and (6, 11). What is its gradient?', opts: ['½', '2', '4', '8'] },
+      { topic: 'Algebra & functions', text: 'Simplify (3a²b)(2ab³).', opts: ['5a³b⁴', '6a²b³', '6a³b⁴', '6a³b³'] },
+      { topic: 'Geometry & measurement', text: 'What is the size of each interior angle of a regular hexagon?', opts: ['108°', '120°', '135°', '60°'] },
+      { topic: 'Algebra & functions', text: 'Given f(x) = 3x − 4, find f⁻¹(5).', opts: ['11', '1/3', '3', '−3'] },
+      { topic: 'Statistics & probability', text: 'Two fair dice are rolled. What is the probability that the total is 7?', opts: ['1/6', '7/36', '1/12', '1/36'] },
+      { topic: 'Pedagogy & CBC', text: 'Which of the following is one of the generic competences in Rwanda’s Competence-Based Curriculum?', opts: ['Memorisation of definitions', 'Research and problem solving', 'Examination technique', 'Strict obedience'] },
+      { topic: 'Pedagogy & CBC', text: 'Most learners answered a quiz question on fractions incorrectly. What is the most appropriate next step?', opts: ['Move on to the next unit to stay on schedule', 'Give the same quiz again immediately', 'Reteach the idea in a different way and check understanding', 'Record the marks and report to the headteacher'] },
+      { topic: 'Geometry & measurement', text: 'Find the area of a circle of radius 7 cm. (Take π = 22/7.)', opts: ['44 cm²', '154 cm²', '308 cm²', '49 cm²'] }
+    ];
+    var cur = pool[s.idx % pool.length];
+    var keys = ['A', 'B', 'C', 'D'];
+    var chosen = s.answers[s.idx];
+    var options = cur.opts.map(function (t, k) {
+      var on = chosen === k;
+      return { key: keys[k], text: t, pressed: on ? 'true' : 'false',
+        border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF',
+        keyBg: on ? '#6D28D9' : '#F4F4F5', keyInk: on ? '#FFFFFF' : '#3F3F46',
+        pick: function () { var a = Object.assign({}, self.state.answers); a[self.state.idx] = k; self.setState({ answers: a, lastSave: Date.now() }); } };
+    });
+    var answered = Object.keys(s.answers).length;
+    var flagCount = Object.keys(s.flags).filter(function (k) { return s.flags[k]; }).length;
+    var nav = [];
+    for (var i = 0; i < 50; i++) {
+      (function (i) {
+        var a = s.answers[i] !== undefined, f = !!s.flags[i], c = i === s.idx;
+        nav.push({ label: String(i + 1), flagged: f,
+          aria: 'Question ' + (i + 1) + (a ? ', answered' : ', not answered') + (f ? ', flagged' : '') + (c ? ', current' : ''),
+          bg: f ? '#FEF3C7' : (a ? '#6D28D9' : '#FFFFFF'), ink: f ? '#92400E' : (a ? '#FFFFFF' : '#18181B'),
+          border: f ? '1px solid #B45309' : (a ? '1px solid #6D28D9' : '1px solid #A1A1AA'),
+          ring: c ? '0 0 0 2px #FFFFFF, 0 0 0 4px #18181B' : 'none',
+          go: function () { self.setState({ idx: i }); } });
+      })(i);
+    }
+    var m = Math.floor(s.secs / 60), sec = s.secs % 60;
+    var low = s.secs < 300;
+    var flagged = !!s.flags[s.idx];
+    return {
+      cur: cur, num: s.idx + 1, options: options, nav: nav,
+      clock: (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec,
+      timerBg: low ? '#FEE2E2' : '#F4F4F5', timerInk: low ? '#991B1B' : '#18181B',
+      savedLabel: 'All answers saved',
+      progressPct: Math.round(answered / 50 * 100) + '%',
+      answeredCount: answered, unansweredCount: 50 - answered, flagCount: flagCount,
+      flagPressed: flagged ? 'true' : 'false', flagLabel: flagged ? 'Flagged for review' : 'Flag for review',
+      flagBorder: flagged ? '1px solid #B45309' : '1px solid #A1A1AA', flagBg: flagged ? '#FEF3C7' : '#FFFFFF', flagInk: flagged ? '#92400E' : '#18181B',
+      toggleFlag: function () { var f = Object.assign({}, self.state.flags); f[self.state.idx] = !f[self.state.idx]; self.setState({ flags: f }); },
+      atStart: s.idx === 0,
+      prev: function () { self.setState({ idx: Math.max(0, self.state.idx - 1) }); },
+      next: function () { if (self.state.idx === 49) self.setState({ confirm: true }); else self.setState({ idx: self.state.idx + 1 }); },
+      nextLabel: s.idx === 49 ? 'Finish' : 'Next →',
+      confirm: s.confirm,
+      openConfirm: function () { self.setState({ confirm: true }); },
+      closeConfirm: function () { self.setState({ confirm: false }); },
+      goUnanswered: function () { var i = 0; while (i < 50 && self.state.answers[i] !== undefined) i++; self.setState({ idx: i < 50 ? i : 0, confirm: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

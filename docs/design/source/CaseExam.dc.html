@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Case-based question</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E4E4E7">
+  <div style="max-width: 1320px; margin: 0 auto; padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px">
+    <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column">
+      <span style="font-weight: 700; font-size: 16px">Accountant (Public Institution) — Mock 1</span>
+      <span style="font-size: 13px; color: #047857">✓ All answers saved</span>
+    </div>
+    <div role="timer" aria-label="Time remaining" style="font-variant-numeric: tabular-nums; font-weight: 800; font-size: 22px; padding: 8px 14px; border-radius: 12px; background: #F4F4F5">31:47</div>
+    <a href="Results.dc.html" style="text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 18px; border-radius: 12px; background: #18181B; color: #FFFFFF">Submit exam</a>
+  </div>
+</header>
+
+<div style="max-width: 1320px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch">
+  <section aria-labelledby="case-t" style="flex: 1 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; display: flex; flex-direction: column; max-height: 720px">
+    <div style="padding: 18px 22px; border-bottom: 1px solid #E4E4E7; display: flex; flex-direction: column; gap: 2px">
+      <span style="font-size: 13px; font-weight: 700; color: #5B21B6">Case study · applies to questions 36–45</span>
+      <h2 id="case-t" style="margin: 0; font-size: 19px">Umucyo District Hospital, financial year 2025/26</h2>
+    </div>
+    <div style="padding: 18px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; font-size: 16px; line-height: 1.65; color: #27272A">
+      <p style="margin: 0">Umucyo District Hospital is a public hospital that has moved from cash-basis to accrual-basis reporting. The finance officer has prepared the following summary of cash movements for the year ended 30 June 2026.</p>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 380px">
+          <caption style="text-align: left; font-weight: 700; padding-bottom: 8px">Cash summary (RWF)</caption>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
+              <tr style="border-top: 1px solid #E4E4E7; font-weight: {{r.w}}; background: {{r.bg}}"><td style="padding: 9px 8px">{{r.k}}</td><td style="padding: 9px 8px; text-align: right; font-variant-numeric: tabular-nums">{{r.v}}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin: 0; font-weight: 700">Additional information</p>
+      <ol style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px">
+        <li>At 30 June 2026, invoices from the medical-stores supplier totalling RWF 36,000,000 for medicines received in June were unpaid. There were no unpaid medicine invoices at the start of the year.</li>
+        <li>RWF 25,000,000 of the donor grant was received for activities scheduled in 2026/27.</li>
+        <li>The equipment purchased has an expected useful life of 10 years and no residual value. It was in use for the full year.</li>
+      </ol>
+    </div>
+  </section>
+
+  <main style="flex: 1 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
+      <div style="display: flex; flex-direction: column">
+        <span style="font-size: 14px; color: #52525B; font-weight: 600">Case question 2 of 10 · Financial accounting</span>
+        <h1 style="margin: 0; font-size: 20px">Question 37 of 45 <span style="font-weight: 600; color: #52525B; font-size: 15px">· 2.5 marks</span></h1>
+      </div>
+      <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; cursor: pointer">Flag for review</button>
+    </div>
+    <div role="group" aria-label="Case questions" style="display: flex; flex-wrap: wrap; gap: 6px">
+      <sc-for list="{{caseNav}}" as="c" hint-placeholder-count="10">
+        <button type="button" aria-label="{{c.aria}}" style="font: inherit; font-weight: 700; font-size: 14px; width: 44px; height: 40px; border-radius: 9px; border: {{c.border}}; background: {{c.bg}}; color: {{c.ink}}; box-shadow: {{c.ring}}">{{c.n}}</button>
+      </sc-for>
+    </div>
+    <p style="margin: 0; font-size: 21px; line-height: 1.5; font-weight: 600">Under accrual accounting, what amount should be recognised as the medicines expense for 2025/26?</p>
+    <div role="group" aria-label="Answer options" style="display: flex; flex-direction: column; gap: 12px">
+      <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
+        <button type="button" aria-pressed="{{o.pressed}}" style="font: inherit; text-align: left; display: flex; gap: 14px; align-items: center; min-height: 58px; padding: 12px 16px; border-radius: 14px; border: {{o.border}}; background: {{o.bg}}; color: #18181B; cursor: pointer">
+          <span style="width: 34px; height: 34px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; background: {{o.keyBg}}; color: {{o.keyInk}}">{{o.key}}</span>
+          <span style="font-size: 18px; font-variant-numeric: tabular-nums">{{o.text}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="margin-top: auto; display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; border-top: 1px solid #E4E4E7">
+      <button type="button" style="font: inherit; font-weight: 600; font-size: 16px; min-height: 48px; padding: 0 20px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B">← Previous</button>
+      <button type="button" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 48px; padding: 0 24px; border-radius: 12px; border: 1px solid #6D28D9; background: #6D28D9; color: #FFFFFF">Next →</button>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var plain = { w: '400', bg: '#FFFFFF' }, head = { w: '700', bg: '#FAFAFA' };
+    var rows = [
+      Object.assign({ k: 'Receipts', v: '' }, head),
+      Object.assign({ k: 'Transfers from central government', v: '820,000,000' }, plain),
+      Object.assign({ k: 'Health-insurance reimbursements and patient fees', v: '310,000,000' }, plain),
+      Object.assign({ k: 'Donor grant', v: '95,000,000' }, plain),
+      Object.assign({ k: 'Payments', v: '' }, head),
+      Object.assign({ k: 'Salaries and wages', v: '610,000,000' }, plain),
+      Object.assign({ k: 'Medicines and medical supplies', v: '280,000,000' }, plain),
+      Object.assign({ k: 'Utilities', v: '48,000,000' }, plain),
+      Object.assign({ k: 'Purchase of laboratory equipment', v: '120,000,000' }, plain)
+    ];
+    var caseNav = [];
+    for (var i = 36; i <= 45; i++) {
+      var a = i === 36, c = i === 37;
+      caseNav.push({ n: i, aria: 'Question ' + i + (a ? ', answered' : '') + (c ? ', current' : ''),
+        bg: a ? '#6D28D9' : '#FFFFFF', ink: a ? '#FFFFFF' : '#18181B', border: a ? '1px solid #6D28D9' : '1px solid #A1A1AA',
+        ring: c ? '0 0 0 2px #FFFFFF, 0 0 0 4px #18181B' : 'none' });
+    }
+    var on = { border: '2px solid #6D28D9', bg: '#F5F3FF', keyBg: '#6D28D9', keyInk: '#FFFFFF', pressed: 'true' };
+    var off = { border: '1px solid #D4D4D8', bg: '#FFFFFF', keyBg: '#F4F4F5', keyInk: '#3F3F46', pressed: 'false' };
+    return {
+      rows: rows, caseNav: caseNav,
+      opts: [
+        Object.assign({ key: 'A', text: 'RWF 280,000,000' }, off),
+        Object.assign({ key: 'B', text: 'RWF 316,000,000' }, on),
+        Object.assign({ key: 'C', text: 'RWF 244,000,000' }, off),
+        Object.assign({ key: 'D', text: 'RWF 36,000,000' }, off)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

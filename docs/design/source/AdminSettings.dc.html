@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep Admin — Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAFAFA}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch">
+
+<aside aria-label="Admin navigation" style="flex: 1 1 240px; max-width: 100%; background: #18181B; color: #FFFFFF; padding: 20px 14px; display: flex; flex-direction: column; gap: 20px">
+  <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    <span style="font-weight: 800; font-size: 18px">JobPrep</span>
+    <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #3F3F46; color: #E4E4E7">ADMIN</span>
+  </div>
+  <nav style="display: flex; flex-direction: column; gap: 4px">
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+      <a href="{{n.href}}" aria-current="{{n.current}}" style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600; background: {{n.bg}}; color: {{n.ink}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{n.icon}}"></path></svg>
+        <span style="flex: 1 1 auto">{{n.label}}</span>
+        <sc-if value="{{n.hasCount}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #F59E0B; color: #18181B">{{n.count}}</span></sc-if>
+      </a>
+    </sc-for>
+  </nav>
+  <div style="margin-top: auto; padding: 12px; border-top: 1px solid #3F3F46; display: flex; flex-direction: column; gap: 2px">
+    <span style="font-weight: 600; font-size: 14px">Jean Bosco N.</span>
+    <span style="font-size: 13px; color: #A1A1AA">System admin</span>
+  </div>
+</aside>
+
+<main style="flex: 999 1 640px; min-width: 0; padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 18px">
+  <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.02em">Settings</h1>
+  <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+    <div style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+      <section aria-labelledby="st-plan" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="st-plan" style="margin: 0; font-size: 18px">Full Access plan · Rwanda</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Price (RWF)<input type="number" value="2000" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Access length (days)<input type="number" value="30" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
+        </div>
+        <label style="display: flex; gap: 10px; align-items: center; font-size: 15px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #6D28D9"> Covers every mock test in every category</label>
+        <label style="display: flex; gap: 10px; align-items: center; font-size: 15px"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #6D28D9"> Auto-renew (off — candidates pay once)</label>
+        <p style="margin: 0; font-size: 13px; color: #52525B">Each country has its own price and currency — set them in <a href="AdminCountries.dc.html">Countries</a>. A price change applies to new payments only. Active Full Access is never shortened.</p>
+        <button type="button" style="align-self: flex-start; font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #6D28D9; color: #FFFFFF">Save plan</button>
+      </section>
+
+      <section aria-labelledby="st-pay" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="st-pay" style="margin: 0; font-size: 18px">Payment providers</h2>
+        <sc-for list="{{providers}}" as="p" hint-placeholder-count="2">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #F4F4F5">
+            <span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 8px; background: {{p.sw}}"></span>
+            <span style="flex: 1 1 auto; display: flex; flex-direction: column"><span style="font-weight: 600">{{p.name}}</span><span style="font-size: 13px; color: #52525B">{{p.meta}}</span></span>
+            <span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #D1FAE5; color: #065F46">Live</span>
+          </div>
+        </sc-for>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Mark a pending payment as stuck after (minutes)<input type="number" value="10" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF; max-width: 160px"></label>
+      </section>
+
+      <section aria-labelledby="st-free" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="st-free" style="margin: 0; font-size: 18px">Free access</h2>
+        <label style="display: flex; gap: 10px; align-items: center; font-size: 15px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #6D28D9"> Free sample tests open without an account</label>
+        <label style="display: flex; gap: 10px; align-items: center; font-size: 15px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #6D28D9"> Show explanations on free sample results</label>
+        <label style="display: flex; gap: 10px; align-items: center; font-size: 15px"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #6D28D9"> Show pass marks (only where an official source is entered)</label>
+      </section>
+    </div>
+
+    <div style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+      <section aria-labelledby="st-team" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 id="st-team" style="margin: 0; font-size: 18px">Admin team</h2><button type="button" style="font: inherit; font-weight: 600; font-size: 14px; height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9">Invite</button></div>
+        <sc-for list="{{team}}" as="t" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #F4F4F5">
+            <span style="flex: 1 1 auto; display: flex; flex-direction: column"><span style="font-weight: 600">{{t.name}}</span><span style="font-size: 13px; color: #52525B">{{t.phone}}</span></span>
+            <select aria-label="Role for {{t.name}}" style="height: 40px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 10px; font: inherit; font-size: 14px; background: #FFFFFF; color: #18181B"><option>{{t.role}}</option><option>System admin</option><option>Content editor</option><option>Support</option></select>
+          </div>
+        </sc-for>
+        <p style="margin: 0; font-size: 13px; color: #52525B">System admin: everything. Content editor: exams and questions only. Support: view users, resend login codes, check payments.</p>
+      </section>
+
+      <section aria-labelledby="st-log" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="st-log" style="margin: 0; font-size: 18px">Audit log</h2>
+        <sc-for list="{{log}}" as="l" hint-placeholder-count="5">
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid #F4F4F5">
+            <span style="font-size: 14px"><strong>{{l.who}}</strong> {{l.what}}</span>
+            <span style="font-size: 12px; color: #52525B">{{l.when}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, st = this.state || {};
+    var items = [
+      ['Overview', 'AdminOverview.dc.html', 'M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z'],
+      ['Users', 'AdminUsers.dc.html', 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9 M16 3.1a4 4 0 0 1 0 7.8'],
+      ['Exams & questions', 'AdminExams.dc.html', 'M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5'],
+      ['Payments', 'AdminPayments.dc.html', 'M3 6h18v13H3z M3 10h18'],
+      ['Countries', 'AdminCountries.dc.html', 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M2 12h20 M12 2a15 15 0 0 1 0 20 M12 2a15 15 0 0 0 0 20'],
+      ['Settings', 'AdminSettings.dc.html', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z']
+    ];
+    var nav = items.map(function (it, i) {
+      var on = i === 5;
+      return { label: it[0], href: it[1], icon: it[2], current: on ? 'page' : 'false', bg: on ? '#3F3F46' : 'transparent', ink: on ? '#FFFFFF' : '#D4D4D8', hasCount: i === 3, count: '3' };
+    });
+    return { nav: nav,
+      providers: [{ name: 'MTN MoMo', meta: 'Collections API · callbacks healthy', sw: '#FFCB05' }, { name: 'Airtel Money', meta: 'Collections API · callbacks healthy', sw: '#E40000' }],
+      team: [
+        { name: 'Jean Bosco N.', phone: '078 400 1122', role: 'System admin' },
+        { name: 'Marie Claire U.', phone: '078 222 9031', role: 'Content editor' },
+        { name: 'Theogene M.', phone: '079 515 7720', role: 'Content editor' },
+        { name: 'Sandrine K.', phone: '072 610 4408', role: 'Support' }
+      ],
+      log: [
+        { who: 'Jean Bosco N.', what: 'granted Full Access to Olivier Kayitare — reason: MoMo SMS confirmed, callback missing', when: '1 Nov, 21:15' },
+        { who: 'Marie Claire U.', what: 'published Primary Teacher — General Mock 2', when: '1 Nov, 16:40' },
+        { who: 'Sandrine K.', what: 'sent a login code to 078 812 3456', when: '1 Nov, 11:02' },
+        { who: 'Jean Bosco N.', what: 'suspended Samuel Niyonzima — reason: shared account', when: '28 Oct, 09:30' },
+        { who: 'Jean Bosco N.', what: 'changed Full Access price from RWF 3,000 to RWF 2,000', when: '27 Oct, 18:05' }
+      ] };
+  }
+}
+</script>
+</body>
+</html>

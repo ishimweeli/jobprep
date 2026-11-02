@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Your results</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+a{color:#6D28D9}a:hover{color:#5B21B6}
+a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh">
+
+<header style="border-bottom: 1px solid #E4E4E7; background: #FFFFFF">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #18181B; font-weight: 800; font-size: 20px; letter-spacing: -0.02em">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      JobPrep
+    </a>
+    <nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px 22px; flex: 1 1 auto; font-size: 15px; font-weight: 500">
+      <a href="Catalog.dc.html" style="color: #3F3F46; text-decoration: none; padding: 10px 0">Mock tests</a>
+      <a href="Pricing.dc.html" style="color: #3F3F46; text-decoration: none; padding: 10px 0">Pricing</a>
+      <a href="Dashboard.dc.html" style="color: #3F3F46; text-decoration: none; padding: 10px 0">My progress</a>
+    </nav>
+  </div>
+</header>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 28px 24px 64px; display: flex; flex-direction: column; gap: 22px">
+  <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 16px; padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center">
+    <p style="margin: 0; flex: 1 1 360px; font-size: 15px; color: #3F3F46"><strong style="color: #18181B">Keep this result.</strong> Create a free account with your phone number to track your progress across attempts.</p>
+    <a href="Dashboard.dc.html" style="text-decoration: none; background: #FFFFFF; border: 1px solid #6D28D9; color: #6D28D9; font-weight: 600; font-size: 15px; padding: 11px 16px; border-radius: 12px">Save my result</a>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <span style="font-size: 14px; color: #52525B; font-weight: 600">Secondary Mathematics Teacher (S1–S3) — Mock 1 · Submitted 1 Nov 2026</span>
+    <h1 style="margin: 0; font-size: 34px; letter-spacing: -0.02em">Your results</h1>
+  </div>
+
+  <section aria-label="Score summary" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 20px; padding: 28px; display: flex; flex-wrap: wrap; gap: 28px; align-items: center">
+    <div style="flex: 0 0 auto; position: relative; width: 168px; height: 168px">
+      <svg width="168" height="168" viewBox="0 0 120 120" role="img" aria-label="Score 72 percent">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#EDE9FE" stroke-width="11"></circle>
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#6D28D9" stroke-width="11" stroke-linecap="round" stroke-dasharray="244.3 339.3" transform="rotate(-90 60 60)"></circle>
+      </svg>
+      <div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center">
+        <span style="font-size: 38px; font-weight: 800; letter-spacing: -0.02em">72%</span>
+        <span style="font-size: 14px; color: #52525B">36 / 50 marks</span>
+      </div>
+    </div>
+    <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <p style="margin: 0; font-size: 18px; line-height: 1.5"><strong>Up 10 points</strong> from your last attempt (62% on 24 Oct). Statistics & probability is the topic holding your score back.</p>
+      <dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); gap: 10px">
+        <sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+          <div style="border: 1px solid #E4E4E7; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column-reverse; gap: 2px">
+            <dt style="font-size: 13px; color: #52525B; display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: {{s.dot}}"></span>{{s.label}}</dt>
+            <dd style="margin: 0; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">{{s.value}}</dd>
+          </div>
+        </sc-for>
+      </dl>
+      <p style="margin: 0; font-size: 13px; color: #52525B">No official pass mark is published for this examination, so none is shown.</p>
+    </div>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 12px">
+    <a href="Review.dc.html" style="flex: 1 1 220px; text-align: center; text-decoration: none; background: #6D28D9; color: #FFFFFF; font-weight: 700; font-size: 16px; padding: 15px; border-radius: 12px">Review Answers</a>
+    <a href="Exam.dc.html" style="flex: 1 1 220px; text-align: center; text-decoration: none; border: 1px solid #6D28D9; color: #6D28D9; background: #FFFFFF; font-weight: 700; font-size: 16px; padding: 14px; border-radius: 12px">Practice Weak Areas</a>
+    <a href="Catalog.dc.html" style="flex: 1 1 220px; text-align: center; text-decoration: none; border: 1px solid #A1A1AA; color: #18181B; background: #FFFFFF; font-weight: 600; font-size: 16px; padding: 14px; border-radius: 12px">Try Another Mock Test</a>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start">
+    <section aria-labelledby="topics" style="flex: 999 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+      <h2 id="topics" style="margin: 0; font-size: 20px">Performance by topic</h2>
+      <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 18px">
+        <sc-for list="{{topics}}" as="t" hint-placeholder-count="4">
+          <li style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 15px">
+              <span style="font-weight: 600; display: flex; gap: 8px; align-items: center">{{t.name}}
+                <sc-if value="{{t.weak}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #FEF3C7; color: #92400E">Weak area</span></sc-if>
+              </span>
+              <span style="font-variant-numeric: tabular-nums; color: #3F3F46"><strong style="color: #18181B">{{t.pct}}</strong> · {{t.score}}</span>
+            </div>
+            <div aria-hidden="true" style="height: 12px; background: #F4F4F5; border-radius: 999px; overflow: hidden"><div style="height: 12px; border-radius: 999px; width: {{t.pct}}; background: {{t.bar}}"></div></div>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+
+    <section aria-labelledby="hist" style="flex: 1 1 340px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+      <h2 id="hist" style="margin: 0; font-size: 20px">Compared with earlier attempts</h2>
+      <div role="img" aria-label="Attempt 1: 62 percent. Attempt 2: 72 percent." style="display: flex; gap: 24px; align-items: flex-end; height: 160px; padding: 0 8px; border-bottom: 1px solid #D4D4D8">
+        <div style="flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-weight: 700; font-size: 15px">62%</span><div style="width: 100%; height: 99px; background: #DDD6FE; border-radius: 8px 8px 0 0"></div></div>
+        <div style="flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-weight: 700; font-size: 15px">72%</span><div style="width: 100%; height: 115px; background: #6D28D9; border-radius: 8px 8px 0 0"></div></div>
+      </div>
+      <div aria-hidden="true" style="display: flex; gap: 24px; padding: 0 8px; font-size: 13px; color: #52525B; text-align: center"><span style="flex: 1 1 0">24 Oct</span><span style="flex: 1 1 0">Today</span></div>
+      <p style="margin: 0; font-size: 14px; color: #3F3F46">Time spent dropped from 54:10 to 51:42.</p>
+    </section>
+  </div>
+
+  <section aria-labelledby="first" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: baseline">
+      <h2 id="first" style="margin: 0; font-size: 20px">Review these first</h2>
+      <a href="Review.dc.html" style="font-size: 15px; font-weight: 600">See all 11 incorrect answers</a>
+    </div>
+    <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+      <sc-for list="{{wrong}}" as="w" hint-placeholder-count="3">
+        <li style="border-top: 1px solid #E4E4E7">
+          <a href="Review.dc.html" style="display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; text-decoration: none; color: #18181B">
+            <span style="flex: 0 0 auto; font-weight: 700; font-size: 14px; background: #FEE2E2; color: #991B1B; border-radius: 8px; padding: 4px 8px">Q{{w.n}}</span>
+            <span style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+              <span style="font-size: 16px; font-weight: 600">{{w.text}}</span>
+              <span style="font-size: 14px; color: #3F3F46">You chose <strong>{{w.you}}</strong> · Correct: <strong style="color: #065F46">{{w.right}}</strong> · {{w.topic}}</span>
+            </span>
+          </a>
+        </li>
+      </sc-for>
+    </ul>
+  </section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1650}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      stats: [
+        { label: 'Correct', value: '36', dot: '#047857' },
+        { label: 'Incorrect', value: '11', dot: '#B91C1C' },
+        { label: 'Unanswered', value: '3', dot: '#A1A1AA' },
+        { label: 'Time spent', value: '51:42', dot: '#6D28D9' }
+      ],
+      topics: [
+        { name: 'Algebra & functions', score: '15 / 18', pct: '83%', bar: '#6D28D9', weak: false },
+        { name: 'Geometry & measurement', score: '9 / 12', pct: '75%', bar: '#6D28D9', weak: false },
+        { name: 'Pedagogy & CBC', score: '8 / 12', pct: '67%', bar: '#8B5CF6', weak: false },
+        { name: 'Statistics & probability', score: '4 / 8', pct: '50%', bar: '#D97706', weak: true }
+      ],
+      wrong: [
+        { n: 7, text: 'Two fair dice are rolled. What is the probability that the total is 7?', you: '7/36', right: '1/6', topic: 'Statistics & probability' },
+        { n: 19, text: 'Most learners answered a quiz question on fractions incorrectly. What is the most appropriate next step?', you: 'Give the same quiz again immediately', right: 'Reteach the idea in a different way and check understanding', topic: 'Pedagogy & CBC' },
+        { n: 31, text: 'The median of 3, 8, 5, 12, 7 and 10 is…', you: '7', right: '7.5', topic: 'Statistics & probability' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@ import { ZodError } from 'zod';
 import type { Config } from './config';
 import { attachUser, type Ctx } from './http/context';
 import { HttpError } from './http/errors';
+import { attemptsRouter } from './routes/attempts';
 import { authRouter } from './routes/auth';
 import { catalogRouter } from './routes/catalog';
 import { countriesRouter } from './routes/countries';
@@ -46,6 +47,7 @@ export function createApp(deps: AppDeps) {
   app.use('/api/countries/:code', catalogRouter(ctx));
   app.use('/api/auth', authRouter(ctx));
   app.use('/api/me', meRouter(ctx));
+  app.use('/api', attemptsRouter(ctx));
   if (config.ENABLE_TEST_ENDPOINTS) app.use('/api/test', testSupportRouter(ctx));
 
   app.use('/api', (_req, res) => {
