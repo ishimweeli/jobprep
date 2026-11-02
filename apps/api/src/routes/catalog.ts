@@ -264,6 +264,12 @@ export function catalogRouter(ctx: Ctx) {
         : Promise.resolve([]),
     ]);
 
+    const running = req.user
+      ? await prisma.attempt.findFirst({
+          where: { userId: req.user.id, mockTestId: test.id, kind: 'FULL', status: 'IN_PROGRESS', deadlineAt: { gt: ctx.now() } },
+          include: { answers: { select: { selected: true } } },
+        })
+      : null;
     const stats = new Map(bySection.map((s) => [s.sectionId, s]));
     const sections = test.sections
       .map((s) => ({
@@ -323,6 +329,12 @@ export function catalogRouter(ctx: Ctx) {
             paymentMethods: methods.map((m) => m.label),
           }
         : null,
+      inProgress: running && {
+        attemptId: running.id,
+        answered: running.answers.filter((a) => a.selected.length > 0).length,
+        total: test._count.questions,
+        remainingSeconds: Math.max(0, Math.ceil((running.deadlineAt.getTime() - ctx.now().getTime()) / 1000)),
+      },
       freeSample: sample && { slug: sample.slug, title: sample.title, questionCount: sample._count.questions },
       previousAttempts: attempts.map((a) => ({
         id: a.id,

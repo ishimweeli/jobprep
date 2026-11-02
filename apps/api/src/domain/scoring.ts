@@ -5,6 +5,13 @@ export interface QuestionPayload {
   correct: string[];
   /** MULTIPLE_SELECT only. Defaults to ALL_OR_NOTHING. */
   scoring?: 'ALL_OR_NOTHING' | 'PARTIAL';
+  /** MULTIPLE_SELECT only: "Choose N" — the most options a candidate may pick. Defaults to the number of correct options. */
+  choose?: number;
+}
+
+/** The pick limit shown as "Choose N" and enforced on save. */
+export function chooseLimit(p: QuestionPayload): number {
+  return p.choose && p.choose >= 1 ? p.choose : p.correct.length;
 }
 
 export interface ScorableQuestion {

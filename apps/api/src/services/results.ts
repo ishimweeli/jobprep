@@ -10,6 +10,8 @@ import { attemptTitle, startAttempt, type Ctx, type Viewer } from './attempts';
 export const STRONG_TOPIC_CUTOFF_PERCENT = 70;
 export const PRACTICE_SET_SIZE = 15;
 export const MIN_PRACTICE_QUESTIONS = 3;
+/** Practice sets are untimed; this only bounds how long an abandoned one stays open. */
+export const PRACTICE_SAFETY_LIMIT_MINUTES = 12 * 60;
 
 type AttemptWithTest = Attempt & { mockTest: MockTest };
 
@@ -249,12 +251,12 @@ export async function createPracticeAttempt(ctx: Ctx, input: PracticeInput) {
   for (const q of picked) counts.set(q.mockTestId, (counts.get(q.mockTestId) ?? 0) + 1);
   const anchorId = [...counts.entries()].sort((x, y) => y[1] - x[1])[0]![0];
   const anchor = picked.find((q) => q.mockTestId === anchorId)!.mockTest;
-  const minutes = Math.ceil((picked.length * 4) / 3); // 15 questions → 20 minutes, as in the design
+  // The designed practice runner is untimed. The attempt keeps a long safety limit so it is eventually closed.
 
   const { attempt, guestToken } = await startAttempt(ctx, {
-    country, test: { ...anchor, durationMinutes: minutes }, viewer, kind: 'PRACTICE', questionIds: picked.map((q) => q.id),
+    country, test: { ...anchor, durationMinutes: PRACTICE_SAFETY_LIMIT_MINUTES }, viewer, kind: 'PRACTICE', questionIds: picked.map((q) => q.id),
   });
-  return { attempt, guestToken, questionCount: picked.length, minutes };
+  return { attempt, guestToken, questionCount: picked.length, minutes: null as number | null, untimed: true };
 }
 
 /** Topics to practise from a finished attempt: its weak areas (lowest first). */

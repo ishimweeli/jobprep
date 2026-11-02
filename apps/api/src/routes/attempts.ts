@@ -140,7 +140,7 @@ export function attemptsRouter(ctx: Ctx) {
     const out = await createPracticeAttempt(ctx, {
       country, viewer: viewerFromReq(req), topicIds: weak.slice(0, 3).map((t) => t.topicId),
     });
-    res.status(201).json({ attemptId: out.attempt.id, guestToken: out.guestToken, questionCount: out.questionCount, minutes: out.minutes, topics: weak.slice(0, 3) });
+    res.status(201).json({ attemptId: out.attempt.id, guestToken: out.guestToken, questionCount: out.questionCount, minutes: out.minutes, untimed: out.untimed, topics: weak.slice(0, 3) });
   });
 
   /** Practice mode only: reveal the answer and explanation for a question you have just answered. */
@@ -160,7 +160,7 @@ export function attemptsRouter(ctx: Ctx) {
     const topic = await prisma.topic.findFirst({ where: { id: topicId, category: { countryCode: code } } });
     if (!topic) throw notFound('topic_not_found');
     const out = await createPracticeAttempt(ctx, { country, viewer: viewerFromReq(req), topicIds: [topic.id] });
-    res.status(201).json({ attemptId: out.attempt.id, guestToken: out.guestToken, questionCount: out.questionCount, minutes: out.minutes, topics: [{ topicId: topic.id, name: topic.name }] });
+    res.status(201).json({ attemptId: out.attempt.id, guestToken: out.guestToken, questionCount: out.questionCount, minutes: out.minutes, untimed: out.untimed, topics: [{ topicId: topic.id, name: topic.name }] });
   });
 
   return router;

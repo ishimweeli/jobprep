@@ -90,6 +90,18 @@ Recorded so work can keep moving without blocking questions. Newest at the botto
 65. **Production refuses to start with unsafe configuration**, and lists every problem at once: fake payments, console SMS, a session secret under 32 characters or containing "change-me", non-https `PUBLIC_API_URL` / `WEB_ORIGIN`, and any missing or short (< 16) MTN / Airtel / M-Pesa callback secret. Test endpoints are forced off.
 66. **Still to do in hardening, and needs the web app or your input:** the keyboard-only and accessibility pass over the exam UI, Lighthouse on the final build, authorisation checks on admin routes (admin is blocked on design), CSP headers for the web host, error reporting and request logging, backups, and a shared rate-limit store if scaled out.
 
+## Batch 1 designs — decisions taken when told "build all"
+
+Where the designs and the backend disagreed, the owner said "build all" without choosing, so these are the **defaults I took (the recommendations)**. Each can be reversed; the owner should confirm them.
+
+67. **Sign-in copy follows the backend, not the artboard.** Code lifetime, resend wait and tries left now come from the API (`expiresInSeconds` 300, `cooldownSeconds` 45, `triesLeft` on a wrong code), so screens never hard-code them. The artboard's "10 minutes" and "wait 15 minutes" are wrong for this backend: after 5 wrong tries the code is dead and the user requests a new one (45 s resend wait, at most 5 codes an hour). `code_expired` is now a separate error from `invalid_code` (it can't leak whether an account exists: unknown numbers get a silent code row too).
+68. **"Choose N" is real.** A multiple-select question accepts at most N picks (`payload.choose`, default = the number of correct options); the exam state returns `choose`, and the server rejects more with `too_many_choices`. Note this shows the candidate how many answers are correct, as the design does. Scoring stays per question: all-or-nothing, or partial credit (equal share per correct pick, each wrong pick cancels one, never below 0); the seeded multiple-select question uses partial credit.
+69. **Practice sets are untimed** (as the Practice artboard draws): `timer.untimed = true`, no low-time state, no `minutes`; the attempt only keeps a 12-hour safety limit so abandoned ones are closed. The dashboard artboard's "15 questions · 20 min" line therefore no longer applies to practice and must be corrected by the designer.
+70. **C29 phone navigation is the standard** (Home, Tests, Progress, Account); the older tab bar in `DashboardPhone` is superseded.
+71. **No operator-prefix check on payment numbers.** The "number on another network" state in `CheckoutStates` is shown only if the operator itself rejects the number; the backend does not guess operators from prefixes (number portability makes that unreliable).
+72. **API additions for the new screens:** dashboard `startHere`, `suggestedTests`, `pendingPayment`; access `endingSoon` (3 days or fewer), `expired.endedAt`; checkout `currentAccess` and `newAccessEndsAt` (buying while active adds days after the current end); details `inProgress`; `X-Request-Id` on every response and `requestId` in every error body (the error page's "Reference").
+73. **Still open for the owner:** the waiting-list opt-out wording, the real values for [PRICE], [SUPPORT PHONE] and the maintenance [TIME].
+
 ## Not yet decided / needs the owner
 - Real provider credentials (MTN MoMo, Airtel, M-Pesa) and callback secrets.
 - Real SMS gateway for OTP and receipts.

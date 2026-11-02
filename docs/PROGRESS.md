@@ -3,6 +3,13 @@
 > **Design rule (owner, 2026-11-02): nothing is built without a design.** Everything with no artboard is
 > listed in [MISSING_DESIGNS.md](MISSING_DESIGNS.md). Phase 7 (admin) is blocked on items 18–32 there.
 
+## Batch 1 designs — backend support ✅ (2026-11-02)
+API changes for the new screens (DECISIONS 67–73): `triesLeft`, `code_expired`, "Choose N", untimed practice,
+new-user dashboard fields, access states, checkout access summary, details `inProgress`, request ids.
+`npm test -w @jobprep/api`: **303 pass**, run twice (24 new in `batch1.test.ts`; 4 older tests updated for the
+changed behaviour). The Batch 1 **screens** are not built yet: a third frontend pass starts when the second
+(exam, results, review, dashboard, checkout) finishes, so two agents never edit `apps/web` at once.
+
 ## Hardening, backend part ✅ (2026-11-02)
 Per-IP rate limits, production configuration checks (see DECISIONS 64–66). `npm test -w @jobprep/api`:
 **279 pass**, run twice for stability (27 new: 6 limiter unit tests, 21 hardening integration tests).

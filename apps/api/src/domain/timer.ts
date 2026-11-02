@@ -31,14 +31,17 @@ export function acceptsSaves(attempt: TimedAttempt, now: Date): boolean {
   return now.getTime() <= deadline.getTime() + SAVE_GRACE_SECONDS * 1000;
 }
 
-export function timerState(attempt: TimedAttempt, now: Date) {
+export function timerState(attempt: TimedAttempt & { kind?: string }, now: Date) {
   const remaining = remainingSeconds(attempt, now);
+  // A practice set is untimed: it keeps a very long safety limit (so it is closed eventually) but shows no clock.
+  const untimed = attempt.kind === 'PRACTICE';
   return {
+    untimed,
     remainingSeconds: remaining,
     serverNow: now.toISOString(),
     deadlineAt: deadlineFor(attempt.startedAt, attempt.durationSeconds).toISOString(),
     /** The design turns the timer red under 5 minutes. */
-    low: remaining > 0 && remaining < 300,
+    low: !untimed && remaining > 0 && remaining < 300,
     expired: remaining === 0,
   };
 }

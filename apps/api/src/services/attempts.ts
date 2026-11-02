@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import type { Attempt, Country, MockTest, Prisma, PrismaClient } from '@prisma/client';
 import { canStartMockTest, type GrantLike } from '../domain/access';
-import { scoreAttempt, type QuestionPayload, type ScorableQuestion } from '../domain/scoring';
+import { chooseLimit, scoreAttempt, type QuestionPayload, type ScorableQuestion } from '../domain/scoring';
 import { deadlineFor, SAVE_GRACE_SECONDS, timerState } from '../domain/timer';
 import { conflict, forbidden, HttpError, notFound, unauthorized } from '../http/errors';
 
@@ -40,7 +40,7 @@ export interface AnswerChange {
 export type ChangeResult = {
   questionId: string;
   status: 'saved' | 'stale' | 'rejected';
-  error?: 'unknown_question' | 'invalid_option' | 'after_deadline';
+  error?: 'unknown_question' | 'invalid_option' | 'too_many_choices' | 'after_deadline';
 };
 
 type Tx = Prisma.TransactionClient;
@@ -198,6 +198,8 @@ export async function buildState(ctx: Ctx, attemptId: string) {
         topic: q.topic,
         type: q.type,
         multiple: q.type === 'MULTIPLE_SELECT',
+        /** "Choose N" for multiple-select questions; null otherwise. */
+        choose: q.type === 'MULTIPLE_SELECT' ? chooseLimit(p) : null,
         stem: q.stem,
         // Option text only: never which ones are correct.
         options: p.options.map((o) => ({ key: o.key, text: o.text })),
@@ -367,6 +369,11 @@ export async function saveChanges(ctx: Ctx, attemptId: string, changes: AnswerCh
         const tooMany = q.type !== 'MULTIPLE_SELECT' && keys.length > 1;
         if (tooMany || keys.some((k) => !valid.has(k))) {
           results.push({ questionId: c.questionId, status: 'rejected', error: 'invalid_option' });
+          continue;
+        }
+        // "Choose N": a multiple-select question accepts at most N picks.
+        if (q.type === 'MULTIPLE_SELECT' && keys.length > chooseLimit(payloadOf(q))) {
+          results.push({ questionId: c.questionId, status: 'rejected', error: 'too_many_choices' });
           continue;
         }
         selected = keys.sort();

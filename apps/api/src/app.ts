@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import cors from 'cors';
 import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
@@ -37,6 +38,11 @@ export function createApp(deps: AppDeps) {
   app.disable('x-powered-by');
   // Behind a proxy (nginx / platform) the client IP is in X-Forwarded-For; needed for rate limiting later.
   app.set('trust proxy', 1);
+  app.use((req, res, next) => {
+    req.id = randomBytes(4).toString('hex').toUpperCase();
+    res.setHeader('X-Request-Id', req.id);
+    next();
+  });
   app.use(helmet());
   app.use(cors({ origin: config.WEB_ORIGIN, credentials: true }));
   // Keep the raw body: payment webhooks are authenticated over the exact bytes received.
@@ -73,25 +79,27 @@ export function createApp(deps: AppDeps) {
   if (config.ENABLE_TEST_ENDPOINTS) app.use('/api/test', testSupportRouter(ctx));
 
   app.use('/api', (_req, res) => {
-    res.status(404).json({ error: 'not_found' });
+    res.status(404).json({ error: 'not_found', requestId: _req.id });
   });
 
-  const onError: ErrorRequestHandler = (err, _req, res, _next) => {
+  const onError: ErrorRequestHandler = (err, req, res, _next) => {
     if (err instanceof HttpError) {
       if (err.status === 429 && typeof err.extra.retryAfterSeconds === 'number') {
         res.set('Retry-After', String(err.extra.retryAfterSeconds));
       }
-      return res.status(err.status).json({ error: err.code, ...err.extra });
+      return res.status(err.status).json({ error: err.code, ...err.extra, requestId: req.id });
     }
     if (err instanceof ZodError) {
       return res.status(400).json({
         error: 'validation_error',
+        requestId: req.id,
         issues: err.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
       });
     }
-    if (err instanceof SyntaxError && 'body' in err) return res.status(400).json({ error: 'invalid_json' });
-    console.error(err);
-    res.status(500).json({ error: 'internal_error' });
+    if (err instanceof SyntaxError && 'body' in err) return res.status(400).json({ error: 'invalid_json', requestId: req.id });
+    console.error(`[${req.id}]`, err);
+    // The id is what the error page shows as "Reference"; it is also in the server log line above.
+    res.status(500).json({ error: 'internal_error', requestId: req.id });
   };
   app.use(onError);
 

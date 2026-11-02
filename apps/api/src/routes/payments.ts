@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { formatMoney, isSellable } from '../domain/pricing';
 import { requireUser, type Ctx } from '../http/context';
+import { accessSummary } from '../services/access-summary';
 import { badRequest, notFound } from '../http/errors';
 import {
   createPayment, getOwnedPayment, handleCallback, InvalidCallbackError, paymentView, refreshPayment,
@@ -51,8 +52,13 @@ export function paymentsRouter(ctx: Ctx) {
       prisma.planConfig.findFirst({ where: { countryCode: country.code, code: 'FULL_ACCESS', active: true } }),
       prisma.paymentMethodConfig.findMany({ where: { countryCode: country.code, mode: { not: 'DISABLED' } }, orderBy: { sortOrder: 'asc' } }),
     ]);
+    // Buying while active adds the days after the current end date: tell the payer when access will now run until.
+    const access = await accessSummary(ctx, user.id, country.code);
+    const base = access.current?.endsAt ?? ctx.now();
     res.json({
       country: { code: country.code, name: country.name, dialCode: country.dialCode, currencyCode: country.currencyCode },
+      currentAccess: access.current,
+      newAccessEndsAt: plan ? new Date(base.getTime() + plan.durationDays * 86_400_000) : null,
       plan: plan && {
         name: plan.name,
         priceMinor: plan.priceMinor,

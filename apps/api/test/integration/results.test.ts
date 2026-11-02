@@ -280,10 +280,10 @@ describe('practice weak areas', () => {
     expect(res.status).toBe(201);
     expect(res.body.topics.map((t: { name: string }) => t.name)).toEqual(['Pedagogy & CBC', 'Statistics & probability', 'Number & operations']); // lowest first, max 3
     expect(res.body.questionCount).toBe(10); // Pedagogy 4 + 1 (primary teacher, free) + Statistics 4 + Number 1; paid tests excluded
-    expect(res.body.minutes).toBe(14); // 4/3 minute per question, rounded up
+    expect(res.body).toMatchObject({ minutes: null, untimed: true }); // the designed practice runner has no countdown
 
     const attempt = await prisma.attempt.findUniqueOrThrow({ where: { id: res.body.attemptId } });
-    expect(attempt).toMatchObject({ kind: 'PRACTICE', status: 'IN_PROGRESS', durationSeconds: 840 });
+    expect(attempt).toMatchObject({ kind: 'PRACTICE', status: 'IN_PROGRESS', durationSeconds: 12 * 3600 }); // only a safety limit
     const qs = await prisma.question.findMany({ where: { id: { in: attempt.questionIds } }, include: { mockTest: true, topic: true } });
     expect(qs.every((q) => q.mockTest.isFree)).toBe(true);
     expect(new Set(qs.map((q) => q.topic.name))).toEqual(new Set(['Pedagogy & CBC', 'Statistics & probability', 'Number & operations']));
@@ -297,7 +297,7 @@ describe('practice weak areas', () => {
     expect(state.attempt).toMatchObject({ kind: 'PRACTICE' });
     expect(state.attempt.mockTest.title).toMatch(/^Practice set: /);
     expect(state.questions).toHaveLength(10);
-    expect(state.timer.remainingSeconds).toBe(840);
+    expect(state.timer).toMatchObject({ untimed: true, low: false });
 
     const k = await prisma.question.findMany({ where: { id: { in: state.questions.map((q: { id: string }) => q.id) } } });
     const changes = k.map((q) => ({ questionId: q.id, selected: (q.payload as unknown as QuestionPayload).correct }));

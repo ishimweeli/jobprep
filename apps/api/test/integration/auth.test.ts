@@ -50,7 +50,7 @@ describe('sign-up', () => {
     expect(me.status).toBe(200);
     expect(me.body.user.phone).toBe(phone);
     expect(me.body.country).toMatchObject({ code: 'RW', currencyCode: 'RWF' });
-    expect(me.body.access).toEqual({ current: null, otherCountries: [] });
+    expect(me.body.access).toEqual({ current: null, expired: null, otherCountries: [] });
   });
 
   it('accepts a locally typed number and stores E.164', async () => {
@@ -146,7 +146,7 @@ describe('OTP rules', () => {
     const code = sms.lastCode(phone);
     clock = new Date(clock.getTime() + 301_000);
     const r = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', phone, name: 'Test User', code });
-    expect(r.body.error).toBe('invalid_code');
+    expect(r.body.error).toBe('code_expired'); // distinct from a wrong code, so the screen can offer "Send a new code"
   });
 
   it('a code is single use', async () => {

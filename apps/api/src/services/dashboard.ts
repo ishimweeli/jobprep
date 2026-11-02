@@ -1,4 +1,5 @@
 import type { Attempt, Prisma, User } from '@prisma/client';
+import { formatMoney } from '../domain/pricing';
 import type { TopicResult } from '../domain/scoring';
 import { accessSummary } from './access-summary';
 import { attemptTitle, listInProgress, type Ctx } from './attempts';
@@ -43,14 +44,14 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
   const needsWork = topicStats.filter((t) => t.percent < STRONG_TOPIC_CUTOFF_PERCENT).sort((a, b) => a.percent - b.percent).slice(0, 3);
 
   // Recommended next: practice set for the weakest topic that has enough questions the user can open.
-  let recommended: null | { topicId: string; topicName: string; percent: number; questionCount: number; minutes: number } = null;
+  let recommended: null | { topicId: string; topicName: string; percent: number; questionCount: number; untimed: true } = null;
   const viewer = { user: { id: user.id, countryCode: user.countryCode }, guestTokens: [] as string[] };
   for (const t of [...topicStats].sort((a, b) => a.percent - b.percent)) {
     if (t.percent >= STRONG_TOPIC_CUTOFF_PERCENT) break;
     const available = (await loadPracticePool(ctx, { country, viewer, topicIds: [t.topicId] })).length;
     if (available >= MIN_PRACTICE_QUESTIONS) {
       const count = Math.min(PRACTICE_SET_SIZE, available);
-      recommended = { topicId: t.topicId, topicName: t.name, percent: t.percent, questionCount: count, minutes: Math.ceil((count * 4) / 3) };
+      recommended = { topicId: t.topicId, topicName: t.name, percent: t.percent, questionCount: count, untimed: true };
       break;
     }
   }
@@ -77,6 +78,33 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
   const inProgress = await listInProgress(ctx, viewer);
   const unfinished = inProgress[0] ?? null;
 
+  // New users: a free test to start with, plus more tests for their goal (falls back to the featured category).
+  const goalCategoryId = goal?.id ?? (await prisma.category.findFirst({ where: { countryCode: user.countryCode, featured: true }, select: { id: true } }))?.id;
+  const cardOf = (t: { slug: string; title: string; isFree: boolean; durationMinutes: number; _count: { questions: number } }) => ({
+    slug: t.slug, title: t.title, isFree: t.isFree, durationMinutes: t.durationMinutes, questionCount: t._count.questions,
+  });
+  const testInclude = { _count: { select: { questions: { where: { status: 'PUBLISHED' as const } } } } };
+  const startHereRow = goalCategoryId
+    ? await prisma.mockTest.findFirst({
+        where: { countryCode: user.countryCode, status: 'PUBLISHED', isFree: true, categoryId: goalCategoryId },
+        orderBy: { title: 'asc' }, include: testInclude,
+      })
+    : null;
+  const suggestedRows = goalCategoryId
+    ? await prisma.mockTest.findMany({
+        where: { countryCode: user.countryCode, status: 'PUBLISHED', categoryId: goalCategoryId, ...(startHereRow && { id: { not: startHereRow.id } }) },
+        orderBy: [{ isFree: 'desc' }, { title: 'asc' }], take: 3, include: testInclude,
+      })
+    : [];
+
+  // A payment the payer has not approved yet (the "payment pending" state of My access).
+  const pendingRow = await prisma.payment.findFirst({
+    where: { userId: user.id, status: 'PENDING', expiresAt: { gt: now() } }, orderBy: { createdAt: 'desc' },
+  });
+  const pendingMethod = pendingRow
+    ? await prisma.paymentMethodConfig.findFirst({ where: { countryCode: pendingRow.countryCode, provider: pendingRow.provider } })
+    : null;
+
   return {
     user: { name: user.name, firstName: user.name.split(' ')[0] },
     country: { code: country.code, name: country.name },
@@ -88,6 +116,12 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
     recentlyCompleted: recent,
     access: await accessSummary(ctx, user.id, user.countryCode),
     hasActivity: finished.length > 0,
+    startHere: finished.length === 0 && startHereRow ? cardOf(startHereRow) : null,
+    suggestedTests: suggestedRows.map(cardOf),
+    pendingPayment: pendingRow && {
+      id: pendingRow.id, providerLabel: pendingMethod?.label ?? 'mobile money',
+      priceLabel: formatMoney(pendingRow.amountMinor, pendingRow.currencyCode, country.currencyExponent), expiresAt: pendingRow.expiresAt,
+    },
     asOf: now(),
   };
 }

@@ -20,6 +20,8 @@ declare module 'express-serve-static-core' {
     sessionToken?: string;
     /** Raw JSON body, kept for webhook signature checks. */
     rawBody?: string;
+    /** Short id echoed in X-Request-Id and in error bodies, so support can find the log line. */
+    id?: string;
   }
 }
 

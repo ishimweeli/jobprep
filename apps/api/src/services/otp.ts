@@ -74,13 +74,14 @@ export async function verifyOtp(
     where: { phone: input.phone, purpose: input.purpose, consumedAt: null },
     orderBy: { createdAt: 'desc' },
   });
-  if (!row || row.expiresAt <= at) throw badRequest('invalid_code');
-  if (row.attempts >= config.OTP_MAX_ATTEMPTS) throw badRequest('too_many_attempts');
+  if (!row) throw badRequest('invalid_code'); // note: unknown numbers also get a (silent) row, so this never reveals who has an account
+  if (row.expiresAt <= at) throw badRequest('code_expired');
+  if (row.attempts >= config.OTP_MAX_ATTEMPTS) throw badRequest('too_many_attempts', { triesLeft: 0 });
 
   const ok = safeEqual(row.codeHash, hashCode(config.SESSION_SECRET, input.phone, input.purpose, input.code));
   if (!ok) {
     await prisma.otpCode.update({ where: { id: row.id }, data: { attempts: { increment: 1 } } });
-    throw badRequest('invalid_code');
+    throw badRequest('invalid_code', { triesLeft: Math.max(0, config.OTP_MAX_ATTEMPTS - (row.attempts + 1)) });
   }
   // Single use: the conditional update makes a replayed or concurrent verify lose.
   const consumed = await prisma.otpCode.updateMany({
