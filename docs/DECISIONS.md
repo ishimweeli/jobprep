@@ -84,6 +84,12 @@ Recorded so work can keep moving without blocking questions. Newest at the botto
 62. **SMS receipt** is sent after the commit and a failing gateway never undoes a payment or access. **Its wording is mine; there is no design for it** (see docs/MISSING_DESIGNS.md).
 63. **Test-only simulator** (`POST /api/test/payments/:id/simulate`: success, decline, fail, duplicate, timeout) exists only with `ENABLE_TEST_ENDPOINTS` and the fake provider, both refused in production.
 
+## Phase 8 (backend part) — Hardening
+
+64. **Per-IP rate limits** (fixed window, in memory) on login-code requests (10/min), sign-up and sign-in verify (20/min), creating or resending payments (10/min), payment checks (30/min), exam requests and the waiting list (10/hour, one shared counter), starting attempts and practice sets (30/min), webhooks (600/min), and everything else (1,200/min). Answers are `429 rate_limited` with `Retry-After`. **Default: on in production, off in development and tests** (the e2e suites sign up dozens of users from one IP); set `RATE_LIMIT_ENABLED` to force either way. The limiter is per API instance; run several instances and a shared store (Redis) is needed. The per-phone OTP limits live in the database and always apply.
+65. **Production refuses to start with unsafe configuration**, and lists every problem at once: fake payments, console SMS, a session secret under 32 characters or containing "change-me", non-https `PUBLIC_API_URL` / `WEB_ORIGIN`, and any missing or short (< 16) MTN / Airtel / M-Pesa callback secret. Test endpoints are forced off.
+66. **Still to do in hardening, and needs the web app or your input:** the keyboard-only and accessibility pass over the exam UI, Lighthouse on the final build, authorisation checks on admin routes (admin is blocked on design), CSP headers for the web host, error reporting and request logging, backups, and a shared rate-limit store if scaled out.
+
 ## Not yet decided / needs the owner
 - Real provider credentials (MTN MoMo, Airtel, M-Pesa) and callback secrets.
 - Real SMS gateway for OTP and receipts.

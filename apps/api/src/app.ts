@@ -5,6 +5,7 @@ import type { PrismaClient } from '@prisma/client';
 import { ZodError } from 'zod';
 import type { Config } from './config';
 import { attachUser, type Ctx } from './http/context';
+import { createLimiter } from './http/rate-limit';
 import { HttpError } from './http/errors';
 import { attemptsRouter } from './routes/attempts';
 import { authRouter } from './routes/auth';
@@ -41,6 +42,18 @@ export function createApp(deps: AppDeps) {
   // Keep the raw body: payment webhooks are authenticated over the exact bytes received.
   app.use(express.json({ limit: '100kb', verify: (req, _res, buf) => { (req as express.Request).rawBody = buf.toString('utf8'); } }));
   app.use(attachUser(ctx));
+
+  // Per-IP limits (on in production). Keyed by IP behind the proxy (trust proxy is set). The per-phone OTP limits
+  // live in the database and always apply.
+  const limit = createLimiter(config.RATE_LIMIT_ENABLED === true);
+  app.use('/api', limit({ name: 'api-all', windowSeconds: 60, max: 1200 }));
+  app.post('/api/auth/otp/request', limit({ name: 'otp-request', windowSeconds: 60, max: 10 }));
+  app.post(['/api/auth/sign-up', '/api/auth/sign-in'], limit({ name: 'otp-verify', windowSeconds: 60, max: 20 }));
+  app.post(['/api/payments', '/api/payments/:id/resend'], limit({ name: 'payment-create', windowSeconds: 60, max: 10 }));
+  app.post('/api/payments/:id/check', limit({ name: 'payment-check', windowSeconds: 60, max: 30 }));
+  app.post('/api/payments/webhooks/:slug', limit({ name: 'webhooks', windowSeconds: 60, max: 600 }));
+  app.post(['/api/countries/:code/exam-requests', '/api/countries/:code/waiting-list'], limit({ name: 'requests', windowSeconds: 3600, max: 10 }));
+  app.post(['/api/countries/:code/mock-tests/:slug/attempts', '/api/countries/:code/practice', '/api/attempts/:id/practice'], limit({ name: 'attempt-start', windowSeconds: 60, max: 30 }));
 
   app.get('/api/health', async (_req, res) => {
     try {

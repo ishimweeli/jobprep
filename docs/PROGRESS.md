@@ -3,6 +3,11 @@
 > **Design rule (owner, 2026-11-02): nothing is built without a design.** Everything with no artboard is
 > listed in [MISSING_DESIGNS.md](MISSING_DESIGNS.md). Phase 7 (admin) is blocked on items 18–32 there.
 
+## Hardening, backend part ✅ (2026-11-02)
+Per-IP rate limits, production configuration checks (see DECISIONS 64–66). `npm test -w @jobprep/api`:
+**279 pass**, run twice for stability (27 new: 6 limiter unit tests, 21 hardening integration tests).
+Also fixed a flaky payments test (a 4-digit PIN marker could match random ids).
+
 ## Web app, part 1 — public screens ✅ (verified 2026-11-02)
 
 Landing, catalog, exam details, pricing, country picker, sign-up and the account / switch-country sheet,

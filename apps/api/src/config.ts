@@ -18,6 +18,8 @@ const schema = z.object({
   PAYMENT_PROVIDER_MODE: z.enum(['fake', 'sandbox', 'live']).default('fake'),
   SMS_PROVIDER: z.enum(['console', 'live']).default('console'),
   ENABLE_TEST_ENDPOINTS: bool,
+  /** Per-IP rate limits. Default: on in production, off elsewhere (the e2e suites make many sign-ups from one IP). */
+  RATE_LIMIT_ENABLED: z.enum(['true', 'false']).optional().transform((v) => (v === undefined ? undefined : v === 'true')),
   /** Public URL operators call back to (webhooks). */
   PUBLIC_API_URL: z.string().url().default('http://localhost:4000'),
   FAKE_WEBHOOK_SECRET: z.string().default('fake-webhook-secret-dev-only'),
@@ -48,11 +50,21 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new Error(`Invalid environment: ${issues}`);
   }
   const cfg = parsed.data;
+  cfg.RATE_LIMIT_ENABLED ??= cfg.NODE_ENV === 'production';
   if (cfg.NODE_ENV === 'production') {
     // Test-only endpoints must never exist in production, whatever the env file says.
     cfg.ENABLE_TEST_ENDPOINTS = false;
-    if (cfg.PAYMENT_PROVIDER_MODE === 'fake') throw new Error('PAYMENT_PROVIDER_MODE=fake is not allowed in production');
-    if (cfg.SMS_PROVIDER === 'console') throw new Error('SMS_PROVIDER=console is not allowed in production');
+    const problems: string[] = [];
+    if (cfg.PAYMENT_PROVIDER_MODE === 'fake') problems.push('PAYMENT_PROVIDER_MODE=fake is not allowed in production');
+    if (cfg.SMS_PROVIDER === 'console') problems.push('SMS_PROVIDER=console is not allowed in production');
+    if (cfg.SESSION_SECRET.length < 32 || /change-?me/i.test(cfg.SESSION_SECRET)) problems.push('SESSION_SECRET must be a random string of at least 32 characters');
+    if (!cfg.PUBLIC_API_URL.startsWith('https://')) problems.push('PUBLIC_API_URL must be https in production');
+    if (!cfg.WEB_ORIGIN.startsWith('https://')) problems.push('WEB_ORIGIN must be https in production');
+    // Operators authenticate their callbacks with these; an empty secret would reject every real payment.
+    for (const k of ['MTN_MOMO_CALLBACK_SECRET', 'AIRTEL_CALLBACK_SECRET', 'MPESA_CALLBACK_SECRET'] as const) {
+      if (cfg[k].length < 16) problems.push(`${k} must be set (at least 16 characters)`);
+    }
+    if (problems.length > 0) throw new Error(`Unsafe production configuration: ${problems.join('; ')}`);
   }
   return cfg;
 }

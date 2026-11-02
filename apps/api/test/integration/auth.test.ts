@@ -411,9 +411,14 @@ describe('test endpoints and production safety', () => {
 
   it('config refuses fake payments / console SMS in production and forces test endpoints off', () => {
     const base = { DATABASE_URL: 'postgresql://x', SESSION_SECRET: 'x'.repeat(20), NODE_ENV: 'production' };
+    const safeProd = {
+      DATABASE_URL: 'postgresql://x', SESSION_SECRET: 'r4nd0m-'.repeat(6), NODE_ENV: 'production', PAYMENT_PROVIDER_MODE: 'live', SMS_PROVIDER: 'live',
+      PUBLIC_API_URL: 'https://api.jobprep.test', WEB_ORIGIN: 'https://jobprep.test',
+      MTN_MOMO_CALLBACK_SECRET: 'a'.repeat(20), AIRTEL_CALLBACK_SECRET: 'b'.repeat(20), MPESA_CALLBACK_SECRET: 'c'.repeat(20),
+    };
     expect(() => loadConfig({ ...base, PAYMENT_PROVIDER_MODE: 'fake', SMS_PROVIDER: 'live' })).toThrow(/fake/);
     expect(() => loadConfig({ ...base, PAYMENT_PROVIDER_MODE: 'live', SMS_PROVIDER: 'console' })).toThrow(/console/);
-    const ok = loadConfig({ ...base, PAYMENT_PROVIDER_MODE: 'live', SMS_PROVIDER: 'live', ENABLE_TEST_ENDPOINTS: 'true' });
+    const ok = loadConfig({ ...safeProd, ENABLE_TEST_ENDPOINTS: 'true' });
     expect(ok.ENABLE_TEST_ENDPOINTS).toBe(false);
   });
 
