@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.playwright-mcp/
+playwright-report/
+test-results/
+apps/api/prisma/*.db
+.vscode/*
+!.vscode/extensions.json

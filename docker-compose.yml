@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jobprep-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jobprep
+      POSTGRES_PASSWORD: jobprep
+      POSTGRES_DB: jobprep
+    ports:
+      # 5433 on the host so it never collides with a locally installed Postgres
+      - "5433:5432"
+    volumes:
+      - jobprep-pgdata:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobprep -d jobprep"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  jobprep-pgdata:

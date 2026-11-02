@@ -1,0 +1,45 @@
+{
+  "name": "@jobprep/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/server.ts",
+    "start": "tsx --env-file=../../.env src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test prisma",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "dotenv -e ../../.env -- prisma generate",
+    "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "db:reset": "dotenv -e ../../.env -- prisma migrate reset --force --skip-seed --skip-generate && tsx --env-file=../../.env prisma/seed.ts",
+    "seed": "tsx --env-file=../../.env prisma/seed.ts"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@jobprep/shared": "*",
+    "@prisma/client": "^6.19.3",
+    "cors": "^2.8.5",
+    "express": "^5.3.0",
+    "helmet": "^8.1.0",
+    "pino": "^9.9.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.17.0",
+    "@types/supertest": "^6.0.3",
+    "dotenv-cli": "^11.1.0",
+    "eslint": "^9.39.0",
+    "prisma": "^6.19.3",
+    "supertest": "^7.3.1",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5"
+  }
+}

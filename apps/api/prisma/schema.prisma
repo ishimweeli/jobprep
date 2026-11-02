@@ -1,0 +1,646 @@
+// JobPrep data model — see docs/SPEC.md. Everything candidate-facing is country-scoped.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────── Enums ─────────────────────────
+
+enum CountryStatus {
+  LIVE
+  PREPARING
+  PLANNED
+}
+
+enum PaymentProviderCode {
+  MTN_MOMO
+  AIRTEL_MONEY
+  MPESA
+  FAKE
+}
+
+enum ProviderMode {
+  DISABLED
+  SANDBOX
+  LIVE
+}
+
+enum Difficulty {
+  FOUNDATION
+  STANDARD
+  CHALLENGING
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+/// How an answer is captured and scored. CASE_BASED questions are single-choice questions
+/// that must belong to a Case (passage + tables).
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_SELECT
+  CASE_BASED
+}
+
+enum AttemptKind {
+  FULL
+  PRACTICE
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  AUTO_SUBMITTED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum OtpPurpose {
+  SIGN_UP
+  SIGN_IN
+  ADMIN_SIGN_IN
+}
+
+enum AccessSource {
+  PAYMENT
+  MANUAL
+}
+
+enum AccessGrantStatus {
+  ACTIVE
+  REVOKED
+  SUSPENDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  DECLINED
+  FAILED
+  EXPIRED
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum AdminRoleName {
+  SYSTEM_ADMIN
+  CONTENT_EDITOR
+  SUPPORT
+}
+
+// ───────────────────────── Countries & catalogue ─────────────────────────
+
+model Country {
+  code            String        @id @db.VarChar(2) // ISO 3166-1 alpha-2: RW, KE, UG, TZ
+  slug            String        @unique // url prefix: rw, ke ...
+  name            String
+  status          CountryStatus @default(PLANNED)
+  currencyCode    String        @db.VarChar(3) // RWF, KES ...
+  currencyExponent Int          @default(0) // RWF 0, KES 2
+  dialCode        String // +250
+  languages       String[] // locale codes, first is the default
+  disclaimer      String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  authorities     Authority[]
+  categories      Category[]
+  mockTests       MockTest[]
+  users           User[]
+  plans           PlanConfig[]
+  paymentMethods  PaymentMethodConfig[]
+  waitingList     WaitingListEntry[]
+  examRequests    ExamRequest[]
+  payments        Payment[]
+  accessGrants    AccessGrant[]
+  attempts        Attempt[]
+}
+
+model Authority {
+  id          String   @id @default(cuid())
+  countryCode String
+  country     Country  @relation(fields: [countryCode], references: [code])
+  shortName   String // MIFOTRA, REB, TSC, PSC
+  name        String
+  createdAt   DateTime @default(now())
+
+  exams Exam[]
+
+  @@unique([countryCode, shortName])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  countryCode String
+  country     Country  @relation(fields: [countryCode], references: [code])
+  slug        String
+  name        String
+  description String   @default("")
+  icon        String   @default("")
+  sortOrder   Int      @default(0)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  professions Profession[]
+  topics      Topic[]
+  mockTests   MockTest[]
+  users       User[] // users whose job goal is this category
+
+  @@unique([countryCode, slug])
+}
+
+/// A job / role someone sits an exam for, e.g. "Secondary Mathematics Teacher".
+model Profession {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  slug       String
+  name       String
+  createdAt  DateTime @default(now())
+
+  exams Exam[]
+
+  @@unique([categoryId, slug])
+}
+
+/// The recruitment exam for a profession (optionally set by an authority). Holds the mock tests.
+model Exam {
+  id           String      @id @default(cuid())
+  professionId String
+  profession   Profession  @relation(fields: [professionId], references: [id])
+  authorityId  String?
+  authority    Authority?  @relation(fields: [authorityId], references: [id])
+  slug         String      @unique
+  name         String
+  description  String      @default("")
+  createdAt    DateTime    @default(now())
+
+  mockTests MockTest[]
+}
+
+model MockTest {
+  id              String        @id @default(cuid())
+  examId          String
+  exam            Exam          @relation(fields: [examId], references: [id])
+  countryCode     String
+  country         Country       @relation(fields: [countryCode], references: [code])
+  categoryId      String
+  category        Category      @relation(fields: [categoryId], references: [id])
+  slug            String
+  title           String
+  summary         String        @default("")
+  status          PublishStatus @default(DRAFT)
+  isFree          Boolean       @default(false)
+  difficulty      Difficulty    @default(STANDARD)
+  languages       String[]
+  durationMinutes Int
+  /// Sum of question marks is the source of truth; this is the declared headline value.
+  totalMarks      Decimal       @db.Decimal(8, 2)
+  /// Negative marking is off unless configured per exam: marks deducted per wrong answer.
+  negativeMarkPerWrong Decimal  @default(0) @db.Decimal(5, 2)
+  /// Official pass mark — only ever shown when an admin enters one WITH a source.
+  passMarkPercent Decimal?      @db.Decimal(5, 2)
+  passMarkSource  String?
+  instructions    String[]
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  sections  Section[]
+  questions Question[]
+  cases     Case[]
+  attempts  Attempt[]
+
+  @@unique([countryCode, slug])
+  @@index([countryCode, status, categoryId])
+}
+
+model Section {
+  id           String       @id @default(cuid())
+  mockTestId   String
+  mockTest     MockTest     @relation(fields: [mockTestId], references: [id], onDelete: Cascade)
+  name         String
+  /// Human label shown in the section table: "Multiple choice", "Case-based, 10 linked questions"
+  questionTypeLabel String  @default("Multiple choice")
+  sortOrder    Int          @default(0)
+
+  questions Question[]
+
+  @@unique([mockTestId, name])
+}
+
+model Topic {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  slug       String
+  name       String
+
+  questions Question[]
+
+  @@unique([categoryId, slug])
+}
+
+model Case {
+  id         String   @id @default(cuid())
+  mockTestId String
+  mockTest   MockTest @relation(fields: [mockTestId], references: [id], onDelete: Cascade)
+  title      String
+  /// Markdown-free plain paragraphs; tables are in `tables`.
+  passage    String[]
+  /// [{ caption, rows: [{ label, value?, heading? }] }]
+  tables     Json     @default("[]")
+  /// Extra numbered facts shown under the tables.
+  notes      String[]
+  sortOrder  Int      @default(0)
+
+  questions    Question[]
+  translations CaseTranslation[]
+}
+
+model CaseTranslation {
+  id       String @id @default(cuid())
+  caseId   String
+  case     Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  language String
+  title    String
+  passage  String[]
+  tables   Json   @default("[]")
+  notes    String[]
+
+  @@unique([caseId, language])
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  mockTestId  String
+  mockTest    MockTest     @relation(fields: [mockTestId], references: [id], onDelete: Cascade)
+  sectionId   String
+  section     Section      @relation(fields: [sectionId], references: [id])
+  topicId     String
+  topic       Topic        @relation(fields: [topicId], references: [id])
+  caseId      String?
+  case        Case?        @relation(fields: [caseId], references: [id])
+  type        QuestionType @default(SINGLE_CHOICE)
+  stem        String
+  /// SINGLE_CHOICE / CASE_BASED: { options: [{key, text}], correct: ["B"] }
+  /// MULTIPLE_SELECT:           { options: [...], correct: ["A","C"], scoring: "ALL_OR_NOTHING" | "PARTIAL" }
+  payload     Json
+  explanation String
+  marks       Decimal      @default(1) @db.Decimal(5, 2)
+  difficulty  Difficulty   @default(STANDARD)
+  sortOrder   Int          @default(0)
+  status      PublishStatus @default(PUBLISHED)
+  version     Int          @default(1)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  translations QuestionTranslation[]
+  answers      AttemptAnswer[]
+  reports      QuestionReport[]
+
+  @@index([mockTestId, sortOrder])
+  @@index([topicId])
+}
+
+model QuestionTranslation {
+  id          String   @id @default(cuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  language    String
+  stem        String
+  /// Option text only, keyed by option key: { "A": "…", "B": "…" } (correctness stays on the question)
+  optionTexts Json
+  explanation String
+
+  @@unique([questionId, language])
+}
+
+// ───────────────────────── Candidates, auth ─────────────────────────
+
+model User {
+  id            String     @id @default(cuid())
+  countryCode   String
+  country       Country    @relation(fields: [countryCode], references: [code])
+  /// E.164, e.g. +250788123456
+  phone         String     @unique
+  name          String
+  status        UserStatus @default(ACTIVE)
+  suspendedReason String?
+  goalCategoryId String?
+  goalCategory  Category?  @relation(fields: [goalCategoryId], references: [id])
+  language      String     @default("en")
+  createdAt     DateTime   @default(now())
+  lastSeenAt    DateTime?
+
+  sessions     Session[]
+  attempts     Attempt[]
+  accessGrants AccessGrant[]
+  payments     Payment[]
+  reports      QuestionReport[]
+
+  @@index([countryCode])
+}
+
+model OtpCode {
+  id         String     @id @default(cuid())
+  phone      String
+  purpose    OtpPurpose
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int        @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime   @default(now())
+
+  @@index([phone, purpose, createdAt])
+}
+
+model Session {
+  id          String     @id @default(cuid())
+  tokenHash   String     @unique
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminUserId String?
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime   @default(now())
+  userAgent   String?
+}
+
+// ───────────────────────── Attempts ─────────────────────────
+
+model Attempt {
+  id            String        @id @default(cuid())
+  mockTestId    String
+  mockTest      MockTest      @relation(fields: [mockTestId], references: [id])
+  countryCode   String
+  country       Country       @relation(fields: [countryCode], references: [code])
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  /// Opaque token held by guests so a guest attempt can be claimed after sign-up.
+  guestToken    String?
+  kind          AttemptKind   @default(FULL)
+  status        AttemptStatus @default(IN_PROGRESS)
+  startedAt     DateTime      @default(now())
+  /// Server-authoritative: startedAt + durationSeconds. Never trust the client clock.
+  durationSeconds Int
+  deadlineAt    DateTime
+  submittedAt   DateTime?
+  /// Question ids for PRACTICE attempts (a short set built from weak topics); empty = whole test.
+  questionIds   String[]
+  scoreMarks    Decimal?      @db.Decimal(8, 2)
+  totalMarks    Decimal?      @db.Decimal(8, 2)
+  percent       Decimal?      @db.Decimal(5, 2)
+  /// [{ topicId, topicName, correct, total, percent }] computed at submit time.
+  topicBreakdown Json?
+  createdAt     DateTime      @default(now())
+
+  answers AttemptAnswer[]
+  reports QuestionReport[]
+
+  @@index([userId, status])
+  @@index([guestToken])
+  @@index([mockTestId])
+}
+
+model AttemptAnswer {
+  id           String   @id @default(cuid())
+  attemptId    String
+  attempt      Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question @relation(fields: [questionId], references: [id])
+  /// Selected option keys. Empty = unanswered (a flag can exist without an answer).
+  selected     String[]
+  flagged      Boolean  @default(false)
+  /// Client-side sequence so out-of-order offline syncs never overwrite newer data.
+  clientSeq    Int      @default(0)
+  savedAt      DateTime @default(now())
+  isCorrect    Boolean?
+  marksAwarded Decimal? @db.Decimal(5, 2)
+
+  @@unique([attemptId, questionId])
+}
+
+// ───────────────────────── Plans, payments, access ─────────────────────────
+
+model PlanConfig {
+  id           String   @id @default(cuid())
+  countryCode  String
+  country      Country  @relation(fields: [countryCode], references: [code])
+  code         String   @default("FULL_ACCESS")
+  name         String   @default("Full Access")
+  /// null = price not set (country not ready for checkout). Minor units of `currencyCode`.
+  priceMinor   Int?
+  currencyCode String   @db.VarChar(3)
+  durationDays Int      @default(30)
+  autoRenew    Boolean  @default(false)
+  active       Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+
+  accessGrants AccessGrant[]
+  payments     Payment[]
+
+  @@unique([countryCode, code])
+}
+
+model PaymentMethodConfig {
+  id          String              @id @default(cuid())
+  countryCode String
+  country     Country             @relation(fields: [countryCode], references: [code])
+  provider    PaymentProviderCode
+  label       String
+  mode        ProviderMode        @default(DISABLED)
+  /// "Safaricom numbers", "MTN numbers" ...
+  hint        String              @default("")
+  sortOrder   Int                 @default(0)
+
+  @@unique([countryCode, provider])
+}
+
+model Payment {
+  id           String              @id @default(cuid())
+  userId       String
+  user         User                @relation(fields: [userId], references: [id])
+  countryCode  String
+  country      Country             @relation(fields: [countryCode], references: [code])
+  planId       String
+  plan         PlanConfig          @relation(fields: [planId], references: [id])
+  provider     PaymentProviderCode
+  msisdn       String // E.164 payer number — never a PIN
+  amountMinor  Int // snapshot of the price at purchase time
+  currencyCode String              @db.VarChar(3)
+  status       PaymentStatus       @default(PENDING)
+  /// Provider-side transaction / request id.
+  providerReference String?
+  /// Idempotency key for creating the payment (client-supplied or generated).
+  idempotencyKey String            @unique
+  failureReason String?
+  expiresAt     DateTime
+  confirmedAt   DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  events      PaymentEvent[]
+  accessGrant AccessGrant?
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@unique([provider, providerReference])
+}
+
+/// Raw webhook / poll results. `dedupeKey` makes duplicate callbacks a no-op.
+model PaymentEvent {
+  id        String   @id @default(cuid())
+  paymentId String
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  source    String // webhook | poll | admin
+  status    String
+  dedupeKey String   @unique
+  payload   Json
+  createdAt DateTime @default(now())
+}
+
+model AccessGrant {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  /// Scope: a grant only unlocks mock tests of this country.
+  countryCode String
+  country     Country           @relation(fields: [countryCode], references: [code])
+  planId      String
+  plan        PlanConfig        @relation(fields: [planId], references: [id])
+  startsAt    DateTime
+  endsAt      DateTime
+  status      AccessGrantStatus @default(ACTIVE)
+  source      AccessSource      @default(PAYMENT)
+  paymentId   String?
+  payment     Payment?          @relation(fields: [paymentId], references: [id])
+  /// For MANUAL grants: who granted it, why, and the provider transaction id that justified it.
+  grantedById String?
+  grantedBy   AdminUser?        @relation(fields: [grantedById], references: [id])
+  reason      String?
+  externalTransactionId String?
+  createdAt   DateTime          @default(now())
+
+  @@index([userId, countryCode, endsAt])
+  // One grant per successful payment — makes duplicate callbacks idempotent at the DB level.
+  @@unique([paymentId])
+}
+
+// ───────────────────────── Engagement ─────────────────────────
+
+model WaitingListEntry {
+  id          String   @id @default(cuid())
+  countryCode String
+  country     Country  @relation(fields: [countryCode], references: [code])
+  phone       String
+  createdAt   DateTime @default(now())
+
+  @@unique([countryCode, phone])
+}
+
+/// "Request this exam" from the catalog empty state.
+model ExamRequest {
+  id          String   @id @default(cuid())
+  countryCode String
+  country     Country  @relation(fields: [countryCode], references: [code])
+  query       String
+  phone       String?
+  createdAt   DateTime @default(now())
+}
+
+model QuestionReport {
+  id         String       @id @default(cuid())
+  questionId String
+  question   Question     @relation(fields: [questionId], references: [id])
+  userId     String?
+  user       User?        @relation(fields: [userId], references: [id])
+  attemptId  String?
+  attempt    Attempt?     @relation(fields: [attemptId], references: [id])
+  message    String
+  status     ReportStatus @default(OPEN)
+  resolvedById String?
+  resolvedBy   AdminUser?  @relation(fields: [resolvedById], references: [id])
+  resolvedAt DateTime?
+  createdAt  DateTime     @default(now())
+
+  @@index([questionId, status])
+}
+
+// ───────────────────────── Admin ─────────────────────────
+
+model Role {
+  id          String        @id @default(cuid())
+  name        AdminRoleName @unique
+  label       String
+  /// Permission strings, e.g. "exams:write", "payments:grant". Enforced in the API.
+  permissions String[]
+
+  admins AdminUser[]
+}
+
+model AdminUser {
+  id       String   @id @default(cuid())
+  phone    String   @unique
+  name     String
+  roleId   String
+  role     Role     @relation(fields: [roleId], references: [id])
+  /// Empty = all countries. Content editors may be restricted to specific countries.
+  countryScope String[]
+  active   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  sessions       Session[]
+  auditLogs      AuditLog[]
+  grants         AccessGrant[]
+  resolvedReports QuestionReport[]
+}
+
+model AuditLog {
+  id          String     @id @default(cuid())
+  actorId     String?
+  actor       AdminUser? @relation(fields: [actorId], references: [id])
+  action      String // e.g. "access.grant", "country.price.set"
+  entityType  String
+  entityId    String?
+  countryCode String?
+  reason      String?
+  metadata    Json       @default("{}")
+  createdAt   DateTime   @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
+
+// ───────────────────────── Config ─────────────────────────
+
+/// DB-level overrides for UI strings (see packages/shared i18n).
+model Translation {
+  id     String @id @default(cuid())
+  locale String
+  key    String
+  value  String
+
+  @@unique([locale, key])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

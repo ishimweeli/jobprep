@@ -1,0 +1,31 @@
+{
+  "name": "jobprep",
+  "private": true,
+  "version": "0.1.0",
+  "description": "JobPrep — mock exam platform for recruitment exams (jobprep.nexvecta.com)",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run db:migrate -w @jobprep/api",
+    "db:reset": "npm run db:reset -w @jobprep/api",
+    "seed": "npm run seed -w @jobprep/api",
+    "dev": "npm run dev -w @jobprep/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "eslint": "^9.39.5",
+    "typescript-eslint": "^8.72.1"
+  }
+}
