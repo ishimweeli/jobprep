@@ -43,3 +43,23 @@ export async function signedInAgent(
   if (res.status !== 201) throw new Error(`sign-up failed: ${res.status} ${JSON.stringify(res.body)}`);
   return { agent, userId: res.body.user.id as string };
 }
+
+export const ADMINS = {
+  SYSTEM: '+250788000001',
+  EDITOR: '+250788000002', // content editor, restricted to Rwanda
+  SUPPORT: '+250788000003',
+} as const;
+
+/** Sign a seeded admin in through the real endpoints; returns a cookie-keeping agent. */
+export async function adminAgent(
+  app: Parameters<typeof request>[0],
+  sms: ConsoleSmsProvider,
+  phone: string,
+) {
+  const agent = request.agent(app);
+  const r = await agent.post('/api/admin/auth/otp/request').send({ phone });
+  if (r.status !== 200) throw new Error(`admin otp request failed: ${r.status} ${JSON.stringify(r.body)}`);
+  const res = await agent.post('/api/admin/auth/sign-in').send({ phone, code: sms.lastCode(phone) });
+  if (res.status !== 200) throw new Error(`admin sign-in failed: ${res.status} ${JSON.stringify(res.body)}`);
+  return agent;
+}

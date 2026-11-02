@@ -23,7 +23,7 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
   };
   const finished = await prisma.attempt.findMany({
     where: finishedWhere,
-    orderBy: { submittedAt: 'asc' },
+    orderBy: [{ submittedAt: 'asc' }, { startedAt: 'asc' }, { id: 'asc' }],
     include: { mockTest: { include: { category: { select: { slug: true, name: true } } } } },
   });
 
@@ -63,7 +63,7 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
     .map((a) => ({ attemptId: a.id, submittedAt: a.submittedAt, percent: num(a.percent), title: a.mockTest.title }));
 
   // "attempt 2": the n-th finished attempt of that test by this user.
-  const nth = (a: Attempt) => fullFinished.filter((x) => x.mockTestId === a.mockTestId && x.submittedAt! <= a.submittedAt!).length;
+  const nth = (a: Attempt) => fullFinished.filter((x) => x.mockTestId === a.mockTestId).findIndex((x) => x.id === a.id) + 1;
   const recent = await Promise.all(
     [...finished].reverse().slice(0, 5).map(async (a) => ({
       attemptId: a.id,

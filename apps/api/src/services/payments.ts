@@ -47,6 +47,10 @@ export interface SignalMeta {
   eventId: string;
   payload?: Prisma.InputJsonValue;
   transactionId?: string;
+  /** Set when an admin confirmed the payment by hand. */
+  manual?: { adminId: string; reason: string; transactionId: string };
+  /** Runs inside the same database transaction when the signal changes something (used for the audit entry). */
+  inTransaction?: (tx: Prisma.TransactionClient) => Promise<unknown>;
 }
 
 export async function applySignal(ctx: Ctx, paymentId: string, signal: PaymentSignal, meta: SignalMeta) {
@@ -85,10 +89,12 @@ export async function applySignal(ctx: Ctx, paymentId: string, signal: PaymentSi
       grant = await tx.accessGrant.create({
         data: {
           userId: payment.userId, countryCode: payment.countryCode, planId: payment.planId, paymentId,
-          startsAt: window.startsAt, endsAt: window.endsAt, source: 'PAYMENT',
+          startsAt: window.startsAt, endsAt: window.endsAt, source: meta.manual ? 'MANUAL' : 'PAYMENT',
+          ...(meta.manual && { grantedById: meta.manual.adminId, reason: meta.manual.reason, externalTransactionId: meta.manual.transactionId }),
         },
       });
     }
+    if (meta.inTransaction) await meta.inTransaction(tx);
     return { payment: updated, changed: true, grant };
   }, { timeout: 15_000 });
 

@@ -3,6 +3,15 @@
 > **Design rule (owner, 2026-11-02): nothing is built without a design.** Everything with no artboard is
 > listed in [MISSING_DESIGNS.md](MISSING_DESIGNS.md). Phase 7 (admin) is blocked on items 18–32 there.
 
+## Phase 7 — Admin, backend ✅ (2026-11-02)
+
+**Built** (`apps/api/src/routes/admin/*`, `src/admin/*`): admin sign-in; overview; users (list, filters, detail, grant/extend, suspend, un-suspend, send login code); payments (list, tabs, stuck, detail with timeline, check, manual grant); exams (list, test detail, publish, archive, create, edit), question editor (all types, validation, reports resolved on publish), categories, sections, topics, case studies, CSV import (dry run, row-level report); reports queue; countries (list, detail, go-live checklist, price, payment methods, disclaimer, legal flag); settings; admin team; audit log with readable sentences.
+
+**Test results** (2026-11-02), API only: `npm test -w @jobprep/api` = **639 pass**, run twice (new: 29 sign-in, 168 permissions and country scope, 26 users/payments/overview, 40 content, 64 governance, 9 CSV). Typecheck and lint clean.
+Highlights: all 51 admin routes are called as every role; blocked actions change nothing; a Rwanda-only editor cannot see or change Kenya; every state-changing route is proven to write an audit entry.
+
+**Not built yet: the admin screens.** The designs exist for overview, users, exams and the question editor, payments, settings and countries (desktop and phone); none exists for admin sign-in or the dialogs (grant, suspend, manual grant, CSV import, category/test/case editors, invite) — see MISSING_DESIGNS A1–A18. A separate `apps/admin` app builds the designed screens only.
+
 ## Batch 1 designs — backend support ✅ (2026-11-02)
 API changes for the new screens (DECISIONS 67–73): `triesLeft`, `code_expired`, "Choose N", untimed practice,
 new-user dashboard fields, access states, checkout access summary, details `inProgress`, request ids.

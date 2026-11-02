@@ -22,6 +22,8 @@ declare module 'express-serve-static-core' {
     rawBody?: string;
     /** Short id echoed in X-Request-Id and in error bodies, so support can find the log line. */
     id?: string;
+    /** The signed-in admin (cookie `jp_admin`), if any. */
+    admin?: import('../admin/auth').AdminPrincipal;
   }
 }
 

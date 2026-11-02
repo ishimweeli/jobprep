@@ -163,5 +163,22 @@ export function attemptsRouter(ctx: Ctx) {
     res.status(201).json({ attemptId: out.attempt.id, guestToken: out.guestToken, questionCount: out.questionCount, minutes: out.minutes, untimed: out.untimed, topics: [{ topicId: topic.id, name: topic.name }] });
   });
 
+  /**
+   * "Report a question": a candidate flags a question that looks wrong. It lands in the admin reports queue.
+   * Only their own attempt, only a question that was in it, and only once per attempt and question.
+   */
+  router.post('/attempts/:id/reports', async (req, res) => {
+    const { questionId, message } = z.object({ questionId: z.string().min(1).max(40), message: z.string().trim().min(5).max(500) }).parse(req.body);
+    const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
+    const q = await prisma.question.findFirst({
+      where: { AND: [{ id: questionId }, attempt.questionIds.length > 0 ? { id: { in: attempt.questionIds } } : { mockTestId: attempt.mockTestId }] },
+      select: { id: true },
+    });
+    if (!q) throw notFound('unknown_question');
+    if (await prisma.questionReport.findFirst({ where: { questionId, attemptId: attempt.id, status: 'OPEN' }, select: { id: true } })) throw badRequest('already_reported');
+    await prisma.questionReport.create({ data: { questionId, attemptId: attempt.id, userId: attempt.userId, message } });
+    res.status(201).json({ ok: true });
+  });
+
   return router;
 }

@@ -9,6 +9,8 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
   WEB_ORIGIN: z.string().url().default('http://localhost:5173'),
+  /** Folder of the built web app (apps/web/dist). Set in the container image; unset in dev, where Vite serves it. */
+  WEB_DIST_DIR: z.string().min(1).optional(),
   DATABASE_URL: z.string().min(1),
   SESSION_SECRET: z.string().min(16),
   OTP_TTL_SECONDS: z.coerce.number().int().positive().default(300),

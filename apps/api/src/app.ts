@@ -8,6 +8,7 @@ import type { Config } from './config';
 import { attachUser, type Ctx } from './http/context';
 import { createLimiter } from './http/rate-limit';
 import { HttpError } from './http/errors';
+import { adminRouter } from './routes/admin';
 import { attemptsRouter } from './routes/attempts';
 import { authRouter } from './routes/auth';
 import { catalogRouter } from './routes/catalog';
@@ -17,6 +18,7 @@ import { paymentsRouter } from './routes/payments';
 import { testSupportRouter } from './routes/test-support';
 import { createProviderRegistry, type ProviderRegistry } from './payments/registry';
 import { ConsoleSmsProvider, type SmsProvider } from './services/sms';
+import { serveWeb } from './http/static-web';
 
 export interface AppDeps {
   prisma: PrismaClient;
@@ -54,6 +56,9 @@ export function createApp(deps: AppDeps) {
   const limit = createLimiter(config.RATE_LIMIT_ENABLED === true);
   app.use('/api', limit({ name: 'api-all', windowSeconds: 60, max: 1200 }));
   app.post('/api/auth/otp/request', limit({ name: 'otp-request', windowSeconds: 60, max: 10 }));
+  app.post('/api/admin/auth/otp/request', limit({ name: 'admin-otp-request', windowSeconds: 60, max: 5 }));
+  app.post('/api/admin/auth/sign-in', limit({ name: 'admin-sign-in', windowSeconds: 60, max: 10 }));
+  app.post('/api/attempts/:id/reports', limit({ name: 'question-report', windowSeconds: 3600, max: 20 }));
   app.post(['/api/auth/sign-up', '/api/auth/sign-in'], limit({ name: 'otp-verify', windowSeconds: 60, max: 20 }));
   app.post(['/api/payments', '/api/payments/:id/resend'], limit({ name: 'payment-create', windowSeconds: 60, max: 10 }));
   app.post('/api/payments/:id/check', limit({ name: 'payment-check', windowSeconds: 60, max: 30 }));
@@ -75,6 +80,7 @@ export function createApp(deps: AppDeps) {
   app.use('/api/auth', authRouter(ctx));
   app.use('/api', paymentsRouter(ctx)); // before /api/me so /api/me/checkout is handled here
   app.use('/api/me', meRouter(ctx));
+  app.use('/api/admin', adminRouter(ctx));
   app.use('/api', attemptsRouter(ctx));
   if (config.ENABLE_TEST_ENDPOINTS) app.use('/api/test', testSupportRouter(ctx));
 
@@ -101,6 +107,8 @@ export function createApp(deps: AppDeps) {
     // The id is what the error page shows as "Reference"; it is also in the server log line above.
     res.status(500).json({ error: 'internal_error', requestId: req.id });
   };
+  if (config.WEB_DIST_DIR) serveWeb(app, config.WEB_DIST_DIR);
+
   app.use(onError);
 
   return app;

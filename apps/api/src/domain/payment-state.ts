@@ -10,7 +10,9 @@ export type PaymentSignal =
   | { type: 'provider_success' }
   | { type: 'provider_declined' }
   | { type: 'provider_failed'; reason?: string }
-  | { type: 'timeout' };
+  | { type: 'timeout' }
+  /** An admin confirmed the money arrived (with the operator's transaction id). Never applies to a declined payment. */
+  | { type: 'admin_confirm' };
 
 export interface Transition {
   next: PaymentStatusCode;
@@ -40,7 +42,13 @@ export function transition(current: PaymentStatusCode, signal: PaymentSignal): T
         return { next: 'FAILED', grantAccess: false, noop: false };
       case 'timeout':
         return { next: 'EXPIRED', grantAccess: false, noop: false };
+      case 'admin_confirm':
+        return { next: 'SUCCESSFUL', grantAccess: true, noop: false };
     }
+  }
+
+  if (signal.type === 'admin_confirm' && (current === 'EXPIRED' || current === 'FAILED')) {
+    return { next: 'SUCCESSFUL', grantAccess: true, noop: false };
   }
 
   if (current === 'EXPIRED' && signal.type === 'provider_success') {
