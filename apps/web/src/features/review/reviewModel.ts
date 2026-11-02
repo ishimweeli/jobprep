@@ -43,26 +43,29 @@ export function positionLabel(index: number, total: number, filter: ReviewFilter
   return `${index + 1} of ${total} ${name}`;
 }
 
-export type GridKind = 'correct' | 'incorrect' | 'unanswered';
-export const gridKind = (s: ReviewStatus): GridKind => (isIncorrect(s) ? 'incorrect' : s === 'unanswered' ? 'unanswered' : 'correct');
+export type GridKind = 'correct' | 'incorrect' | 'partial' | 'unanswered';
+export const gridKind = (s: ReviewStatus): GridKind => (s === 'partial' ? 'partial' : s === 'incorrect' ? 'incorrect' : s === 'unanswered' ? 'unanswered' : 'correct');
 
-/** "7✕" for incorrect, "24–" for unanswered, "12" for correct: the state is never colour alone. */
+/** "7✕" for incorrect, "7◐" for partly correct, "24–" for unanswered, "12" for correct: never colour alone. */
 export function gridMark(n: number, s: ReviewStatus): string {
   const k = gridKind(s);
-  return k === 'incorrect' ? `${n}✕` : k === 'unanswered' ? `${n}–` : String(n);
+  return k === 'incorrect' ? `${n}✕` : k === 'partial' ? `${n}◐` : k === 'unanswered' ? `${n}–` : String(n);
 }
 
-export const gridAria = (n: number, s: ReviewStatus): string => `Question ${n}, ${gridKind(s) === 'correct' ? 'correct' : gridKind(s) === 'incorrect' ? 'incorrect' : 'not answered'}`;
+const GRID_WORD: Record<GridKind, string> = { correct: 'correct', incorrect: 'incorrect', partial: 'partly correct', unanswered: 'not answered' };
+export const gridAria = (n: number, s: ReviewStatus): string => `Question ${n}, ${GRID_WORD[gridKind(s)]}`;
 
 export const BADGE: Record<GridKind, { label: string; cls: string }> = {
   correct: { label: 'Correct', cls: 'bg-free-bg text-free' },
   incorrect: { label: 'Incorrect', cls: 'bg-incorrect-bg text-red-800' },
+  partial: { label: 'Partly correct', cls: 'bg-[#FFEDD5] text-[#9A3412]' },
   unanswered: { label: 'Not answered', cls: 'bg-soft text-ink-2' },
 };
 
 export const GRID_STYLE: Record<GridKind, string> = {
   correct: 'border border-correct bg-correct-bg text-free',
   incorrect: 'border border-incorrect bg-incorrect-bg text-red-800',
+  partial: 'border border-[#9A3412] bg-[#FFEDD5] text-[#9A3412]',
   unanswered: 'border border-dashed border-muted bg-surface text-ink-2',
 };
 
@@ -70,4 +73,23 @@ export const GRID_STYLE: Record<GridKind, string> = {
 export function optionKind(o: ReviewItem['options'][number]): 'right' | 'wrongPick' | 'plain' {
   if (o.isCorrect) return 'right';
   return o.isYourPick ? 'wrongPick' : 'plain';
+}
+
+// ───────────────────────── Multiple-select in the review (MultiSelect.dc, "Review: partly correct")
+
+/** "0.33 of 1 mark" / "1 of 2 marks": marks awarded of marks available. */
+export function marksOfLabel(awarded: number, marks: number): string {
+  const n = (v: number) => (Number.isInteger(v) ? String(v) : String(Math.round(v * 100) / 100));
+  return `${n(awarded)} of ${n(marks)} ${marks === 1 ? 'mark' : 'marks'}`;
+}
+
+/** How many answers the question asked for. The review has no `choose` field, so it is the number of correct options. */
+export const chooseCount = (item: Pick<ReviewItem, 'options'>): number => item.options.filter((o) => o.isCorrect).length;
+
+/** The line under each option of a multiple-select question. Empty for an option that is neither right nor picked. */
+export function multiOptionNote(o: Pick<ReviewItem['options'][number], 'isCorrect' | 'isYourPick'>): string {
+  if (o.isCorrect && o.isYourPick) return '✓ Correct · your choice';
+  if (o.isCorrect) return '✓ Correct · you missed this one';
+  if (o.isYourPick) return '✕ Not correct · your choice';
+  return '';
 }

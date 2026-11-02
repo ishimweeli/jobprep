@@ -78,9 +78,9 @@ export function checkoutCopy(summary: CheckoutSummary, untilLabel: string): Chec
   };
 }
 
-/** "RWF 2,000", or the artboard's placeholder ("KES [PRICE]") while the country has no price. */
-export function priceText(summary: Pick<CheckoutSummary, 'plan' | 'country'>): string {
-  return summary.plan?.priceLabel ?? `${summary.country.currencyCode} [PRICE]`;
+/** "RWF 2,000", or `null` while the country has no price: the price is left out, never replaced by a placeholder. */
+export function priceText(summary: Pick<CheckoutSummary, 'plan'>): string | null {
+  return summary.plan?.priceLabel ?? null;
 }
 
 /** Pay is only possible when the country has a sellable price. */

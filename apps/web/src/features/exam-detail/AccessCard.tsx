@@ -1,5 +1,5 @@
 import type { ExamDetail } from '../../api/types';
-import { ActionLink } from '../../components/Button';
+import { ActionLink, buttonClasses } from '../../components/Button';
 import { ROUTES_READY } from '../../lib/routesReady';
 import { countryPath } from '../country/hooks';
 
@@ -77,8 +77,27 @@ export function accessView(exam: ExamDetail, slug: string): AccessView {
   };
 }
 
+/**
+ * Guests who tap "Get Full Access" see the "This test is part of Full Access" dialog (GuestPaid.dc) instead of going
+ * straight to checkout: `onBuy` replaces the link.
+ */
+function BuyButton({ view, onBuy, className, children }: { view: AccessView; onBuy?: () => void; className: string; children: React.ReactNode }) {
+  if (onBuy) {
+    return (
+      <button type="button" onClick={onBuy} className={buttonClasses({ variant: 'primary', block: true, className: `cursor-pointer ${className}` })}>
+        {children}
+      </button>
+    );
+  }
+  return (
+    <ActionLink ready={ROUTES_READY.checkout} to={view.checkoutTo} variant="primary" block className={className}>
+      {children}
+    </ActionLink>
+  );
+}
+
 /** Desktop sidebar card. */
-export function AccessCard({ view }: { view: AccessView }) {
+export function AccessCard({ view, onBuy }: { view: AccessView; onBuy?: () => void }) {
   return (
     <div className="flex flex-col gap-3.5 rounded-card border border-border bg-surface p-[22px]">
       <div className="flex flex-col gap-0.5">
@@ -89,9 +108,9 @@ export function AccessCard({ view }: { view: AccessView }) {
       {view.kind === 'locked' ? (
         <>
           {view.canBuy && (
-            <ActionLink ready={ROUTES_READY.checkout} to={view.checkoutTo} variant="primary" block className="py-[15px]">
+            <BuyButton view={view} onBuy={onBuy} className="py-[15px]">
               {view.getFullAccessLabel}
-            </ActionLink>
+            </BuyButton>
           )}
           {view.samplePath && (
             <ActionLink ready={ROUTES_READY.examStart} to={view.samplePath} variant="secondary" size="sm" block className="py-[13px]">
@@ -110,7 +129,7 @@ export function AccessCard({ view }: { view: AccessView }) {
 }
 
 /** Phone fixed bottom bar: summary line + action(s) (ExamDetailPhone.dc). */
-export function PhoneCtaBar({ view }: { view: AccessView }) {
+export function PhoneCtaBar({ view, onBuy }: { view: AccessView; onBuy?: () => void }) {
   const big = 'py-4 text-[17px] rounded-[14px]';
   return (
     <div data-testid="cta-bar" className="sticky bottom-0 z-30 flex flex-col gap-2 border-t border-border bg-surface px-4 pb-4 pt-3 md:hidden">
@@ -121,9 +140,9 @@ export function PhoneCtaBar({ view }: { view: AccessView }) {
       {view.kind === 'locked' ? (
         <>
           {view.canBuy && (
-            <ActionLink ready={ROUTES_READY.checkout} to={view.checkoutTo} variant="primary" block className={big}>
+            <BuyButton view={view} onBuy={onBuy} className={big}>
               Unlock with Mobile Money
-            </ActionLink>
+            </BuyButton>
           )}
           {view.samplePath && (
             <ActionLink ready={ROUTES_READY.examStart} to={view.samplePath} variant="ghost" size="sm" block className="py-2">

@@ -1,10 +1,9 @@
-import { removeStorage, writeStorage } from '../lib/storage';
+import { clearSessionHint, setSessionHint } from '../lib/sessionHint';
 import { api } from './client';
-import { SESSION_HINT_KEY } from './me';
 import type { AuthResponse, OtpRequestResponse } from './types';
 
 function rememberSession(r: AuthResponse): AuthResponse {
-  writeStorage(SESSION_HINT_KEY, '1');
+  setSessionHint();
   return r;
 }
 
@@ -19,4 +18,4 @@ export const signUp = (input: { countryCode: string; phone: string; name: string
 export const signIn = (input: { phone: string; countryCode?: string; code: string; guestTokens: string[] }) =>
   api<AuthResponse>('/auth/sign-in', { method: 'POST', body: input }).then(rememberSession);
 
-export const signOut = () => api<void>('/auth/sign-out', { method: 'POST' }).finally(() => removeStorage(SESSION_HINT_KEY));
+export const signOut = () => api<void>('/auth/sign-out', { method: 'POST' }).finally(() => clearSessionHint());

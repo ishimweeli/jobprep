@@ -33,29 +33,56 @@ export interface CellState {
   current: boolean;
   /** "Question 5, answered, flagged, current" (state is never colour alone). */
   aria: string;
+  /** Answered here but not saved on the server yet (offline): drawn with a dashed outline. */
+  waiting: boolean;
   /** Which fill the cell uses. Flagged wins over answered, as drawn. */
   tone: 'flagged' | 'answered' | 'open';
 }
 
-export function cellState(q: ExamQuestion, answers: LocalAnswers, currentId: string | undefined, withCurrentInAria: boolean): CellState {
+export function cellState(q: ExamQuestion, answers: LocalAnswers, currentId: string | undefined, withCurrentInAria: boolean, waitingIds: string[] = []): CellState {
   const a = answers[q.id];
   const answered = !!a && a.selected.length > 0;
   const flagged = !!a?.flagged;
   const current = q.id === currentId;
+  const waiting = answered && waitingIds.includes(q.id);
   return {
     number: q.number,
+    waiting,
     answered,
     flagged,
     current,
     tone: flagged ? 'flagged' : answered ? 'answered' : 'open',
-    aria: `Question ${q.number}${answered ? ', answered' : ', not answered'}${flagged ? ', flagged' : ''}${withCurrentInAria && current ? ', current' : ''}`,
+    aria: `Question ${q.number}${answered ? ', answered' : ', not answered'}${waiting ? ', waiting to save' : ''}${flagged ? ', flagged' : ''}${withCurrentInAria && current ? ', current' : ''}`,
   };
 }
 
-/** Pick an option. Single-answer: choose it. Multiple-select: toggle it (interim behaviour, no new visuals; C3/C37). */
-export function nextSelection(q: Pick<ExamQuestion, 'multiple'>, current: string[], key: string): string[] {
-  if (!q.multiple) return [key];
-  return current.includes(key) ? current.filter((k) => k !== key) : [...current, key].sort();
+/**
+ * Pick an option. Single-answer: choose it. Multiple-select (MultiSelect.dc): toggle it, at most `choose` picks.
+ * Asking for one more than allowed changes nothing and sets `blocked` ("Unselect one to change"); unselecting is
+ * always allowed. The server enforces the same cap (`too_many_choices`).
+ */
+export function pickOption(
+  q: Pick<ExamQuestion, 'multiple' | 'choose'>,
+  current: string[],
+  key: string,
+): { selected: string[]; blocked: boolean } {
+  if (!q.multiple) return { selected: [key], blocked: false };
+  if (current.includes(key)) return { selected: current.filter((k) => k !== key), blocked: false };
+  const cap = q.choose ?? Infinity;
+  if (current.length >= cap) return { selected: current, blocked: true };
+  return { selected: [...current, key].sort(), blocked: false };
+}
+
+export type CountTone = 'neutral' | 'done' | 'warn';
+
+/**
+ * The live line under a multiple-select question: "2 of 3 chosen — choose 1 more", "3 of 3 chosen", and, after a
+ * pick over the limit, "You’ve chosen 3. Unselect one to change your answer."
+ */
+export function chooseCountLabel(count: number, choose: number, blocked: boolean): { text: string; tone: CountTone } {
+  if (blocked) return { text: `You’ve chosen ${choose}. Unselect one to change your answer.`, tone: 'warn' };
+  if (count >= choose) return { text: `${count} of ${choose} chosen`, tone: 'done' };
+  return { text: `${count} of ${choose} chosen${count > 0 ? ` — choose ${choose - count} more` : ''}`, tone: 'neutral' };
 }
 
 export function firstUnansweredIndex(questions: ExamQuestion[], answers: LocalAnswers): number {

@@ -9,7 +9,7 @@ import { CheckoutPage } from './CheckoutPage';
 const me = {
   user: { id: 'u1', name: 'Aline Uwase', phone: '+250788123456', countryCode: 'RW', goalCategoryId: null, language: 'en' },
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en'] },
-  access: { current: null, otherCountries: [] },
+  access: { current: null, expired: null, otherCountries: [] },
 };
 const checkout = {
   country: { code: 'RW', name: 'Rwanda', dialCode: '+250', currencyCode: 'RWF' },
@@ -19,6 +19,8 @@ const checkout = {
     { provider: 'AIRTEL_MONEY', label: 'Airtel Money', hint: 'Airtel numbers' },
   ],
   prefillPhone: '+250788123456',
+  currentAccess: null,
+  newAccessEndsAt: '2026-12-02T10:00:00Z',
 };
 const view = (status: PaymentView['status'], extra: Partial<PaymentView> = {}): PaymentView => ({
   id: 'p1', status, terminal: status !== 'PENDING', provider: 'MTN_MOMO', providerLabel: 'MTN MoMo', msisdn: '+250788123456', amountMinor: 2000,
@@ -100,8 +102,10 @@ describe('checkout screen: poll until the payment settles', () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(7000);
     });
-    expect(await screen.findByText('Payment not completed')).toBeInTheDocument();
-    expect(screen.getByText('The MTN MoMo request was declined. You were not charged.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Payment declined' })).toBeInTheDocument();
+    expect(screen.getByText('MTN MoMo declined the request. This can happen if the PIN was wrong or the balance was too low.')).toBeInTheDocument();
+    expect(screen.getByText('You were not charged.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pay with Airtel Money instead' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByRole('button', { name: 'Pay RWF 2,000' })).toBeInTheDocument();
   });
@@ -114,7 +118,8 @@ describe('checkout screen: poll until the payment settles', () => {
     await user.clear(input);
     await user.type(input, '078 812');
     await user.click(screen.getByRole('button', { name: 'Pay RWF 2,000' }));
-    expect(await screen.findByText(/does not look right/)).toBeInTheDocument();
+    expect(await screen.findByText('Enter a 9-digit Rwanda number, like 788 123 456.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pay RWF 2,000' })).toBeDisabled(); // as drawn: disabled until the number is fixed
     expect(calls.some((c) => c.init?.method === 'POST')).toBe(false);
   });
 });

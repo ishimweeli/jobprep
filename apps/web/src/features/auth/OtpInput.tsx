@@ -96,7 +96,7 @@ export function OtpInput({ value, onChange, disabled, invalid, describedBy }: Pr
           onFocus={(e) => e.currentTarget.select()}
           className={cx(
             'h-[58px] min-w-0 rounded-control border bg-surface text-center text-2xl font-bold text-ink',
-            invalid ? 'border-incorrect' : 'border-input-border',
+            invalid ? 'border-2 border-incorrect' : 'border-input-border',
           )}
         />
       ))}

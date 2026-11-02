@@ -11,6 +11,7 @@ import { signUpPath } from '../../lib/next';
 import { ROUTES_READY } from '../../lib/routesReady';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
+import { StartPracticeLink } from '../practice/StartPracticeLink';
 import {
   answerText, barHeight, deltaHeadline, historyLabel, marksLabel, percentLabel, ringDash, timeSpent, timeSpentChange, topicBarColor,
 } from './resultsModel';
@@ -166,9 +167,13 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
             Review Answers
           </ActionLink>
           {r.canPractice && (
-            <ActionLink ready={ROUTES_READY.practice} to="" variant="secondary" className="rounded-[14px] p-3.5 md:flex-[1_1_220px] md:rounded-control">
-              Practice Weak Areas
-            </ActionLink>
+            <StartPracticeLink
+              attemptId={attemptId}
+              slug={slug}
+              label="Practice Weak Areas"
+              variant="secondary"
+              className="!min-h-[52px] rounded-[14px] p-3.5 !text-base !font-bold md:flex-[1_1_220px] md:rounded-control"
+            />
           )}
           <ActionLink
             ready={ROUTES_READY.tryAnother}

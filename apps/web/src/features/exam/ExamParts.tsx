@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { ExamQuestion } from '../../api/types';
 import { Dialog } from '../../components/Dialog';
 import { cx } from '../../lib/cx';
-import { cellState, type CellState, type ExamCounts } from './examModel';
+import { cellState, chooseCountLabel, type CellState, type ExamCounts } from './examModel';
 import type { LocalAnswers } from './queue';
 
 /* Shared building blocks of the exam screens (Exam.dc, ExamMobile.dc, CaseExam.dc, CaseExamPhone.dc, TimeUp.dc). */
@@ -32,35 +32,120 @@ export function FlagIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-/** Offline banner (TimeUp.dc, "Offline" state). */
+/**
+ * Offline banner. Phone (TimeUp.dc, "Offline"): the answers are kept on this phone. Desktop (TimeUpDesktop.dc):
+ * kept on this computer, and the timer sentence is part of the banner.
+ */
 export function OfflineBanner() {
   return (
-    <div role="status" className="flex items-start gap-2.5 border-b border-[#F59E0B] bg-flagged-bg px-4 py-3">
-      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#92400E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-px shrink-0">
-        <path d="M2 8.8a15 15 0 0 1 4.2-2.7 M10.7 5.1A15 15 0 0 1 22 8.8 M5 12.5a10 10 0 0 1 5.2-2.7 M16.8 11.2a10 10 0 0 1 2.2 1.3 M8.5 16a5 5 0 0 1 7 0 M12 20h.01 M3 3l18 18" />
-      </svg>
-      <p className="m-0 text-sm leading-normal text-[#78350F]">
-        <strong>No connection.</strong> Keep answering — your answers are kept on this <span className="md:hidden">phone</span>
-        <span className="hidden md:inline">device</span> and will save when you are back online.
-      </p>
+    <div role="status" className="border-b border-[#F59E0B] bg-flagged-bg">
+      <div className="mx-auto flex max-w-[1320px] items-start gap-2.5 px-4 py-3 md:items-center md:gap-3 md:px-6">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#92400E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-px shrink-0 md:mt-0">
+          <path d="M2 8.8a15 15 0 0 1 4.2-2.7 M10.7 5.1A15 15 0 0 1 22 8.8 M5 12.5a10 10 0 0 1 5.2-2.7 M16.8 11.2a10 10 0 0 1 2.2 1.3 M8.5 16a5 5 0 0 1 7 0 M12 20h.01 M3 3l18 18" />
+        </svg>
+        <p className="m-0 text-sm leading-normal text-[#78350F] md:text-[15px]">
+          <strong>No connection.</strong>{' '}
+          <span className="md:hidden">Keep answering — your answers are kept on this phone and will save when you are back online.</span>
+          <span className="hidden md:inline">Keep answering — your answers are kept on this computer and will save when you reconnect. The timer keeps running.</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** "Back online. Your 3 waiting answers are saved." (TimeUpDesktop.dc, "Back online"). */
+export function OnlineBanner({ saved }: { saved: number }) {
+  return (
+    <div role="status" className="hidden border-b border-[#6EE7B7] bg-correct-bg md:block">
+      <div className="mx-auto flex max-w-[1320px] items-center gap-3 px-6 py-3 text-[15px] text-free">
+        <CheckIcon size={20} />
+        <span>
+          <strong>Back online.</strong> Your {saved} waiting {saved === 1 ? 'answer is' : 'answers are'} saved.
+        </span>
+      </div>
     </div>
   );
 }
 
 // ───────────────────────── Answer options
 
+/** "Choose 3" badge next to the question number (MultiSelect.dc). */
+export function ChooseBadge({ choose }: { choose: number }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-pill bg-brand-soft px-2.5 py-1.5 text-[13px] font-bold text-brand-hover">
+      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 4h16v16H4z M8 12l3 3 5-6" />
+      </svg>
+      Choose {choose}
+    </span>
+  );
+}
+
+const COUNT_INK = { neutral: 'text-ink-2', done: 'text-free', warn: 'text-flagged-ink' } as const;
+
+/**
+ * Answer options. Single answer: the A-D buttons. Multiple-select (MultiSelect.dc): square checkboxes
+ * (`role="checkbox"`), at most `choose` picks, a live count and, after a pick over the limit, "Unselect one to change".
+ */
 export function AnswerOptions({
   question,
   selected,
   onPick,
   numeric,
+  blocked,
+  disabled,
 }: {
   question: ExamQuestion;
   selected: string[];
   onPick: (key: string) => void;
   /** Case exam options use tabular numerals (amounts). */
   numeric?: boolean;
+  /** The last pick was refused because the limit was reached. */
+  blocked?: boolean;
+  /** Practice: after "Check answer" the options no longer change. */
+  disabled?: boolean;
 }) {
+  if (question.multiple) {
+    const choose = question.choose ?? selected.length;
+    const count = chooseCountLabel(selected.length, choose, !!blocked);
+    return (
+      <>
+        <div role="group" aria-label={`Answer options, choose ${choose}`} className="flex flex-col gap-2.5">
+          {question.options.map((o) => {
+            const on = selected.includes(o.key);
+            return (
+              <button
+                key={o.key}
+                type="button"
+                role="checkbox"
+                aria-checked={on}
+                aria-disabled={disabled || undefined}
+                onClick={() => !disabled && onPick(o.key)}
+                className={cx(
+                  'flex min-h-[58px] cursor-pointer items-center gap-3.5 rounded-[14px] px-3.5 py-2.5 text-left text-ink',
+                  on ? 'border-2 border-brand bg-brand-softer' : 'border border-zinc-300 bg-surface',
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cx('inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-[7px] border-2 text-white', on ? 'border-brand bg-brand' : 'border-muted bg-surface')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: on ? 1 : 0 }}>
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                </span>
+                <span className="w-[18px] font-bold text-ink-2">{o.key}</span>
+                <span className={cx('text-base leading-[1.4] md:text-lg', numeric && 'tabular')}>{o.text}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p role="status" className={cx('m-0 text-sm font-semibold', COUNT_INK[count.tone])}>
+          {count.text}
+        </p>
+      </>
+    );
+  }
   return (
     <div role="group" aria-label="Answer options" className="flex flex-col gap-2.5 md:gap-3">
       {question.options.map((o) => {
@@ -70,7 +155,8 @@ export function AnswerOptions({
             key={o.key}
             type="button"
             aria-pressed={on}
-            onClick={() => onPick(o.key)}
+            aria-disabled={disabled || undefined}
+            onClick={() => !disabled && onPick(o.key)}
             className={cx(
               'flex min-h-[56px] cursor-pointer items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-left text-ink md:min-h-[60px] md:gap-3.5 md:px-4 md:py-3',
               on ? 'border-2 border-brand bg-brand-softer' : 'border border-zinc-300 bg-surface',
@@ -118,6 +204,8 @@ const toneClass: Record<CellState['tone'], string> = {
   answered: 'border border-brand bg-brand text-white',
   open: 'border border-input-border bg-surface text-ink',
 };
+/** Answered but not saved yet (TimeUpDesktop.dc, offline): dashed amber outline. */
+const WAITING = 'border-2 border-dashed border-flagged bg-amber-50 text-flagged-ink';
 const RING = 'shadow-[0_0_0_2px_#FFFFFF,0_0_0_4px_#18181B]';
 
 export function NavCell({ cell, onGo, size, className }: { cell: CellState; onGo: () => void; size: 'sheet' | 'aside'; className?: string }) {
@@ -130,7 +218,7 @@ export function NavCell({ cell, onGo, size, className }: { cell: CellState; onGo
       className={cx(
         'relative cursor-pointer p-0 font-bold',
         size === 'sheet' ? 'h-[46px] rounded-[10px] text-[15px]' : 'h-[40px] rounded-[9px] text-sm',
-        toneClass[cell.tone],
+        cell.waiting ? WAITING : toneClass[cell.tone],
         cell.current && RING,
         className,
       )}
@@ -148,8 +236,8 @@ export function NavCell({ cell, onGo, size, className }: { cell: CellState; onGo
 
 /** Desktop navigator card ("Question navigator" aside). */
 export function NavigatorAside({
-  questions, answers, currentId, counts, onGo,
-}: { questions: ExamQuestion[]; answers: LocalAnswers; currentId: string | undefined; counts: ExamCounts; onGo: (index: number) => void }) {
+  questions, answers, currentId, counts, onGo, waitingIds = [],
+}: { questions: ExamQuestion[]; answers: LocalAnswers; currentId: string | undefined; counts: ExamCounts; onGo: (index: number) => void; waitingIds?: string[] }) {
   const legend: { label: ReactNode; box: string }[] = [
     { label: 'Answered', box: 'bg-brand' },
     { label: 'Not answered', box: 'border border-input-border bg-surface' },
@@ -166,9 +254,15 @@ export function NavigatorAside({
       </div>
       <div className="grid grid-cols-7 gap-1.5">
         {questions.map((q, i) => (
-          <NavCell key={q.id} cell={cellState(q, answers, currentId, true)} onGo={() => onGo(i)} size="aside" />
+          <NavCell key={q.id} cell={cellState(q, answers, currentId, true, waitingIds)} onGo={() => onGo(i)} size="aside" />
         ))}
       </div>
+      {waitingIds.length > 0 && (
+        <p className="m-0 flex items-center gap-2 text-[13px] text-flagged-ink">
+          <span aria-hidden="true" className="h-3.5 w-3.5 rounded border-2 border-dashed border-flagged" />
+          Answered, waiting to save ({waitingIds.length})
+        </p>
+      )}
       <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 text-[13px] text-ink-2">
         {legend.map((l, i) => (
           <li key={i} className="flex items-center gap-2">

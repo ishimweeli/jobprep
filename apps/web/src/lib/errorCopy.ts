@@ -7,6 +7,8 @@ export function authErrorMessage(e: unknown): string {
   switch (e.code) {
     case 'invalid_code':
       return 'That code is not right or has expired. Check the SMS and try again, or ask for a new code.';
+    case 'code_expired':
+      return 'This code has expired. Ask for a new code.';
     case 'too_many_attempts':
       return 'Too many wrong codes. Ask for a new code to try again.';
     case 'otp_cooldown':

@@ -42,8 +42,13 @@ export function StartPage() {
       (e: unknown) => {
         if (!alive.current) return;
         const err = e instanceof ApiError ? e : new ApiError(0, 'network_error');
-        // A paid test needs Full Access (402) or an account first (401): both continue at checkout.
-        if (err.code === 'full_access_required' || err.code === 'sign_in_required') {
+        // A guest tapping a paid test sees "This test is part of Full Access" (GuestPaid.dc) on its details page.
+        if (err.code === 'sign_in_required') {
+          navigate(`${countryPath(slug, 'tests', testSlug)}?gate=paid`, { replace: true });
+          return;
+        }
+        // Signed in without Full Access: continue at checkout.
+        if (err.code === 'full_access_required') {
           navigate(`${countryPath(slug, 'checkout')}?test=${encodeURIComponent(testSlug)}`, { replace: true });
           return;
         }

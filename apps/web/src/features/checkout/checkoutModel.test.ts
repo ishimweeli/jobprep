@@ -9,12 +9,16 @@ const rw: CheckoutSummary = {
   plan: { name: 'Full Access', priceMinor: 2000, priceLabel: 'RWF 2,000', durationDays: 30, paidOnce: true, checkoutAvailable: true },
   paymentMethods: [{ provider: 'MTN_MOMO', label: 'MTN MoMo', hint: 'MTN numbers' }],
   prefillPhone: '+250788123456',
+  currentAccess: null,
+  newAccessEndsAt: null,
 };
 const ke: CheckoutSummary = {
   country: { code: 'KE', name: 'Kenya', dialCode: '+254', currencyCode: 'KES' },
   plan: { name: 'Full Access', priceMinor: null, priceLabel: null, durationDays: 30, paidOnce: true, checkoutAvailable: false },
   paymentMethods: [{ provider: 'MPESA', label: 'M-Pesa', hint: 'Safaricom numbers' }],
   prefillPhone: '+254712345678',
+  currentAccess: null,
+  newAccessEndsAt: null,
 };
 
 describe('checkout state machine (payment status -> screen)', () => {
@@ -61,9 +65,9 @@ describe('country-driven copy', () => {
     expect(c.phoneLabel('M-Pesa')).toBe('M-Pesa phone number');
     expect(c.phoneHelp('M-Pesa')).toBe('An M-Pesa prompt will appear on this phone. Enter your PIN there — we never ask for it.');
   });
-  it('price is the API label, or the artboard placeholder when the country has none; no price means no pay', () => {
+  it('price is the API label; with none it is left out (never a placeholder); no price means no pay', () => {
     expect(priceText(rw)).toBe('RWF 2,000');
-    expect(priceText(ke)).toBe('KES [PRICE]');
+    expect(priceText(ke)).toBeNull();
     expect(canPay(rw)).toBe(true);
     expect(canPay(ke)).toBe(false);
     expect(canPay({ plan: null })).toBe(false);

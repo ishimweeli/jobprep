@@ -4,13 +4,14 @@ import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { attemptKeys, getReview } from '../../api/attempts';
 import { isApiError } from '../../api/client';
 import type { ReviewFilter, ReviewItem, ReviewResponse } from '../../api/types';
-import { ActionLink } from '../../components/Button';
 import { QueryError, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
-import { ROUTES_READY } from '../../lib/routesReady';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
-import { BADGE, defaultFilter, filterItems, GRID_STYLE, gridAria, gridKind, gridMark, optionKind, positionLabel, tabsFor } from './reviewModel';
+import {
+  BADGE, chooseCount, defaultFilter, filterItems, GRID_STYLE, gridAria, gridKind, gridMark, marksOfLabel, multiOptionNote, optionKind, positionLabel, tabsFor,
+} from './reviewModel';
+import { StartPracticeLink } from '../practice/StartPracticeLink';
 
 /**
  * Answer review (Review.dc desktop: jump grid + every question in the filter; ReviewPhone.dc: one question at a
@@ -69,6 +70,7 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
   const phoneIndex = Math.min(pos, Math.max(0, list.length - 1));
   const tabs = tabsFor(data.counts);
   const correctCount = data.counts.all - data.counts.incorrect - data.counts.unanswered;
+  const partlyCount = data.grid.filter((g) => g.status === 'partial').length;
 
   useEffect(() => {
     if (scrollTo === null) return;
@@ -99,9 +101,7 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
             ← Back to results
           </Link>
           <span className="flex-1 text-base font-bold">Answer review · {data.mockTest.title}</span>
-          <ActionLink ready={ROUTES_READY.practice} to="" variant="primary" size="sm" className="!min-h-0 px-4 py-[11px] font-semibold">
-            Practise weak areas
-          </ActionLink>
+          <StartPracticeLink attemptId={attemptId} slug={slug} className="!min-h-0 px-4 py-[11px] font-semibold" />
         </div>
       </header>
       {/* Phone header */}
@@ -141,8 +141,14 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
             </li>
             <li className="flex items-center gap-2">
               <span aria-hidden="true" className="h-4 w-4 rounded-[5px] border border-incorrect bg-incorrect-bg" />
-              Incorrect, marked ✕ ({data.counts.incorrect})
+              Incorrect, marked ✕ ({data.counts.incorrect - partlyCount})
             </li>
+            {partlyCount > 0 && (
+              <li className="flex items-center gap-2">
+                <span aria-hidden="true" className="h-4 w-4 rounded-[5px] border border-[#9A3412] bg-[#FFEDD5]" />
+                Partly correct, marked ◐ ({partlyCount})
+              </li>
+            )}
             <li className="flex items-center gap-2">
               <span aria-hidden="true" className="h-4 w-4 rounded-[5px] border border-dashed border-muted bg-surface" />
               Unanswered, marked – ({data.counts.unanswered})
@@ -210,9 +216,37 @@ function Tabs({ tabs, filter, onPick, className, phone }: { tabs: ReturnType<typ
   );
 }
 
+function PartlyIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="3" />
+      <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function CheckBox({ on, small }: { on: boolean; small?: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cx(
+        'inline-flex shrink-0 items-center justify-center rounded-md border-2 text-white',
+        small ? 'h-[22px] w-[22px]' : 'h-[22px] w-[22px]',
+        on ? 'border-ink bg-ink' : 'border-zinc-400 bg-surface',
+      )}
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: on ? 1 : 0 }}>
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+    </span>
+  );
+}
+
 function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: boolean }) {
   const kind = gridKind(item.status);
   const badge = BADGE[kind];
+  const multi = item.multiple;
+  const choose = chooseCount(item);
   return (
     <article
       id={`rq${item.number}`}
@@ -223,41 +257,76 @@ function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: 
     >
       <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
         <h2 className="m-0 text-base font-extrabold">Question {item.number}</h2>
-        <span className={cx('rounded-pill px-[9px] py-[3px] text-xs font-bold md:px-2.5 md:text-[13px]', badge.cls)}>{badge.label}</span>
+        <span className={cx('inline-flex items-center gap-1.5 rounded-pill px-[9px] py-[3px] text-xs font-bold md:px-2.5 md:text-[13px]', badge.cls)}>
+          {kind === 'partial' && <PartlyIcon />}
+          {badge.label}
+        </span>
+        {multi && <span className="text-[13px] font-semibold text-muted">{marksOfLabel(item.marksAwarded, item.marks)}</span>}
         {item.flagged && <span className="rounded-pill bg-flagged-bg px-[9px] py-[3px] text-xs font-bold text-flagged-ink md:px-2.5 md:text-[13px]">Flagged</span>}
-        <span className="hidden text-sm text-muted md:ml-auto md:inline">{item.topic}</span>
+        {!multi && <span className="hidden text-sm text-muted md:ml-auto md:inline">{item.topic}</span>}
       </div>
-      <span className="text-[13px] font-semibold text-muted md:hidden">{item.topic}</span>
-      <p className="m-0 text-lg font-semibold leading-normal md:text-[19px]">{item.stem}</p>
-      <ul className="m-0 flex list-none flex-col gap-2 p-0">
-        {item.options.map((o) => {
-          const k = optionKind(o);
-          return (
-            <li
-              key={o.key}
-              className={cx(
-                'flex flex-col gap-1 rounded-[12px] p-3 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-2 md:px-3.5',
-                k === 'right' && 'border-2 border-correct bg-[#ECFDF5]',
-                k === 'wrongPick' && 'border-2 border-incorrect bg-[#FEF2F2]',
-                k === 'plain' && 'border border-border bg-surface',
-              )}
-            >
-              <span className="flex items-center gap-2.5 md:contents">
-                <span className="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-soft text-[13px] font-bold text-ink-2 md:h-7 md:w-7">{o.key}</span>
-                <span className="text-base md:flex-[1_1_200px]">{o.text}</span>
-              </span>
-              {k === 'right' && (
-                <span className="pl-9 text-[13px] font-bold text-free md:pl-0">
-                  ✓ Correct answer
-                  {o.isYourPick && <span className="md:hidden"> · your answer</span>}
+      <span className={cx('text-[13px] font-semibold text-muted', !multi && 'md:hidden')}>
+        {item.topic}
+        {multi && choose > 0 && ` · Choose ${choose}`}
+      </span>
+      <p className="m-0 text-lg font-semibold leading-normal md:text-[19px]">
+        {item.stem}
+        {multi && choose > 0 && ` Choose ${choose}.`}
+      </p>
+      {multi ? (
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+          {item.options.map((o) => {
+            const k = optionKind(o);
+            const note = multiOptionNote(o);
+            return (
+              <li
+                key={o.key}
+                className={cx(
+                  'flex flex-col gap-1 rounded-[12px] px-3.5 py-3',
+                  o.isCorrect ? 'border-2 border-correct bg-[#ECFDF5]' : k === 'wrongPick' ? 'border-2 border-incorrect bg-[#FEF2F2]' : 'border border-border bg-surface',
+                )}
+              >
+                <span className="flex items-center gap-3">
+                  <CheckBox on={o.isYourPick} />
+                  <span className="w-[18px] font-bold text-ink-2">{o.key}</span>
+                  <span className="text-base">{o.text}</span>
                 </span>
-              )}
-              {k === 'wrongPick' && <span className="pl-9 text-[13px] font-bold text-red-800 md:pl-0">✕ Your answer</span>}
-              {k === 'right' && o.isYourPick && <span className="hidden text-[13px] font-bold text-free md:inline">· Your answer</span>}
-            </li>
-          );
-        })}
-      </ul>
+                {note && <span className={cx('pl-[52px] text-[13px] font-bold', o.isCorrect ? 'text-free' : 'text-red-800')}>{note}</span>}
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+          {item.options.map((o) => {
+            const k = optionKind(o);
+            return (
+              <li
+                key={o.key}
+                className={cx(
+                  'flex flex-col gap-1 rounded-[12px] p-3 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-2 md:px-3.5',
+                  k === 'right' && 'border-2 border-correct bg-[#ECFDF5]',
+                  k === 'wrongPick' && 'border-2 border-incorrect bg-[#FEF2F2]',
+                  k === 'plain' && 'border border-border bg-surface',
+                )}
+              >
+                <span className="flex items-center gap-2.5 md:contents">
+                  <span className="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-soft text-[13px] font-bold text-ink-2 md:h-7 md:w-7">{o.key}</span>
+                  <span className="text-base md:flex-[1_1_200px]">{o.text}</span>
+                </span>
+                {k === 'right' && (
+                  <span className="pl-9 text-[13px] font-bold text-free md:pl-0">
+                    ✓ Correct answer
+                    {o.isYourPick && <span className="md:hidden"> · your answer</span>}
+                  </span>
+                )}
+                {k === 'wrongPick' && <span className="pl-9 text-[13px] font-bold text-red-800 md:pl-0">✕ Your answer</span>}
+                {k === 'right' && o.isYourPick && <span className="hidden text-[13px] font-bold text-free md:inline">· Your answer</span>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
       {item.explanation && (
         <div className="flex flex-col gap-1 rounded-[12px] bg-brand-softer p-3.5 md:px-4">
           <span className="text-[13px] font-bold text-brand-hover md:text-sm">Explanation</span>

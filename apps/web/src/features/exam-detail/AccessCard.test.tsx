@@ -29,6 +29,7 @@ const base: ExamDetail = {
   pricing: { priceLabel: 'KES 1,234', durationDays: 45, checkoutAvailable: true, paymentMethods: ['M-Pesa'] },
   freeSample: { slug: 'accountant-free-sample', title: 'Accountant — Free Sample', questionCount: 6 },
   previousAttempts: [],
+  inProgress: null,
 };
 
 const renderCard = (exam: ExamDetail) =>

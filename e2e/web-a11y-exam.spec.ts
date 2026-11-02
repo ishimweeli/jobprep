@@ -78,7 +78,7 @@ test.describe('Web: accessibility of the exam, results, review, dashboard and ch
     await page.getByRole('button', { name: 'Pay RWF 2,000' }).click();
     const { id } = (await (await created).json()) as { id: string };
     await simulatePayment(page.request, id, 'decline');
-    await expect(page.getByText('Payment not completed')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Payment declined')).toBeVisible({ timeout: 15_000 });
     await expectNoViolations(page);
     await page.getByRole('button', { name: 'Try again' }).click();
     const again = page.waitForResponse((r) => r.url().endsWith('/api/payments') && r.request().method() === 'POST');

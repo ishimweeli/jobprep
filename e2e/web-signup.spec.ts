@@ -49,22 +49,22 @@ test.describe('Web: sign-up (country, phone, code, job goal)', () => {
 
     // Signed in: the header shows the account avatar instead of "Sign in".
     await page.goto('/rw');
-    await expect(page.getByRole('img', { name: 'Account: Aline Uwase' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /account menu for Aline Uwase/i }).or(page.getByRole('link', { name: 'Account: Aline Uwase' }))).toBeVisible();
     await expect(page.getByRole('link', { name: 'Sign in' })).toHaveCount(0);
 
-    // The account screen is drawn for phones only.
+    // Account settings (name, phone, exam country) is the phone artboard; the Account tab lists it.
     if (isPhone(info)) {
-      await page.goto('/account');
+      await page.goto('/account/settings');
       await expect(page.getByText('Aline Uwase')).toBeVisible();
       await expect(page.getByText(`+250 ${national.slice(0, 3)} ${national.slice(3, 6)} ${national.slice(6)}`)).toBeVisible();
       await expect(page.getByRole('link', { name: /Exam country: Rwanda/ })).toBeVisible();
     }
 
-    // No sign-out screen is designed: end the session through the API and check guests are sent to sign-up.
+    // End the session through the API and check guests are sent to sign-in (coming back to the page afterwards).
     expect((await page.request.post(`${API}/api/auth/sign-out`)).status()).toBe(204);
     await page.evaluate(() => localStorage.removeItem('jobprep.session'));
     await page.goto('/account');
-    await expect(page).toHaveURL(/\/sign-up$/);
+    await expect(page).toHaveURL(/\/sign-in\?next=%2Faccount$/);
     w.expectClean();
   });
 
@@ -143,9 +143,9 @@ test.describe('Web: sign-up (country, phone, code, job goal)', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Which country is your exam in?' })).toBeVisible();
   });
 
-  test('"Already have an account? Sign in" is drawn but inert (no sign-in screen is designed)', async ({ page }) => {
+  test('"Already have an account? Sign in" leads to the sign-in screen', async ({ page }) => {
     await toDetailsStep(page);
     await expect(page.getByText('Already have an account?')).toBeVisible();
-    await expect(page.getByText('Sign in', { exact: true })).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByRole('link', { name: 'Sign in', exact: true }).last()).toHaveAttribute('href', '/sign-in');
   });
 });

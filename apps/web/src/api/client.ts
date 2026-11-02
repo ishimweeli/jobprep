@@ -1,4 +1,6 @@
 import { guestTokenHeader } from '../lib/guestTokens';
+import { clearSessionHint, hasSessionHint } from '../lib/sessionHint';
+import { isMaintenanceResponse, setSystemState } from '../lib/systemState';
 
 /**
  * Single typed fetch wrapper for the JobPrep API.
@@ -10,14 +12,17 @@ export class ApiError extends Error {
   readonly code: string;
   readonly retryAfterSeconds: number | null;
   readonly details: Record<string, unknown>;
+  /** The API's `X-Request-Id` / body `requestId`: the "Reference" on the error page. */
+  readonly requestId: string | null;
 
-  constructor(status: number, code: string, details: Record<string, unknown> = {}, retryAfterSeconds: number | null = null) {
+  constructor(status: number, code: string, details: Record<string, unknown> = {}, retryAfterSeconds: number | null = null, requestId: string | null = null) {
     super(code);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.details = details;
     this.retryAfterSeconds = retryAfterSeconds;
+    this.requestId = requestId;
   }
 
   get isNetwork() {
@@ -50,14 +55,15 @@ export function buildUrl(path: string, query?: RequestOptions['query']): string 
 }
 
 /** Map a non-2xx response body + headers to an ApiError. Exported for tests. */
-export function toApiError(status: number, body: unknown, retryAfterHeader: string | null): ApiError {
+export function toApiError(status: number, body: unknown, retryAfterHeader: string | null, requestIdHeader: string | null = null): ApiError {
   const obj = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
   const code = typeof obj.error === 'string' ? obj.error : `http_${status}`;
   let retry: number | null = null;
   if (typeof obj.retryAfterSeconds === 'number') retry = obj.retryAfterSeconds;
   else if (retryAfterHeader && Number.isFinite(Number(retryAfterHeader))) retry = Number(retryAfterHeader);
-  const { error: _error, ...details } = obj;
-  return new ApiError(status, code, details, retry);
+  const { error: _error, requestId: bodyRequestId, ...details } = obj;
+  const requestId = typeof bodyRequestId === 'string' ? bodyRequestId : requestIdHeader;
+  return new ApiError(status, code, details, retry, requestId);
 }
 
 /** Guests identify their attempts with the secret `X-Guest-Token` header; signed-in users use the session cookie. */
@@ -96,6 +102,26 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
       body = null;
     }
   }
-  if (!res.ok) throw toApiError(res.status, body, res.headers.get('Retry-After'));
+  if (!res.ok) {
+    const err = toApiError(res.status, body, res.headers.get('Retry-After'), res.headers.get('X-Request-Id'));
+    reportSystemCondition(path, err, body !== null);
+    throw err;
+  }
   return body as T;
+}
+
+/**
+ * Two failures replace the page instead of showing an inline error (SystemPages.dc): the service is down (503 or a
+ * bare gateway error) and a 401 on a call that needs a session while this browser believes it is signed in.
+ * `/auth/*` and the `/me` session probe are expected to answer 401 and never trigger it.
+ */
+function reportSystemCondition(path: string, err: ApiError, hadJsonBody: boolean): void {
+  if (isMaintenanceResponse(err.status, hadJsonBody && err.code !== `http_${err.status}`)) {
+    setSystemState('maintenance');
+    return;
+  }
+  if (err.status === 401 && !path.startsWith('/auth/') && path !== '/me' && hasSessionHint()) {
+    clearSessionHint();
+    setSystemState('session_expired');
+  }
 }

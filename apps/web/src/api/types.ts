@@ -127,6 +127,8 @@ export interface ExamDetail extends TestCard {
     accessEndsAt: string | null;
     daysLeft: number | null;
   };
+  /** A running attempt of this test (signed-in users only). */
+  inProgress: null | { attemptId: string; answered: number; total: number; remainingSeconds: number };
   pricing: null | {
     priceLabel: string | null;
     durationDays: number | null;
@@ -162,13 +164,17 @@ export interface PublicUser {
   language: string;
 }
 
+export interface AccessSummary {
+  current: null | { endsAt: string; daysLeft: number; endingSoon: boolean };
+  /** Set when there is no current access but there was some: when the last one ended. */
+  expired: null | { endedAt: string };
+  otherCountries: { countryCode: string; endsAt: string; daysLeft: number }[];
+}
+
 export interface MeResponse {
   user: PublicUser;
   country: { code: string; name: string; currencyCode: string; languages: string[] };
-  access: {
-    current: null | { endsAt: string; daysLeft: number };
-    otherCountries: { countryCode: string; endsAt: string; daysLeft: number }[];
-  };
+  access: AccessSummary;
 }
 
 export interface OtpRequestResponse {
@@ -198,6 +204,8 @@ export interface CountryChangePreview {
 // ───────────────────────── Exam engine (apps/api/src/routes/attempts.ts)
 
 export interface TimerState {
+  /** Practice sets have no clock. */
+  untimed?: boolean;
   remainingSeconds: number;
   serverNow: string;
   deadlineAt: string;
@@ -222,6 +230,8 @@ export interface ExamQuestion {
   topic: { id: string; name: string };
   type: 'SINGLE_CHOICE' | 'MULTIPLE_SELECT' | 'CASE_BASED' | string;
   multiple: boolean;
+  /** Multiple-select: how many answers to choose (the most picks the server accepts). `null` for single answer. */
+  choose: number | null;
   stem: string;
   options: { key: string; text: string }[];
   marks: number;
@@ -281,7 +291,7 @@ export interface AnswerChangeDto {
 export interface ChangeResult {
   questionId: string;
   status: 'saved' | 'stale' | 'rejected';
-  error?: 'unknown_question' | 'invalid_option' | 'after_deadline';
+  error?: 'unknown_question' | 'invalid_option' | 'too_many_choices' | 'after_deadline';
 }
 
 export interface SaveAnswersResponse {
@@ -399,16 +409,29 @@ export interface DashboardResponse {
   country: { code: string; name: string };
   goal: null | { categoryId: string; slug: string; name: string };
   resume: InProgressAttempt | null;
-  recommended: null | { topicId: string; topicName: string; percent: number; questionCount: number; minutes: number };
+  /** Practice is untimed: there are no minutes. */
+  recommended: null | { topicId: string; topicName: string; percent: number; questionCount: number; untimed: boolean };
   scoreHistory: { attemptId: string; submittedAt: string | null; percent: number | null; title: string }[];
   topics: {
     strong: { topicId: string; name: string; percent: number }[];
     needsWork: { topicId: string; name: string; percent: number }[];
   };
   recentlyCompleted: { attemptId: string; kind: 'FULL' | 'PRACTICE'; title: string; submittedAt: string | null; attemptNumber: number | null; percent: number | null }[];
-  access: MeResponse['access'];
+  access: AccessSummary;
   hasActivity: boolean;
+  /** A free test to start with; only for users who have not finished any attempt. */
+  startHere: null | DashboardTestCard;
+  suggestedTests: DashboardTestCard[];
+  pendingPayment: null | { id: string; providerLabel: string; priceLabel: string; expiresAt: string };
   asOf: string;
+}
+
+export interface DashboardTestCard {
+  slug: string;
+  title: string;
+  isFree: boolean;
+  durationMinutes: number;
+  questionCount: number;
 }
 
 // ───────────────────────── Checkout and payments
@@ -417,6 +440,9 @@ export type PaymentStatus = 'PENDING' | 'SUCCESSFUL' | 'DECLINED' | 'FAILED' | '
 
 export interface CheckoutSummary {
   country: { code: string; name: string; dialCode: string; currencyCode: string };
+  /** Access the user already has in this country (buying more adds days after it ends). */
+  currentAccess: null | { endsAt: string; daysLeft: number; endingSoon: boolean };
+  newAccessEndsAt: string | null;
   plan: null | {
     name: string;
     priceMinor: number | null;
@@ -450,4 +476,22 @@ export interface PaymentView {
   access: null | { startsAt: string; endsAt: string; daysLeft: number; countryCode: string };
   canSendAgain: boolean;
   canRetry: boolean;
+}
+
+// ───────────────────────── Practice
+
+export interface PracticeStartResponse {
+  attemptId: string;
+  guestToken: string | null;
+  questionCount: number;
+  untimed: boolean;
+  topics: { topicId: string; name: string; percent?: number }[];
+}
+
+export interface PracticeCheckResponse {
+  questionId: string;
+  state: 'correct' | 'incorrect' | 'partial' | 'unanswered';
+  correct: string[];
+  yourAnswer: string[];
+  explanation: string | null;
 }

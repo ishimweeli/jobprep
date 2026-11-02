@@ -179,3 +179,112 @@ New lazy chunks (gzip): exam 9.2 KB, checkout 5.2 KB, dashboard 4.3 KB, results 
 
 ## Anything inert
 "Practice Weak Areas" (results), "Practise weak areas" (review), "Start practice" and "Practise" (dashboard): practice runner not designed. "Change goal" / "Change" (dashboard): not designed. The phone menu button and "Sign in" link inside sign-up are still inert from Part 1.
+
+---
+
+# Part 3: Batch 1 designs (sign-in, account menu, phone navigation, new-user dashboard, unlocked details, guest paid, checkout edge states, country gate, system pages, multiple-select, practice, desktop time-up / offline)
+
+Built from the 21 artboards `SignIn`, `SignInPhone`, `AccountMenu`, `NavPhone`, `DashboardNew`, `DashboardNewPhone`, `ExamDetailUnlocked`, `ExamDetailUnlockedPhone`, `GuestPaid`, `GuestPaidPhone`, `CheckoutStates`, `CheckoutStatesPhone`, `CountryGate`, `CountryGatePhone`, `SystemPages`, `SystemPagesPhone`, `MultiSelect`, `MultiSelectPhone`, `Practice`, `PracticePhone`, `TimeUpDesktop`. One responsive implementation per screen; every Tweaks state of each artboard is built (or listed below as unreachable). The owner's rule still applies: nothing without an artboard; undesigned follow-ups stay inert (`lib/routesReady.ts`) and are listed under "Missing designs hit".
+
+## Per-screen status
+
+| # | Screen | Route / where | Status |
+|---|---|---|---|
+| 1 | **C12 Sign-in** | `/sign-in` (`?next=` honoured, same-site only) | Done. Phone step, code step (6 boxes), all Tweaks states: invalid phone, wrong code (`triesLeft`), code expired, too many tries, no connection; resend countdown from `cooldownSeconds`; "Use a different number"; links to sign-up; header "Sign in" and SignUp's "Already have an account? Sign in" are live. State machine in `features/auth/signInModel.ts` (reducer + error mapping, unit-tested). |
+| 2 | **C13 Header, account menu, sign-out** | Desktop header on every non-exam screen | Done. Country chip on every screen; guests: Sign in + Create account; signed in: avatar opens the menu (My progress, My access with days left, Exam country, Language, Help and support, Account settings, Sign out), keyboard: arrows, Esc returns focus. Sign-out asks first when a full mock test is running (`GET /api/attempts/in-progress`), else signs out at once and shows "You're signed out. Sign in again". |
+| 3 | **C29 Phone navigation** | bottom tabs on Home, Tests, test details, Progress, Pricing, Account | Done. Signed-in tabs (Home, Tests, Progress, Account), the Account tab page (`/account`: profile card, the same rows, Sign out, sign-out sheet), guest menu sheet behind the hamburger (Mock tests, Pricing, Country, Language, Sign in, Create a free account). Replaces the old three-tab bar. |
+| 4 | **C16 Dashboard new user + access states** | `/:country/progress` | Done. "Welcome, Aline", Start here (free test from `startHere`), empty Score history, More for your goal (`suggestedTests`), My access in five states (free only, payment pending, active, ending soon, expired) driven by `access.current/expired`, `endingSoon`, `pendingPayment`. The existing dashboard uses the same My access card. Phone order: Start here, My access, Score history, More for your goal. |
+| 5 | **C30 Exam details unlocked** | `/:country/tests/:slug` when `access.state = GRANTED` | Done. Not started / In progress (Resume, answered, time left, "To start over, submit this attempt first.") / Taken before (Start a new attempt, "Review last attempt · 58%", attempts line). |
+| 6 | **C17 Guest taps a paid test** | dialog on details (`?gate=paid`); start link and checkout link of a paid test as a guest lead to it | Done. Create account and continue / I already have an account (both return to the checkout of that test via `?next=`) / Try the free sample. |
+| 7 | **C20 Checkout edge states** | `/:country/checkout` | Done: invalid number, declined, expired, provider unavailable (502), still pending (via "Check payment"), already has access. The desktop checkout now follows `CheckoutStates` (site header + 480 px column). "Number on another network" is unreachable (no backend rule, DECISIONS #71). Every failure says "You were not charged." |
+| 8 | **C23 Country gate** | `/ug` (country not live), wrong country on `/ke/tests/...` | Done: country not open (waiting-list form, "You're on the list"), wrong-country page (See similar tests / Switch my account). |
+| 9 | **C26 System pages** | unknown route, API 5xx, 503, 401 | Done: 404 (replaces the old redirects), "Something went wrong on our side" with Reference = request id (`JP-XXXX-XXXX`), maintenance (no time), session expired (links to sign-in). |
+| 10 | **C3 + C5 Multiple-select, "Partly correct"** | exam, case exam, practice, review | Done: square checkboxes (`role=checkbox`), "Choose N" badge from `question.choose`, "Choose N." after the stem, live count, cap with "Unselect one to change your answer", navigator "answered" at 1 or more picks; review: "Partly correct" badge with half-filled icon, marks "1 of 2 marks", each choice marked; jump grid cell `7◐` and legend entry; the Incorrect tab lists partly correct answers. |
+| 11 | **C1 Practice runner** | `/:country/exam/:attemptId` for `kind = PRACTICE` | Done. Untimed, Check answer (saves the answer, then asks `/check`), feedback + explanation, Next question, End practice, summary ("Practice answers don't change your mock test scores"). "Practice Weak Areas" (results), "Practise weak areas" (review), "Start practice" and "Practise" (dashboard) are live. Practice results reuse the results screen (no comparison / history). |
+| 12 | **C7 + C8 Desktop time-up and offline** | exam | Done. Desktop time-up: the exam stays in view, dimmed, behind the "Time is up" dialog (greyed Submit exam, 00:00, "Submitted"); phone keeps the full-screen version. Offline: banner "…kept on this computer and will save when you reconnect. The timer keeps running." with dashed outlines for waiting answers and "Answered, waiting to save (N)"; "Back online. Your N waiting answers are saved." |
+| 13 | Router / flags | `routes.tsx`, `lib/routesReady.ts` | Done. `practice` is `true`. Root route with `HydrateFallback`: the "No `HydrateFallback` element" console warning is gone. Unknown routes show the 404 page. |
+
+## Shared changes
+- `api/client.ts`: `ApiError.requestId` (body `requestId` or `X-Request-Id`); 503 and bare 502/504 set the maintenance state; a 401 on a call that needs a session (browser has the session hint) sets "session expired" (`lib/systemState.ts`, rendered by `SystemGate` in the root layout; it clears when the user goes elsewhere). `GET /api/me` answering 401 while the hint exists also shows it.
+- `components/layout/Header.tsx`, `GuestMenuSheet`, `PhoneTabBar`, `SignedOutNotice`; `features/account/*` (menu, Account tab page, `useSignOut`); `components/StrokeIcon.tsx`.
+- `CountryLayout` waits for the country list and the session before asking the API for country data (this also removes the 404 the browser logged for `/ug` and `/ke` before: API_GAPS #5), shows the gate pages, and no longer redirects unknown countries or paths.
+- `QueryError`: a 5xx shows the system "Something went wrong" page with its Reference and a working Try again.
+- Country picker: "Notify me when X opens" is now a link to that country's waiting-list page.
+- `Dialog` unchanged; test `renderWithProviders` now uses a data router (`createMemoryRouter`).
+- Added i18n keys: none (the UI copy is the artboards', in English, as in Parts 1 and 2).
+
+## Copy deviations (every one; the backend or the owner's rule wins over the artboard)
+1. **Sign-in "It works for 10 minutes"** -> `expiresInSeconds` (currently "5 minutes"). "Codes work for 10 minutes. Send a new one below." -> the same sentence with the API's minutes.
+2. **"3 tries left"** -> `triesLeft` from the API ("4 tries left", "1 try left"). With `triesLeft: 0` and with `too_many_attempts` the box says "Too many tries" / **"Request a new code."** instead of "For your security, wait 15 minutes before trying again." (there is no timed lockout). Verify is locked; the resend button follows the normal countdown and then reads "Send a new code".
+3. **"Resend code in 0:42" / "Resend available in 15:00"** -> the API's `cooldownSeconds` (45) / `retryAfterSeconds` of a 429. `otp_cooldown` and `otp_hourly_limit` have friendly amber boxes in the same style ("Please wait a moment / You can ask for another code in 0:31.", "Too many codes / You have asked for too many codes. Try again in about 40 minutes."), not in the artboard.
+4. **Invalid number** (sign-in, checkout, waiting list): "Enter a 9-digit {country} number, like {example}." with the country from the data.
+5. **Practice line "15 questions · 20 min"** -> "{n} questions" (desktop: "Your weakest topic at 38%. 15 questions, with explanations after each one."). Practice is untimed.
+6. **`[PRICE]`** is never shown: dashboard free card, pending card, GuestPaid and the checkout summary use the API price; when the country has none the clause or the price is omitted (checkout "Pay RWF 2,000" becomes a disabled "Pay"; no `KES [PRICE]` any more, which was Part 2 behaviour). **`[SUPPORT PHONE]`**: left out of the account menu's "Help and support" (no second line, item inert) and of the "Still waiting" card (that whole sentence is dropped). **`[TIME]`**: maintenance reads "We're making improvements. Your results, answers and access are safe." **`[SCORING RULE]`**: the line in the review is left out.
+7. **Dashboard pending card**: "Approve it on your phone with your PIN" -> "Approve it on your phone." (JobPrep copy never mentions PIN entry). "to +250 788 123 456 at 21:05" comes from `GET /payments/:id` (number and time sent); left out if that call fails.
+8. **CountryGate**: "Ugandan recruitment exams" -> "recruitment exams in Uganda" (no demonym in the data). The optional field "What are you preparing for?" is not shown (the API does not store it). Wrong country: the test title is left out ("The link you opened is for Kenya.", API_GAPS #15); the Full Access clause and note appear only when the user has Full Access.
+9. **GuestPaid**: "the free 15-question Accountant sample" -> "Try the free 6-question Accountant (Public Institution) sample instead" (question count and profession from the API).
+10. **Phone tabs**: Home goes to the country home page and Progress to the dashboard (the artboards mark Home on the dashboard and link Progress to a results screen; there is one dashboard).
+11. **Headers**: the country chip shows on every desktop screen and non-landing guest screens get "Create account" (as in the Batch 1 artboards); "My progress" in the nav only for signed-in users.
+12. **Dashboard**: "Welcome, Aline" for a user with no finished test, "Muraho, Aline" afterwards (Part 2). The goal line still shows the category name (API_GAPS #8).
+13. **Practice**: a wrong multiple-select answer reads "Not quite — the answers are A, C"; a partial one "Partly correct" (not drawn); the summary says "1 question" for one; "Practise 15 more" practises the topic with most questions in the set (API_GAPS #21).
+14. **Review**: "Choose N" = number of correct options (API_GAPS #14); the jump-grid cell and legend for "Partly correct" (`7◐`) are not drawn in an artboard (C5 grid): minimal, label plus shape.
+15. **Account settings on desktop** = the phone layout in a centred column (only `ChangeCountryPhone` is drawn); `/account` on desktop is the same page as the phone Account tab.
+16. **Checkout**: the desktop checkout follows `CheckoutStates` (heading "Get Full Access", inline Pay button); result cards use that artboard's summary ("JobPrep Full Access · Rwanda / Every Rwanda mock test · 30 days"); "Still waiting for confirmation" is shown after "Check payment" (API_GAPS #18).
+17. **Unlocked details**: the sections table and "Your previous attempts" list are not part of the unlocked artboard and are not shown for a granted test; the attempts line reads "Attempts: 5+" when the API's list of five is full.
+18. **Maintenance** is shown for 503 and for a gateway 502 / 504 without an API error body only; a dropped connection (offline) keeps the inline retry state, so an offline candidate never reads "JobPrep is being updated".
+
+## Anything inert
+- **Language** (account menu row, phone Account row, guest sheet toggle): drawn, no destination (no picker design, C22).
+- **Help and support**: drawn, no destination, no second line (no page design, no number).
+- **Change goal** / **Change** on the dashboard (C15) and **Request this exam** (C10, catalog empty state) stay inert from Part 2.
+- "Number on another network" (CheckoutStates): unreachable.
+
+## Missing designs hit (nothing was invented)
+C22 language picker; Help and support page; C15 change goal; C10 request-this-exam form; C2 practice results (the existing results screen is used, comparison and history absent); C4 case passages in the review; C6 results edge states; C9 finished-attempt reopen (redirects to results); a desktop account page and profile editing; Terms / Privacy / Refund pages; a "Back online" banner for phones; a jump-grid cell and legend for "Partly correct"; a "Check payment" flow beyond the "Still waiting" card; the practice "Finish practice" confirmation and a "Partly correct" feedback panel (MISSING_DESIGNS C1 mentions them, the artboard does not draw them).
+
+## API gaps
+`docs/API_GAPS.md` items 13 to 21.
+
+## Test results (2026-11-02)
+| Command | Result |
+|---|---|
+| `npm run lint` | pass |
+| `npm run typecheck` | pass |
+| `npm test` | 575 API + **255 web** + 2 shared, all pass. Web: 29 files (was 19; 142 tests before, 255 now). |
+| `npx playwright test` (full, both projects, including the 2-minute offline runs and the 1-minute time-up runs) | **293 passed, 19 skipped** (phone-only / desktop-only cases), both projects, 11.9 min, no failures, no flaky retries. (An earlier full run had one failure, a race in the older catalog search spec; its wait was made robust and it passed 48 of 48 repeated runs.) |
+| `npm run build -w @jobprep/web` | pass |
+
+New web unit tests (Vitest + Testing Library), all in `apps/web/src`:
+- `features/auth/signInModel.test.ts` (reducer and every error mapping: `triesLeft`, `too_many_attempts`, `code_expired` with the real lifetime, `otp_cooldown` / `otp_hourly_limit` with 429 seconds, offline, suspended, no account discovery, resend label) and `SignInPage.test.tsx` (the screen end to end with a stubbed API: countdown from `cooldownSeconds`, wrong code, locked Verify, expired, 429, offline, `?next=`, off-site `?next=` ignored).
+- `features/account/accountMenuModel.test.ts` and `AccountMenu.test.tsx` (menu rows, inert Language / Help, Esc, navigation, sign-out at once vs with a test in progress, practice does not block, "You're signed out" notice, phone tabs, Account tab page).
+- `features/dashboard/dashboardModel.test.ts` (access state mapping: new user, pending, active, ending soon, expired; card copy for each; no placeholders; practice line without minutes).
+- `features/exam-detail/detailsModel.test.ts` (not started / resume / taken before, labels, best score, "5+").
+- `features/country/CountryGate.test.tsx` (waiting list, wrong country, error-page Reference), `features/system/systemModel.test.ts` (reference format, copy, 5xx vs maintenance rules).
+- `features/checkout/checkoutResults.test.ts` and updated `CheckoutPage.test.tsx` (every edge-state card, "You were not charged").
+- `features/exam/examModel.test.ts` (multiple-select: cap at N, count line, the "Unselect one to change" message), `features/review/reviewModel.test.ts` (partial-credit labels, marks, option notes, grid mark).
+- `features/practice/practiceModel.test.ts` and `PracticeRunner.test.tsx` (the runner state machine and screen, multiple-select options, the 5xx error page).
+
+New Playwright specs (each runs in `desktop-1440` and `phone-390`, random `+250789xxxxxx` phones, independent, throwaway grants and payments removed through Prisma):
+- `web-signin.spec.ts`: sign up via the API, sign out, sign in through the UI with the code from `GET /api/test/otp`; wrong code shows tries left; five wrong codes; invalid number; unknown number shows no "no account"; `?next=`; header and sign-up links; sign-out with a test in progress (Stay signed in / Sign out).
+- `web-nav.spec.ts`: phone tabs and Account tab, guest menu sheet, desktop account menu and guest header.
+- `web-access-states.spec.ts`: new-user dashboard, finished-test dashboard, access active / ending soon / expired / payment pending (grants and payments created through the API or Prisma), Start practice, unlocked details (not started -> in progress -> taken before), guest taps a paid test (dialog, sign-in back to checkout, start link, checkout link).
+- `web-checkout-states.spec.ts`: invalid number, declined (`simulate decline`), expired (`simulate timeout`), provider unavailable (502 mocked), still waiting via "Check payment", "Send the prompt again", already has access, ending soon.
+- `web-gates-system.spec.ts`: country not open and joined (also against the real waiting-list endpoint), wrong country (country list mocked: Kenya is not live), 404 route, forced 500 with the Reference, 503 maintenance, session expired through a cleared cookie and through a 401.
+- `web-multiselect-practice.spec.ts`: the real seeded question (Secondary Mathematics S1-S3, Q7 "Select ALL the prime numbers"): pick, cap, count, answered mark, server-side `too_many_choices`, partly correct in the review and on the grid; practice end to end (results -> Practice Weak Areas -> answer -> check -> explanation -> end -> summary -> practise more), a whole set to the summary, `answer_first`.
+- `web-offline-desktop.spec.ts`: desktop offline banner, dashed outlines, "Back online. Your 2 waiting answers are saved."
+- `web-a11y-p3.spec.ts`: axe (WCAG A/AA) on sign-in (both steps), 404, country gate, guest dialog, new dashboard, account menu / tab, unlocked details, checkout result card, multiple-select, practice (question, feedback, summary), partly correct review.
+- `web-timeup.spec.ts` now also checks the desktop dialog (dimmed exam behind it, greyed Submit, 00:00, "Submitted").
+- Earlier specs updated because the screens they exercised changed: `web-account` (settings moved to `/account/settings`), `web-checkout` (result cards, desktop heading, guest dialog, no placeholder price), `web-country` (waiting-list page), `web-dashboard` (new states, enabled practice), `web-exam` (practice live, desktop offline wording), `web-exam-detail` (guest buy button, unlocked layout), `web-landing`, `web-signup`, `web-a11y-exam`.
+
+Browser pass (Playwright MCP): every new screen and Tweaks state opened at 1440x900 and 390x844 (360 checked for horizontal scroll on sign-in, gate, 404, landing, catalog, guest dialog, checkout, sign-up: none); console and network checked. Fixes found that way: the country layout asked the API for a not-live country's data before the country list had loaded (404 in the console); the 404 page linked to `/totally/tests` for an unknown path; the avatar and the sign-in country chip failed WCAG "label in name" (axe); the unlocked details rendered its access card twice (desktop and phone copy); the time-up desktop spec found the clock hidden behind the dialog.
+
+## Screenshots (`docs/screenshots/`)
+`account-menu-desktop`, `signed-out-notice-desktop`, `sign-in-1-phone-{desktop,phone}`, `sign-in-2-code-desktop`, `sign-in-invalid-phone-desktop`, `sign-in-wrong-code-{desktop,phone}`, `sign-in-too-many-desktop`, `nav-account-tab-phone`, `nav-signout-sheet-phone`, `nav-guest-menu-phone`, `account-settings-phone`, `dashboard-new-{desktop,phone}`, `dashboard-active-{desktop,phone}`, `dashboard-access-{active,ending,expired,pending}-{desktop,phone}`, `exam-unlocked-notstarted-{desktop,phone}`, `exam-unlocked-inprogress-{desktop,phone}`, `guest-paid-{desktop,phone}`, `checkout-already-{desktop,phone}`, `checkout-provider-down-phone`, `country-gate-{desktop,phone}`, `system-404-{desktop,phone}`, `multiselect-{one,cap}-desktop`, `multiselect-cap-phone`, `review-partly-correct-{desktop,phone}`, `results-with-practice-{desktop,phone}`, `practice-{1-question,2-picked,3-feedback,4-summary}-desktop`, `practice-{1-question,3-feedback,4-summary}-phone`, `exam-offline-desktop`, `exam-back-online-desktop`.
+
+## Performance (production build, `vite preview`, Lighthouse 13.6 mobile, headless Chrome)
+| Page | Performance | Accessibility | Best practices | SEO | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|---|
+| `/rw` landing | 98 | 100 | 100 | 100 | 2.4 s | 60 ms | 0.018 |
+| `/rw/tests` catalog | 97 | 100 | 100 | 100 | 2.4 s | 60 ms | 0 |
+
+Part 2 reported 99 / 98 (LCP 1.6 s / 2.1 s, TBT 0 ms); the small drop comes from the shared entry chunk now carrying the account menu, guest sheet, tab bar and the system pages (landing initial JS about 107 KB gzip against 96 KB, vendor chunk 84 KB). New lazy chunks (gzip): sign-in 3.5 KB, practice runner (inside the exam chunk, 12.7 KB in total), checkout 6.2 KB, dashboard 6.1 KB, details 5.7 KB.

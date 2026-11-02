@@ -1,11 +1,13 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { SiteShell } from '../../components/layout/SiteLayout';
 import { SkeletonList } from '../../components/states';
+import { signInPath } from '../../lib/next';
 import { useSession } from '../auth/session';
 
-/** Signed-in-only pages (outside `/:country`). Guests go to the sign-up screen (the only designed entry). */
+/** Signed-in-only pages (outside `/:country`). Guests go to the sign-in screen and come back. */
 export function AccountLayout() {
   const { user, isLoading } = useSession();
+  const { pathname, search } = useLocation();
   if (isLoading) {
     return (
       <SiteShell>
@@ -15,7 +17,7 @@ export function AccountLayout() {
       </SiteShell>
     );
   }
-  if (!user) return <Navigate to="/sign-up" replace />;
+  if (!user) return <Navigate to={signInPath(`${pathname}${search}`)} replace />;
   return (
     <SiteShell>
       <Outlet />

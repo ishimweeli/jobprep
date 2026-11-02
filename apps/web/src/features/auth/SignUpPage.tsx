@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { requestOtp, signUp } from '../../api/auth';
 import { ApiError } from '../../api/client';
 import { countriesKeys, listCategories } from '../../api/countries';
@@ -13,7 +13,7 @@ import { getStoredCountry, setStoredCountry } from '../../lib/country';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
 import { readGuestTokens } from '../../lib/guestTokens';
-import { safeNext } from '../../lib/next';
+import { safeNext, signInPath } from '../../lib/next';
 import { formatPhone, isValidNational, toE164 } from '../../lib/phone';
 import { plural } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -77,6 +77,7 @@ export function SignUpPage() {
 
       {step === 2 && country && (
         <DetailsStep
+          signInTo={next ? signInPath(next) : '/sign-in'}
           country={country}
           name={name}
           setName={setName}
@@ -117,6 +118,7 @@ export function SignUpPage() {
 }
 
 function DetailsStep({
+  signInTo,
   country,
   name,
   setName,
@@ -124,6 +126,7 @@ function DetailsStep({
   setNational,
   onSent,
 }: {
+  signInTo: string;
   country: CountrySummary;
   name: string;
   setName: (v: string) => void;
@@ -178,10 +181,9 @@ function DetailsStep({
       </Button>
       <p className="m-0 text-[13px] text-muted">
         Already have an account?{' '}
-        {/* The sign-in screen is not designed; the link is drawn as in the artboard and is inert. */}
-        <span aria-disabled="true" className="link cursor-default">
+        <Link to={signInTo} className="link">
           Sign in
-        </span>
+        </Link>
       </p>
     </form>
   );

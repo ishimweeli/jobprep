@@ -32,7 +32,9 @@ export function useCountryDetail(slug: string | undefined) {
 export function useActiveCountrySlug(): string {
   const params = useParams();
   const { user } = useSession();
-  return (params.country ?? user?.countryCode.toLowerCase() ?? getStoredCountry() ?? 'rw').toLowerCase();
+  // Only a two-letter segment is a country (`/totally/unknown` on the 404 page is not one).
+  const fromUrl = params.country && /^[a-z]{2}$/i.test(params.country) ? params.country : undefined;
+  return (fromUrl ?? user?.countryCode.toLowerCase() ?? getStoredCountry() ?? 'rw').toLowerCase();
 }
 
 export function useActiveCountry(): { slug: string; country: CountrySummary | undefined } {

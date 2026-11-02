@@ -60,12 +60,12 @@ test.describe('Web: landing (data-driven from /api/countries/rw/landing)', () =>
     await expect(page).toHaveURL(/\/rw\/tests\?category=procurement/);
   });
 
-  test('"/" redirects to the remembered country and Sign in leads to the sign-up screen', async ({ page }) => {
+  test('"/" redirects to the remembered country and Sign in leads to the sign-in screen', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveURL(/\/rw$/);
     await page.getByRole('link', { name: 'Sign in' }).first().click();
-    await expect(page).toHaveURL(/\/sign-up$/);
-    await expect(page.getByRole('heading', { name: 'Which country is your exam in?' })).toBeVisible();
+    await expect(page).toHaveURL(/\/sign-in$/);
+    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   });
 
   test('desktop header nav, phone header chip and menu button (as drawn)', async ({ page }, info) => {
@@ -78,7 +78,7 @@ test.describe('Web: landing (data-driven from /api/countries/rw/landing)', () =>
       await expect(nav.getByRole('link', { name: 'Mock tests' })).toBeVisible();
       await expect(nav.getByRole('link', { name: 'Teaching exams' })).toBeVisible();
       await expect(nav.getByRole('link', { name: 'Pricing' })).toBeVisible();
-      await expect(nav.getByRole('link', { name: 'My progress' })).toBeVisible();
+      await expect(nav.getByRole('link', { name: 'My progress' })).toHaveCount(0); // signed-in users only (AccountMenu.dc)
       await expect(page.getByRole('link', { name: /Country: .*Change country/ })).toContainText('Rwanda · RWF');
       await expect(page.getByRole('link', { name: 'Try a free test' })).toBeVisible();
     }

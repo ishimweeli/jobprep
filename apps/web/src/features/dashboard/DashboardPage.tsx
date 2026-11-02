@@ -1,22 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, CreditCard, Search } from 'lucide-react';
-import { Link, NavLink, Navigate } from 'react-router-dom';
+import { BarChart3 } from 'lucide-react';
+import { Link, Navigate } from 'react-router-dom';
 import { attemptKeys, getDashboard } from '../../api/attempts';
 import type { DashboardResponse } from '../../api/types';
-import { ActionLink } from '../../components/Button';
+import { ActionLink, buttonClasses } from '../../components/Button';
 import { PhoneBrandHeader } from '../../components/layout/Header';
 import { QueryError, SkeletonBar, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate } from '../../lib/format';
-import { signUpPath } from '../../lib/next';
+import { signInPath } from '../../lib/next';
 import { ROUTES_READY } from '../../lib/routesReady';
+import { useStartPractice } from '../practice/useStartPractice';
+import { MyAccessCard } from './AccessPanel';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { formatClock } from '../exam/timer';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { useRemaining } from '../exam/useRemaining';
 import { useIsDesktop } from '../../lib/useMediaQuery';
-import { chartAria, chartPoints, DESKTOP_CHART, greeting, longDate, PHONE_CHART, progressWidth, visibleSections, type ChartGeometry } from './dashboardModel';
+import {
+  chartAria, chartPoints, DESKTOP_CHART, headline, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta, visibleSections,
+  type ChartGeometry,
+} from './dashboardModel';
 
 const card = 'min-w-0 rounded-card border border-border bg-surface p-4 md:rounded-card-lg md:p-6';
 
@@ -27,7 +32,7 @@ export function DashboardPage() {
   const { user, isLoading } = useSession();
   const q = useQuery({ queryKey: attemptKeys.dashboard, queryFn: getDashboard, enabled: !!user, staleTime: 0, retry: false });
 
-  if (!isLoading && !user) return <Navigate to={signUpPath(countryPath(slug, 'progress'))} replace />;
+  if (!isLoading && !user) return <Navigate to={signInPath(countryPath(slug, 'progress'))} replace />;
 
   const body = q.isError ? (
     <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1200px] px-4 py-8 md:px-6">
@@ -47,122 +52,201 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <PhoneBrandHeader menu={false} nameOnly />
+      <PhoneBrandHeader minimal />
       {body}
-      <PhoneTabBar slug={slug} />
     </div>
   );
 }
 
-/** Phone bottom tab bar (DashboardPhone.dc): Mock tests, My progress, Access. */
-function PhoneTabBar({ slug }: { slug: string }) {
-  const item = ({ isActive }: { isActive: boolean }) =>
-    cx(
-      'flex min-h-[52px] flex-col items-center gap-0.5 py-1.5 text-xs no-underline hover:text-inherit',
-      isActive ? 'font-bold text-brand hover:text-brand' : 'font-semibold text-muted hover:text-muted',
-    );
+function GoalLine({ d }: { d: DashboardResponse }) {
+  if (!d.goal) return null;
   return (
-    <nav aria-label="Main" className="sticky bottom-0 z-30 mt-auto grid grid-cols-3 border-t border-border bg-surface px-1 pb-2.5 pt-1.5 md:hidden">
-      <NavLink to={countryPath(slug, 'tests')} end className={item}>
-        <Search size={22} aria-hidden="true" />
-        Mock tests
-      </NavLink>
-      <NavLink to={countryPath(slug, 'progress')} className={item}>
-        <BarChart3 size={22} strokeWidth={2.2} aria-hidden="true" />
-        My progress
-      </NavLink>
-      <NavLink to={countryPath(slug, 'pricing')} className={item}>
-        <CreditCard size={22} aria-hidden="true" />
-        Access
-      </NavLink>
-    </nav>
+    <p className="m-0 text-[15px] text-ink-2 md:text-base">
+      <span className="md:hidden">{d.hasActivity ? 'Goal: ' : 'Preparing for '}</span>
+      <span className="hidden md:inline">Preparing for </span>
+      <strong className="text-ink">{d.goal.name}</strong>
+      <span className={d.hasActivity ? 'hidden md:inline' : 'inline'}>
+        {' '}
+        in <strong className="text-ink">{d.country.name}</strong>
+      </span>{' '}
+      ·{' '}
+      {/* "Change goal" has no designed screen (C15): drawn as in the artboard, inert. */}
+      {ROUTES_READY.changeGoal ? null : (
+        <span aria-disabled="true" className="link cursor-default">
+          <span className={d.hasActivity ? 'md:hidden' : 'hidden'}>Change</span>
+          <span className={d.hasActivity ? 'hidden md:inline' : 'inline'}>Change goal</span>
+        </span>
+      )}
+    </p>
+  );
+}
+
+function PracticeButton({ start, label, busy }: { start: () => void; label: string; busy?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={start}
+      disabled={busy}
+      className={buttonClasses({ variant: 'primary', className: 'cursor-pointer rounded-control px-5 py-3.5 md:self-start md:py-3 md:text-[15px]' })}
+    >
+      {label}
+    </button>
   );
 }
 
 function DashboardView({ d, slug }: { d: DashboardResponse; slug: string }) {
   const show = visibleSections(d);
+  const practice = useStartPractice(slug);
+  const desktop = useIsDesktop();
+  const fresh = !d.hasActivity;
   return (
-    <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-3.5 px-4 pb-6 pt-[18px] outline-none md:gap-[22px] md:px-6 md:pb-16 md:pt-7">
+    <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-3.5 px-4 pb-6 pt-[18px] outline-none md:gap-5 md:px-6 md:pb-16 md:pt-7">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-0.5 md:gap-1">
-          <h1 className="m-0 text-[26px] tracking-tight md:text-[32px]">{greeting(d.country.code, d.user.firstName)}</h1>
-          {d.goal && (
-            <p className="m-0 text-[15px] text-ink-2 md:text-base">
-              <span className="md:hidden">Goal: </span>
-              <span className="hidden md:inline">Preparing for </span>
-              <strong className="text-ink">{d.goal.name}</strong>
-              <span className="hidden md:inline">
-                {' '}
-                in <strong className="text-ink">{d.country.name}</strong>
-              </span>{' '}
-              ·{' '}
-              {/* "Change goal" has no designed screen (C15): drawn as in the artboard, inert. */}
-              {ROUTES_READY.changeGoal ? null : (
-                <span aria-disabled="true" className="link cursor-default">
-                  <span className="md:hidden">Change</span>
-                  <span className="hidden md:inline">Change goal</span>
-                </span>
-              )}
-            </p>
-          )}
+          <h1 className="m-0 text-[26px] tracking-tight md:text-[32px]">{headline(d)}</h1>
+          <GoalLine d={d} />
         </div>
-        <Link
-          to={countryPath(slug, 'tests')}
-          className="hidden rounded-control border border-input-border bg-surface px-4 py-[11px] text-[15px] font-semibold text-ink no-underline hover:bg-soft hover:text-ink md:inline-block"
-        >
-          Browse mock tests
-        </Link>
+        {!fresh && (
+          <Link
+            to={countryPath(slug, 'tests')}
+            className="hidden rounded-control border border-input-border bg-surface px-4 py-[11px] text-[15px] font-semibold text-ink no-underline hover:bg-soft hover:text-ink md:inline-block"
+          >
+            Browse mock tests
+          </Link>
+        )}
       </div>
 
-      {(show.resume || show.recommended) && (
-        <div className="flex flex-wrap gap-3.5 md:gap-4">
-          {d.resume && <ResumeCard resume={d.resume} slug={slug} />}
-          {d.recommended && (
-            <section aria-labelledby="rec" className="flex min-w-0 flex-[1_1_360px] flex-col gap-2 rounded-card border-2 border-brand bg-surface p-[17px] md:gap-3 md:rounded-card-lg md:p-[23px]">
-              <h2 id="rec" className="m-0 text-[13px] font-semibold text-brand-hover md:text-sm">
-                Recommended next
-              </h2>
-              <p className="m-0 text-lg font-bold leading-snug md:text-xl md:leading-[1.35]">
-                {d.recommended.topicName} practice<span className="hidden md:inline"> set</span>
-              </p>
-              <p className="m-0 text-sm text-ink-2 md:text-[15px]">
-                <span className="md:hidden">
-                  Your weakest topic at {d.recommended.percent}% · {d.recommended.questionCount} questions · {d.recommended.minutes} min
-                </span>
-                <span className="hidden md:inline">
-                  Your weakest topic at {d.recommended.percent}%. {d.recommended.questionCount} questions · {d.recommended.minutes} min, with explanations after each one.
-                </span>
-              </p>
-              {/* The practice runner has no design (C1): the button is drawn and inert. */}
-              <ActionLink ready={ROUTES_READY.practice} to="" variant="primary" className="rounded-control px-5 py-3.5 md:self-start md:py-3 md:text-[15px]">
-                Start practice
-              </ActionLink>
-            </section>
+      {practice.error && (
+        <p role="alert" className="m-0 rounded-control border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-900">
+          {practice.error}
+        </p>
+      )}
+
+      {fresh ? (
+        <FreshView d={d} slug={slug} />
+      ) : (
+        <>
+          {(show.resume || show.recommended) && (
+            <div className="flex flex-wrap gap-3.5 md:gap-4">
+              {d.resume && <ResumeCard resume={d.resume} slug={slug} />}
+              {d.recommended && (
+                <section aria-labelledby="rec" className="flex min-w-0 flex-[1_1_360px] flex-col gap-2 rounded-card border-2 border-brand bg-surface p-[17px] md:gap-3 md:rounded-card-lg md:p-[23px]">
+                  <h2 id="rec" className="m-0 text-[13px] font-semibold text-brand-hover md:text-sm">
+                    Recommended next
+                  </h2>
+                  <p className="m-0 text-lg font-bold leading-snug md:text-xl md:leading-[1.35]">
+                    {d.recommended.topicName} practice<span className="hidden md:inline"> set</span>
+                  </p>
+                  <p className="m-0 text-sm text-ink-2 md:text-[15px]">{practiceLine(d.recommended, desktop)}</p>
+                  <PracticeButton start={() => practice.startTopic(d.recommended!.topicId)} label="Start practice" busy={practice.pending} />
+                </section>
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      {(show.history || show.topics) && (
-        <div className="flex flex-wrap items-start gap-3.5 md:gap-4">
-          {show.history && <HistoryCard d={d} />}
-          {show.topics && <TopicsCard d={d} />}
-        </div>
-      )}
+          {(show.history || show.topics) && (
+            <div className="flex flex-wrap items-start gap-3.5 md:gap-4">
+              {show.history && <HistoryCard d={d} />}
+              {show.topics && <TopicsCard d={d} onPractise={practice.startTopic} />}
+            </div>
+          )}
 
-      {(show.recent || show.access) && (
-        <div className="flex flex-wrap items-start gap-3.5 md:gap-4">
-          {show.recent && <RecentCard d={d} slug={slug} />}
-          {show.access && d.access.current && <AccessCard current={d.access.current} />}
-        </div>
+          <div className="flex flex-wrap items-start gap-3.5 md:gap-4">
+            {show.recent && <RecentCard d={d} slug={slug} />}
+            <MyAccessCard d={d} slug={slug} className="flex-[1_1_320px] md:rounded-card-lg md:p-6" />
+          </div>
+        </>
       )}
     </main>
   );
 }
 
-function ResumeCard({ resume, slug }: { resume: NonNullable<DashboardResponse['resume']>; slug: string }) {
+/**
+ * A user with no finished test (DashboardNew.dc, DashboardNewPhone.dc): Start here, empty history, more tests for the
+ * goal, My access. Desktop puts My access in the right column; the phone shows it right after Start here.
+ */
+function FreshView({ d, slug }: { d: DashboardResponse; slug: string }) {
+  const desktop = useIsDesktop();
+  const start = d.startHere;
+  const resume = d.resume && <ResumeCard resume={d.resume} slug={slug} className="flex-none" />;
+  const startCard = start && (
+    <section aria-labelledby="st-t" className="flex flex-col gap-2.5 rounded-card-lg border-2 border-brand bg-surface p-[21px]">
+      <h2 id="st-t" className="m-0 text-sm font-bold text-brand-hover">
+        Start here
+      </h2>
+      <p className="m-0 text-xl font-extrabold leading-[1.3]">{start.title}</p>
+      <p className="m-0 text-[15px] text-ink-2">
+        {startHereLine(start)}. Take it once to see where you stand — we’ll point you to your weakest topics afterwards.
+      </p>
+      <Link to={countryPath(slug, 'tests', start.slug)} className={buttonClasses({ variant: 'primary', size: 'lg', className: 'md:self-start' })}>
+        Start free mock test
+      </Link>
+    </section>
+  );
+  const history = (
+    <section aria-labelledby="sh-t" className="flex flex-col gap-3 rounded-card border border-border bg-surface p-5">
+      <h2 id="sh-t" className="m-0 text-lg">
+        Score history
+      </h2>
+      <div className="flex flex-col items-center gap-1.5 rounded-control border border-dashed border-input-border px-4 py-7 text-center">
+        <BarChart3 size={32} strokeWidth={1.8} aria-hidden="true" className="text-muted" />
+        <p className="m-0 text-base font-bold">No scores yet</p>
+        <p className="m-0 text-sm text-ink-2">Your scores and strongest and weakest topics will appear here after your first mock test.</p>
+      </div>
+    </section>
+  );
+  const more = d.suggestedTests.length > 0 && (
+    <section aria-labelledby="sg-t" className="flex flex-col gap-2.5 rounded-card border border-border bg-surface p-5">
+      <h2 id="sg-t" className="m-0 text-lg">
+        More for your goal
+      </h2>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {d.suggestedTests.map((t) => (
+          <li key={t.slug}>
+            <Link to={countryPath(slug, 'tests', t.slug)} className="flex items-center justify-between gap-2.5 border-t border-soft py-3 text-ink no-underline hover:text-ink">
+              <span className="flex flex-col">
+                <span className="text-[15px] font-semibold">{t.title}</span>
+                <span className="text-[13px] text-muted">{suggestedMeta(t)}</span>
+              </span>
+              <span className={cx('whitespace-nowrap rounded-pill px-[9px] py-[3px] text-xs font-bold', t.isFree ? 'bg-free-bg text-free' : 'bg-brand-soft text-brand-hover')}>
+                {t.isFree ? 'Free' : 'Full Access'}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+  const access = <MyAccessCard d={d} slug={slug} />;
+
+  if (!desktop) {
+    return (
+      <div className="flex flex-col gap-3.5">
+        {resume}
+        {startCard}
+        {access}
+        {history}
+        {more}
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-start gap-[18px]">
+      <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-[18px]">
+        {resume}
+        {startCard}
+        {history}
+        {more}
+      </div>
+      <div className="flex min-w-0 flex-[1_1_340px] flex-col gap-[18px]">{access}</div>
+    </div>
+  );
+}
+
+function ResumeCard({ resume, slug, className }: { resume: NonNullable<DashboardResponse['resume']>; slug: string; className?: string }) {
   const left = useRemaining(resume.remainingSeconds);
   return (
-    <section aria-labelledby="cont" className="flex min-w-0 flex-[1_1_360px] flex-col gap-2.5 rounded-card bg-ink p-[18px] text-white md:gap-3 md:rounded-card-lg md:p-6">
+    <section aria-labelledby="cont" className={cx('flex min-w-0 flex-[1_1_360px] flex-col gap-2.5 rounded-card bg-ink p-[18px] text-white md:gap-3 md:rounded-card-lg md:p-6', className)}>
       <h2 id="cont" className="m-0 text-[13px] font-semibold text-zinc-300 md:text-sm">
         Continue where you stopped
       </h2>
@@ -241,7 +325,7 @@ function HistoryCard({ d }: { d: DashboardResponse }) {
   );
 }
 
-function TopicsCard({ d }: { d: DashboardResponse }) {
+function TopicsCard({ d, onPractise }: { d: DashboardResponse; onPractise: (topicId: string) => void }) {
   const { strong, needsWork } = d.topics;
   return (
     <section aria-labelledby="topics" className={cx(card, 'flex flex-col gap-1.5 flex-[1_1_320px] md:gap-3.5')}>
@@ -267,10 +351,14 @@ function TopicsCard({ d }: { d: DashboardResponse }) {
               <span>
                 {t.name} · <strong className="tabular">{t.percent}%</strong>
               </span>
-              {/* "Practise" opens the practice runner, which has no design (C1): drawn, inert. */}
-              <span aria-disabled="true" role="link" className="cursor-default py-2.5 text-sm font-semibold text-brand md:py-2">
+              <button
+                type="button"
+                onClick={() => onPractise(t.topicId)}
+                aria-label={`Practise ${t.name}`}
+                className="min-h-[44px] cursor-pointer border-0 bg-transparent py-2.5 text-sm font-semibold text-brand hover:text-brand-hover md:py-2"
+              >
                 Practise
-              </span>
+              </button>
             </div>
           ))}
         </div>
@@ -302,29 +390,6 @@ function RecentCard({ d, slug }: { d: DashboardResponse; slug: string }) {
           <span className="text-base font-extrabold tabular md:text-[17px]">{r.percent === null ? '–' : `${Math.round(r.percent)}%`}</span>
         </Link>
       ))}
-    </section>
-  );
-}
-
-function AccessCard({ current }: { current: { endsAt: string; daysLeft: number } }) {
-  return (
-    <section aria-labelledby="pk" className={cx(card, 'flex flex-col gap-2.5 flex-[1_1_320px] md:gap-3')}>
-      <h2 id="pk" className="m-0 text-[17px] md:text-xl">
-        My access
-      </h2>
-      <div className="flex items-center justify-between gap-2 md:flex-col md:items-stretch md:gap-1 md:rounded-[14px] md:border md:border-border md:p-3.5">
-        <div className="flex flex-col md:contents">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold md:font-bold">Full Access · all mock tests</span>
-            <span className="hidden rounded-pill bg-free-bg px-[9px] py-[3px] text-xs font-bold text-free md:inline">Active</span>
-          </div>
-          <span className="text-[13px] text-muted md:text-sm md:text-ink-2">
-            {current.daysLeft} {current.daysLeft === 1 ? 'day' : 'days'} left · until <span className="md:hidden">{formatDate(current.endsAt)}</span>
-            <span className="hidden md:inline">{formatDate(current.endsAt, true)}</span>
-          </span>
-        </div>
-        <span className="rounded-pill bg-free-bg px-[9px] py-[3px] text-xs font-bold text-free md:hidden">Active</span>
-      </div>
     </section>
   );
 }

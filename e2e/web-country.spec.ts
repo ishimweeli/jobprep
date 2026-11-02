@@ -18,12 +18,12 @@ test.describe('Web: country picker', () => {
     w.expectClean();
   });
 
-  test('a country that is not live offers "Notify me when X opens" (button only, inert)', async ({ page }) => {
+  test('a country that is not live offers "Notify me when X opens", which opens the waiting-list page of that country', async ({ page }) => {
     await page.goto('/choose-country');
     await page.getByText('Kenya', { exact: true }).click();
-    const notify = page.getByRole('button', { name: 'Notify me when Kenya opens' });
+    const notify = page.getByRole('link', { name: 'Notify me when Kenya opens' });
     await expect(notify).toBeVisible();
-    await expect(notify).toHaveAttribute('aria-disabled', 'true');
+    await expect(notify).toHaveAttribute('href', '/ke');
     await expect(page.getByRole('button', { name: /Continue to/ })).toHaveCount(0);
     await expect(page).toHaveURL(/\/choose-country$/);
   });
@@ -39,12 +39,13 @@ test.describe('Web: country picker', () => {
     await expect(page).toHaveURL(/\/rw$/);
   });
 
-  test('the header country chip opens the picker; a country that is not live redirects to it', async ({ page }) => {
+  test('the header country chip opens the picker; a country that is not live shows its waiting-list page', async ({ page }) => {
     await page.goto('/rw');
     await page.getByRole('link', { name: /Country: .*Change country/ }).click();
     await expect(page).toHaveURL(/\/choose-country$/);
     await page.goto('/ke');
-    await expect(page).toHaveURL(/\/choose-country$/);
+    await expect(page).toHaveURL(/\/ke$/); // no redirect: the country gate explains it (CountryGate.dc)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('isn\u2019t open in Kenya yet');
     await page.goto('/rw/tests');
     await expect(page.getByRole('heading', { level: 1, name: 'Find your mock test' })).toBeVisible();
   });

@@ -4,6 +4,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import { attemptKeys, getAttempt, saveAnswers, submitAttempt } from '../../api/attempts';
 import { ErrorState, SkeletonList } from '../../components/states';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
+import { PracticeRunner } from '../practice/PracticeRunner';
 import { ExamRunner } from './ExamRunner';
 import { createQueueStore, mergeQueueOnto, type LocalAnswers } from './queue';
 import { SaveEngine } from './saveEngine';
@@ -28,7 +29,7 @@ export function ExamPage() {
 
   const data = state.data;
   useEffect(() => {
-    if (!data || data.finished) return;
+    if (!data || data.finished || data.attempt.kind === 'PRACTICE') return;
     let cancelled = false;
     const engine = new SaveEngine({ attemptId, store: createQueueStore(), save: (id, changes) => saveAnswers(id, changes), saveKeepalive: (id, changes) => saveAnswers(id, changes, true), submit: submitAttempt });
     void engine.load().then((items) => {
@@ -48,6 +49,8 @@ export function ExamPage() {
     );
   }
   if (data?.finished) return <Navigate to={countryPath(slug, 'results', attemptId)} replace />;
+  // A practice set has no clock, no autosave queue and its own screen (Practice.dc).
+  if (data && !data.finished && data.attempt.kind === 'PRACTICE') return <PracticeRunner state={data} slug={slug} />;
   if (!data || !boot) {
     return (
       <main id="main-content" className="mx-auto max-w-[640px] px-4 py-10">

@@ -1,17 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { getMockTest, catalogKeys } from '../../api/catalog';
 import { ApiError, isApiError } from '../../api/client';
 import { meKeys } from '../../api/me';
 import { createPayment, getCheckout, getPayment, paymentKeys, resendPayment } from '../../api/payments';
 import type { CheckoutSummary, PaymentView } from '../../api/types';
+import { buttonClasses } from '../../components/Button';
 import { QueryError, SkeletonList } from '../../components/states';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
 import { formatDate, mmss } from '../../lib/format';
-import { signUpPath } from '../../lib/next';
+import { signInPath } from '../../lib/next';
+import { formatPhone } from '../../lib/phone';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
@@ -20,24 +22,34 @@ import {
   canPay, checkoutCopy, displayNumber, notCompletedMessage, phaseFor, POLL_INTERVAL_MS, priceText, providerSwatch, receiptNumber, shouldPoll, toMsisdn,
   type CheckoutCopy,
 } from './checkoutModel';
+import {
+  cardKindFor, exampleNumber, invalidNumberMessage, otherProvider, resultCard, type ResultAction, type ResultCard, type ResultContext,
+} from './checkoutResults';
 import { PayDone } from './PayDone';
 
-/** The phone-first checkout column. On desktop the same layout sits in a centred column (no desktop design: C19). */
-function Frame({ back, chip, children, footer }: { back: string; chip?: string; children: React.ReactNode; footer?: React.ReactNode }) {
+/**
+ * The checkout column. Phone: header with back arrow, content, sticky pay button. Desktop (CheckoutStates.dc): the site
+ * header, then a 480 px column with the "Get Full Access" heading and the button inline.
+ */
+function Frame({ back, chip, children, footer, heading }: { back: string; chip?: string; children: React.ReactNode; footer?: React.ReactNode; heading?: 'h1' | 'p' }) {
+  const H = heading ?? 'p';
   return (
     <div className="flex flex-1 flex-col bg-page">
-      <div className="mx-auto flex w-full max-w-[390px] flex-1 flex-col bg-page md:my-8 md:flex-none md:overflow-hidden md:rounded-card-lg md:border md:border-border">
-        <header className="flex items-center gap-1 border-b border-border bg-surface px-2 py-2.5">
+      <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col bg-page md:flex-none md:px-4 md:pb-14 md:pt-10">
+        <header className="flex items-center gap-1 border-b border-border bg-surface px-2 py-2.5 md:hidden">
           <Link to={back} aria-label="Back" className="inline-flex h-11 w-11 items-center justify-center text-ink no-underline hover:text-ink">
             <ArrowLeft size={22} aria-hidden="true" />
           </Link>
           <span className="flex-1 text-[17px] font-bold">Get Full Access</span>
           {chip && <span className="mr-2 rounded-md bg-soft px-2 py-1 text-xs font-bold text-ink-2">{chip}</span>}
         </header>
-        <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col gap-4 px-4 py-[18px] outline-none">
+        <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col gap-4 px-4 py-[18px] outline-none md:flex-none md:px-0 md:py-0">
+          <H className="m-0 hidden text-[26px] font-bold tracking-tight md:block md:pb-0">Get Full Access</H>
           {children}
         </main>
-        {footer && <footer className="sticky bottom-0 border-t border-border bg-surface px-4 pb-4 pt-3 md:static">{footer}</footer>}
+        {footer && (
+          <footer className="sticky bottom-0 border-t border-border bg-surface px-4 pb-4 pt-3 md:static md:border-0 md:bg-transparent md:px-0 md:pb-0 md:pt-4">{footer}</footer>
+        )}
       </div>
     </div>
   );
@@ -48,8 +60,10 @@ export function CheckoutPage() {
   const slug = useActiveCountrySlug();
   const [params] = useSearchParams();
   const testSlug = params.get('test');
-  const { user, session, isLoading } = useSession();
-  const summaryQ = useQuery({ queryKey: paymentKeys.checkout, queryFn: getCheckout, enabled: !!user, staleTime: 30_000, retry: false });
+  const paymentParam = params.get('payment');
+  const checkMode = params.get('check') === '1';
+  const { user, isLoading } = useSession();
+  const summaryQ = useQuery({ queryKey: paymentKeys.checkout, queryFn: getCheckout, enabled: !!user, staleTime: 0, retry: false });
   const testQ = useQuery({
     queryKey: catalogKeys.detail(slug, testSlug ?? ''),
     queryFn: () => getMockTest(slug, testSlug ?? ''),
@@ -59,8 +73,10 @@ export function CheckoutPage() {
   });
 
   const here = `${countryPath(slug, 'checkout')}${testSlug ? `?test=${encodeURIComponent(testSlug)}` : ''}`;
-  // A guest has no designed path to pay (C17): the existing sign-up screen is used and brings them back here.
-  if (!isLoading && !user) return <Navigate to={signUpPath(here)} replace />;
+  // A guest sees "This test is part of Full Access" (GuestPaid.dc) on the test; with no test, they sign in first.
+  if (!isLoading && !user) {
+    return <Navigate to={testSlug ? `${countryPath(slug, 'tests', testSlug)}?gate=paid` : signInPath(here)} replace />;
+  }
 
   const back = testSlug ? countryPath(slug, 'tests', testSlug) : countryPath(slug, 'pricing');
   if (summaryQ.isError) {
@@ -84,29 +100,33 @@ export function CheckoutPage() {
       back={back}
       testSlug={testSlug}
       testTitle={testQ.data?.title}
-      accessEndsAt={session?.access.current?.endsAt ?? null}
+      initialPaymentId={paymentParam}
+      checkMode={checkMode}
     />
   );
 }
 
 function CheckoutFlow({
-  summary, slug, back, testSlug, testTitle, accessEndsAt,
-}: { summary: CheckoutSummary; slug: string; back: string; testSlug: string | null; testTitle: string | undefined; accessEndsAt: string | null }) {
+  summary, slug, back, testSlug, testTitle, initialPaymentId, checkMode,
+}: {
+  summary: CheckoutSummary; slug: string; back: string; testSlug: string | null; testTitle: string | undefined; initialPaymentId: string | null; checkMode: boolean;
+}) {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const dial = summary.country.dialCode;
-  const until = useMemo(() => {
-    const base = accessEndsAt ? new Date(accessEndsAt) : new Date();
-    const d = new Date(base.getTime() + (summary.plan?.durationDays ?? 30) * 86_400_000);
-    return formatDate(d.toISOString(), true);
-  }, [accessEndsAt, summary.plan?.durationDays]);
+  // Buying while access runs adds days after the current end: the API says when the new access ends.
+  const until = formatDate(summary.newAccessEndsAt ?? new Date(Date.now() + (summary.plan?.durationDays ?? 30) * 86_400_000).toISOString(), true);
   const copy = checkoutCopy(summary, until);
 
   const [provider, setProvider] = useState(summary.paymentMethods[0]?.provider ?? '');
   const [number, setNumber] = useState(() => displayNumber(summary.prefillPhone, dial, copy.variant));
   const [numberError, setNumberError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [paymentId, setPaymentId] = useState<string | null>(null);
+  const [paymentId, setPaymentId] = useState<string | null>(initialPaymentId);
   const [editing, setEditing] = useState(false);
+  const [providerDown, setProviderDown] = useState<null | { provider: string }>(null);
+  /** "Check payment" from the dashboard: the user says they approved, so a payment still pending reads "Still waiting". */
+  const [checking, setChecking] = useState(checkMode);
   const idemKey = useRef<string>(crypto.randomUUID());
   const expiredAt = useRef<number | null>(null);
 
@@ -138,12 +158,19 @@ function CheckoutFlow({
     expiredAt.current = null;
     setPaymentId(p.id);
     setEditing(false);
+    setProviderDown(null);
+    setChecking(false);
   };
   const onError = (e: unknown) => {
-    if (e instanceof ApiError && e.code === 'invalid_phone') setNumberError(authErrorMessage(e));
-    else if (e instanceof ApiError && e.code === 'provider_unavailable') setFormError('We could not send the payment request. You were not charged. Try again.');
-    else if (e instanceof ApiError && e.code === 'checkout_unavailable') setFormError('Checkout is not available yet.');
-    else setFormError(isApiError(e) && e.isNetwork ? authErrorMessage(e) : 'We could not start the payment. You were not charged. Please try again.');
+    if (e instanceof ApiError && e.code === 'invalid_phone') {
+      setNumberError(invalidNumberMessage(summary.country.name, exampleNumber(summary.country.code)));
+    } else if (e instanceof ApiError && e.code === 'provider_unavailable') {
+      setProviderDown({ provider });
+    } else if (e instanceof ApiError && e.code === 'checkout_unavailable') {
+      setFormError('Checkout is not available yet.');
+    } else {
+      setFormError(isApiError(e) && e.isNetwork ? authErrorMessage(e) : 'We could not start the payment. You were not charged. Please try again.');
+    }
   };
 
   const create = useMutation({
@@ -161,17 +188,20 @@ function CheckoutFlow({
     setFormError(null);
     const msisdn = toMsisdn(number, dial);
     if (!msisdn) {
-      setNumberError(authErrorMessage(new ApiError(400, 'invalid_phone')));
+      setNumberError(invalidNumberMessage(summary.country.name, exampleNumber(summary.country.code)));
       return;
     }
     setNumberError(null);
     create.mutate(msisdn);
   };
-  const tryAgain = () => {
+  const backToForm = (nextProvider?: string) => {
     idemKey.current = crypto.randomUUID();
     setPaymentId(null);
     setEditing(false);
     setFormError(null);
+    setProviderDown(null);
+    setChecking(false);
+    if (nextProvider) setProvider(nextProvider);
   };
 
   if (phase === 'done' && payment) {
@@ -181,22 +211,78 @@ function CheckoutFlow({
   const price = priceText(summary);
   const chip = copy.variant === 'prefix' ? `${summary.country.code} · ${summary.country.currencyCode}` : undefined;
   const sellable = canPay(summary);
+  const other = otherProvider(summary.paymentMethods, payment?.provider ?? providerDown?.provider ?? provider);
+  const shownPhone = payment ? formatPhone(payment.msisdn, dial) : formatPhone(toMsisdn(number, dial) ?? `${dial}${number.replace(/\D/g, '')}`, dial);
+  const ctx: ResultContext = {
+    providerLabel: payment?.providerLabel ?? summary.paymentMethods.find((m) => m.provider === providerDown?.provider)?.label ?? providerLabel,
+    otherProviderLabel: other?.label ?? null,
+    phone: shownPhone,
+    countryName: summary.country.name,
+    accessUntil: summary.currentAccess ? formatDate(summary.currentAccess.endsAt, true) : null,
+    planDays: summary.plan?.durationDays ?? null,
+  };
+
+  // Which result card (if any) the screen shows instead of the form.
+  let card: ResultCard | null = null;
+  const settled = payment ? cardKindFor(payment.status) : null;
+  if (providerDown && !payment) card = resultCard('provider_unavailable', ctx);
+  else if (phase === 'failed' && payment && settled) card = resultCard(settled, ctx);
+  else if (phase === 'pending' && payment && checking) card = resultCard('waiting', ctx);
+  else if (phase === 'form' && !payment && !editing && summary.currentAccess && !summary.currentAccess.endingSoon) card = resultCard('already_has_access', ctx);
+
+  const act = (action: ResultAction) => {
+    switch (action) {
+      case 'tryAgain':
+        return backToForm();
+      case 'payOther':
+        return backToForm(other?.provider);
+      case 'tryProviderAgain':
+        return backToForm(providerDown?.provider ?? payment?.provider);
+      case 'differentNumber':
+        backToForm(payment?.provider);
+        setNumber('');
+        return;
+      case 'sendNewPrompt': {
+        // Same number, same operator, a fresh request.
+        const msisdn = payment?.msisdn;
+        if (!msisdn) return backToForm();
+        idemKey.current = crypto.randomUUID();
+        setProvider(payment.provider);
+        return createPayment({ provider: payment.provider, msisdn, idempotencyKey: idemKey.current }).then(adopt, onError);
+      }
+      case 'checkAgain':
+        void pay.refetch();
+        return;
+      case 'dashboard':
+        return navigate(countryPath(slug, 'progress'));
+    }
+  };
+
+  if (card) {
+    return (
+      <Frame back={back} chip={chip}>
+        <ResultSummary summary={summary} price={price} />
+        <ResultCardView card={card} onAction={act} />
+      </Frame>
+    );
+  }
 
   return (
     <Frame
       back={back}
       chip={chip}
+      heading={phase === 'form' ? 'h1' : 'p'}
       footer={
         phase === 'form' ? (
           <button
             key="pay"
             type="submit"
             form="pay-form"
-            disabled={!sellable || create.isPending}
+            disabled={!sellable || create.isPending || !!numberError}
             aria-busy={create.isPending || undefined}
-            className="min-h-[56px] w-full cursor-pointer rounded-[14px] border-0 bg-brand text-[17px] font-bold text-white hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-[56px] w-full cursor-pointer rounded-[14px] border-0 bg-brand text-[17px] font-bold text-white hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-45 md:min-h-[52px] md:rounded-control md:text-base"
           >
-            Pay {price}
+            {price ? `Pay ${price}` : 'Pay'}
           </button>
         ) : phase === 'pending' ? (
           <button
@@ -216,7 +302,7 @@ function CheckoutFlow({
             <span className="text-base font-bold">{copy.summaryTitle}</span>
             <span className="text-sm text-ink-2">{copy.summaryLine}</span>
           </span>
-          <span className="whitespace-nowrap text-base font-extrabold">{price}</span>
+          {price && <span className="whitespace-nowrap text-base font-extrabold">{price}</span>}
         </div>
         <p className="m-0 border-t border-border pt-2.5 text-[13px] text-muted">{copy.note}</p>
       </section>
@@ -269,7 +355,7 @@ function CheckoutFlow({
           <p className="m-0 text-[15px] text-amber-900">{notCompletedMessage(payment)}</p>
           <button
             type="button"
-            onClick={tryAgain}
+            onClick={() => backToForm()}
             className="min-h-[44px] cursor-pointer self-start rounded-control border-0 bg-ink px-[18px] py-3 text-[15px] font-bold text-white"
           >
             Try again
@@ -277,6 +363,64 @@ function CheckoutFlow({
         </section>
       )}
     </Frame>
+  );
+}
+
+const ICON_PATH: Record<ResultCard['icon'], string> = {
+  x: 'M18 6L6 18 M6 6l12 12',
+  clock: 'M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M12 9v4l2.5 2.5 M9 2h6',
+  warn: 'M12 9v4 M12 17h.01 M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+  hour: 'M6 2h12 M6 22h12 M7 2v4l5 5 5-5V2 M7 22v-4l5-5 5 5v4',
+  ok: 'M5 12.5l4.5 4.5L19 7.5',
+};
+const TONE: Record<ResultCard['tone'], string> = {
+  red: 'bg-red-100 text-red-800',
+  amber: 'bg-flagged-bg text-flagged-ink',
+  purple: 'bg-brand-soft text-brand-hover',
+  green: 'bg-free-bg text-free',
+};
+
+/** The order summary above a result card (CheckoutStates.dc). */
+function ResultSummary({ summary, price }: { summary: CheckoutSummary; price: string | null }) {
+  return (
+    <section aria-label="Order summary" className="flex justify-between gap-2.5 rounded-card border border-border bg-surface p-4">
+      <span className="flex flex-col gap-0.5">
+        <span className="text-base font-bold">JobPrep Full Access · {summary.country.name}</span>
+        <span className="text-sm text-ink-2">
+          Every {summary.country.name} mock test · {summary.plan?.durationDays ?? 30} days
+        </span>
+      </span>
+      {price && <span className="whitespace-nowrap text-base font-extrabold tabular">{price}</span>}
+    </section>
+  );
+}
+
+function ResultCardView({ card, onAction }: { card: ResultCard; onAction: (a: ResultAction) => void }) {
+  return (
+    <>
+      <section role="status" className="flex flex-col items-center gap-3 rounded-card border border-border bg-surface px-[18px] py-6 text-center">
+        <span className={cx('inline-flex h-16 w-16 items-center justify-center rounded-full', TONE[card.tone])}>
+          <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d={ICON_PATH[card.icon]} />
+          </svg>
+        </span>
+        <h1 className="m-0 text-[22px]">{card.title}</h1>
+        <p className="m-0 text-[15px] leading-[1.55] text-ink-2">{card.body}</p>
+        {card.notCharged && <p className="m-0 text-[15px] font-bold text-ink">You were not charged.</p>}
+      </section>
+      <button type="button" onClick={() => onAction(card.cta.action)} className={buttonClasses({ variant: 'primary', size: 'lg', className: 'cursor-pointer' })}>
+        {card.cta.label}
+      </button>
+      {card.alt && (
+        <button
+          type="button"
+          onClick={() => onAction(card.alt!.action)}
+          className="cursor-pointer border-0 bg-transparent p-2.5 text-center text-[15px] font-semibold text-brand hover:text-brand-hover"
+        >
+          {card.alt.label}
+        </button>
+      )}
+    </>
   );
 }
 
@@ -294,9 +438,9 @@ function NumberField({
       aria-invalid={error ? true : undefined}
       aria-describedby={error ? 'msisdn-help msisdn-err' : 'msisdn-help'}
       className={cx(
-        'h-[54px] min-w-0 rounded-control border bg-surface px-3.5 text-lg text-ink',
+        'h-[54px] min-w-0 rounded-control bg-surface px-3.5 text-lg text-ink',
         copy.variant === 'prefix' ? 'flex-1' : 'w-full tracking-[0.02em]',
-        error ? 'border-red-600' : 'border-input-border',
+        error ? 'border-2 border-incorrect' : 'border border-input-border',
       )}
     />
   );
@@ -314,7 +458,7 @@ function NumberField({
         input
       )}
       {error && (
-        <span id="msisdn-err" role="alert" className="text-[13px] font-semibold text-red-700">
+        <span id="msisdn-err" role="alert" className="text-sm font-semibold text-incorrect">
           {error}
         </span>
       )}

@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { isApiError } from '../api/client';
+import { SystemPageBody } from '../features/system/SystemPage';
+import { isServerError } from '../features/system/systemModel';
 import { cx } from '../lib/cx';
 import { Button } from './Button';
 
@@ -88,9 +90,13 @@ export function ErrorState({
 
 /**
  * A failed query uses the designed error state (States.dc: "We could not load the mock tests" + Try again).
- * A 403 country_mismatch is handled by the country layout's redirect and shows nothing.
+ * A 403 country_mismatch is handled by the country layout ("This test is for Kenya") and shows nothing here.
+ * A server error (5xx) is the "Something went wrong on our side" page with its Reference (SystemPages.dc).
  */
 export function QueryError({ error, what, onRetry, retrying }: { error: unknown; what: string; onRetry: () => void; retrying?: boolean }) {
   if (isApiError(error) && error.code === 'country_mismatch') return null;
+  if (isApiError(error) && isServerError(error.status)) {
+    return <SystemPageBody inline kind="error" reference={error.requestId} cta={{ onClick: onRetry }} alt={{ to: '/' }} />;
+  }
   return <ErrorState title={`We could not load ${what}`} onRetry={onRetry} retrying={retrying} />;
 }

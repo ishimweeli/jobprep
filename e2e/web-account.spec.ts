@@ -10,7 +10,7 @@ test.describe('Web: account and change country (phone)', () => {
   test('shows name, phone and exam country; the country row opens the picker', async ({ page }) => {
     const w = watchErrors(page);
     const u = await signUpViaApi(page, 'Aline Uwase');
-    await page.goto('/account');
+    await page.goto('/account/settings');
     await expect(page.getByRole('heading', { name: 'Account' }).or(page.getByText('Account', { exact: true })).first()).toBeVisible();
     await expect(page.getByText('Aline Uwase')).toBeVisible();
     await expect(page.getByText(`+250 ${u.national.slice(0, 3)} ${u.national.slice(3, 6)} ${u.national.slice(6)}`)).toBeVisible();
@@ -18,7 +18,7 @@ test.describe('Web: account and change country (phone)', () => {
     await expect(page).toHaveURL(/\/choose-country$/);
     // A signed-in user's country is locked: a country that is not live only offers the (inert) notify button.
     await page.getByText('Kenya', { exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Notify me when Kenya opens' })).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByRole('link', { name: 'Notify me when Kenya opens' })).toBeVisible();
     w.expectClean();
   });
 
@@ -49,7 +49,7 @@ test.describe('Web: account and change country (phone)', () => {
       await r.fulfill({ json: { user: {} } });
     });
 
-    await page.goto('/account?switch=KE');
+    await page.goto('/account/settings?switch=KE');
     const sheet = page.getByRole('dialog', { name: 'Switch to Kenya?' });
     await expect(sheet).toBeVisible();
     await expect(sheet).toContainText('prices in KES and M-Pesa or Airtel Money payments');
@@ -61,7 +61,7 @@ test.describe('Web: account and change country (phone)', () => {
     await expect(sheet).toBeHidden();
     expect(posts).toHaveLength(0);
 
-    await page.goto('/account?switch=KE');
+    await page.goto('/account/settings?switch=KE');
     await page.getByRole('button', { name: 'Switch to Kenya' }).click();
     await expect.poll(() => posts.length).toBe(1);
     expect(posts[0]).toEqual({ countryCode: 'KE', confirm: true });
@@ -69,7 +69,7 @@ test.describe('Web: account and change country (phone)', () => {
 
   test('against the real API a country that is not live has no switch sheet', async ({ page }) => {
     await signUpViaApi(page);
-    await page.goto('/account?switch=KE');
+    await page.goto('/account/settings?switch=KE');
     await expect(page.getByText('Exam country')).toBeVisible();
     await expect(page.getByRole('dialog')).toHaveCount(0);
   });

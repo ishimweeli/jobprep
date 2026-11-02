@@ -50,9 +50,11 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     await expect(page.getByRole('heading', { level: 1, name: 'Accountant (Public Institution) — Mock 1' })).toBeVisible();
 
     // Get Full Access -> checkout (the test is remembered)
-    await page.getByRole('link', { name: isPhone(info) ? 'Unlock with Mobile Money' : 'Get Full Access · RWF 2,000' }).click();
+    // the user is signed in: the buy button is a link to the checkout (guests get the dialog instead)
+    await page.getByRole('link', { name: isPhone(info) ? 'Unlock with Mobile Money' : 'Get Full Access · RWF 2,000' }).or(page.getByRole('button', { name: isPhone(info) ? 'Unlock with Mobile Money' : 'Get Full Access · RWF 2,000' })).click();
     await expect(page).toHaveURL(new RegExp(`/rw/checkout\\?test=${ACCOUNTANT_SLUG}$`));
-    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0); // the form has no h1, as drawn
+    // desktop draws the heading "Get Full Access" above the form (CheckoutStates.dc); the phone has it in the top bar
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(isPhone(info) ? 0 : 1);
     const summary = page.getByRole('region', { name: 'Order summary' });
     await expect(summary).toContainText('JobPrep Full Access');
     await expect(summary).toContainText('Every mock test, every category · 30 days');
@@ -147,15 +149,12 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
       const id = await pay(page);
       await expect(page.getByRole('heading', { level: 1, name: 'Approve on your phone' })).toBeVisible();
       expect((await simulatePayment(page.request, id, outcome)).ok()).toBeTruthy();
-      const alert = page.getByRole('alert').filter({ hasText: 'Payment not completed' });
-      await expect(alert).toBeVisible({ timeout: 15_000 });
-      await expect(alert).toContainText(
-        outcome === 'timeout'
-          ? 'The MTN MoMo request expired before it was approved. You were not charged.'
-          : 'The MTN MoMo request was declined. You were not charged.',
-      );
-      await alert.getByRole('button', { name: 'Try again' }).click();
-      await expect(payButton(page)).toBeVisible();
+      const card = page.getByRole('status').filter({ hasText: outcome === 'timeout' ? 'The request expired' : 'Payment declined' });
+      await expect(card).toBeVisible({ timeout: 15_000 });
+      await expect(card).toContainText('You were not charged.');
+      await page.getByRole('button', { name: outcome === 'timeout' ? 'Send a new prompt' : 'Try again' }).click();
+      if (outcome === 'timeout') await expect(page.getByRole('heading', { level: 1, name: 'Approve on your phone' })).toBeVisible();
+      else await expect(payButton(page)).toBeVisible();
       w.expectClean();
     });
   }
@@ -186,7 +185,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
 
     // the request times out: "You were not charged" ...
     expect((await simulatePayment(page.request, view2.id, 'timeout')).ok()).toBeTruthy();
-    await expect(page.getByText('Payment not completed')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('The request expired')).toBeVisible({ timeout: 15_000 });
     // ... then the payer approves late: the API honours it and the screen becomes "Payment confirmed"
     expect((await simulatePayment(page.request, view2.id, 'success')).ok()).toBeTruthy();
     await expect(page.getByRole('heading', { level: 1, name: 'Payment confirmed' })).toBeVisible({ timeout: 20_000 });
@@ -201,12 +200,15 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     });
     await page.getByLabel('Mobile Money number').fill('078 812');
     await payButton(page).click();
-    await expect(page.getByText(/does not look right/)).toBeVisible();
+    await expect(page.getByText('Enter a 9-digit Rwanda number, like 788 123 456.')).toBeVisible();
     expect(posted).toBe(false);
   });
 
-  test('a guest at checkout goes to the existing sign-up and comes back to checkout afterwards', async ({ page }) => {
+  test('a guest at checkout sees "This test is part of Full Access" (create account or sign in, then back to checkout)', async ({ page }) => {
     await page.goto('/rw/checkout?test=accountant-public-institution-mock-1');
+    await expect(page).toHaveURL(/\/rw\/tests\/accountant-public-institution-mock-1\?gate=paid$/);
+    await expect(page.getByRole('dialog', { name: 'This test is part of Full Access' })).toBeVisible();
+    await page.getByRole('link', { name: 'Create account and continue' }).click();
     await expect(page).toHaveURL(/\/sign-up\?next=%2Frw%2Fcheckout%3Ftest%3Daccountant-public-institution-mock-1$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Which country is your exam in?' })).toBeVisible();
   });
@@ -217,7 +219,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     await expect(page).toHaveURL(new RegExp(`/rw/checkout\\?test=${ACCOUNTANT_SLUG}$`));
   });
 
-  test('Kenya checkout reads as CheckoutKenyaPhone: M-Pesa, KES, the price placeholder when unset (country data mocked: Kenya is not live yet)', async ({ page }) => {
+  test('Kenya checkout reads as CheckoutKenyaPhone: M-Pesa, KES, no price shown when unset (country data mocked: Kenya is not live yet)', async ({ page }, info) => {
     await signUpViaApi(page);
     await page.route('**/api/countries', async (route) => {
       const res = await route.fetch();
@@ -226,23 +228,23 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     });
     await page.route('**/api/me', (route) => route.fulfill({ json: {
       user: { id: 'u', name: 'Wanjiru Kamau', phone: '+254712345678', countryCode: 'KE', goalCategoryId: null, language: 'en' },
-      country: { code: 'KE', name: 'Kenya', currencyCode: 'KES', languages: ['en'] }, access: { current: null, otherCountries: [] },
+      country: { code: 'KE', name: 'Kenya', currencyCode: 'KES', languages: ['en'] }, access: { current: null, expired: null, otherCountries: [] },
     } }));
     await page.route('**/api/me/checkout', (route) => route.fulfill({ json: {
       country: { code: 'KE', name: 'Kenya', dialCode: '+254', currencyCode: 'KES' },
       plan: { name: 'Full Access', priceMinor: null, priceLabel: null, durationDays: 30, paidOnce: true, checkoutAvailable: false },
-      paymentMethods: [{ provider: 'MPESA', label: 'M-Pesa', hint: 'Safaricom numbers' }], prefillPhone: '+254712345678',
+      paymentMethods: [{ provider: 'MPESA', label: 'M-Pesa', hint: 'Safaricom numbers' }], prefillPhone: '+254712345678', currentAccess: null, newAccessEndsAt: null,
     } }));
     await page.goto('/ke/checkout');
     const summary = page.getByRole('region', { name: 'Order summary' });
     await expect(summary).toContainText('JobPrep Full Access · Kenya');
     await expect(summary).toContainText('Every Kenya mock test · 30 days');
-    await expect(summary).toContainText('KES [PRICE]');
+    await expect(summary).not.toContainText('[PRICE]'); // no price in the data: nothing is shown instead of a placeholder
     await expect(summary).toContainText('Paid once. Nothing renews.');
-    await expect(page.getByText('KE · KES')).toBeVisible();
+    if (isPhone(info)) await expect(page.getByText('KE · KES')).toBeVisible(); // the top bar chip (the desktop heading has no chip)
     await expect(page.getByLabel('M-Pesa phone number')).toHaveValue('712 345 678');
     await expect(page.getByText('+254', { exact: true })).toBeVisible();
     await expect(page.getByText('An M-Pesa prompt will appear on this phone. Enter your PIN there — we never ask for it.')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Pay KES [PRICE]' })).toBeDisabled(); // no price: no pay button
+    await expect(page.getByRole('button', { name: 'Pay', exact: true })).toBeDisabled(); // no price: no pay button
   });
 });

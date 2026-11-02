@@ -41,9 +41,13 @@ test.describe('Web: exam discovery', () => {
     await page.getByRole('searchbox').fill('Accountant');
     await expect(page).toHaveURL(/q=Accountant/);
     await expect(count(page)).toContainText(/\d+ mock tests?/);
-    const titles = await page.getByRole('article').getByRole('heading').allTextContents();
-    expect(titles.length).toBeGreaterThan(0);
-    for (const t of titles) expect(t.toLowerCase()).toContain('accountant');
+    // the list is replaced after the debounce and the request: wait until every card is an Accountant test
+    await expect
+      .poll(async () => {
+        const titles = await page.getByRole('article').getByRole('heading').allTextContents();
+        return titles.length > 0 && titles.every((t) => t.toLowerCase().includes('accountant'));
+      })
+      .toBe(true);
   });
 
   test('category chips filter and toggle back to All', async ({ page }) => {

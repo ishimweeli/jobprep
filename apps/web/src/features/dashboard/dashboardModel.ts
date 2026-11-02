@@ -1,4 +1,4 @@
-import type { DashboardResponse } from '../../api/types';
+import type { DashboardResponse, DashboardTestCard } from '../../api/types';
 
 /** Pure helpers for the dashboard (Dashboard.dc / DashboardPhone.dc). */
 
@@ -61,7 +61,7 @@ export function longDate(iso: string | null): string {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 }
 
-/** Everything the artboard can show for this data. Sections without data are left out (the empty dashboard is not designed, C16). */
+/** Everything the artboard can show for this data. Sections without data are left out; "My access" always has a state. */
 export function visibleSections(d: DashboardResponse) {
   return {
     resume: !!d.resume,
@@ -69,6 +69,134 @@ export function visibleSections(d: DashboardResponse) {
     history: d.scoreHistory.some((h) => h.percent !== null),
     topics: d.topics.strong.length + d.topics.needsWork.length > 0,
     recent: d.recentlyCompleted.length > 0,
-    access: !!d.access.current,
+    access: true,
   };
+}
+
+// ───────────────────────── "My access" states (DashboardNew.dc, DashboardNewPhone.dc)
+
+export type AccessState = 'free' | 'pending' | 'active' | 'endingSoon' | 'expired';
+
+/**
+ * Which "My access" card to draw, from the API's fields only:
+ *  - a payment waiting for approval wins (the user is in the middle of paying);
+ *  - then running access (`endingSoon` = 3 days or fewer), then access that ended, then "free only".
+ */
+export function accessState(d: Pick<DashboardResponse, 'access' | 'pendingPayment'>): AccessState {
+  if (d.pendingPayment) return 'pending';
+  if (d.access.current) return d.access.current.endingSoon ? 'endingSoon' : 'active';
+  if (d.access.expired) return 'expired';
+  return 'free';
+}
+
+export type BadgeTone = 'soft' | 'amber' | 'green';
+
+export interface AccessCardView {
+  state: AccessState;
+  badge: { text: string; tone: BadgeTone };
+  title: string;
+  body: string;
+  /** Progress bar: share of the plan's days still left, and its colour. */
+  bar: null | { percent: number; amber: boolean };
+  cta: null | { label: string; target: 'checkout' | 'check' };
+  link: null | { label: string; target: 'catalog' | 'resend' };
+}
+
+export interface AccessCardInput {
+  d: Pick<DashboardResponse, 'access' | 'pendingPayment'>;
+  countryName: string;
+  /** From `GET /api/countries/:code`: the price and length of Full Access. Missing price => lines that need it are left out. */
+  plan: null | { priceLabel: string | null; durationDays: number; checkoutAvailable: boolean };
+  /** Details of the waiting payment (`GET /api/payments/:id`): where the prompt went and when it was sent. */
+  pending?: null | { msisdn: string; createdAt: string };
+  formatDate: (iso: string) => string;
+  formatTime: (iso: string) => string;
+  formatPhone: (e164: string) => string;
+}
+
+const days = (n: number) => `${n} ${n === 1 ? 'day' : 'days'}`;
+
+export function accessCardView(i: AccessCardInput): AccessCardView {
+  const state = accessState(i.d);
+  const planDays = i.plan?.durationDays ?? null;
+  const canBuy = !!i.plan?.checkoutAvailable;
+  const none = { bar: null, cta: null, link: null };
+
+  if (state === 'pending') {
+    const p = i.d.pendingPayment!;
+    const where = i.pending ? ` to ${i.formatPhone(i.pending.msisdn)} at ${i.formatTime(i.pending.createdAt)}` : '';
+    return {
+      ...none,
+      state,
+      badge: { text: 'Pending', tone: 'amber' },
+      title: `Waiting for your ${p.providerLabel} approval`,
+      // The artboard adds "with your PIN"; JobPrep never asks for or mentions entering a PIN in its own copy.
+      body: `We sent a prompt for ${p.priceLabel}${where}. Approve it on your phone. If you don’t, you won’t be charged.`,
+      cta: { label: 'Check payment', target: 'check' },
+      link: { label: 'Send the prompt again', target: 'resend' },
+    };
+  }
+  if (state === 'active' || state === 'endingSoon') {
+    const c = i.d.access.current!;
+    const percent = planDays ? Math.max(0, Math.min(100, Math.round((c.daysLeft / planDays) * 100))) : null;
+    const bar = percent === null ? null : { percent, amber: state === 'endingSoon' };
+    if (state === 'active') {
+      return {
+        state, bar, cta: null,
+        badge: { text: 'Active', tone: 'green' },
+        title: `Full Access · ${days(c.daysLeft)} left`,
+        body: `Every mock test in ${i.countryName} is unlocked until ${i.formatDate(c.endsAt)}.`,
+        link: { label: 'Browse all mock tests', target: 'catalog' },
+      };
+    }
+    return {
+      state, bar,
+      badge: { text: c.daysLeft <= 0 ? 'Ends today' : `Ends in ${days(c.daysLeft)}`, tone: 'amber' },
+      title: `Full Access ends on ${i.formatDate(c.endsAt)}`,
+      body: `After that, you keep your results but paid tests lock again. You can buy another ${planDays ? days(planDays) : 'period'} at any time — it starts when the current access ends.`,
+      cta: canBuy ? { label: planDays ? `Add ${planDays} more days` : 'Add more days', target: 'checkout' } : null,
+      link: null,
+    };
+  }
+  if (state === 'expired') {
+    return {
+      ...none,
+      state,
+      badge: { text: 'Expired', tone: 'soft' },
+      title: `Full Access ended on ${i.formatDate(i.d.access.expired!.endedAt)}`,
+      body: 'Your results, scores and review notes are still here. Free sample tests stay open.',
+      cta: canBuy ? { label: 'Get Full Access again', target: 'checkout' } : null,
+    };
+  }
+  const price = i.plan?.priceLabel;
+  return {
+    ...none,
+    state,
+    badge: { text: 'Free', tone: 'soft' },
+    title: 'You’re using free sample tests',
+    body: `Full Access unlocks every mock test in ${i.countryName}${planDays ? ` for ${days(planDays)}` : ''}${price ? `, with one payment of ${price}` : ''}. Nothing renews.`,
+    cta: canBuy ? { label: 'Get Full Access', target: 'checkout' } : null,
+  };
+}
+
+/** "Welcome, Aline" for someone who has not finished a test yet, else the usual greeting. */
+export function headline(d: Pick<DashboardResponse, 'hasActivity' | 'country' | 'user'>): string {
+  return d.hasActivity ? greeting(d.country.code, d.user.firstName) : `Welcome, ${d.user.firstName}`;
+}
+
+/** "Free sample · 50 questions · 60 minutes" on the Start here card. */
+export function startHereLine(t: Pick<DashboardTestCard, 'isFree' | 'questionCount' | 'durationMinutes'>): string {
+  return `${t.isFree ? 'Free sample' : 'Mock test'} · ${t.questionCount} questions · ${t.durationMinutes} minutes`;
+}
+
+/** "40 questions · 45 min" in "More for your goal". */
+export function suggestedMeta(t: Pick<DashboardTestCard, 'questionCount' | 'durationMinutes'>): string {
+  return `${t.questionCount} questions · ${t.durationMinutes} min`;
+}
+
+/** The practice line. Practice has no clock, so there are no minutes ("15 questions · 20 min" in the artboard no longer applies). */
+export function practiceLine(r: { percent: number; questionCount: number }, desktop: boolean): string {
+  return desktop
+    ? `Your weakest topic at ${r.percent}%. ${r.questionCount} questions, with explanations after each one.`
+    : `Your weakest topic at ${r.percent}% · ${r.questionCount} questions`;
 }

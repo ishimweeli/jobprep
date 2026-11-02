@@ -32,7 +32,7 @@ test.describe('Web: exam details', () => {
 
     await expect(page.getByRole('link', { name: 'Start Mock Test' }).first()).toBeVisible();
     await expect(page.getByText('Free', { exact: true }).locator("visible=true").first()).toBeVisible();
-    await expect(page.getByText(/RWF/)).toHaveCount(0);
+    await expect(page.locator('main').getByText(/RWF/)).toHaveCount(0);
     await expect(page.getByRole('link', { name: /Get Full Access/ })).toHaveCount(0);
     w.expectClean();
   });
@@ -47,9 +47,9 @@ test.describe('Web: exam details', () => {
     const sample = `Try the free ${api.freeSample.questionCount}-question sample`;
     await expect(page.getByRole('link', { name: sample })).toBeVisible();
     if (isPhone(info)) {
-      await expect(page.getByRole('link', { name: 'Unlock with Mobile Money' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Unlock with Mobile Money' })).toBeVisible(); // a guest gets the "part of Full Access" dialog
     } else {
-      await expect(page.getByRole('link', { name: `Get Full Access · ${api.pricing.priceLabel}` })).toBeVisible();
+      await expect(page.getByRole('button', { name: `Get Full Access · ${api.pricing.priceLabel}` })).toBeVisible();
       await expect(page.getByText(`Pay with ${api.pricing.paymentMethods.join(' or ')}`)).toBeVisible();
     }
     await expect(page.getByRole('link', { name: 'Start Mock Test' })).toHaveCount(0);
@@ -78,14 +78,15 @@ test.describe('Web: exam details', () => {
     await expect(page.getByTestId('no-pass-mark')).toHaveCount(0);
   });
 
-  test('a test unlocked by Full Access shows days left and Start Mock Test', async ({ page }) => {
+  test('a test unlocked by Full Access uses the unlocked layout (ExamDetailUnlocked.dc)', async ({ page }) => {
     await patchDetail(page, PAID_SLUG, (b) => {
       b.access = { state: 'GRANTED', canStart: true, requiresAccount: false, needsFullAccess: false, accessEndsAt: null, daysLeft: 12 };
       b.pricing = null;
     });
     await page.goto(`/rw/tests/${PAID_SLUG}`);
-    await expect(page.getByText('Unlocked · 12 days left').locator("visible=true").first()).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Start Mock Test' }).first()).toBeVisible();
+    await expect(page.getByText('Unlocked with Full Access')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Start' }).getByRole('link', { name: 'Start Mock Test' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'What the test covers' })).toHaveCount(0);
   });
 
   test('phone: the CTA bar is fixed at the bottom of the viewport', async ({ page }, info) => {

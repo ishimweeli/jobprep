@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { expect, test } from '@playwright/test';
 import { choose, expectSaved, guestTokens, questionHeading, serverState, attemptIdFromUrl } from './web-exam-helpers';
-import { watchErrors } from './web-helpers';
+import { isPhone, watchErrors } from './web-helpers';
 
 const prisma = new PrismaClient({
   datasources: { db: { url: process.env.DATABASE_URL ?? 'postgresql://jobprep:jobprep@localhost:5433/jobprep?schema=public' } },
@@ -69,6 +69,21 @@ test.describe('Web: time runs out', () => {
     // nobody touches anything: at 0 the client asks the server, which has closed the attempt
     await expect(page.getByRole('heading', { level: 1, name: 'Time is up' })).toBeVisible({ timeout: 100_000 });
     await expect(page.getByText(/^Your exam was submitted automatically with 1 of 1 questions answered\. Nothing you answered was lost\.$/)).toBeVisible();
+    if (isPhone(info)) {
+      // phone: the whole screen is the message (TimeUp.dc)
+      await expect(page.getByRole('alertdialog')).toHaveCount(0);
+    } else {
+      // desktop: the exam stays in view, dimmed, behind a dialog (TimeUpDesktop.dc)
+      const dialog = page.getByRole('alertdialog');
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toContainText('Time is up');
+      await expect(dialog.getByRole('link', { name: 'See my results' })).toBeFocused();
+      await expect(page.locator('[role=timer]')).toHaveText('00:00'); // behind the dialog, so hidden from the accessibility tree
+      await expect(page.locator('header [role=status]').first()).toHaveText('Submitted', { useInnerText: true });
+      await expect(page.getByText('Submit exam')).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Submit exam' })).toHaveCount(0); // drawn greyed out, not clickable
+      await expect(page.getByRole('heading', { level: 1, name: 'Question 1 of 1' })).toBeHidden(); // the page behind is hidden from assistive tech
+    }
     const state = await serverState(request, id, tokens);
     expect(state.attempt.status).toBe('AUTO_SUBMITTED');
 

@@ -1,21 +1,30 @@
 import { t } from '@jobprep/shared';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { catalogKeys, getMockTest } from '../../api/catalog';
 import type { ExamDetail } from '../../api/types';
 import { Badge, AccessBadge } from '../../components/Badge';
+import { buttonClasses } from '../../components/Button';
 import { PhoneBackHeader } from '../../components/layout/Header';
 import { QueryError, SkeletonBar, SkeletonList } from '../../components/states';
 import { attemptScore, formatDate, languageList, passMarkDisplay } from '../../lib/format';
+import { useSession } from '../auth/session';
+import { formatClock } from '../exam/timer';
+import { useRemaining } from '../exam/useRemaining';
+import { answeredShare, attemptsLine, PRIMARY_LABEL, reviewLastLabel, unlockedState } from './detailsModel';
+import { GuestPaidDialog } from './GuestPaidDialog';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
-import { countryPath, useActiveCountrySlug } from '../country/hooks';
+import { useIsDesktop } from '../../lib/useMediaQuery';
+import { countryPath, useActiveCountry } from '../country/hooks';
 import { AccessCard, accessView, PhoneCtaBar } from './AccessCard';
 import { ResumePrompt, useInProgress } from '../exam/ResumePrompt';
 
 const sectionCard = 'flex flex-col gap-1 rounded-[14px] border border-border bg-surface p-4 md:gap-3 md:rounded-card md:p-[22px]';
 
 export function ExamDetailPage() {
-  const slug = useActiveCountrySlug();
+  const { slug, country } = useActiveCountry();
+  const { user, isLoading: sessionLoading } = useSession();
+  const [params, setParams] = useSearchParams();
   const { slug: testSlug = '' } = useParams();
   const q = useQuery({
     queryKey: catalogKeys.detail(slug, testSlug),
@@ -53,6 +62,20 @@ export function ExamDetailPage() {
   }
 
   const view = accessView(exam, slug);
+  const guest = !user && !sessionLoading;
+  const gateOpen = guest && exam.access.state === 'LOCKED' && params.get('gate') === 'paid';
+  const closeGate = () => {
+    const next = new URLSearchParams(params);
+    next.delete('gate');
+    setParams(next, { replace: true });
+  };
+  const openGate = () => {
+    const next = new URLSearchParams(params);
+    next.set('gate', 'paid');
+    setParams(next, { replace: true });
+  };
+  const onBuy = guest ? openGate : undefined;
+  if (exam.access.state === 'GRANTED') return <UnlockedDetails exam={exam} slug={slug} />;
   const running = inProgress.data?.find((a) => a.mockTest.slug === exam.slug && a.kind === 'FULL');
   return (
     <div className="flex flex-1 flex-col">
@@ -79,11 +102,12 @@ export function ExamDetailPage() {
             <Attempts exam={exam} />
           </div>
           <aside aria-label="Access" className="hidden min-w-0 flex-[1_1_320px] flex-col gap-4 md:flex">
-            <AccessCard view={view} />
+            <AccessCard view={view} onBuy={onBuy} />
           </aside>
         </div>
       </main>
-      <PhoneCtaBar view={view} />
+      <PhoneCtaBar view={view} onBuy={onBuy} />
+      <GuestPaidDialog open={gateOpen} onClose={closeGate} exam={exam} slug={slug} countryName={country?.name ?? 'this country'} />
     </div>
   );
 }
@@ -218,5 +242,97 @@ function Attempts({ exam }: { exam: ExamDetail }) {
         <p className="m-0 text-[15px] text-ink-2">You have not taken this test yet.</p>
       )}
     </section>
+  );
+}
+
+/**
+ * A test the user has unlocked (ExamDetailUnlocked.dc, ExamDetailUnlockedPhone.dc): header with "Unlocked with Full
+ * Access", facts, instructions, and the "Your access" card with its three states: not started, in progress
+ * (Resume) and taken before (new attempt + "Review last attempt").
+ */
+function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
+  const desktop = useIsDesktop();
+  const state = unlockedState(exam);
+  const running = exam.inProgress;
+  const left = useRemaining(running?.remainingSeconds ?? 0);
+  const startTo = countryPath(slug, 'tests', exam.slug, 'start');
+  const primaryTo = running ? countryPath(slug, 'exam', running.attemptId) : startTo;
+  const last = exam.previousAttempts[0];
+  const reviewLabel = reviewLastLabel(exam);
+  const until = exam.access.accessEndsAt ? ` · until ${formatDate(exam.access.accessEndsAt, true)}` : '';
+
+  const accessCard = (
+    <section aria-label="Start" className="flex flex-col gap-3 rounded-card border border-border bg-surface p-5">
+      <span className="text-sm font-semibold text-muted">Your access</span>
+      <span className="text-[17px] font-bold">Full Access{until}</span>
+      {running && (
+        <div className="flex flex-col gap-1.5 rounded-control bg-brand-softer px-3.5 py-3">
+          <strong className="text-[15px]">You have this test in progress</strong>
+          <span className="text-sm text-ink-2">
+            {running.answered} of {running.total} answered · {formatClock(left)} left on the timer
+          </span>
+          <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-[#DDD6FE]">
+            <div className="h-1.5 bg-brand" style={{ width: `${answeredShare(running)}%` }} />
+          </div>
+        </div>
+      )}
+      <Link to={primaryTo} className={buttonClasses({ variant: 'primary', size: 'lg' })}>
+        {PRIMARY_LABEL[state]}
+      </Link>
+      {state === 'taken_before' && last && reviewLabel && (
+        <>
+          <Link to={countryPath(slug, 'review', last.id)} className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold' })}>
+            {reviewLabel}
+          </Link>
+          <p className="m-0 text-[13px] text-muted">{attemptsLine(exam)}</p>
+        </>
+      )}
+      {state === 'in_progress' && <p className="m-0 text-[13px] text-muted">To start over, submit this attempt first. It will count in your history.</p>}
+    </section>
+  );
+
+  return (
+    <div className="flex flex-1 flex-col">
+      <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title={<span className="text-[15px] font-semibold text-ink-2">{exam.category.name}</span>} />
+      <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-4 px-4 pb-6 pt-[18px] md:gap-[18px] md:px-6 md:pb-14 md:pt-7">
+        <nav aria-label="Breadcrumb" className="hidden text-sm text-muted md:block">
+          <Link to={countryPath(slug)} className="text-muted underline hover:text-ink">
+            Home
+          </Link>{' '}
+          ›{' '}
+          <Link to={countryPath(slug, 'tests')} className="text-muted underline hover:text-ink">
+            Mock tests
+          </Link>{' '}
+          › {exam.category.name}
+        </nav>
+        <div className="flex flex-wrap items-start gap-[22px]">
+          <div className="flex min-w-0 flex-col gap-4 md:flex-[999_1_560px] md:gap-[18px]">
+            <div className="flex flex-col gap-2.5">
+              <div className="flex flex-wrap gap-2">
+                <Badge tone="brand" className="px-2.5 py-1 text-[13px]">
+                  {exam.category.name}
+                </Badge>
+                <Badge tone="free" className="gap-1.5 px-2.5 py-1 text-[13px]">
+                  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                  Unlocked with Full Access
+                </Badge>
+              </div>
+              <h1 className="m-0 text-[26px] font-bold leading-[1.15] tracking-tight md:text-[34px]">{exam.title}</h1>
+              {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2">{exam.summary}</p>}
+            </div>
+            <Facts exam={exam} />
+            <Instructions exam={exam} />
+            {!desktop && accessCard}
+          </div>
+          {desktop && (
+            <aside aria-label="Access" className="min-w-0 flex-[1_1_320px]">
+              {accessCard}
+            </aside>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }

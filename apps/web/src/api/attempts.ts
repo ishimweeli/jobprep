@@ -1,6 +1,6 @@
 import { api } from './client';
 import type {
-  AnswerChangeDto, AttemptState, DashboardResponse, InProgressAttempt, ResultResponse, ReviewFilter, ReviewResponse,
+  AnswerChangeDto, AttemptState, DashboardResponse, InProgressAttempt, PracticeCheckResponse, PracticeStartResponse, ResultResponse, ReviewFilter, ReviewResponse,
   SaveAnswersResponse, StartAttemptResponse, SubmitResponse, TimerResponse,
 } from './types';
 
@@ -30,3 +30,15 @@ export const getReview = (id: string, filter: ReviewFilter) =>
 
 export const listInProgress = () => api<{ attempts: InProgressAttempt[] }>('/attempts/in-progress').then((r) => r.attempts);
 export const getDashboard = () => api<DashboardResponse>('/me/dashboard');
+
+/** "Practice Weak Areas" on the results screen: a set built from that attempt's weak topics. */
+export const startWeakPractice = (attemptId: string) =>
+  api<PracticeStartResponse>(`/attempts/${encodeURIComponent(attemptId)}/practice`, { method: 'POST', body: {} });
+
+/** "Start practice" / "Practise" on the dashboard: a set for one topic. */
+export const startTopicPractice = (countryCode: string, topicId: string) =>
+  api<PracticeStartResponse>(`/countries/${countryCode.toUpperCase()}/practice`, { method: 'POST', body: { topicId } });
+
+/** Practice only: reveal the answer and the explanation of a question that has been answered. */
+export const checkPracticeAnswer = (attemptId: string, questionId: string) =>
+  api<PracticeCheckResponse>(`/attempts/${encodeURIComponent(attemptId)}/check`, { method: 'POST', body: { questionId } });

@@ -50,3 +50,41 @@ Appended by the frontend engineer (`apps/web`). Each entry: what is needed, endp
 
 ### 12. Unrelated working-tree changes seen earlier
 - At the start of this pass `git status` showed uncommitted edits in `apps/api` (`app.ts`, `config.ts`, `http/rate-limit.ts`, `hardening.test.ts`, `rate-limit.test.ts`) that this pass did not make. If per-IP rate limits land, the e2e suites that create many OTP requests from one IP may need the limits relaxed for `ENABLE_TEST_ENDPOINTS`.
+
+## Part 3 (Batch 1 screens: sign-in, access states, gates, multiple-select, practice)
+
+### 13. `previousAttempts` on exam details mixes in practice sets, has no `kind`, and stops at 5
+- **Need:** `GET /api/countries/:code/mock-tests/:slug` -> `previousAttempts` limited to full attempts (or carrying `kind`), plus a `previousAttemptCount` and `bestPercent`.
+- **Why:** "Review last attempt · 58%" and "Attempts: 2 · best 58%" (ExamDetailUnlocked.dc) read the list. Practice sets are anchored to a mock test, so one can appear as the "last attempt"; with more than 5 attempts the count and the best score are wrong.
+- **Workaround:** the page uses the first row as the last attempt, shows "Attempts: 5+" when the list is full, and "best" is the best of the rows it has.
+
+### 14. Review items have no `choose`
+- **Need:** `choose` on `GET /api/attempts/:id/review` items (as on the exam state).
+- **Why:** the review says "Choose 3" (MultiSelect.dc). An explicit `choose` larger than the number of correct options would differ.
+- **Workaround:** `choose` = the number of options marked correct.
+
+### 15. The wrong-country answer (403 `country_mismatch`) does not say which test the link was
+- **Need:** `{ error: 'country_mismatch', test: { title }, country: { code, name } }`.
+- **Why:** CountryGate.dc says "The link you opened is **County Accountant — Mock 1** in Kenya".
+- **Workaround:** the web app decides from the country list and the user's country (no API call) and writes "The link you opened is for Kenya." without the title.
+
+### 16. The waiting list stores only a phone number
+- **Need:** an optional `interest` (free text, "What are you preparing for?") on `POST /api/countries/:code/waiting-list`.
+- **Why:** CountryGate.dc draws that optional field. **Workaround:** the field is left out (a field that is thrown away would mislead).
+
+### 17. `pendingPayment` on the dashboard has no number and no time
+- **Need:** `msisdn` and `createdAt` in `dashboard.pendingPayment`.
+- **Why:** "We sent a prompt for RWF 2,000 to +250 788 123 456 at 21:05" (DashboardNew.dc).
+- **Workaround:** one extra `GET /api/payments/:id` when a payment is pending; the number and time are left out if that call fails.
+
+### 18. No signal for "approved but not confirmed yet", nor for "number on another network"
+- `CheckoutStates.dc` draws both. **Workaround:** "Still waiting for confirmation" is shown when the user comes back through "Check payment" and the payment is still PENDING (the user is saying they approved). "Number on another network" is unreachable: there is no operator rule (DECISIONS #71), so nothing can produce it.
+
+### 19. Not yet provided (owner input), left out of the UI
+- Support phone (`[SUPPORT PHONE]`: account menu "Help and support", checkout "Still waiting"), maintenance time (`[TIME]`), per-exam scoring rule text (`[SCORING RULE]`), demonym for the waiting-list copy ("Ugandan"), the profession-style goal label (API_GAPS #8).
+
+### 20. `recentlyCompleted` on the dashboard lists practice sets next to mock tests
+- Works as designed for now (it reads "Practice set: ..."); the artboards only draw mock tests. Say if practice sets should be left out.
+
+### 21. "Practise N more" can only use one topic
+- A set built from three weak topics can be repeated for one topic only (`POST /api/countries/:code/practice {topicId}`), because there is no endpoint that takes several topic ids. The web app uses the topic with most questions in the set.

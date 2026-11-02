@@ -77,9 +77,9 @@ test.describe('Web: Flow A (no account) — landing to review to another test', 
     await expect(page.getByRole('heading', { name: 'Performance by topic' })).toBeVisible();
     await expect(page.getByText('Weak area').first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Review these first' })).toBeVisible();
-    // a guest sees "Save my result"; "Practice Weak Areas" is drawn but inert (its screen is not designed)
+    // a guest sees "Save my result"; "Practice Weak Areas" starts the practice runner (web-multiselect-practice.spec.ts)
     await expect(page.getByRole('link', { name: 'Save my result' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Practice Weak Areas' })).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByRole('button', { name: 'Practice Weak Areas' })).toBeEnabled();
     // the server closed it
     expect((await serverState(request, id, tokens)).attempt.status).toBe('SUBMITTED');
 
@@ -195,7 +195,9 @@ test.describe('Web: exam engine', () => {
     await expect(page.getByRole('status').filter({ hasText: 'No connection.' })).toContainText(
       'Keep answering — your answers are kept on this',
     );
-    await expect(page.getByText('The timer keeps running while offline, exactly as it would in the exam room.')).toBeVisible();
+    // phone: the sentence under the options; desktop: it is part of the banner (TimeUpDesktop.dc)
+    if (isPhone(info)) await expect(page.getByText('The timer keeps running while offline, exactly as it would in the exam room.')).toBeVisible();
+    else await expect(page.getByRole('status').filter({ hasText: 'No connection.' })).toContainText('The timer keeps running.');
 
     // answer 3 questions while offline
     await choose(page, 'B');

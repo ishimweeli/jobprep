@@ -17,6 +17,8 @@ export interface EngineSnapshot {
   closed: boolean;
   /** `true` when the header should say "N answers waiting to save" instead of "All answers saved". */
   waiting: boolean;
+  /** Question ids whose answer is not on the server yet (the navigator outlines them with a dashed border). */
+  pendingIds: string[];
 }
 
 export interface EngineDeps {
@@ -189,6 +191,7 @@ export class SaveEngine {
       stale,
       closed: this.closed,
       waiting: pending > 0 && (this.connection !== 'online' || stale),
+      pendingIds: [...new Set(pendingItems(this.items).filter((i) => i.field === 'selected').map((i) => i.questionId))],
     };
   }
 
@@ -198,7 +201,7 @@ export class SaveEngine {
     const prev = this.snapshot;
     if (
       next.pending === prev.pending && next.connection === prev.connection && next.stale === prev.stale &&
-      next.closed === prev.closed && next.waiting === prev.waiting
+      next.closed === prev.closed && next.waiting === prev.waiting && next.pendingIds.join() === prev.pendingIds.join()
     ) return;
     this.snapshot = next;
     for (const l of this.listeners) l();

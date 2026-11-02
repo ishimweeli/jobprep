@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { attemptKeys, getAttempt, getAttemptTimer } from '../../api/attempts';
 import { ApiError } from '../../api/client';
@@ -8,15 +8,16 @@ import { LogoMark } from '../../components/Logo';
 import { cx } from '../../lib/cx';
 import { readStorage, writeStorage } from '../../lib/storage';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { useIsDesktop } from '../../lib/useMediaQuery';
 import { countryPath } from '../country/hooks';
 import { CasePanel } from './CasePanel';
 import {
-  caseFor, casePosition, cellState, countsOf, firstUnansweredIndex, marksLabel, nextSelection, progressPercent, savedLabel,
+  caseFor, casePosition, cellState, countsOf, firstUnansweredIndex, marksLabel, pickOption, progressPercent, savedLabel,
 } from './examModel';
-import { AnswerOptions, CheckIcon, ClockIcon, FlagButton, NavCell, NavigatorAside, NavSheet, OfflineBanner, SubmitDialog } from './ExamParts';
+import { AnswerOptions, CheckIcon, ChooseBadge, ClockIcon, FlagButton, NavCell, NavigatorAside, NavSheet, OfflineBanner, OnlineBanner, SubmitDialog } from './ExamParts';
 import type { LocalAnswers } from './queue';
 import type { SaveEngine } from './saveEngine';
-import { TimeUpScreen } from './TimeUpScreen';
+import { TimeUpDialog, TimeUpScreen } from './TimeUpScreen';
 import { formatClock, isLow } from './timer';
 import { useExamTimer } from './useExamTimer';
 
@@ -53,9 +54,27 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [ended, setEnded] = useState<null | { answered: number; total: number }>(null);
+  /** The question whose last pick was refused because "Choose N" was reached ("Unselect one to change"). */
+  const [blockedId, setBlockedId] = useState<string | null>(null);
+  /** "Back online. Your N waiting answers are saved." (desktop) for a few seconds after the queue drained. */
+  const [backOnline, setBackOnline] = useState<number | null>(null);
+  const desktop = useIsDesktop();
 
   const snap = useSyncExternalStore(engine.subscribe, engine.getSnapshot);
   const resultsTo = countryPath(slug, 'results', attemptId);
+  const peakWaiting = useRef(0);
+  useEffect(() => {
+    if (snap.waiting && snap.pending > 0) {
+      peakWaiting.current = Math.max(peakWaiting.current, snap.pending);
+      return;
+    }
+    if (peakWaiting.current > 0 && snap.pending === 0) {
+      setBackOnline(peakWaiting.current);
+      peakWaiting.current = 0;
+      const id = setTimeout(() => setBackOnline(null), 8000);
+      return () => clearTimeout(id);
+    }
+  }, [snap.waiting, snap.pending]);
 
   const q = questions[idx];
   const counts = useMemo(() => countsOf(questions, answers), [questions, answers]);
@@ -122,13 +141,15 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
     return () => engine.destroy();
   }, [engine]);
 
-  if (ended) return <TimeUpScreen answered={ended.answered} total={ended.total} resultsTo={resultsTo} />;
+  // Time is up: phones get the full-screen message (TimeUp.dc); desktops keep the exam in view, dimmed, behind a dialog (TimeUpDesktop.dc).
+  if (ended && !desktop) return <TimeUpScreen answered={ended.answered} total={ended.total} resultsTo={resultsTo} />;
   if (!q) return null;
 
-  const clock = formatClock(timer.seconds);
-  const low = isLow(timer.seconds);
-  const label = savedLabel(snap);
-  const offline = snap.connection === 'offline';
+  const frozen = !!ended;
+  const clock = frozen ? formatClock(0) : formatClock(timer.seconds);
+  const low = !frozen && isLow(timer.seconds);
+  const label = frozen ? { waiting: false, text: 'Submitted' } : savedLabel(snap);
+  const offline = !frozen && snap.connection === 'offline';
   const selected = answers[q.id]?.selected ?? [];
   const flagged = !!answers[q.id]?.flagged;
   const first = idx === 0;
@@ -140,7 +161,9 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
     setDialog(null);
   };
   const pick = (key: string) => {
-    const next = nextSelection(q, selected, key);
+    if (frozen) return;
+    const { selected: next, blocked } = pickOption(q, selected, key);
+    setBlockedId(blocked ? q.id : null);
     if (next.length === selected.length && next.every((k, i) => k === selected[i])) return;
     setAnswers((a) => ({ ...a, [q.id]: { selected: next, flagged: a[q.id]?.flagged ?? false } }));
     engine.enqueue({ questionId: q.id, selected: next });
@@ -173,9 +196,10 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
 
   const pos = kase ? casePosition(q, kase) : null;
 
-  return (
-    <div className="flex h-[100dvh] flex-col bg-surface text-ink md:block md:h-auto md:min-h-screen md:bg-page">
+  const page = (
+    <div className="flex h-[100dvh] flex-col bg-surface text-ink md:block md:h-auto md:min-h-screen md:bg-page" {...(frozen ? { 'aria-hidden': true } : {})}>
       {offline && <OfflineBanner />}
+      {backOnline !== null && !offline && !frozen && <OnlineBanner saved={backOnline} />}
 
       <header className="shrink-0 border-b border-border bg-surface">
         <div className="mx-auto flex max-w-[1320px] flex-col gap-2.5 px-4 pb-2.5 pt-3.5 md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-3 md:px-6 md:py-3">
@@ -221,14 +245,19 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               </span>
               <span>{clock}</span>
             </div>
-            {!offline && (
+            {frozen ? (
+              <span className="hidden min-h-[44px] items-center rounded-control bg-zinc-400 px-[18px] text-[15px] font-bold text-white md:inline-flex">Submit exam</span>
+            ) : (
               <button
                 type="button"
                 onClick={() => {
                   setSubmitError(null);
                   setDialog('confirm');
                 }}
-                className="min-h-[44px] cursor-pointer rounded-[10px] border border-ink bg-ink px-3 text-sm font-bold text-white md:rounded-control md:px-[18px] md:text-[15px]"
+                className={cx(
+                  'min-h-[44px] cursor-pointer rounded-[10px] border border-ink bg-ink px-3 text-sm font-bold text-white md:inline-flex md:items-center md:rounded-control md:px-[18px] md:text-[15px]',
+                  offline ? 'hidden' : 'inline-flex items-center',
+                )}
               >
                 <span className="md:hidden">Submit</span>
                 <span className="hidden md:inline">Submit exam</span>
@@ -296,7 +325,10 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
                   {pos && <span className="hidden text-[15px] font-semibold text-muted md:inline"> · {marksLabel(q.marks)}</span>}
                 </h1>
               </div>
-              <FlagButton flagged={flagged} onToggle={toggleFlag} />
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {q.multiple && q.choose ? <ChooseBadge choose={q.choose} /> : null}
+                <FlagButton flagged={flagged} onToggle={toggleFlag} />
+              </div>
             </div>
 
             {!kase && (
@@ -331,11 +363,13 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               </button>
             )}
 
-            <p className={cx('m-0 text-[19px] font-semibold leading-normal md:max-w-[40em] md:text-[22px]', kase && 'text-[18px] md:text-[21px]')}>{q.stem}</p>
+            <p className={cx('m-0 text-[19px] font-semibold leading-normal md:max-w-[40em] md:text-[22px]', kase && 'text-[18px] md:text-[21px]')}>{q.stem}
+              {q.multiple && q.choose ? <strong className="font-bold"> Choose {q.choose}.</strong> : null}
+            </p>
 
-            <AnswerOptions question={q} selected={selected} onPick={pick} numeric={!!kase} />
+            <AnswerOptions question={q} selected={selected} onPick={pick} numeric={!!kase} blocked={blockedId === q.id} disabled={frozen} />
 
-            {offline && <p className="m-0 text-[13px] text-muted">The timer keeps running while offline, exactly as it would in the exam room.</p>}
+            {offline && <p className="m-0 text-[13px] text-muted md:hidden">The timer keeps running while offline, exactly as it would in the exam room.</p>}
 
             <div className="mt-auto hidden flex-wrap justify-between gap-3 border-t border-border pt-2 md:flex">
               <button
@@ -359,7 +393,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
 
         {!kase && (
           <div className="hidden md:contents">
-            <NavigatorAside questions={questions} answers={answers} currentId={q.id} counts={counts} onGo={go} />
+            <NavigatorAside questions={questions} answers={answers} currentId={q.id} counts={counts} onGo={go} waitingIds={offline ? snap.pendingIds : []} />
           </div>
         )}
       </div>
@@ -417,4 +451,14 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
       />
     </div>
   );
+
+  if (frozen && ended) {
+    return (
+      <>
+        {page}
+        <TimeUpDialog answered={ended.answered} total={ended.total} resultsTo={resultsTo} />
+      </>
+    );
+  }
+  return page;
 }

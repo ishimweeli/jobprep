@@ -4,27 +4,25 @@ import { PhoneBackHeader } from '../../components/layout/Header';
 import { formatPhone } from '../../lib/phone';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
-import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { ChangeCountrySheet } from './ChangeCountrySheet';
 
 /**
- * Account (ChangeCountryPhone.dc): name, phone, exam country. Only the phone artboard exists, so the content is
- * phone-only: no desktop account page, no profile editing, no sign-out (none are drawn).
+ * Account settings (ChangeCountryPhone.dc): name, phone, exam country. Only the phone artboard exists; on desktop
+ * the same layout sits in a centred column (the account menu links here). No profile editing is drawn.
  * Tapping the exam country row opens the country picker; choosing a live country opens "Switch to X?" here.
  */
 export function AccountPage() {
   useDocumentTitle('Account');
   const { session, user } = useSession();
-  const slug = useActiveCountrySlug();
   const [params, setParams] = useSearchParams();
   const switchTo = params.get('switch');
   if (!user || !session) return null;
 
   const row = 'flex justify-between border-b border-soft py-3.5';
   return (
-    <div className="md:hidden">
-      <PhoneBackHeader to={countryPath(slug)} label="Back" title="Account" />
-      <main id="main-content" tabIndex={-1} className="flex flex-col gap-2.5 p-4">
+    <div className="mx-auto w-full max-w-[480px]">
+      <PhoneBackHeader to="/account" label="Back" title="Account" />
+      <main id="main-content" tabIndex={-1} className="flex flex-col gap-2.5 p-4 md:py-8">
         <dl className="m-0 rounded-[14px] border border-border bg-surface px-4 py-1">
           <div className={row}>
             <dt className="text-muted">Name</dt>

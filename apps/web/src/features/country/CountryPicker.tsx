@@ -1,5 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { countriesKeys, getCountry } from '../../api/countries';
 import type { CountrySummary } from '../../api/types';
 import { Button } from '../../components/Button';
@@ -21,7 +22,7 @@ interface BodyProps {
 
 /**
  * Country radio list + (optional) language + primary action (CountryPicker.dc / CountryPickerPhone.dc / sign-up step 1).
- * A country that is not live shows "Notify me when X opens": the button is drawn but its form is not designed, so it is inert.
+ * A country that is not live shows "Notify me when X opens", which opens that country's page (CountryGate.dc) with the waiting-list form.
  */
 export function CountryPickerBody({ currentSlug, onContinue, continueLabel, showLanguage, footnote }: BodyProps) {
   const countries = useCountries();
@@ -109,13 +110,12 @@ export function CountryPickerBody({ currentSlug, onContinue, continueLabel, show
           {continueLabel?.(selected.name) ?? `Continue to ${selected.name}`}
         </Button>
       ) : (
-        <button
-          type="button"
-          aria-disabled="true"
-          className="min-h-[50px] w-full cursor-default rounded-control border border-brand bg-surface text-base font-bold text-brand"
+        <Link
+          to={`/${selected.slug}`}
+          className="inline-flex min-h-[50px] w-full items-center justify-center rounded-control border border-brand bg-surface text-base font-bold text-brand no-underline hover:text-brand-hover"
         >
           Notify me when {selected.name} opens
-        </button>
+        </Link>
       )}
 
       {footnote && <p className="m-0 text-[13px] text-muted">{footnote}</p>}

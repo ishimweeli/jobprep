@@ -2,9 +2,9 @@
  * Destinations that depend on screens which may not exist yet. Until a flag is true, buttons that point at it are
  * rendered as drawn but inert (no placeholder or invented screen).
  *
- * Built (artboards exist): exam start, checkout, progress (dashboard), review, results, resume, try another test.
- * Still inert because their screen is NOT designed (docs/MISSING_DESIGNS.md): the practice-set runner (C1),
- * "Change goal" (C15).
+ * Built (artboards exist): exam start, checkout, progress (dashboard), review, results, resume, try another test,
+ * the practice-set runner (C1, Batch 1).
+ * Still inert because their screen is NOT designed (docs/MISSING_DESIGNS.md): "Change goal" (C15).
  */
 export const ROUTES_READY = {
   /** /:country/tests/:slug/start (Exam.dc / ExamMobile.dc) */
@@ -21,8 +21,8 @@ export const ROUTES_READY = {
   resume: true,
   /** "Try Another Mock Test" -> the catalog */
   tryAnother: true,
-  /** Practice-set runner: "Practice Weak Areas", "Start practice", "Practise" (C1, not designed) */
-  practice: false,
+  /** Practice-set runner: "Practice Weak Areas", "Start practice", "Practise" (Practice.dc, Batch 1) */
+  practice: true,
   /** "Change goal" (C15, not designed) */
   changeGoal: false,
 } as const;

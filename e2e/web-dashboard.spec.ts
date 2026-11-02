@@ -42,11 +42,12 @@ test.describe('Web: dashboard / My progress', () => {
     await page.goBack(); // the start page redirected (replace) to the exam, so one step back is the dashboard
     await expect(page.getByRole('heading', { level: 1, name: 'Muraho, Aline' })).toBeVisible();
 
-    // recommended practice: drawn, inert
+    // recommended practice: starts the practice runner (no minutes: practice is untimed)
     const rec = page.getByRole('region', { name: 'Recommended next' });
     await expect(rec).toContainText(/practice/);
     await expect(rec).toContainText(/Your weakest topic at \d+%/);
-    await expect(rec.getByRole('button', { name: 'Start practice' })).toHaveAttribute('aria-disabled', 'true');
+    await expect(rec).not.toContainText(/\bmin\b/);
+    await expect(rec.getByRole('button', { name: 'Start practice' })).toBeEnabled();
 
     // score history
     await expect(page.getByRole('img', { name: /^Scores: \d+ percent on \d+ \w+, \d+ percent on \d+ \w+/ })).toBeVisible();
@@ -54,7 +55,7 @@ test.describe('Web: dashboard / My progress', () => {
     // topics
     const topics = page.getByRole('region', { name: 'Topics' });
     await expect(topics.getByText(/needs work/i)).toBeVisible();
-    await expect(topics.getByText('Practise').first()).toHaveAttribute('aria-disabled', 'true');
+    await expect(topics.getByRole('button', { name: /^Practise / }).first()).toBeEnabled();
 
     // recently completed -> results
     const done = page.getByRole('region', { name: 'Recently completed' });
@@ -66,16 +67,15 @@ test.describe('Web: dashboard / My progress', () => {
 
     // access
     const access = page.getByRole('region', { name: 'My access' });
-    await expect(access).toContainText('Full Access · all mock tests');
     await expect(access).toContainText('Active');
-    await expect(access).toContainText(/\d+ days left · until \d+ \w+/);
+    await expect(access).toContainText(/Full Access · \d+ days left/);
+    await expect(access).toContainText(/Every mock test in Rwanda is unlocked until \d+ \w+ 20\d\d\./);
 
     // navigation
     if (isPhone(info)) {
       const tabs = page.getByRole('navigation', { name: 'Main' }).filter({ visible: true });
-      await expect(tabs.getByRole('link')).toHaveText(['Mock tests', 'My progress', 'Access']);
-      await expect(tabs.getByRole('link', { name: 'My progress' })).toHaveAttribute('aria-current', 'page');
-      await expect(page.getByRole('link', { name: /Country: .*Rwanda/ })).toBeVisible();
+      await expect(tabs.getByRole('link')).toHaveText(['Home', 'Tests', 'Progress', 'Account']);
+      await expect(tabs.getByRole('link', { name: 'Progress' })).toHaveAttribute('aria-current', 'page');
     } else {
       await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'My progress' })).toHaveAttribute('aria-current', 'page');
       await expect(page.getByRole('link', { name: 'Browse mock tests' })).toBeVisible();
@@ -83,17 +83,18 @@ test.describe('Web: dashboard / My progress', () => {
     w.expectClean();
   });
 
-  test('a guest is sent to sign-up and comes back to My progress afterwards', async ({ page }) => {
+  test('a guest is sent to sign-in and comes back to My progress afterwards', async ({ page }) => {
     await page.goto('/rw/progress');
-    await expect(page).toHaveURL(/\/sign-up\?next=%2Frw%2Fprogress$/);
+    await expect(page).toHaveURL(/\/sign-in\?next=%2Frw%2Fprogress$/);
   });
 
-  test('a new account with no attempts shows only what the artboard can show (no placeholder screens)', async ({ page }) => {
+  test('a new account with no attempts gets the new-user dashboard (web-access-states.spec.ts covers it in detail)', async ({ page }) => {
     await signUpViaApi(page, 'Aline Uwase');
     await page.goto('/rw/progress');
-    await expect(page.getByRole('heading', { level: 1, name: 'Muraho, Aline' })).toBeVisible();
-    for (const name of ['Continue where you stopped', 'Recommended next', 'Score history', 'Topics', 'Recently completed', 'My access']) {
+    await expect(page.getByRole('heading', { level: 1, name: 'Welcome, Aline' })).toBeVisible();
+    for (const name of ['Continue where you stopped', 'Recommended next', 'Topics', 'Recently completed']) {
       await expect(page.getByRole('region', { name })).toHaveCount(0);
     }
+    await expect(page.getByRole('region', { name: 'Score history' })).toContainText('No scores yet');
   });
 });

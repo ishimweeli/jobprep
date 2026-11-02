@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { ExamCase, ExamQuestion } from '../../api/types';
-import { casePosition, caseRange, cellState, countsOf, firstUnansweredIndex, marksLabel, nextSelection, progressPercent, savedLabel } from './examModel';
+import { casePosition, caseRange, cellState, countsOf, firstUnansweredIndex, marksLabel, pickOption, chooseCountLabel, progressPercent, savedLabel } from './examModel';
 
 const q = (n: number, extra: Partial<ExamQuestion> = {}): ExamQuestion => ({
   id: `q${n}`, number: n, sectionName: 'S', topic: { id: 't', name: 'Topic' }, type: 'SINGLE_CHOICE', multiple: false, stem: 's',
-  options: [{ key: 'A', text: 'a' }, { key: 'B', text: 'b' }], marks: 1, caseId: null, ...extra,
+  options: [{ key: 'A', text: 'a' }, { key: 'B', text: 'b' }], marks: 1, caseId: null, choose: null, ...extra,
 });
 const questions = [q(1), q(2), q(3), q(4)];
 
@@ -40,14 +40,42 @@ describe('navigator cells (state -> UI)', () => {
 });
 
 describe('option selection', () => {
+  const single = { multiple: false, choose: null };
+  const three = { multiple: true, choose: 3 };
   it('single answer: choosing replaces', () => {
-    expect(nextSelection({ multiple: false }, ['A'], 'B')).toEqual(['B']);
-    expect(nextSelection({ multiple: false }, ['A'], 'A')).toEqual(['A']);
+    expect(pickOption(single, ['A'], 'B')).toEqual({ selected: ['B'], blocked: false });
+    expect(pickOption(single, ['A'], 'A')).toEqual({ selected: ['A'], blocked: false });
   });
-  it('multiple select (interim behaviour): toggles keys and keeps them sorted', () => {
-    expect(nextSelection({ multiple: true }, ['C'], 'A')).toEqual(['A', 'C']);
-    expect(nextSelection({ multiple: true }, ['A', 'C'], 'A')).toEqual(['C']);
-    expect(nextSelection({ multiple: true }, ['C'], 'C')).toEqual([]);
+  it('multiple select: toggles keys, keeps them sorted, and unselecting is always allowed', () => {
+    expect(pickOption(three, ['C'], 'A')).toEqual({ selected: ['A', 'C'], blocked: false });
+    expect(pickOption(three, ['A', 'C'], 'A')).toEqual({ selected: ['C'], blocked: false });
+    expect(pickOption(three, ['C'], 'C')).toEqual({ selected: [], blocked: false });
+  });
+  it('caps picks at "Choose N": the next pick changes nothing and is reported as blocked', () => {
+    expect(pickOption(three, ['A', 'C', 'E'], 'B')).toEqual({ selected: ['A', 'C', 'E'], blocked: true });
+    expect(pickOption({ multiple: true, choose: 2 }, ['A', 'B'], 'C').blocked).toBe(true);
+    expect(pickOption(three, ['A', 'C'], 'B')).toEqual({ selected: ['A', 'B', 'C'], blocked: false }); // the 3rd pick is fine
+  });
+  it('unselecting one after hitting the cap lets the user change their mind', () => {
+    const full = pickOption(three, ['A', 'C', 'E'], 'B');
+    const freed = pickOption(three, full.selected, 'E');
+    expect(freed).toEqual({ selected: ['A', 'C'], blocked: false });
+    expect(pickOption(three, freed.selected, 'B').selected).toEqual(['A', 'B', 'C']);
+  });
+  it('no limit given: no cap', () => {
+    expect(pickOption({ multiple: true, choose: null }, ['A', 'B', 'C'], 'D').selected).toEqual(['A', 'B', 'C', 'D']);
+  });
+});
+
+describe('live count line (Choose N)', () => {
+  it('counts up, then says it is complete', () => {
+    expect(chooseCountLabel(0, 3, false)).toEqual({ text: '0 of 3 chosen', tone: 'neutral' });
+    expect(chooseCountLabel(1, 3, false)).toEqual({ text: '1 of 3 chosen — choose 2 more', tone: 'neutral' });
+    expect(chooseCountLabel(2, 3, false)).toEqual({ text: '2 of 3 chosen — choose 1 more', tone: 'neutral' });
+    expect(chooseCountLabel(3, 3, false)).toEqual({ text: '3 of 3 chosen', tone: 'done' });
+  });
+  it('a pick over the limit shows "Unselect one to change your answer"', () => {
+    expect(chooseCountLabel(3, 3, true)).toEqual({ text: 'You’ve chosen 3. Unselect one to change your answer.', tone: 'warn' });
   });
 });
 
