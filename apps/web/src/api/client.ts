@@ -1,3 +1,5 @@
+import { guestTokenHeader } from '../lib/guestTokens';
+
 /**
  * Single typed fetch wrapper for the JobPrep API.
  * - Same-origin (`/api`, proxied in dev) with `credentials: 'include'` so the jp_session cookie flows.
@@ -28,10 +30,12 @@ export function isApiError(e: unknown): e is ApiError {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   query?: Record<string, string | number | undefined | null>;
   signal?: AbortSignal;
+  /** Let the request outlive the page (a last autosave while the tab closes). */
+  keepalive?: boolean;
 }
 
 export const API_BASE = '/api';
@@ -56,18 +60,25 @@ export function toApiError(status: number, body: unknown, retryAfterHeader: stri
   return new ApiError(status, code, details, retry);
 }
 
+/** Guests identify their attempts with the secret `X-Guest-Token` header; signed-in users use the session cookie. */
+function requestHeaders(hasBody: boolean): Record<string, string> {
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (hasBody) headers['Content-Type'] = 'application/json';
+  const guest = guestTokenHeader();
+  if (guest) headers['X-Guest-Token'] = guest;
+  return headers;
+}
+
 export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   let res: Response;
   try {
     res = await fetch(buildUrl(path, opts.query), {
       method: opts.method ?? 'GET',
       credentials: 'include',
-      headers:
-        opts.body !== undefined
-          ? { 'Content-Type': 'application/json', Accept: 'application/json' }
-          : { Accept: 'application/json' },
+      headers: requestHeaders(opts.body !== undefined),
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
       signal: opts.signal,
+      keepalive: opts.keepalive,
     });
   } catch (e) {
     if (e instanceof DOMException && e.name === 'AbortError') throw e;

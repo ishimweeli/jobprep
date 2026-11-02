@@ -10,6 +10,7 @@ import { attemptScore, formatDate, languageList, passMarkDisplay } from '../../l
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { AccessCard, accessView, PhoneCtaBar } from './AccessCard';
+import { ResumePrompt, useInProgress } from '../exam/ResumePrompt';
 
 const sectionCard = 'flex flex-col gap-1 rounded-[14px] border border-border bg-surface p-4 md:gap-3 md:rounded-card md:p-[22px]';
 
@@ -22,6 +23,7 @@ export function ExamDetailPage() {
     staleTime: 30_000,
   });
   const exam = q.data;
+  const inProgress = useInProgress();
   useDocumentTitle(exam?.title);
 
   if (q.isError) {
@@ -51,6 +53,7 @@ export function ExamDetailPage() {
   }
 
   const view = accessView(exam, slug);
+  const running = inProgress.data?.find((a) => a.mockTest.slug === exam.slug && a.kind === 'FULL');
   return (
     <div className="flex flex-1 flex-col">
       <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title={<span className="text-[15px] font-semibold text-ink-2">{exam.category.name}</span>} />
@@ -68,6 +71,7 @@ export function ExamDetailPage() {
 
         <div className="flex flex-wrap items-start gap-6">
           <div className="flex min-w-0 flex-col gap-4 md:flex-[999_1_560px] md:gap-5">
+            {running && <ResumePrompt attempt={running} slug={slug} />}
             <Header exam={exam} />
             <Facts exam={exam} />
             <Sections exam={exam} />

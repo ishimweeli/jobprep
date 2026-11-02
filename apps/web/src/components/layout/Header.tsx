@@ -81,14 +81,14 @@ export function DesktopHeader({ landing, teachingTo, cta }: { landing?: boolean;
 }
 
 /** Phone landing header: logo, country chip, Sign in, menu button. */
-export function PhoneBrandHeader() {
+export function PhoneBrandHeader({ menu = true, nameOnly }: { menu?: boolean; nameOnly?: boolean }) {
   const slug = useActiveCountrySlug();
   const { user, isLoading } = useSession();
   return (
     <header className="flex items-center justify-between border-b border-border bg-surface py-2 pl-4 pr-2 md:hidden">
       <Logo to={countryPath(slug)} size="md" />
       <div className="flex items-center gap-0.5">
-        <CountryChip compact />
+        <CountryChip compact nameOnly={nameOnly} />
         {isLoading ? null : user ? (
           <span
             role="img"
@@ -103,9 +103,11 @@ export function PhoneBrandHeader() {
           </Link>
         )}
         {/* The menu's contents are not designed yet: the button is drawn as in the artboard and is inert. */}
-        <button type="button" aria-label="Open menu" aria-disabled="true" className="inline-flex h-11 w-11 cursor-default items-center justify-center bg-transparent text-ink">
-          <Menu size={22} strokeWidth={2.2} aria-hidden="true" />
-        </button>
+        {menu && (
+          <button type="button" aria-label="Open menu" aria-disabled="true" className="inline-flex h-11 w-11 cursor-default items-center justify-center bg-transparent text-ink">
+            <Menu size={22} strokeWidth={2.2} aria-hidden="true" />
+          </button>
+        )}
       </div>
     </header>
   );

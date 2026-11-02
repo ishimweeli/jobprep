@@ -14,7 +14,7 @@ test.describe('Web: pricing', () => {
     await expect(pack).toContainText(api.fullAccess.priceLabel);
     if (api.fullAccess.paidOnce) await expect(pack).toContainText('paid once');
     await expect(pack).toContainText(`Unlimited attempts for ${api.fullAccess.durationDays} days`);
-    await expect(pack.getByRole('button', { name: 'Continue to payment' })).toBeVisible();
+    await expect(pack.getByRole('link', { name: 'Continue to payment' })).toBeVisible();
 
     const free = page.getByRole('region', { name: 'Free samples' });
     await expect(free).toContainText(api.free.priceLabel);

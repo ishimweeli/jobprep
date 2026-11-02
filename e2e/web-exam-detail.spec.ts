@@ -30,10 +30,10 @@ test.describe('Web: exam details', () => {
     await expect(page.getByTestId('no-pass-mark')).toHaveText(NO_PASS_MARK);
     await expect(page.getByText('You have not taken this test yet.')).toBeVisible();
 
-    await expect(page.getByRole('button', { name: 'Start Mock Test' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Start Mock Test' }).first()).toBeVisible();
     await expect(page.getByText('Free', { exact: true }).locator("visible=true").first()).toBeVisible();
     await expect(page.getByText(/RWF/)).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /Get Full Access/ })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /Get Full Access/ })).toHaveCount(0);
     w.expectClean();
   });
 
@@ -45,14 +45,14 @@ test.describe('Web: exam details', () => {
     await expect(page.getByText(api.pricing.priceLabel, { exact: true }).locator("visible=true").first()).toBeVisible();
     await expect(page.getByText(`Full Access · ${api.pricing.durationDays} days`).locator("visible=true").first()).toBeVisible();
     const sample = `Try the free ${api.freeSample.questionCount}-question sample`;
-    await expect(page.getByRole('button', { name: sample })).toBeVisible();
+    await expect(page.getByRole('link', { name: sample })).toBeVisible();
     if (isPhone(info)) {
-      await expect(page.getByRole('button', { name: 'Unlock with Mobile Money' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Unlock with Mobile Money' })).toBeVisible();
     } else {
-      await expect(page.getByRole('button', { name: `Get Full Access · ${api.pricing.priceLabel}` })).toBeVisible();
+      await expect(page.getByRole('link', { name: `Get Full Access · ${api.pricing.priceLabel}` })).toBeVisible();
       await expect(page.getByText(`Pay with ${api.pricing.paymentMethods.join(' or ')}`)).toBeVisible();
     }
-    await expect(page.getByRole('button', { name: 'Start Mock Test' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Start Mock Test' })).toHaveCount(0);
     await expect(page.getByTestId('no-pass-mark')).toHaveText(NO_PASS_MARK);
   });
 
@@ -85,7 +85,7 @@ test.describe('Web: exam details', () => {
     });
     await page.goto(`/rw/tests/${PAID_SLUG}`);
     await expect(page.getByText('Unlocked · 12 days left').locator("visible=true").first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Start Mock Test' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Start Mock Test' }).first()).toBeVisible();
   });
 
   test('phone: the CTA bar is fixed at the bottom of the viewport', async ({ page }, info) => {

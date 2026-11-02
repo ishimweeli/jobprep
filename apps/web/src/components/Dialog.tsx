@@ -37,6 +37,10 @@ export interface DialogProps {
   /** Right-aligned content in the title row (e.g. a "Reset" button). */
   headerAction?: ReactNode;
   titleAs?: 'h1' | 'h2';
+  /** Replaces the default heading size classes. */
+  titleClassName?: string;
+  /** Replaces the default desktop (md+) panel classes of the `modal` / `responsive` variants (width, radius, padding). */
+  desktopPanelClassName?: string;
 }
 
 /**
@@ -57,6 +61,8 @@ export function Dialog({
   panelClassName,
   headerAction,
   titleAs: Title = 'h2',
+  titleClassName = 'm-0 text-[21px] font-bold tracking-tight md:text-[26px]',
+  desktopPanelClassName = 'md:max-w-[640px] md:rounded-[22px] md:p-7',
 }: DialogProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -126,9 +132,9 @@ export function Dialog({
   const panel = cx(
     'w-full overflow-y-auto bg-surface shadow-modal outline-none',
     variant === 'sheet' && 'max-h-[92dvh] rounded-t-sheet px-4 pb-6 pt-[18px]',
-    variant === 'modal' && 'max-h-[90dvh] max-w-[640px] rounded-[22px] p-7',
+    variant === 'modal' && 'max-h-[90dvh] w-full rounded-[22px] p-7 max-w-[640px]',
     variant === 'responsive' &&
-      'max-h-[92dvh] rounded-t-sheet px-4 pb-6 pt-[18px] md:max-h-[90dvh] md:max-w-[640px] md:rounded-[22px] md:p-7',
+      `max-h-[92dvh] rounded-t-sheet px-4 pb-6 pt-[18px] md:max-h-[90dvh] ${desktopPanelClassName}`,
     panelClassName,
   );
 
@@ -136,7 +142,7 @@ export function Dialog({
     <div className={overlay} onKeyDown={onKeyDown} onMouseDown={(e) => e.target === e.currentTarget && onClose()} data-testid="dialog-overlay">
       <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className={panel}>
         <div className={cx('flex items-center justify-between gap-3', hideTitle ? 'sr-only' : 'mb-3')}>
-          <Title id={titleId} className="m-0 text-[21px] font-bold tracking-tight md:text-[26px]">
+          <Title id={titleId} className={titleClassName}>
             {title}
           </Title>
           {headerAction}

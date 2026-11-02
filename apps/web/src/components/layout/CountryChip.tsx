@@ -6,7 +6,7 @@ import { cx } from '../../lib/cx';
  * Header country switcher (design: "RW Rwanda · RWF"). It opens the country picker screen.
  * The accessible name is built from the visible text plus visually-hidden words, so it always contains what is shown.
  */
-export function CountryChip({ compact, className }: { compact?: boolean; className?: string }) {
+export function CountryChip({ compact, nameOnly, className }: { compact?: boolean; /** Phone dashboard: "RW Rwanda" (no currency). */ nameOnly?: boolean; className?: string }) {
   const { slug, country } = useActiveCountry();
   const code = (country?.code ?? slug).toUpperCase();
   const name = country?.name ?? code;
@@ -22,7 +22,7 @@ export function CountryChip({ compact, className }: { compact?: boolean; classNa
     >
       <span className="sr-only">Country: </span>
       <span className="rounded bg-ink px-1 text-[11px] font-bold text-white md:px-[5px]">{code}</span>
-      {compact ? currency : `${name}${currency ? ` · ${currency}` : ''}`}
+      {nameOnly ? name : compact ? currency : `${name}${currency ? ` · ${currency}` : ''}`}
       <span className="sr-only">. Change country</span>
     </Link>
   );

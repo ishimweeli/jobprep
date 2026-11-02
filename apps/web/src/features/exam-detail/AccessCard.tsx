@@ -18,6 +18,8 @@ export interface AccessView {
   note: string | null;
   startPath: string;
   checkoutPath: string;
+  /** Link target for "Get Full Access": checkout, remembering which test to start afterwards. */
+  checkoutTo: string;
   samplePath: string | null;
   sampleLabel: string | null;
   /** Desktop note under the buttons ("Pay with MTN MoMo or Airtel Money", "No account needed…"). */
@@ -31,6 +33,7 @@ export function accessView(exam: ExamDetail, slug: string): AccessView {
   const base = {
     startPath: countryPath(slug, 'tests', exam.slug, 'start'),
     checkoutPath: countryPath(slug, 'checkout'),
+    checkoutTo: `${countryPath(slug, 'checkout')}?test=${encodeURIComponent(exam.slug)}`,
     samplePath: null,
     sampleLabel: null,
     footNote: null,
@@ -86,7 +89,7 @@ export function AccessCard({ view }: { view: AccessView }) {
       {view.kind === 'locked' ? (
         <>
           {view.canBuy && (
-            <ActionLink ready={ROUTES_READY.checkout} to={view.checkoutPath} variant="primary" block className="py-[15px]">
+            <ActionLink ready={ROUTES_READY.checkout} to={view.checkoutTo} variant="primary" block className="py-[15px]">
               {view.getFullAccessLabel}
             </ActionLink>
           )}
@@ -118,7 +121,7 @@ export function PhoneCtaBar({ view }: { view: AccessView }) {
       {view.kind === 'locked' ? (
         <>
           {view.canBuy && (
-            <ActionLink ready={ROUTES_READY.checkout} to={view.checkoutPath} variant="primary" block className={big}>
+            <ActionLink ready={ROUTES_READY.checkout} to={view.checkoutTo} variant="primary" block className={big}>
               Unlock with Mobile Money
             </ActionLink>
           )}

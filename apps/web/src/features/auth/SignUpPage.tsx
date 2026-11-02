@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { requestOtp, signUp } from '../../api/auth';
 import { ApiError } from '../../api/client';
 import { countriesKeys, listCategories } from '../../api/countries';
@@ -13,6 +13,7 @@ import { getStoredCountry, setStoredCountry } from '../../lib/country';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
 import { readGuestTokens } from '../../lib/guestTokens';
+import { safeNext } from '../../lib/next';
 import { formatPhone, isValidNational, toE164 } from '../../lib/phone';
 import { plural } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -30,6 +31,8 @@ export function SignUpPage() {
   useDocumentTitle('Create your account');
   const navigate = useNavigate();
   const qc = useQueryClient();
+  // `?next=/rw/checkout`: where to go afterwards ("Save my result", "Get Full Access"). Same-site paths only.
+  const next = safeNext(useSearchParams()[0].get('next'));
   const { user, isLoading: sessionLoading } = useSession();
   const countries = useCountries();
   const [step, setStep] = useState<Step>(1);
@@ -41,7 +44,7 @@ export function SignUpPage() {
   const home = countryPath(getStoredCountry() ?? 'rw');
 
   // Already signed in (and not in the middle of this wizard): nothing to do here.
-  if (user && !registered) return <Navigate to={countryPath(user.countryCode.toLowerCase())} replace />;
+  if (user && !registered) return <Navigate to={next ?? countryPath(user.countryCode.toLowerCase())} replace />;
   if (sessionLoading) return null;
 
   const phoneE164 = country ? toE164(national, country.dialCode) : '';
@@ -105,7 +108,7 @@ export function SignUpPage() {
           country={country}
           onFinish={async (categorySlug) => {
             await qc.invalidateQueries({ queryKey: meKeys.session });
-            navigate(`${countryPath(country.slug, 'tests')}${categorySlug ? `?category=${encodeURIComponent(categorySlug)}` : ''}`);
+            navigate(next ?? `${countryPath(country.slug, 'tests')}${categorySlug ? `?category=${encodeURIComponent(categorySlug)}` : ''}`);
           }}
         />
       )}

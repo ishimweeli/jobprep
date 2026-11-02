@@ -5,11 +5,8 @@ import { AccountLayout } from './features/account/AccountLayout';
 
 /**
  * The single route table. Only screens that have an artboard in docs/design/source are routed.
- * Later phases add theirs here and flip the matching flag in lib/routesReady.ts:
- *   /:country/tests/:slug/start   exam engine   (Exam.dc, ExamMobile.dc)
- *   /:country/checkout            payments      (Checkout.dc phone)
- *   /:country/progress            dashboard     (Dashboard.dc)
- * Pages are code-split with `lazy`; the landing chunk stays small for 3G phones.
+ * The exam and the answer review are distraction-free screens (own header, no site chrome), so they sit outside
+ * the country layout. Pages are code-split with `lazy`; the landing chunk stays small for 3G phones.
  */
 export const routes: RouteObject[] = [
   { path: '/', element: <RootRedirect /> },
@@ -20,6 +17,10 @@ export const routes: RouteObject[] = [
     element: <AccountLayout />,
     children: [{ path: '/account', lazy: async () => ({ Component: (await import('./features/account/AccountPage')).AccountPage }) }],
   },
+  // Exam.dc / ExamMobile.dc / CaseExam*.dc / TimeUp.dc
+  { path: '/:country/exam/:attemptId', lazy: async () => ({ Component: (await import('./features/exam/ExamPage')).ExamPage }) },
+  // Review.dc / ReviewPhone.dc
+  { path: '/:country/review/:attemptId', lazy: async () => ({ Component: (await import('./features/review/ReviewPage')).ReviewPage }) },
   {
     path: '/:country',
     element: <CountryLayout />,
@@ -27,6 +28,10 @@ export const routes: RouteObject[] = [
       { index: true, handle: { landing: true }, lazy: async () => ({ Component: (await import('./features/landing/LandingPage')).LandingPage }) },
       { path: 'tests', lazy: async () => ({ Component: (await import('./features/catalog/CatalogPage')).CatalogPage }) },
       { path: 'tests/:slug', lazy: async () => ({ Component: (await import('./features/exam-detail/ExamDetailPage')).ExamDetailPage }) },
+      { path: 'tests/:slug/start', lazy: async () => ({ Component: (await import('./features/exam/StartPage')).StartPage }) },
+      { path: 'results/:attemptId', lazy: async () => ({ Component: (await import('./features/results/ResultsPage')).ResultsPage }) },
+      { path: 'progress', lazy: async () => ({ Component: (await import('./features/dashboard/DashboardPage')).DashboardPage }) },
+      { path: 'checkout', lazy: async () => ({ Component: (await import('./features/checkout/CheckoutPage')).CheckoutPage }) },
       { path: 'pricing', lazy: async () => ({ Component: (await import('./features/pricing/PricingPage')).PricingPage }) },
       { path: '*', element: <Navigate to="/" replace /> },
     ],

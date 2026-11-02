@@ -1,13 +1,28 @@
 /**
- * Destinations that later phases build. Until a flag flips to true, buttons that point at it are rendered
- * as drawn but inert (no placeholder or invented screen). The owning phase adds the route in routes.tsx
- * and flips the flag.
+ * Destinations that depend on screens which may not exist yet. Until a flag is true, buttons that point at it are
+ * rendered as drawn but inert (no placeholder or invented screen).
+ *
+ * Built (artboards exist): exam start, checkout, progress (dashboard), review, results, resume, try another test.
+ * Still inert because their screen is NOT designed (docs/MISSING_DESIGNS.md): the practice-set runner (C1),
+ * "Change goal" (C15).
  */
 export const ROUTES_READY = {
   /** /:country/tests/:slug/start (Exam.dc / ExamMobile.dc) */
-  examStart: false,
-  /** /:country/checkout (Checkout.dc phone) */
-  checkout: false,
+  examStart: true,
+  /** /:country/checkout (Checkout.dc / CheckoutKenyaPhone.dc) */
+  checkout: true,
   /** /:country/progress (Dashboard.dc) */
-  progress: false,
+  progress: true,
+  /** /:country/results/:id (Results.dc) */
+  results: true,
+  /** /:country/review/:id (Review.dc) */
+  review: true,
+  /** "Resume" on the in-progress prompt (States.dc) */
+  resume: true,
+  /** "Try Another Mock Test" -> the catalog */
+  tryAnother: true,
+  /** Practice-set runner: "Practice Weak Areas", "Start practice", "Practise" (C1, not designed) */
+  practice: false,
+  /** "Change goal" (C15, not designed) */
+  changeGoal: false,
 } as const;

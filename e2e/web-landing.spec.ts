@@ -78,7 +78,7 @@ test.describe('Web: landing (data-driven from /api/countries/rw/landing)', () =>
       await expect(nav.getByRole('link', { name: 'Mock tests' })).toBeVisible();
       await expect(nav.getByRole('link', { name: 'Teaching exams' })).toBeVisible();
       await expect(nav.getByRole('link', { name: 'Pricing' })).toBeVisible();
-      await expect(nav.getByRole('button', { name: 'My progress' })).toBeVisible();
+      await expect(nav.getByRole('link', { name: 'My progress' })).toBeVisible();
       await expect(page.getByRole('link', { name: /Country: .*Change country/ })).toContainText('Rwanda · RWF');
       await expect(page.getByRole('link', { name: 'Try a free test' })).toBeVisible();
     }
