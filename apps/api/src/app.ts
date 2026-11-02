@@ -11,19 +11,26 @@ import { authRouter } from './routes/auth';
 import { catalogRouter } from './routes/catalog';
 import { countriesRouter } from './routes/countries';
 import { meRouter } from './routes/me';
+import { paymentsRouter } from './routes/payments';
 import { testSupportRouter } from './routes/test-support';
+import { createProviderRegistry, type ProviderRegistry } from './payments/registry';
 import { ConsoleSmsProvider, type SmsProvider } from './services/sms';
 
 export interface AppDeps {
   prisma: PrismaClient;
   config: Config;
   sms?: SmsProvider;
+  providers?: ProviderRegistry;
   now?: () => Date;
 }
 
 export function createApp(deps: AppDeps) {
   const { prisma, config } = deps;
-  const ctx: Ctx = { prisma, config, sms: deps.sms ?? new ConsoleSmsProvider(), now: deps.now ?? (() => new Date()) };
+  const ctx: Ctx = {
+    prisma, config, sms: deps.sms ?? new ConsoleSmsProvider(),
+    providers: deps.providers ?? createProviderRegistry(config),
+    now: deps.now ?? (() => new Date()),
+  };
 
   const app = express();
   app.disable('x-powered-by');
@@ -31,7 +38,8 @@ export function createApp(deps: AppDeps) {
   app.set('trust proxy', 1);
   app.use(helmet());
   app.use(cors({ origin: config.WEB_ORIGIN, credentials: true }));
-  app.use(express.json({ limit: '100kb' }));
+  // Keep the raw body: payment webhooks are authenticated over the exact bytes received.
+  app.use(express.json({ limit: '100kb', verify: (req, _res, buf) => { (req as express.Request).rawBody = buf.toString('utf8'); } }));
   app.use(attachUser(ctx));
 
   app.get('/api/health', async (_req, res) => {
@@ -46,6 +54,7 @@ export function createApp(deps: AppDeps) {
   app.use('/api/countries', countriesRouter(prisma));
   app.use('/api/countries/:code', catalogRouter(ctx));
   app.use('/api/auth', authRouter(ctx));
+  app.use('/api', paymentsRouter(ctx)); // before /api/me so /api/me/checkout is handled here
   app.use('/api/me', meRouter(ctx));
   app.use('/api', attemptsRouter(ctx));
   if (config.ENABLE_TEST_ENDPOINTS) app.use('/api/test', testSupportRouter(ctx));

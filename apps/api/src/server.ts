@@ -1,15 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 import { createApp } from './app';
 import { loadConfig } from './config';
+import { createProviderRegistry } from './payments/registry';
 import { sweepExpiredAttempts } from './services/attempts';
+import { sweepPayments } from './services/payments';
+import { ConsoleSmsProvider } from './services/sms';
 
 const config = loadConfig();
 const prisma = new PrismaClient();
-const app = createApp({ prisma, config });
+const sms = new ConsoleSmsProvider();
+const providers = createProviderRegistry(config);
+const app = createApp({ prisma, config, sms, providers });
 
 // Auto-submit attempts whose time ran out even if the candidate never comes back.
 const sweeper = setInterval(() => {
   sweepExpiredAttempts({ prisma, now: () => new Date() }).catch((e) => console.error('sweep error', e));
+  sweepPayments({ prisma, config, sms, providers, now: () => new Date() }).catch((e) => console.error('payment sweep error', e));
 }, 30_000);
 sweeper.unref();
 

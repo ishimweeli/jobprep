@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { isConsoleSms, type Ctx } from '../http/context';
-import { notFound } from '../http/errors';
+import { badRequest, notFound } from '../http/errors';
+import { handleCallback } from '../services/payments';
 
 /**
  * Test-only: lets e2e tests read the OTP the console SMS provider "sent".
@@ -16,6 +17,36 @@ export function testSupportRouter(ctx: Ctx) {
     const code = ctx.sms.lastCode(phone);
     if (!code) throw notFound('no_code_sent');
     res.json({ phone, code });
+  });
+
+  /**
+   * Fake-provider control: settle a payment the way the operator would.
+   *  success | decline | fail  → settle at the provider, and deliver the signed webhook (unless deliver:false)
+   *  duplicate                → success, delivered twice
+   *  timeout                  → leave it unapproved and make it due, so the next status check expires it
+   */
+  router.post('/payments/:id/simulate', async (req, res) => {
+    const fake = ctx.providers.fake;
+    if (!fake) throw badRequest('fake_provider_not_enabled');
+    const { outcome, deliver } = z.object({
+      outcome: z.enum(['success', 'decline', 'fail', 'duplicate', 'timeout']),
+      deliver: z.boolean().default(true),
+    }).parse(req.body);
+    const payment = await ctx.prisma.payment.findUnique({ where: { id: String(req.params.id) } });
+    if (!payment?.providerReference) throw notFound('payment_not_found');
+
+    if (outcome === 'timeout') {
+      await ctx.prisma.payment.update({ where: { id: payment.id }, data: { expiresAt: ctx.now() } });
+      return void res.json({ ok: true });
+    }
+    fake.settle(payment.providerReference, outcome === 'decline' ? 'DECLINED' : outcome === 'fail' ? 'FAILED' : 'SUCCESSFUL', outcome === 'decline' ? 'APPROVAL_REJECTED' : undefined);
+    if (deliver) {
+      const cb = fake.callbackFor(payment.providerReference);
+      for (let i = 0; i < (outcome === 'duplicate' ? 2 : 1); i++) {
+        await handleCallback(ctx, fake, { rawBody: cb.body, headers: cb.headers, query: {} });
+      }
+    }
+    res.json({ ok: true });
   });
 
   return router;

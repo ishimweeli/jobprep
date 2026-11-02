@@ -71,6 +71,19 @@ Recorded so work can keep moving without blocking questions. Newest at the botto
 52. **Explanations on free tests** can be switched off with the existing admin setting `free.showExplanationsOnResults` (default on).
 53. **Dashboard** (`GET /api/me/dashboard`): strengths/weaknesses are marks-weighted across everything the user finished in their current country (full tests and practice); the recommendation is the weakest topic that has at least 3 questions the user can open; score history is the last 10 full attempts, oldest first (optionally `?category=`).
 
+## Phase 6 — Payments and access
+
+54. **`PaymentProvider` interface** with MTN MoMo (Collections request-to-pay), Airtel Money and M-Pesa (Daraja STK push) adapters plus a `fake` provider. In `PAYMENT_PROVIDER_MODE=fake` every method is served by the fake provider; in sandbox/live only the real webhooks exist. **The three real adapters are unit-tested against a mocked `fetch` (request shape, status mapping, callback auth) but have never run against the operators' sandboxes: that needs your developer keys.**
+55. **One idempotent core (`applySignal`)** takes every outcome, from webhook, poll or timeout: it locks the payment row, records the event with a dedupe key (`ON CONFLICT DO NOTHING`), runs the state machine, and creates the grant. A duplicate callback, a replayed poll, a webhook racing the poller, or two parallel deliveries grant exactly once (the unique `paymentId` on the grant is the last guard).
+56. **Late success is honoured:** a success after our 3-minute timeout moves EXPIRED → SUCCESSFUL and grants access (the payer was charged). Declined and failed are final. Before expiring a payment we poll the operator once more, so an approval at the deadline isn't lost. A background sweeper also settles lost callbacks and keeps checking recently expired payments for an hour.
+57. **Callbacks are authenticated and fail closed:** the fake provider signs with HMAC-SHA256; MTN, Airtel and M-Pesa callbacks carry a shared secret in the callback URL (`?token=`), compared in constant time, and are rejected if no secret is configured. Unknown payment references get 200 and are ignored. The callback secrets must be set before going live.
+58. **Never a PIN:** the payer only types their phone number; the API ignores any extra fields and tests assert nothing PIN-like is stored. The pending screen tells the payer to approve on their own phone.
+59. **Price is read on the server and snapshotted** on the payment (`amountMinor`); no price set → 409 `checkout_unavailable`. A payment is only created for a configured, non-disabled method of the user's country, with a phone number of that country.
+60. **"Send again" / "Use a different number"** close the old request (as expired, kept open to a late approval) and send a new one; if the old one was approved meanwhile nothing new is sent. Trade-off: if the payer approves both prompts they pay twice and both grants stack, which is correct for what they paid.
+61. **Renewals chain:** buying while active creates a second grant starting where coverage ends. Access end dates shown anywhere are the end of *continuous coverage* (`coveredUntil`), not the end of the first grant. (Found by a test: "days left" showed 20 instead of 50 after a second purchase.)
+62. **SMS receipt** is sent after the commit and a failing gateway never undoes a payment or access. **Its wording is mine; there is no design for it** (see docs/MISSING_DESIGNS.md).
+63. **Test-only simulator** (`POST /api/test/payments/:id/simulate`: success, decline, fail, duplicate, timeout) exists only with `ENABLE_TEST_ENDPOINTS` and the fake provider, both refused in production.
+
 ## Not yet decided / needs the owner
 - Real provider credentials (MTN MoMo, Airtel, M-Pesa) and callback secrets.
 - Real SMS gateway for OTP and receipts.

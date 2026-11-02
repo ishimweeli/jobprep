@@ -20,7 +20,26 @@ export function activeGrantFor(grants: GrantLike[], countryCode: string, now: Da
 }
 
 /**
- * Buying while already active extends from the current end date, so nobody loses paid days.
+ * Until when is this country covered without a gap? A renewal bought while active is stored as a second
+ * grant that starts where the first ends, so coverage chains through every contiguous grant.
+ * Returns null when nothing is active right now.
+ */
+export function coveredUntil(grants: GrantLike[], countryCode: string, now: Date): Date | null {
+  const current = activeGrantFor(grants, countryCode, now);
+  if (!current) return null;
+  let end = current.endsAt;
+  const usable = grants.filter((g) => g.countryCode === countryCode && g.status === 'ACTIVE');
+  for (let moved = true; moved; ) {
+    moved = false;
+    for (const g of usable) {
+      if (g.startsAt <= end && g.endsAt > end) { end = g.endsAt; moved = true; }
+    }
+  }
+  return end;
+}
+
+/**
+ * Buying while already active extends from the end of current coverage, so nobody loses paid days.
  * Otherwise the window starts now.
  */
 export function nextGrantWindow(
@@ -29,12 +48,11 @@ export function nextGrantWindow(
   durationDays: number,
   now: Date,
 ): { startsAt: Date; endsAt: Date } {
-  const current = activeGrantFor(grants, countryCode, now);
-  const startsAt = current ? current.endsAt : now;
+  const startsAt = coveredUntil(grants, countryCode, now) ?? now;
   return { startsAt, endsAt: new Date(startsAt.getTime() + durationDays * DAY_MS) };
 }
 
-export function daysLeft(grant: GrantLike, now: Date): number {
+export function daysLeft(grant: Pick<GrantLike, 'endsAt'>, now: Date): number {
   return Math.max(0, Math.ceil((grant.endsAt.getTime() - now.getTime()) / DAY_MS));
 }
 

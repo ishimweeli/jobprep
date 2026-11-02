@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  activeGrantFor, canStartMockTest, daysLeft, nextGrantWindow, type GrantLike,
+  activeGrantFor, canStartMockTest, coveredUntil, daysLeft, nextGrantWindow, type GrantLike,
 } from '../../src/domain/access';
 import { formatMoney, isSellable, parseMajorToMinor } from '../../src/domain/pricing';
 import { normalizePhone } from '../../src/domain/phone';
@@ -35,6 +35,32 @@ describe('access grants', () => {
   it('counts days left, rounding up', () => {
     expect(daysLeft(grant({ endsAt: new Date(now.getTime() + 22.2 * day) }), now)).toBe(23);
     expect(daysLeft(grant({ endsAt: new Date(now.getTime() - day) }), now)).toBe(0);
+  });
+});
+
+describe('coveredUntil (renewals chain without a gap)', () => {
+  const d = (n: number) => new Date(now.getTime() + n * day);
+  const g = (from: number, to: number, over: Partial<GrantLike> = {}): GrantLike =>
+    ({ countryCode: 'RW', startsAt: d(from), endsAt: d(to), status: 'ACTIVE', ...over });
+
+  it('is null when nothing is active, and the grant end when there is a single grant', () => {
+    expect(coveredUntil([], 'RW', now)).toBeNull();
+    expect(coveredUntil([g(-40, -10)], 'RW', now)).toBeNull();
+    expect(coveredUntil([g(-5, 10)], 'RW', now)).toEqual(d(10));
+  });
+  it('follows back-to-back renewals, however many', () => {
+    expect(coveredUntil([g(-5, 10), g(10, 40), g(40, 70)], 'RW', now)).toEqual(d(70));
+    expect(coveredUntil([g(40, 70), g(10, 40), g(-5, 10)], 'RW', now)).toEqual(d(70)); // order does not matter
+  });
+  it('does not bridge a gap, ignores suspended grants, and stays inside one country', () => {
+    expect(coveredUntil([g(-5, 10), g(12, 42)], 'RW', now)).toEqual(d(10));
+    expect(coveredUntil([g(-5, 10), g(10, 40, { status: 'SUSPENDED' })], 'RW', now)).toEqual(d(10));
+    expect(coveredUntil([g(-5, 10), g(10, 40, { countryCode: 'KE' })], 'RW', now)).toEqual(d(10));
+  });
+  it('the next purchase starts where coverage ends', () => {
+    const w = nextGrantWindow([g(-5, 10), g(10, 40)], 'RW', 30, now);
+    expect(w.startsAt).toEqual(d(40));
+    expect(w.endsAt).toEqual(d(70));
   });
 });
 

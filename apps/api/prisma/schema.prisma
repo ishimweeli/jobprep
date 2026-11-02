@@ -491,6 +491,10 @@ model Payment {
   status       PaymentStatus       @default(PENDING)
   /// Provider-side transaction / request id.
   providerReference String?
+  /// The provider's own financial transaction id (shown on the receipt), when it reports one.
+  transactionId String?
+  /// Last time we asked the provider for the status (throttles polling).
+  lastCheckedAt DateTime?
   /// Idempotency key for creating the payment (client-supplied or generated).
   idempotencyKey String            @unique
   failureReason String?

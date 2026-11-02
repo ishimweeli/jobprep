@@ -1,7 +1,7 @@
 import { Router, type Request } from 'express';
 import type { Country, Prisma } from '@prisma/client';
 import { z } from 'zod';
-import { canStartMockTest, daysLeft, activeGrantFor, type GrantLike } from '../domain/access';
+import { canStartMockTest, coveredUntil, daysLeft, type GrantLike } from '../domain/access';
 import { normalizePhone } from '../domain/phone';
 import { formatMoney, isSellable } from '../domain/pricing';
 import { badRequest, forbidden, notFound } from '../http/errors';
@@ -279,7 +279,7 @@ export function catalogRouter(ctx: Ctx) {
       countryCode: g.countryCode, startsAt: g.startsAt, endsAt: g.endsAt, status: g.status,
     }));
     const decision = canStartMockTest(test, country.code, grantLikes, ctx.now());
-    const active = activeGrantFor(grantLikes, country.code, ctx.now());
+    const accessEnd = coveredUntil(grantLikes, country.code, ctx.now());
 
     // Same-profession free sample first, otherwise any free test in the category.
     const freeInCategory = test.isFree
@@ -314,8 +314,8 @@ export function catalogRouter(ctx: Ctx) {
         canStart: decision.allowed,
         requiresAccount: false, // free tests are playable by guests
         needsFullAccess: needsPurchase,
-        accessEndsAt: active?.endsAt ?? null,
-        daysLeft: active ? daysLeft(active, ctx.now()) : null,
+        accessEndsAt: accessEnd,
+        daysLeft: accessEnd ? daysLeft({ endsAt: accessEnd }, ctx.now()) : null,
       },
       pricing: needsPurchase
         ? {

@@ -1,5 +1,26 @@
 # Progress
 
+> **Design rule (owner, 2026-11-02): nothing is built without a design.** Everything with no artboard is
+> listed in [MISSING_DESIGNS.md](MISSING_DESIGNS.md). Phase 7 (admin) is blocked on items 18–32 there.
+
+## Phase 6 — Payments and access ✅ (backend; checkout, pending, confirmed and declined/expired are all designed)
+
+**Built**
+- `GET /api/me/checkout`, `POST /api/payments`, `GET /api/payments/:id`, `POST /api/payments/:id/check`, `POST /api/payments/:id/resend`, `POST /api/payments/webhooks/:slug`.
+- MTN MoMo, Airtel Money, M-Pesa adapters and a fake provider; idempotent signal core; polling fallback; expiry; sweeper; SMS receipt; country-scoped 30-day grants with chained renewals.
+
+**Test results** (2026-11-02)
+| Command | Result |
+|---|---|
+| `npm run typecheck -w @jobprep/api` | pass |
+| `npm run lint -w @jobprep/api` | pass |
+| `npm test -w @jobprep/api` | 252 pass (60 unit, 192 integration; 37 are payment integration tests, 15 adapter unit tests, 4 coverage-chain unit tests) |
+| `npx playwright test e2e/payments.spec.ts` | 6 pass, both viewports |
+
+Covered with the fake provider: success, decline, operator failure, timeout, duplicate callback (grants once), replayed webhook x5, webhook racing the poller, callback after timeout (honoured), approval at the deadline (caught), forged and tampered signatures, idempotency keys, double-tap, send again, a Rwanda grant not unlocking Kenya, Kenya M-Pesa with a KES price, SMS gateway down, operator down.
+
+**Not verified:** the real MTN, Airtel and M-Pesa sandboxes (need your keys and callback secrets).
+
 ## Phase 5 — Results, review, practice, dashboard ✅ (backend)
 
 **Built**
