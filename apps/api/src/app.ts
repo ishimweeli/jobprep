@@ -7,6 +7,7 @@ import type { Config } from './config';
 import { attachUser, type Ctx } from './http/context';
 import { HttpError } from './http/errors';
 import { authRouter } from './routes/auth';
+import { catalogRouter } from './routes/catalog';
 import { countriesRouter } from './routes/countries';
 import { meRouter } from './routes/me';
 import { testSupportRouter } from './routes/test-support';
@@ -42,6 +43,7 @@ export function createApp(deps: AppDeps) {
   });
 
   app.use('/api/countries', countriesRouter(prisma));
+  app.use('/api/countries/:code', catalogRouter(ctx));
   app.use('/api/auth', authRouter(ctx));
   app.use('/api/me', meRouter(ctx));
   if (config.ENABLE_TEST_ENDPOINTS) app.use('/api/test', testSupportRouter(ctx));

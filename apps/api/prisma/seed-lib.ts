@@ -262,6 +262,7 @@ export async function seedDatabase(prisma: PrismaClient) {
       { key: 'payments.requestTtlMinutes', value: 3 },
       { key: 'free.showExplanationsOnResults', value: true },
       { key: 'results.showPassMarks', value: true }, // only ever renders where an official source is entered
+      { key: 'landing.popularSearches:RW', value: ['Secondary Mathematics', 'Primary teacher', 'Headteacher', 'Accountant', 'Executive Secretary'] },
     ],
   });
 

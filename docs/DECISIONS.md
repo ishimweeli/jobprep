@@ -36,6 +36,18 @@ Recorded so work can keep moving without blocking questions. Newest at the botto
 26. **Admin sign-in is not built yet** (Phase 7); only the `Session.adminUserId` column and seeded admins exist.
 27. **e2e against the dev DB creates throwaway users** with random +250789xxxxxx numbers; delete them with a normal `db:reset` when you like.
 
+## Phase 3 — Discovery
+
+28. **Public discovery endpoints live under `/api/countries/:code/…`:** `landing`, `mock-tests` (catalog), `mock-tests/:slug` (details), `pricing`, `exam-requests`. They return counts, marks and metadata only — never questions, options, answers or explanations (asserted by tests).
+29. **Only LIVE countries are browsable.** Preparing/planned countries return 404 `country_not_available` for every public route, so Kenya's draft tests stay invisible until an admin flips it to live. This is the "Kenya user (country switched to Live in admin first)" acceptance step.
+30. **A signed-in user only sees their own country** (403 `country_mismatch` otherwise); guests may browse any live country. Switching country goes through `/api/me/country`.
+31. **Search:** every word must match (AND) in title, summary, category, profession or a topic (subject), case-insensitive. User-typed `%`, `_` and `\` are escaped so they match literally. Found by a test: Prisma does not escape LIKE wildcards, so `q=%` used to return everything.
+32. **Counts come from published questions,** and the details page's section table and total marks are computed from them — not from the declared `totalMarks`. A draft question changes the numbers immediately.
+33. **Exam details access state:** `FREE` (guest can start, no account), `GRANTED` (active same-country grant), or `LOCKED` (shows the database price, payment methods, and a free sample — same profession first, else any free test in the category). A pass mark is returned only when both percent and source are set; negative marking only when configured.
+34. **Popular searches** come from a per-country setting (`landing.popularSearches:RW`, seeded from the design chips), falling back to the professions with the most published tests. The existing dev database was seeded before this setting existed, so it uses the fallback until the next reset.
+35. **Title sort is byte-order** (Postgres collation), so punctuation sorts differently from a browser's locale sort. Acceptable for English titles; revisit if Kinyarwanda titles need locale-aware ordering.
+36. **"Request this exam"** stores a row per request (no dedupe yet); the admin "requested 7 times" alert (Phase 7) will group by normalised query.
+
 ## Not yet decided / needs the owner
 - Real provider credentials (MTN MoMo, Airtel, M-Pesa) and callback secrets.
 - Real SMS gateway for OTP and receipts.

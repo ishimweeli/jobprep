@@ -1,5 +1,31 @@
 # Progress
 
+## Phase 3 — Discovery ✅ (backend)
+
+**Built**
+- `GET /api/countries/:code/landing`: categories with test counts (Teaching first), featured teacher tests, recently added, popular searches, price summary, disclaimer.
+- `GET /api/countries/:code/mock-tests`: search by job title / subject / category (AND across words), filters for category, price, difficulty, language and subject, sort, pagination, facets for the filter UI, and an empty state that can request the exam.
+- `GET /api/countries/:code/mock-tests/:slug`: facts, section table, instructions, the "no official pass mark" flag, free / granted / locked access state, database-driven price and payment methods, the free sample for locked tests, and the signed-in user's previous attempts.
+- `GET /api/countries/:code/pricing` and `POST /api/countries/:code/exam-requests`.
+- All of it country-scoped, live-countries-only, published-only, and answer-free.
+
+**Test results** (2026-11-02)
+| Command | Result |
+|---|---|
+| `npm run typecheck` | pass |
+| `npm run lint` | pass |
+| `npm test` | 133 pass (131 API: 39 unit + 92 integration; 2 shared) |
+| `npx playwright test` | 26 pass (13 specs × desktop-1440 and phone-390), against the real server |
+
+A real bug was caught by the tests: search treated a typed `%` as a wildcard and returned every test; wildcards are now escaped.
+
+**Screenshots:** none — still no UI. The Playwright MCP browser pass starts when the React app exists.
+
+**Known gaps**
+- The React app (landing, catalog, details, pricing screens and their phone versions) is not built, so nothing here is checked against the design visually yet.
+- Catalog search is `ILIKE`-based, fine at this size; Postgres full-text search can replace it if the catalogue grows.
+- Previous attempts and "resume in progress" depend on the attempts API (Phase 4).
+
 ## Phase 2 — Auth and country ✅ (backend)
 
 **Built**

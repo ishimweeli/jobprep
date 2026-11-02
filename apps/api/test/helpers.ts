@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import request from 'supertest';
+import type { ConsoleSmsProvider } from '../src/services/sms';
 import type { Config } from '../src/config';
 import { loadConfig } from '../src/config';
 import { seedDatabase, truncateAll } from '../prisma/seed-lib';
@@ -25,4 +27,19 @@ export function testConfig(over: Record<string, string> = {}): Config {
 export async function resetAndSeed(prisma: PrismaClient) {
   await truncateAll(prisma);
   await seedDatabase(prisma);
+}
+
+/** Sign a fresh Rwanda user up through the real endpoints; returns a cookie-keeping agent. */
+export async function signedInAgent(
+  app: Parameters<typeof request>[0],
+  sms: ConsoleSmsProvider,
+  phone: string,
+  countryCode = 'RW',
+) {
+  const agent = request.agent(app);
+  const r = await agent.post('/api/auth/otp/request').send({ purpose: 'sign_up', phone, countryCode });
+  if (r.status !== 200) throw new Error(`otp request failed: ${r.status} ${JSON.stringify(r.body)}`);
+  const res = await agent.post('/api/auth/sign-up').send({ countryCode, phone, name: 'Test Candidate', code: sms.lastCode(phone) });
+  if (res.status !== 201) throw new Error(`sign-up failed: ${res.status} ${JSON.stringify(res.body)}`);
+  return { agent, userId: res.body.user.id as string };
 }
