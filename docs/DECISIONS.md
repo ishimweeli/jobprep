@@ -59,6 +59,18 @@ Recorded so work can keep moving without blocking questions. Newest at the botto
 43. **Auto-submit happens three ways** so it never depends on the browser: lazily on any request that touches an expired attempt, on save/submit, and by a 30-second background sweeper in the server process (`sweepExpiredAttempts`). If the API is scaled to several instances they can all sweep; the row lock makes it safe.
 44. **The attempt state endpoint never returns correct answers or explanations** (asserted by tests); those arrive with the results/review endpoints after submission.
 
+## Phase 5 — Results, review, practice, dashboard
+
+45. **Two cut-offs, as the design implies:** the results screen flags a topic as a "Weak area" under **60%**; the dashboard's "Strong" list is **≥ 70%** and "Needs work" is everything below 70% (the design shows Pedagogy at 67% as "Needs work" but not as a weak area on the results page).
+46. **"Incorrect" includes partly-correct multiple-select answers** (they were not fully right). They carry their own `partial` status and marks, so the review can label them "Partly correct".
+47. **Comparison and history** use the same person's earlier finished FULL attempts of the same test (user id, or guest token for guests). Practice attempts have no comparison. Results and review are refused while an attempt is running (409 `attempt_in_progress`); an expired attempt is closed on first view.
+48. **"Review these first"** = up to 3 wrong answers (not unanswered), weakest topic first, then question number.
+49. **Practice sets** (`POST /api/attempts/:id/practice` from results, `POST /api/countries/:code/practice {topicId}` from the dashboard): up to 15 standalone questions (case questions are excluded because they need their passage) from the chosen topics, drawn only from tests the viewer can open — a guest or non-subscriber never gets paid content through practice. Priority: previously wrong/skipped → never seen → answered correctly. Time = 4/3 minute per question rounded up (15 questions → 20 minutes, as in the design). Fewer than 3 available → 409 `not_enough_questions`.
+50. **Practice shows the answer after each question** (the dashboard promises "explanations after each one"): `POST /api/attempts/:id/check` works only on PRACTICE attempts, and only for a question already answered (409 `answer_first`), so it can't be used to peek. Real exams never expose answers until submitted.
+51. **A practice set's attempt hangs off the test contributing most questions;** its own `questionIds` list is authoritative for scoring, state, results and review (the engine now resolves questions from that list). Its title is generated from its topics.
+52. **Explanations on free tests** can be switched off with the existing admin setting `free.showExplanationsOnResults` (default on).
+53. **Dashboard** (`GET /api/me/dashboard`): strengths/weaknesses are marks-weighted across everything the user finished in their current country (full tests and practice); the recommendation is the weakest topic that has at least 3 questions the user can open; score history is the last 10 full attempts, oldest first (optionally `?category=`).
+
 ## Not yet decided / needs the owner
 - Real provider credentials (MTN MoMo, Airtel, M-Pesa) and callback secrets.
 - Real SMS gateway for OTP and receipts.

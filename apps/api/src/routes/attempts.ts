@@ -7,6 +7,9 @@ import {
   saveChanges, startAttempt, submitAttempt, type AnswerChange, type Viewer,
 } from '../services/attempts';
 import { timerState } from '../domain/timer';
+import {
+  assertFinished, buildResult, buildReview, checkPracticeAnswer, createPracticeAttempt, REVIEW_FILTERS, weakTopicIdsFor,
+} from '../services/results';
 
 /**
  * Guests identify their attempts with the `X-Guest-Token` header (a secret handed out when the attempt
@@ -104,6 +107,60 @@ export function attemptsRouter(ctx: Ctx) {
       unanswered: state.counts.total - state.counts.answered,
       // Time is up screen: "submitted automatically with 47 of 50 questions answered. Nothing you answered was lost."
     });
+  });
+
+  // ───────────────────────── After the exam
+
+  /** Score, counts, per-topic performance, comparison with the previous attempt, "review these first". */
+  router.get('/attempts/:id/result', async (req, res) => {
+    const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
+    await finalizeIfExpired(ctx, attempt.id);
+    const fresh = await getOwnedAttempt(ctx, attempt.id, viewerFromReq(req));
+    assertFinished(fresh);
+    res.json(await buildResult(ctx, fresh));
+  });
+
+  /** Answer review with correct answers and explanations. Filters: incorrect | flagged | unanswered | all. */
+  router.get('/attempts/:id/review', async (req, res) => {
+    const { filter } = z.object({ filter: z.enum(REVIEW_FILTERS).default('incorrect') }).parse(req.query);
+    const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
+    await finalizeIfExpired(ctx, attempt.id);
+    const fresh = await getOwnedAttempt(ctx, attempt.id, viewerFromReq(req));
+    assertFinished(fresh);
+    res.json(await buildReview(ctx, fresh, filter));
+  });
+
+  /** "Practice Weak Areas": a short set built from this attempt's lowest-scoring topics. */
+  router.post('/attempts/:id/practice', async (req, res) => {
+    const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
+    assertFinished(attempt);
+    const weak = await weakTopicIdsFor(attempt);
+    if (weak.length === 0) throw badRequest('no_weak_areas');
+    const country = await prisma.country.findUniqueOrThrow({ where: { code: attempt.countryCode } });
+    const out = await createPracticeAttempt(ctx, {
+      country, viewer: viewerFromReq(req), topicIds: weak.slice(0, 3).map((t) => t.topicId),
+    });
+    res.status(201).json({ attemptId: out.attempt.id, guestToken: out.guestToken, questionCount: out.questionCount, minutes: out.minutes, topics: weak.slice(0, 3) });
+  });
+
+  /** Practice mode only: reveal the answer and explanation for a question you have just answered. */
+  router.post('/attempts/:id/check', async (req, res) => {
+    const { questionId } = z.object({ questionId: z.string().min(1).max(40) }).parse(req.body);
+    const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
+    res.json(await checkPracticeAnswer(ctx, attempt, questionId));
+  });
+
+  /** Dashboard "Start practice": a set for one chosen topic, in the caller's country. */
+  router.post('/countries/:code/practice', async (req, res) => {
+    const { topicId } = z.object({ topicId: z.string().min(1).max(40) }).parse(req.body);
+    const code = String(req.params.code).toUpperCase();
+    const country = await prisma.country.findUnique({ where: { code } });
+    if (!country) throw notFound('country_not_found');
+    if (country.status !== 'LIVE') throw notFound('country_not_available');
+    const topic = await prisma.topic.findFirst({ where: { id: topicId, category: { countryCode: code } } });
+    if (!topic) throw notFound('topic_not_found');
+    const out = await createPracticeAttempt(ctx, { country, viewer: viewerFromReq(req), topicIds: [topic.id] });
+    res.status(201).json({ attemptId: out.attempt.id, guestToken: out.guestToken, questionCount: out.questionCount, minutes: out.minutes, topics: [{ topicId: topic.id, name: topic.name }] });
   });
 
   return router;

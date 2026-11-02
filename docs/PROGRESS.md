@@ -1,5 +1,23 @@
 # Progress
 
+## Phase 5 — Results, review, practice, dashboard ✅ (backend)
+
+**Built**
+- `GET /api/attempts/:id/result` — score ring data, correct/incorrect/unanswered, time spent, change vs previous attempt, history for the mini chart, per-topic performance with weak areas, "review these first", pass mark only with a source, guest flag for "Save my result".
+- `GET /api/attempts/:id/review?filter=incorrect|flagged|unanswered|all` — options with correct and your pick marked, topic, explanation, tab counts, a jump grid over all questions, case passages.
+- `POST /api/attempts/:id/practice`, `POST /api/countries/:code/practice` — weak-area practice sets; `POST /api/attempts/:id/check` — answer + explanation after each practice question.
+- `GET /api/me/dashboard` — greeting, goal, resume, recommended practice, score history, strong / needs-work topics, recently completed (with attempt numbers), access.
+
+**Test results** (2026-11-02)
+| Command | Result |
+|---|---|
+| `npm run typecheck -w @jobprep/api` | pass |
+| `npm run lint -w @jobprep/api` | pass |
+| `npm test -w @jobprep/api` | 196 pass (39 unit + 157 integration; 25 are the new results/review/practice/dashboard tests) |
+| `npx playwright test` e2e/results + e2e/engine | 8 pass, both viewports |
+
+Numbers in the tests are hand-computed from the seed (e.g. 11 of 21 marks = 52.38%, second attempt 19 of 21 = 90.48%, +38.1 points; dashboard Statistics 3/8 = 38%). Mistakes caught while writing them were in my expectations, not the code (50% is under the weak-area cut-off).
+
 ## Phase 4 — Exam engine ✅ (backend; the exam UI is in the frontend track)
 
 **Built** (`apps/api/src/services/attempts.ts`, `routes/attempts.ts`)

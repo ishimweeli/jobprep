@@ -67,13 +67,21 @@ export async function getOwnedAttempt(ctx: Ctx, id: string, viewer: Viewer) {
 async function scopeQuestions(db: Tx | PrismaClient, attempt: Pick<Attempt, 'mockTestId' | 'questionIds'>) {
   return db.question.findMany({
     where: {
-      mockTestId: attempt.mockTestId,
       status: 'PUBLISHED',
-      ...(attempt.questionIds.length > 0 && { id: { in: attempt.questionIds } }),
+      // An explicit question list (a practice set, which may span several tests) is authoritative.
+      ...(attempt.questionIds.length > 0 ? { id: { in: attempt.questionIds } } : { mockTestId: attempt.mockTestId }),
     },
     orderBy: { sortOrder: 'asc' },
     include: questionInclude,
   });
+}
+
+/** Title shown for an attempt: practice sets are named after their topics. */
+export async function attemptTitle(prisma: PrismaClient, a: Attempt & { mockTest: MockTest }): Promise<string> {
+  if (a.kind !== 'PRACTICE') return a.mockTest.title;
+  const qs = await prisma.question.findMany({ where: { id: { in: a.questionIds } }, select: { topic: { select: { name: true } } } });
+  const names = [...new Set(qs.map((q) => q.topic.name))];
+  return names.length === 1 ? `${names[0]} practice set` : `Practice set: ${names.slice(0, 2).join(', ')}${names.length > 2 ? '…' : ''}`;
 }
 
 const lockAttempt = (tx: Tx, id: string) => tx.$queryRaw`SELECT id FROM "Attempt" WHERE id = ${id} FOR UPDATE`;
@@ -107,7 +115,7 @@ export async function startAttempt(
   const kind = input.kind ?? 'FULL';
   const questionIds = input.questionIds ?? [];
   const qCount = await prisma.question.count({
-    where: { mockTestId: test.id, status: 'PUBLISHED', ...(questionIds.length > 0 && { id: { in: questionIds } }) },
+    where: { status: 'PUBLISHED', ...(questionIds.length > 0 ? { id: { in: questionIds } } : { mockTestId: test.id }) },
   });
   if (qCount === 0) throw conflict('no_questions');
 
@@ -176,7 +184,7 @@ export async function buildState(ctx: Ctx, attemptId: string) {
       submittedAt: attempt.submittedAt,
       mockTest: {
         slug: attempt.mockTest.slug,
-        title: attempt.mockTest.title,
+        title: await attemptTitle(prisma, attempt),
         countryCode: attempt.mockTest.countryCode,
       },
     },
@@ -430,7 +438,7 @@ export async function listInProgress(ctx: Ctx, viewer: Viewer) {
   const totals = await Promise.all(
     attempts.map((a) =>
       prisma.question.count({
-        where: { mockTestId: a.mockTestId, status: 'PUBLISHED', ...(a.questionIds.length > 0 && { id: { in: a.questionIds } }) },
+        where: { status: 'PUBLISHED', ...(a.questionIds.length > 0 ? { id: { in: a.questionIds } } : { mockTestId: a.mockTestId }) },
       }),
     ),
   );

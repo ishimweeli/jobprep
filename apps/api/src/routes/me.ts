@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { activeGrantFor, daysLeft } from '../domain/access';
 import { badRequest, notFound } from '../http/errors';
 import { requireUser, type Ctx } from '../http/context';
+import { accessSummary } from '../services/access-summary';
 import { claimGuestAttempts } from '../services/claim';
+import { buildDashboard } from '../services/dashboard';
 import { publicUser } from './auth';
 
 const patchSchema = z.object({
@@ -21,21 +22,7 @@ export function meRouter(ctx: Ctx) {
   const router = Router();
   router.use(requireUser);
 
-  /** Access is per country: report the current country's grant, plus any other countries still running. */
-  async function accessSummary(userId: string, countryCode: string) {
-    const now = ctx.now();
-    const grants = await ctx.prisma.accessGrant.findMany({ where: { userId, endsAt: { gt: now } } });
-    const mapped = grants.map((g) => ({ ...g, status: g.status }));
-    const current = activeGrantFor(mapped, countryCode, now);
-    const others = [...new Set(mapped.filter((g) => g.countryCode !== countryCode).map((g) => g.countryCode))]
-      .map((code) => ({ code, grant: activeGrantFor(mapped, code, now) }))
-      .filter((x): x is { code: string; grant: NonNullable<typeof x.grant> } => !!x.grant)
-      .map((x) => ({ countryCode: x.code, endsAt: x.grant.endsAt, daysLeft: daysLeft(x.grant, now) }));
-    return {
-      current: current && { endsAt: current.endsAt, daysLeft: daysLeft(current, now) },
-      otherCountries: others,
-    };
-  }
+  const accessFor = (userId: string, countryCode: string) => accessSummary(ctx, userId, countryCode);
 
   router.get('/', async (req, res) => {
     const user = req.user!;
@@ -43,8 +30,14 @@ export function meRouter(ctx: Ctx) {
     res.json({
       user: publicUser(user),
       country: { code: country.code, name: country.name, currencyCode: country.currencyCode, languages: country.languages },
-      access: await accessSummary(user.id, user.countryCode),
+      access: await accessFor(user.id, user.countryCode),
     });
+  });
+
+  /** Greeting, resume, recommended practice, score history, strong/weak topics, recent attempts, access. */
+  router.get('/dashboard', async (req, res) => {
+    const { category } = z.object({ category: z.string().max(80).optional() }).parse(req.query);
+    res.json(await buildDashboard(ctx, req.user!, category));
   });
 
   router.patch('/', async (req, res) => {
@@ -80,7 +73,7 @@ export function meRouter(ctx: Ctx) {
     });
     if (!target) throw notFound('country_not_found');
     const current = await ctx.prisma.country.findUniqueOrThrow({ where: { code: user.countryCode } });
-    const access = await accessSummary(user.id, user.countryCode);
+    const access = await accessFor(user.id, user.countryCode);
     res.json({
       from: { code: current.code, name: current.name },
       to: {
@@ -107,7 +100,7 @@ export function meRouter(ctx: Ctx) {
       where: { id: user.id },
       data: { countryCode: target.code, goalCategoryId: null, language: target.languages[0] ?? 'en' },
     });
-    res.json({ user: publicUser(updated), access: await accessSummary(user.id, target.code) });
+    res.json({ user: publicUser(updated), access: await accessFor(user.id, target.code) });
   });
 
   router.post('/claim-attempts', async (req, res) => {
