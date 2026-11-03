@@ -1,24 +1,87 @@
-import { expect, test } from '@playwright/test';
-import { isPhone, signUpViaApi, watchErrors } from './web-helpers';
+import { expect, test, type Page } from '@playwright/test';
+import { expectNoHorizontalScroll, isPhone, signUpViaApi, watchErrors } from './web-helpers';
 
-// The account screen and the "Switch to Kenya?" sheet are drawn for phones only (ChangeCountryPhone.dc).
-test.describe('Web: account and change country (phone)', () => {
+/** Kenya is not live in the seed: serve the country list with Kenya live (and its payment methods) to exercise the switch. */
+async function kenyaLive(page: Page) {
+  await page.route('**/api/countries', async (route) => {
+    const res = await route.fetch();
+    const body = (await res.json()) as { countries: { code: string; status: string; selectable: boolean }[] };
+    for (const c of body.countries) if (c.code === 'KE') Object.assign(c, { status: 'LIVE', selectable: true });
+    await route.fulfill({ response: res, json: body });
+  });
+  await page.route('**/api/countries/ke', async (route) => {
+    const res = await route.fetch();
+    const body = (await res.json()) as Record<string, unknown>;
+    await route.fulfill({ response: res, json: { ...body, status: 'LIVE', paymentMethods: [{ provider: 'MPESA', label: 'M-Pesa' }, { provider: 'AIRTEL_MONEY', label: 'Airtel Money' }] } });
+  });
+}
+
+// The account settings screen is drawn for phones only (ChangeCountryPhone.dc earlier); Change exam country has both layouts.
+test.describe('Web: account settings (phone)', () => {
   test.beforeEach(({}, info) => {
-    test.skip(!isPhone(info), 'account is a phone-only artboard');
+    test.skip(!isPhone(info), 'account settings is a phone-only artboard');
   });
 
-  test('shows name, email and exam country; the country row opens the picker', async ({ page }) => {
+  test('shows name and email; the country row opens Change exam country', async ({ page }) => {
     const w = watchErrors(page);
     const u = await signUpViaApi(page, 'Aline Uwase');
     await page.goto('/account/settings');
-    await expect(page.getByRole('heading', { name: 'Account' }).or(page.getByText('Account', { exact: true })).first()).toBeVisible();
     await expect(page.getByText('Aline Uwase')).toBeVisible();
     await expect(page.getByText(u.email)).toBeVisible();
     await page.getByRole('link', { name: /Exam country: Rwanda/ }).click();
-    await expect(page).toHaveURL(/\/choose-country$/);
-    // A signed-in user's country is locked: a country that is not live only offers the (inert) notify button.
-    await page.getByText('Kenya', { exact: true }).click();
-    await expect(page.getByRole('link', { name: 'Notify me when Kenya opens' })).toBeVisible();
+    await expect(page).toHaveURL(/\/account\/country$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Change exam country' })).toBeVisible();
+    w.expectClean();
+  });
+});
+
+test.describe('Web: Change exam country (ChangeCountry.dc)', () => {
+  test('the account menu / Account tab row opens it; only Rwanda is live, so there is nothing to switch to', async ({ page }, info) => {
+    const w = watchErrors(page);
+    await signUpViaApi(page, 'Aline Uwase');
+    await page.goto('/rw/progress');
+    if (isPhone(info)) {
+      await page.goto('/account');
+      await page.getByRole('link', { name: /Exam country/ }).click();
+    } else {
+      await page.getByRole('button', { name: /account menu for/i }).click();
+      await page.getByRole('menuitem', { name: /Exam country/ }).click();
+    }
+    await expect(page).toHaveURL(/\/account\/country$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Change exam country' })).toBeVisible();
+    await expect(page.getByText('Everything you see will switch to the new country: mock tests, prices, payment methods and language.')).toBeVisible();
+    await expect(page.getByRole('radio', { name: /Rwanda/ })).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByRole('radio', { name: /Rwanda/ })).toContainText('Current');
+    await expect(page.getByRole('radio', { name: /Uganda/ })).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByRole('button', { name: 'Choose a different country' })).toBeDisabled();
+    await expectNoHorizontalScroll(page);
+    await page.getByRole('link', { name: 'Keep Rwanda' }).click();
+    await expect(page).toHaveURL(/\/rw\/progress$/);
+    w.expectClean();
+  });
+
+  test('with Kenya live: the explainer, then Switch to Kenya saves the country and continues at setup step 2', async ({ page }) => {
+    const w = watchErrors(page);
+    await signUpViaApi(page, 'Aline Uwase');
+    await kenyaLive(page);
+    // Kenya is not live in the seed, so the API would refuse the switch: answer it here and check what the screen sends.
+    const patches: unknown[] = [];
+    await page.route('**/api/me/onboarding', async (r) => {
+      patches.push(r.request().postDataJSON());
+      const me = (await (await page.request.get('/api/me')).json()) as { user: unknown };
+      await r.fulfill({ json: { user: me.user } });
+    });
+    await page.goto('/account/country');
+    await expect(page.getByRole('radio', { name: /Kenya/ })).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByText('If you switch to Kenya')).toBeVisible();
+    await expect(page.getByText('You’ll see only Kenya mock tests, prices in KES and M-Pesa or Airtel Money.')).toBeVisible();
+    await expect(page.getByText('Your Rwanda results stay in your history. Your job goal is cleared, so you’ll choose one for Kenya next.')).toBeVisible();
+    await expectNoHorizontalScroll(page);
+
+    await page.getByRole('button', { name: 'Switch to Kenya' }).click();
+    await expect(page).toHaveURL(/\/setup\/category$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'What job are you preparing for?' })).toBeVisible();
+    expect(patches).toEqual([{ countryCode: 'KE' }]);
     w.expectClean();
   });
 
@@ -30,47 +93,8 @@ test.describe('Web: account and change country (phone)', () => {
     await expect(page).toHaveURL(/\/rw\/pricing$/);
   });
 
-  test('"Switch to Kenya?" previews what changes and only switches after confirming', async ({ page }) => {
-    await signUpViaApi(page);
-    // Kenya is not live in the seed data: mock the preview and the switch to exercise the live-country sheet.
-    await page.route('**/api/me/country-change*', (r) =>
-      r.fulfill({
-        json: {
-          from: { code: 'RW', name: 'Rwanda' },
-          to: { code: 'KE', name: 'Kenya', status: 'LIVE', selectable: true, currencyCode: 'KES', paymentMethods: ['M-Pesa', 'Airtel Money'] },
-          currentAccess: { endsAt: '2026-11-25T00:00:00.000Z', daysLeft: 23 },
-          keepsResults: true,
-        },
-      }),
-    );
-    const posts: unknown[] = [];
-    await page.route('**/api/me/country', async (r) => {
-      posts.push(r.request().postDataJSON());
-      await r.fulfill({ json: { user: {} } });
-    });
-
-    await page.goto('/account/settings?switch=KE');
-    const sheet = page.getByRole('dialog', { name: 'Switch to Kenya?' });
-    await expect(sheet).toBeVisible();
-    await expect(sheet).toContainText('prices in KES and M-Pesa or Airtel Money payments');
-    await expect(sheet).toContainText('Your Rwanda Full Access (23 days left) only covers Rwanda tests. It keeps running and is there if you switch back.');
-    await expect(sheet).toContainText('Your Rwanda results and progress are kept.');
-    expect(posts).toHaveLength(0);
-
-    await sheet.getByRole('button', { name: 'Keep Rwanda' }).click();
-    await expect(sheet).toBeHidden();
-    expect(posts).toHaveLength(0);
-
-    await page.goto('/account/settings?switch=KE');
-    await page.getByRole('button', { name: 'Switch to Kenya' }).click();
-    await expect.poll(() => posts.length).toBe(1);
-    expect(posts[0]).toEqual({ countryCode: 'KE', confirm: true });
-  });
-
-  test('against the real API a country that is not live has no switch sheet', async ({ page }) => {
-    await signUpViaApi(page);
-    await page.goto('/account/settings?switch=KE');
-    await expect(page.getByText('Exam country')).toBeVisible();
-    await expect(page.getByRole('dialog')).toHaveCount(0);
+  test('a guest is sent to sign-in and comes back', async ({ page }) => {
+    await page.goto('/account/country');
+    await expect(page).toHaveURL(/\/sign-in\?next=%2Faccount%2Fcountry$/);
   });
 });

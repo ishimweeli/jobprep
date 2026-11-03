@@ -7,17 +7,17 @@ export type ButtonSize = 'md' | 'lg' | 'sm';
 
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-brand text-white hover:bg-brand-hover hover:text-white border border-transparent',
-  secondary: 'bg-surface text-brand hover:text-brand-hover border border-brand',
-  final: 'bg-ink text-white hover:bg-ink-2 hover:text-white border border-transparent',
+  secondary: 'bg-surface text-brand hover:text-brand border border-brand',
+  final: 'bg-dark text-white hover:bg-brand-hover hover:text-white border border-transparent',
   neutral: 'bg-surface text-ink border border-input-border hover:bg-soft hover:text-ink',
-  ghost: 'bg-transparent text-brand hover:text-brand-hover border border-transparent',
+  ghost: 'bg-transparent text-brand hover:text-brand border border-transparent',
   plain: 'bg-transparent text-ink hover:bg-soft hover:text-ink border border-transparent',
 };
 
 const sizes: Record<ButtonSize, string> = {
   sm: 'min-h-touch px-3 text-[15px] font-semibold rounded-control',
-  md: 'min-h-[48px] px-5 text-[16px] font-bold rounded-control',
-  lg: 'min-h-[52px] px-5 text-[16px] font-bold rounded-control',
+  md: 'min-h-[48px] px-5 text-[16px] font-semibold rounded-control md:min-h-[44px]',
+  lg: 'min-h-[48px] px-5 text-[16px] font-semibold rounded-control md:min-h-[44px]',
 };
 
 /** Class string shared by <Button> and <LinkButton> so links can look like buttons (and stay real links). */

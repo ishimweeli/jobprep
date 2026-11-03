@@ -27,11 +27,11 @@ export function PayDone({
         <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col gap-[18px] px-4 pb-[18px] pt-10 outline-none">
           <div className="flex flex-col items-center gap-3 text-center">
             <span className="inline-flex h-[72px] w-[72px] items-center justify-center rounded-full bg-correct-bg">
-              <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#047857" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#1E7A46" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12.5l4.5 4.5L19 7.5" />
               </svg>
             </span>
-            <h1 className="m-0 text-[26px] tracking-tight">Payment confirmed</h1>
+            <h1 className="m-0 text-2xl tracking-tight">Payment confirmed</h1>
             <p className="m-0 text-base leading-normal text-ink-2">Full Access is active. Every mock test on JobPrep is unlocked for {days} days.</p>
           </div>
           <dl className="m-0 rounded-card border border-border bg-surface px-4 py-1">
@@ -45,7 +45,7 @@ export function PayDone({
           <p className="m-0 text-center text-[13px] text-muted">A receipt was sent to {user?.email ?? 'your email'}.</p>
         </main>
         <footer className="flex flex-col gap-2 border-t border-border bg-surface px-4 pb-4 pt-3">
-          <Link to={startTo} className="rounded-[14px] bg-brand p-4 text-center text-[17px] font-bold text-white no-underline hover:bg-brand-hover hover:text-white">
+          <Link to={startTo} className="rounded-control bg-brand p-3 text-center text-[17px] font-semibold text-white no-underline hover:bg-brand-hover hover:text-white">
             {startLabel(testTitle)}
           </Link>
           <Link to={countryPath(slug, 'progress')} className="p-3 text-center text-[15px] font-semibold text-ink no-underline hover:text-ink">

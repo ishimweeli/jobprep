@@ -55,7 +55,7 @@ test('axe: the user detail, the question editor (editable and read-only), the ph
   await api.dispose();
 });
 
-test('focus is visible (3px #A78BFA ring) and the main controls are at least 44px', async ({ page, playwright }, info) => {
+test('focus is visible (3px #6AA6EE ring) and the main controls are at least 44px', async ({ page, playwright }, info) => {
   await signInAs(page, playwright, 'system');
   await page.goto('/admin/users');
   await expect(page.getByRole('heading', { level: 1, name: 'Users' })).toBeVisible();
@@ -65,7 +65,7 @@ test('focus is visible (3px #A78BFA ring) and the main controls are at least 44p
     const c = getComputedStyle(el);
     return { w: c.outlineWidth, color: c.outlineColor, style: c.outlineStyle };
   });
-  expect(outline).toMatchObject({ w: '3px', style: 'solid', color: 'rgb(167, 139, 250)' });
+  expect(outline).toMatchObject({ w: '3px', style: 'solid', color: 'rgb(106, 166, 238)' });
 
   const nav = page.getByRole('navigation', { name: 'Admin', exact: true }).getByRole('link');
   for (const link of await nav.all()) {

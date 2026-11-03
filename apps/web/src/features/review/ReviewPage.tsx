@@ -97,10 +97,10 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
       {/* Desktop header */}
       <header className="hidden border-b border-border bg-surface md:block">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-5 gap-y-3 px-6 py-3.5">
-          <Link to={resultsTo} className="inline-flex items-center gap-1.5 py-2.5 text-[15px] font-semibold no-underline">
+          <Link to={resultsTo} className="inline-flex items-center gap-1.5 py-2.5 text-[15px] font-semibold text-link no-underline hover:text-link-hover">
             ← Back to results
           </Link>
-          <span className="flex-1 text-base font-bold">Answer review · {data.mockTest.title}</span>
+          <span className="flex-1 text-base font-semibold">Answer review · {data.mockTest.title}</span>
           <StartPracticeLink attemptId={attemptId} slug={slug} className="!min-h-0 px-4 py-[11px] font-semibold" />
         </div>
       </header>
@@ -128,7 +128,7 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
                   e.preventDefault();
                   jumpTo(g.number);
                 }}
-                className={cx('flex h-[38px] items-center justify-center rounded-[9px] text-[13px] font-bold no-underline hover:text-inherit', GRID_STYLE[gridKind(g.status)])}
+                className={cx('flex h-[38px] items-center justify-center rounded-[9px] text-[13px] font-semibold no-underline hover:text-inherit', GRID_STYLE[gridKind(g.status)])}
               >
                 {gridMark(g.number, g.status)}
               </a>
@@ -170,7 +170,7 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
           aria-label="Previous"
           disabled={phoneIndex === 0}
           onClick={() => setPos(Math.max(0, phoneIndex - 1))}
-          className="h-[52px] w-[52px] cursor-pointer rounded-control border border-input-border bg-surface text-xl text-ink disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-12 w-12 cursor-pointer rounded-control border border-input-border bg-surface text-xl text-ink disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span aria-hidden="true">←</span>
         </button>
@@ -182,7 +182,7 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
           aria-label="Next"
           disabled={phoneIndex >= list.length - 1}
           onClick={() => setPos(Math.min(list.length - 1, phoneIndex + 1))}
-          className="h-[52px] w-[84px] cursor-pointer rounded-control border-0 bg-brand text-base font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-12 w-[84px] cursor-pointer rounded-control border-0 bg-brand text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           Next
         </button>
@@ -204,8 +204,8 @@ function Tabs({ tabs, filter, onPick, className, phone }: { tabs: ReturnType<typ
             onClick={() => onPick(t.filter)}
             className={cx(
               'shrink-0 cursor-pointer rounded-pill font-semibold',
-              phone ? 'min-h-[40px] px-3.5 text-sm' : 'min-h-[44px] px-4 text-[15px]',
-              on ? 'border border-ink bg-ink text-white' : 'border border-zinc-300 bg-surface text-ink',
+              phone ? 'min-h-[44px] px-3.5 text-sm' : 'min-h-[44px] px-4 text-[15px]',
+              on ? 'border border-link bg-brand-soft text-brand' : 'border border-border-strong bg-surface text-ink',
             )}
           >
             {phone ? t.short : t.label}
@@ -232,7 +232,7 @@ function CheckBox({ on, small }: { on: boolean; small?: boolean }) {
       className={cx(
         'inline-flex shrink-0 items-center justify-center rounded-md border-2 text-white',
         small ? 'h-[22px] w-[22px]' : 'h-[22px] w-[22px]',
-        on ? 'border-ink bg-ink' : 'border-zinc-400 bg-surface',
+        on ? 'border-ink bg-dark' : 'border-input-border bg-surface',
       )}
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: on ? 1 : 0 }}>
@@ -256,13 +256,13 @@ function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: 
       )}
     >
       <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
-        <h2 className="m-0 text-base font-extrabold">Question {item.number}</h2>
-        <span className={cx('inline-flex items-center gap-1.5 rounded-pill px-[9px] py-[3px] text-xs font-bold md:px-2.5 md:text-[13px]', badge.cls)}>
+        <h2 className="m-0 text-base font-semibold">Question {item.number}</h2>
+        <span className={cx('inline-flex items-center gap-1.5 rounded-pill px-[9px] py-[3px] text-xs font-semibold md:px-2.5 md:text-[13px]', badge.cls)}>
           {kind === 'partial' && <PartlyIcon />}
           {badge.label}
         </span>
         {multi && <span className="text-[13px] font-semibold text-muted">{marksOfLabel(item.marksAwarded, item.marks)}</span>}
-        {item.flagged && <span className="rounded-pill bg-flagged-bg px-[9px] py-[3px] text-xs font-bold text-flagged-ink md:px-2.5 md:text-[13px]">Flagged</span>}
+        {item.flagged && <span className="rounded-pill bg-flagged-bg px-[9px] py-[3px] text-xs font-semibold text-flagged-ink md:px-2.5 md:text-[13px]">Flagged</span>}
         {!multi && <span className="hidden text-sm text-muted md:ml-auto md:inline">{item.topic}</span>}
       </div>
       <span className={cx('text-[13px] font-semibold text-muted', !multi && 'md:hidden')}>
@@ -282,16 +282,16 @@ function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: 
               <li
                 key={o.key}
                 className={cx(
-                  'flex flex-col gap-1 rounded-[12px] px-3.5 py-3',
-                  o.isCorrect ? 'border-2 border-correct bg-[#ECFDF5]' : k === 'wrongPick' ? 'border-2 border-incorrect bg-[#FEF2F2]' : 'border border-border bg-surface',
+                  'flex flex-col gap-1 rounded-[10px] px-3.5 py-3',
+                  o.isCorrect ? 'border-2 border-correct bg-correct-bg' : k === 'wrongPick' ? 'border-2 border-incorrect bg-incorrect-bg' : 'border border-border bg-surface',
                 )}
               >
                 <span className="flex items-center gap-3">
                   <CheckBox on={o.isYourPick} />
-                  <span className="w-[18px] font-bold text-ink-2">{o.key}</span>
+                  <span className="w-[18px] font-semibold text-ink-2">{o.key}</span>
                   <span className="text-base">{o.text}</span>
                 </span>
-                {note && <span className={cx('pl-[52px] text-[13px] font-bold', o.isCorrect ? 'text-free' : 'text-red-800')}>{note}</span>}
+                {note && <span className={cx('pl-[52px] text-[13px] font-semibold', o.isCorrect ? 'text-free' : 'text-incorrect')}>{note}</span>}
               </li>
             );
           })}
@@ -304,33 +304,33 @@ function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: 
               <li
                 key={o.key}
                 className={cx(
-                  'flex flex-col gap-1 rounded-[12px] p-3 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-2 md:px-3.5',
-                  k === 'right' && 'border-2 border-correct bg-[#ECFDF5]',
-                  k === 'wrongPick' && 'border-2 border-incorrect bg-[#FEF2F2]',
+                  'flex flex-col gap-1 rounded-[10px] p-3 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-2 md:px-3.5',
+                  k === 'right' && 'border-2 border-correct bg-correct-bg',
+                  k === 'wrongPick' && 'border-2 border-incorrect bg-incorrect-bg',
                   k === 'plain' && 'border border-border bg-surface',
                 )}
               >
                 <span className="flex items-center gap-2.5 md:contents">
-                  <span className="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-soft text-[13px] font-bold text-ink-2 md:h-7 md:w-7">{o.key}</span>
+                  <span className="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-soft text-[13px] font-semibold text-ink-2 md:h-7 md:w-7">{o.key}</span>
                   <span className="text-base md:flex-[1_1_200px]">{o.text}</span>
                 </span>
                 {k === 'right' && (
-                  <span className="pl-9 text-[13px] font-bold text-free md:pl-0">
+                  <span className="pl-9 text-[13px] font-semibold text-free md:pl-0">
                     ✓ Correct answer
                     {o.isYourPick && <span className="md:hidden"> · your answer</span>}
                   </span>
                 )}
-                {k === 'wrongPick' && <span className="pl-9 text-[13px] font-bold text-red-800 md:pl-0">✕ Your answer</span>}
-                {k === 'right' && o.isYourPick && <span className="hidden text-[13px] font-bold text-free md:inline">· Your answer</span>}
+                {k === 'wrongPick' && <span className="pl-9 text-[13px] font-semibold text-incorrect md:pl-0">✕ Your answer</span>}
+                {k === 'right' && o.isYourPick && <span className="hidden text-[13px] font-semibold text-free md:inline">· Your answer</span>}
               </li>
             );
           })}
         </ul>
       )}
       {item.explanation && (
-        <div className="flex flex-col gap-1 rounded-[12px] bg-brand-softer p-3.5 md:px-4">
-          <span className="text-[13px] font-bold text-brand-hover md:text-sm">Explanation</span>
-          <p className="m-0 text-[15px] leading-[1.6] text-[#27272A] md:text-base">{item.explanation}</p>
+        <div className="flex flex-col gap-1 rounded-[10px] bg-brand-softer p-3.5 md:px-4">
+          <span className="text-[13px] font-semibold text-brand md:text-sm">Explanation</span>
+          <p className="m-0 text-[15px] leading-[1.6] text-ink md:text-base">{item.explanation}</p>
         </div>
       )}
     </article>

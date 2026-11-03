@@ -5,15 +5,15 @@ import { formatDay, formatDayYear, formatTime, plural } from './format';
 export interface Tone { label: string; bg: string; ink: string }
 
 export const ACCESS_TONE: Record<AccessState, Tone> = {
-  active: { label: 'Full Access', bg: '#EDE9FE', ink: '#5B21B6' },
-  free: { label: 'Free', bg: '#F4F4F5', ink: '#3F3F46' },
-  expired: { label: 'Expired', bg: '#FEF3C7', ink: '#92400E' },
-  suspended: { label: 'Suspended', bg: '#FEE2E2', ink: '#991B1B' },
+  active: { label: 'Full Access', bg: '#E8EFFB', ink: '#164A7A' },
+  free: { label: 'Free', bg: '#EEF1F5', ink: '#3A3F4A' },
+  expired: { label: 'Expired', bg: '#FDF1DD', ink: '#8A5300' },
+  suspended: { label: 'Suspended', bg: '#FBE7E4', ink: '#A1281B' },
 };
 
-const PAID: Tone = { label: 'Paid', bg: '#D1FAE5', ink: '#065F46' };
-const PENDING: Tone = { label: 'Pending', bg: '#FEF3C7', ink: '#92400E' };
-const FAILED: Tone = { label: 'Failed', bg: '#FEE2E2', ink: '#991B1B' };
+const PAID: Tone = { label: 'Paid', bg: '#E3F4E8', ink: '#1E6B3C' };
+const PENDING: Tone = { label: 'Pending', bg: '#FDF1DD', ink: '#8A5300' };
+const FAILED: Tone = { label: 'Failed', bg: '#FBE7E4', ink: '#A1281B' };
 
 /** Declined, failed and expired all read "Failed" (the artboard has three words: Paid, Pending, Failed). */
 export function paymentTone(status: PaymentStatus): Tone {
@@ -23,26 +23,26 @@ export function paymentTone(status: PaymentStatus): Tone {
 }
 
 export const TEST_TONE: Record<TestStatus, Tone> = {
-  PUBLISHED: { label: 'Published', bg: '#D1FAE5', ink: '#065F46' },
-  DRAFT: { label: 'Draft', bg: '#F4F4F5', ink: '#3F3F46' },
-  ARCHIVED: { label: 'Archived', bg: '#F4F4F5', ink: '#3F3F46' },
+  PUBLISHED: { label: 'Published', bg: '#E3F4E8', ink: '#1E6B3C' },
+  DRAFT: { label: 'Draft', bg: '#EEF1F5', ink: '#3A3F4A' },
+  ARCHIVED: { label: 'Archived', bg: '#EEF1F5', ink: '#3A3F4A' },
 };
 
 export const COUNTRY_TONE: Record<CountryStatus, Tone> = {
-  LIVE: { label: 'Live', bg: '#D1FAE5', ink: '#065F46' },
-  PREPARING: { label: 'Preparing', bg: '#FEF3C7', ink: '#92400E' },
-  PLANNED: { label: 'Planned', bg: '#F4F4F5', ink: '#3F3F46' },
+  LIVE: { label: 'Live', bg: '#E3F4E8', ink: '#1E6B3C' },
+  PREPARING: { label: 'Preparing', bg: '#FDF1DD', ink: '#8A5300' },
+  PLANNED: { label: 'Planned', bg: '#EEF1F5', ink: '#3A3F4A' },
 };
 
 export const MODE_TONE: Record<ProviderMode, Tone> = {
-  LIVE: { label: 'Live', bg: '#D1FAE5', ink: '#065F46' },
-  SANDBOX: { label: 'Sandbox', bg: '#FEF3C7', ink: '#92400E' },
-  DISABLED: { label: 'Off', bg: '#F4F4F5', ink: '#3F3F46' },
+  LIVE: { label: 'Live', bg: '#E3F4E8', ink: '#1E6B3C' },
+  SANDBOX: { label: 'Sandbox', bg: '#FDF1DD', ink: '#8A5300' },
+  DISABLED: { label: 'Off', bg: '#EEF1F5', ink: '#3A3F4A' },
 };
 
 export const ACCESS_TAG = {
-  free: { label: 'Free', bg: '#D1FAE5', ink: '#065F46' },
-  paid: { label: 'Full Access', bg: '#EDE9FE', ink: '#5B21B6' },
+  free: { label: 'Free', bg: '#E3F4E8', ink: '#1E6B3C' },
+  paid: { label: 'Full Access', bg: '#E8EFFB', ink: '#164A7A' },
 } as const;
 
 /** The provider's mode word as the artboard writes it next to a payment method ("live", "sandbox", "not connected"). */
@@ -95,11 +95,13 @@ export function accessSummary(d: Pick<UserDetail, 'access' | 'user' | 'adminHist
 /** One admin-history sentence as the phone artboard writes it: "Sandrine K. sent a login code · 1 Nov, 11:02". */
 export function historySentence(h: { action: string; actor: string | null; reason: string | null }): string {
   const what: Record<string, string> = {
+    // Older rows: the support button used to email a login code.
     'otp.resend': 'sent a login code',
     'access.grant': 'granted Full Access',
     'user.suspend': 'suspended the account',
     'user.unsuspend': 'lifted the suspension',
   };
-  const text = what[h.action] ?? h.action.replace(/[._]/g, ' ');
+  // "Send password reset" (support button): the phone artboard writes "Sandrine K. sent a password reset email".
+  const text = what[h.action] ?? (/password/.test(h.action) && /reset/.test(h.action) ? 'sent a password reset email' : h.action.replace(/[._]/g, ' '));
   return `${h.actor ?? 'System'} ${text}${h.reason ? ` — reason: ${h.reason}` : ''}`;
 }

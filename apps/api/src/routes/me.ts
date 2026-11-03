@@ -5,7 +5,8 @@ import { requireUser, type Ctx } from '../http/context';
 import { accessSummary } from '../services/access-summary';
 import { claimGuestAttempts } from '../services/claim';
 import { buildDashboard } from '../services/dashboard';
-import { publicUser } from './auth';
+import { applyOnboarding, countryChangeData, onboardingSchema } from '../services/onboarding';
+import { publicUser } from '../services/public-user';
 
 const patchSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
@@ -65,6 +66,16 @@ export function meRouter(ctx: Ctx) {
     res.json({ user: publicUser(updated, roleCodes(req)) });
   });
 
+  /**
+   * Setup screens (country -> job category -> level, subject, exam date). Any subset of fields per call.
+   * `finish` marks setup done; `skip` marks it done without level, subject or exam date.
+   */
+  router.patch('/onboarding', async (req, res) => {
+    const body = onboardingSchema.parse(req.body);
+    const updated = await applyOnboarding(ctx.prisma, req.user!, body, ctx.now());
+    res.json({ user: publicUser(updated, roleCodes(req)) });
+  });
+
   /** Data for the "Switch to Kenya?" confirmation sheet. */
   router.get('/country-change', async (req, res) => {
     const user = req.user!;
@@ -96,12 +107,9 @@ export function meRouter(ctx: Ctx) {
     if (!target) throw notFound('country_not_found');
     if (target.status !== 'LIVE') throw badRequest('country_not_available');
 
-    // Grants, attempts and payments are NOT touched: they stay attached to their own country.
-    // The job goal belongs to the old country's categories, so it is cleared. Language resets to the new default.
-    const updated = await ctx.prisma.user.update({
-      where: { id: user.id },
-      data: { countryCode: target.code, goalCategoryId: null, language: target.languages[0] ?? 'en' },
-    });
+    // Shared with the setup screen (services/onboarding): grants, attempts and payments are NOT touched; the job goal,
+    // level and subject are cleared; the language resets to the new default.
+    const updated = await ctx.prisma.user.update({ where: { id: user.id }, data: countryChangeData(user, target, ctx.now()) });
     res.json({ user: publicUser(updated, roleCodes(req)), access: await accessFor(user.id, target.code) });
   });
 

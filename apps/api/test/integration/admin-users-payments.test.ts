@@ -184,24 +184,26 @@ describe('users: grant, suspend, login code (reason required, audited)', () => {
     expect(await prisma.auditLog.count({ where: { action: 'user.unsuspend', entityId: c.userId } })).toBe(1);
   });
 
-  it('support can email a candidate a login code (audited, rate-limited, never for a suspended user)', async () => {
+  it('support can email a candidate a password-reset link (audited, rate-limited, never for a suspended user)', async () => {
     const c = await candidate('Aline Uwase');
     advance(120);
     mail.clear();
-    const res = await support.post(`/api/admin/users/${c.userId}/send-login-code`).send({});
+    const res = await support.post(`/api/admin/users/${c.userId}/send-password-reset`).send({});
     expect(res.status).toBe(200);
-    expect(mail.lastCode(c.email)).toMatch(/^\d{6}$/);
-    expect(JSON.stringify(res.body)).not.toContain(mail.lastCode(c.email)!); // the admin never sees the code
-    const log = await prisma.auditLog.findFirstOrThrow({ where: { action: 'otp.resend', entityId: c.userId }, include: { actor: true } });
+    const token = mail.lastResetToken(c.email)!;
+    expect(token).toBeTruthy();
+    expect(mail.lastTo(c.email)!.subject).toBe('Reset your JobPrep password');
+    expect(JSON.stringify(res.body)).not.toContain(token); // the admin never sees the link
+    const log = await prisma.auditLog.findFirstOrThrow({ where: { action: 'password.reset_sent', entityId: c.userId }, include: { actor: true } });
     expect(log.actor?.name).toBe('Support Agent');
     expect(log.metadata).toMatchObject({ targetEmail: c.email, targetName: 'Aline Uwase' });
-    const again = await support.post(`/api/admin/users/${c.userId}/send-login-code`).send({});
+    const again = await support.post(`/api/admin/users/${c.userId}/send-password-reset`).send({});
     expect(again.status).toBe(429);
     expect(again.body.error).toBe('otp_cooldown');
 
     await system.post(`/api/admin/users/${c.userId}/suspend`).send({ reason: 'suspended for test' });
     advance(120);
-    expect((await support.post(`/api/admin/users/${c.userId}/send-login-code`).send({})).body.error).toBe('user_suspended');
+    expect((await support.post(`/api/admin/users/${c.userId}/send-password-reset`).send({})).body.error).toBe('user_suspended');
   });
 });
 

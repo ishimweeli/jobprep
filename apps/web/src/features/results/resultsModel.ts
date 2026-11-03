@@ -36,8 +36,8 @@ export function deltaHeadline(delta: number | null): string | null {
 
 /** The topic bar colour: weak areas amber, below 70% light violet, otherwise brand violet (as drawn). */
 export function topicBarColor(t: { percent: number; weak: boolean }): string {
-  if (t.weak) return '#D97706';
-  return t.percent < 70 ? '#8B5CF6' : '#6D28D9';
+  if (t.weak) return '#8A5300';
+  return t.percent < 70 ? '#2D62CF' : '#164A7A';
 }
 
 /** Comparison bar height in px for the 160px chart (62% -> 99px, 72% -> 115px). */

@@ -21,16 +21,11 @@ const safeEqual = (a: string, b: string) => {
 };
 
 /**
- * Create and send a code. Limits (per email + purpose): a resend cooldown, and a cap per hour,
- * both counted from the database so they hold across restarts and multiple API instances.
- * `deliver:false` is used for unknown addresses on sign-in: the caller gets the same response
- * but no email is sent, so the endpoint can't be used to discover who has an account.
+ * Throws 429 when the address has asked for a code too recently (cooldown) or too often (cap per hour).
+ * Counted from the database so the limits hold across restarts and multiple API instances.
  */
-export async function requestOtp(
-  deps: OtpDeps,
-  input: { email: string; purpose: OtpPurpose; deliver?: boolean },
-) {
-  const { prisma, config, email, now } = deps;
+export async function assertOtpAllowed(deps: OtpDeps, input: { email: string; purpose: OtpPurpose }) {
+  const { prisma, config, now } = deps;
   const at = now();
 
   const last = await prisma.otpCode.findFirst({
@@ -45,6 +40,20 @@ export async function requestOtp(
     where: { email: input.email, purpose: input.purpose, createdAt: { gt: new Date(at.getTime() - 3_600_000) } },
   });
   if (lastHour >= config.OTP_MAX_PER_HOUR) throw tooMany('otp_hourly_limit', 3600);
+}
+
+/**
+ * Create and send a code (after the limits above). `deliver:false` is used for addresses with no unverified
+ * account: the caller gets the same response and the same limits, but no email is sent (a silent row is kept),
+ * so the endpoint can't be used to discover who has an account.
+ */
+export async function requestOtp(
+  deps: OtpDeps,
+  input: { email: string; purpose: OtpPurpose; deliver?: boolean },
+) {
+  const { prisma, config, email, now } = deps;
+  const at = now();
+  await assertOtpAllowed(deps, input);
 
   const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
   await prisma.otpCode.create({
@@ -60,10 +69,10 @@ export async function requestOtp(
   if (input.deliver !== false) {
     await email.send({
       to: input.email,
-      subject: `Your JobPrep code: ${code}`,
-      text: `Your JobPrep code is ${code}.
+      subject: `Your JobPrep verification code: ${code}`,
+      text: `Your JobPrep verification code is ${code}.
 
-It expires in ${Math.round(config.OTP_TTL_SECONDS / 60)} minutes. Never share it with anyone. If you did not ask for it, ignore this email.`,
+It works for ${Math.round(config.OTP_TTL_SECONDS / 60)} minutes. Enter it to verify your email address. Never share it with anyone. If you did not create a JobPrep account, ignore this email.`,
     });
   }
   return { cooldownSeconds: config.OTP_RESEND_COOLDOWN_SECONDS, expiresInSeconds: config.OTP_TTL_SECONDS };

@@ -102,13 +102,13 @@ export function AccessCard({ view, onBuy }: { view: AccessView; onBuy?: () => vo
     <div className="flex flex-col gap-3.5 rounded-card border border-border bg-surface p-[22px]">
       <div className="flex flex-col gap-0.5">
         <span className="text-sm font-semibold text-muted">{view.label}</span>
-        <span className="text-3xl font-extrabold">{view.headline}</span>
+        <span className="text-3xl font-bold">{view.headline}</span>
         {view.note && <span className="text-sm text-ink-2">{view.note}</span>}
       </div>
       {view.kind === 'locked' ? (
         <>
           {view.canBuy && (
-            <BuyButton view={view} onBuy={onBuy} className="py-[15px]">
+            <BuyButton view={view} onBuy={onBuy} className="py-[11px]">
               {view.getFullAccessLabel}
             </BuyButton>
           )}
@@ -119,8 +119,8 @@ export function AccessCard({ view, onBuy }: { view: AccessView; onBuy?: () => vo
           )}
         </>
       ) : (
-        <ActionLink ready={ROUTES_READY.examStart} to={view.startPath} variant="primary" block className="py-[15px]">
-          Start Mock Test
+        <ActionLink ready={ROUTES_READY.examStart} to={view.startPath} variant="primary" block className="py-[11px]">
+          Get started
         </ActionLink>
       )}
       {view.footNote && <p className="m-0 text-center text-[13px] text-muted">{view.footNote}</p>}
@@ -130,12 +130,12 @@ export function AccessCard({ view, onBuy }: { view: AccessView; onBuy?: () => vo
 
 /** Phone fixed bottom bar: summary line + action(s) (ExamDetailPhone.dc). */
 export function PhoneCtaBar({ view, onBuy }: { view: AccessView; onBuy?: () => void }) {
-  const big = 'py-4 text-[17px] rounded-[14px]';
+  const big = 'py-3 text-[17px]';
   return (
     <div data-testid="cta-bar" className="sticky bottom-0 z-30 flex flex-col gap-2 border-t border-border bg-surface px-4 pb-4 pt-3 md:hidden">
       <div className="flex items-baseline justify-between">
         <span className="text-sm text-muted">{view.label}</span>
-        <span className="text-lg font-extrabold">{view.headline}</span>
+        <span className="text-lg font-semibold">{view.headline}</span>
       </div>
       {view.kind === 'locked' ? (
         <>
@@ -152,7 +152,7 @@ export function PhoneCtaBar({ view, onBuy }: { view: AccessView; onBuy?: () => v
         </>
       ) : (
         <ActionLink ready={ROUTES_READY.examStart} to={view.startPath} variant="primary" block className={big}>
-          Start Mock Test
+          Get started
         </ActionLink>
       )}
     </div>

@@ -37,8 +37,8 @@ export function ResumePrompt({ attempt, slug }: { attempt: InProgressAttempt; sl
   });
 
   return (
-    <section aria-labelledby="resume-t" className="flex flex-col gap-2.5 rounded-[14px] border border-[#DDD6FE] bg-brand-softer p-[18px]">
-      <h2 id="resume-t" className="m-0 text-base font-bold">
+    <section aria-labelledby="resume-t" className="flex flex-col gap-2.5 rounded-[14px] border border-brand-light bg-brand-softer p-[18px]">
+      <h2 id="resume-t" className="m-0 text-base font-semibold">
         You have a test in progress
       </h2>
       <p className="m-0 text-[15px] text-ink-2">
@@ -50,7 +50,7 @@ export function ResumePrompt({ attempt, slug }: { attempt: InProgressAttempt; sl
           to={countryPath(slug, 'exam', attempt.id)}
           variant="primary"
           size="sm"
-          className="rounded-control px-[18px] py-3 !text-[15px] font-bold"
+          className="px-[18px] !text-[15px]"
         >
           Resume
         </ActionLink>
@@ -59,7 +59,7 @@ export function ResumePrompt({ attempt, slug }: { attempt: InProgressAttempt; sl
         </Button>
       </div>
       {submit.isError && (
-        <p role="alert" className="m-0 text-sm font-semibold text-red-900">
+        <p role="alert" className="m-0 text-sm font-semibold text-incorrect">
           We could not submit this test. Check your internet connection and try again.
         </p>
       )}

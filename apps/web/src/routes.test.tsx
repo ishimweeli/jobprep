@@ -17,4 +17,10 @@ describe('route table', () => {
     expect(leaf('/account')).toBe('/account');
     expect(leaf('/rw/exam/a1')).toBe('/:country/exam/:attemptId');
   });
+
+  it('the sign-in, verification, reset, setup and change-country screens are static routes (they outrank /:country)', () => {
+    for (const p of ['/sign-up', '/verify-email', '/sign-in', '/forgot-password', '/reset-password', '/auth/callback', '/setup/country', '/setup/category', '/setup/goal', '/account/country']) {
+      expect(leaf(p), p).toBe(p);
+    }
+  });
 });

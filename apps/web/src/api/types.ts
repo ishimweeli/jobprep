@@ -155,13 +155,27 @@ export interface PricingResponse {
   paymentMethods: { provider: string; label: string; hint: string | null }[];
 }
 
+export type SetupStep = 'country' | 'category' | 'goal';
+
+/** Where the person is in the three-step setup (country, job category, level and subject). `nextStep` is `null` when it is finished or skipped. */
+export interface Onboarding {
+  done: boolean;
+  nextStep: SetupStep | null;
+}
+
 export interface PublicUser {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
   countryCode: string;
   goalCategoryId: string | null;
+  level: string | null;
+  subject: string | null;
+  /** `YYYY-MM-DD` or null. */
+  examDate: string | null;
   language: string;
+  onboarding: Onboarding;
   /** Active admin role codes (`SYSTEM_ADMIN`, `CONTENT_EDITOR`, `SUPPORT`); `[]` for a plain candidate. One account can hold several. */
   roles?: string[];
 }
@@ -179,28 +193,24 @@ export interface MeResponse {
   access: AccessSummary;
 }
 
+/** What a sign-up and a "send a new code" answer: how long until another code may be asked for, and how long this one works. */
 export interface OtpRequestResponse {
   cooldownSeconds: number;
   expiresInSeconds: number;
 }
 
+export interface SignUpResponse extends OtpRequestResponse {
+  status: 'verification_required';
+  email: string;
+}
+
+export interface AuthProviders {
+  google: boolean;
+}
+
 export interface AuthResponse {
   user: PublicUser;
   claimedAttempts: number;
-}
-
-export interface CountryChangePreview {
-  from: { code: string; name: string };
-  to: {
-    code: string;
-    name: string;
-    status: CountryStatus;
-    selectable: boolean;
-    currencyCode: string;
-    paymentMethods: string[];
-  };
-  currentAccess: null | { endsAt: string; daysLeft: number };
-  keepsResults: boolean;
 }
 
 // ───────────────────────── Exam engine (apps/api/src/routes/attempts.ts)

@@ -14,8 +14,8 @@ import { useDocumentTitle } from '../../lib/useDocumentTitle';
 /** Country badge pill: "[UG] Uganda". */
 function CountryPill({ code, children }: { code: string; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 self-start rounded-pill border border-zinc-300 px-3 py-1.5 text-sm font-bold">
-      <span className="rounded bg-ink px-[5px] py-px text-[11px] text-white">{code}</span>
+    <span className="inline-flex items-center gap-2 self-start rounded-pill border border-border-strong px-3 py-1.5 text-sm font-semibold">
+      <span className="rounded border border-border bg-page px-[5px] py-px text-[11px] text-muted">{code}</span>
       {children}
     </span>
   );
@@ -63,13 +63,13 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
             <path d="M5 12.5l4.5 4.5L19 7.5" />
           </svg>
         </span>
-        <h1 role="status" className="m-0 text-[25px] tracking-tight md:text-[28px]">
+        <h1 role="status" className="m-0 text-2xl tracking-tight md:text-[28px]">
           You’re on the list
         </h1>
         <p className="m-0 text-base leading-[1.55] text-ink-2">
           We’ll send one email to <strong className="break-all text-ink">{joined}</strong> when {country.name} opens. You can ask us to remove your address at any time.
         </p>
-        <Link to="/choose-country" className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold' })}>
+        <Link to="/choose-country" className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold md:!min-h-[44px]' })}>
           Choose a different country
         </Link>
       </GateFrame>
@@ -79,7 +79,7 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
   return (
     <GateFrame>
       <CountryPill code={country.code}>{country.name}</CountryPill>
-      <h1 className="m-0 text-[25px] leading-[1.2] tracking-tight md:text-[28px]">JobPrep isn’t open in {country.name} yet</h1>
+      <h1 className="m-0 text-2xl leading-[1.2] tracking-tight md:text-[28px]">JobPrep isn’t open in {country.name} yet</h1>
       <p className="m-0 text-base leading-[1.55] text-ink-2">
         We’re preparing mock tests for recruitment exams in {country.name}. Leave your email address and we’ll send one email when they’re ready — nothing else.
       </p>
@@ -97,7 +97,7 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
           onChange={(e) => setEmail(e.target.value)}
           error={error}
         />
-        <Button type="submit" variant="primary" size="lg" loading={join.isPending}>
+        <Button type="submit" variant="primary" size="lg" className="px-5" loading={join.isPending}>
           Notify me
         </Button>
       </form>
@@ -119,7 +119,7 @@ export function WrongCountry({ linkCountry, session }: { linkCountry: { code: st
   return (
     <GateFrame>
       <CountryPill code={linkCountry.code}>{linkCountry.name} mock test</CountryPill>
-      <h1 className="m-0 text-[25px] leading-[1.2] tracking-tight md:text-[28px]">This test is for {linkCountry.name}</h1>
+      <h1 className="m-0 text-2xl leading-[1.2] tracking-tight md:text-[28px]">This test is for {linkCountry.name}</h1>
       <p className="m-0 text-base leading-[1.55] text-ink-2">
         The link you opened is for {linkCountry.name}. Your account is set to <strong className="text-ink">{own.name}</strong>
         {hasAccess ? <>, so your {own.name} Full Access does not cover it.</> : '.'}
@@ -128,8 +128,8 @@ export function WrongCountry({ linkCountry, session }: { linkCountry: { code: st
         See similar tests in {own.name}
       </Link>
       <Link
-        to={`/account/settings?switch=${linkCountry.code}`}
-        className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold' })}
+        to={`/account/country?to=${linkCountry.code}`}
+        className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold md:!min-h-[44px]' })}
       >
         Switch my account to {linkCountry.name}
       </Link>

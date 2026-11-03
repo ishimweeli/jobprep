@@ -10,6 +10,7 @@ import { cx } from '../../lib/cx';
 import { formatCount, formatLastActive, initials } from '../../lib/format';
 import { pageCount, parseUsersQuery, usersSearch } from '../../lib/queryState';
 import { useDebouncedSearch } from '../../lib/useDebouncedSearch';
+import { useAdminCountry } from '../../lib/adminCountry';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { UserDetailView } from './UserDetail';
 
@@ -34,13 +35,14 @@ export function UsersPage() {
   const [sp, setSp] = useSearchParams();
   const query = parseUsersQuery(sp);
   const search = usersSearch;
+  const { country } = useAdminCountry();
 
   const list = useQuery({
-    queryKey: keys.users({ ...query }),
-    queryFn: () => getUsers({ q: query.q || undefined, filter: query.filter, page: query.page, pageSize: PAGE_SIZE }),
+    queryKey: keys.users({ ...query, country }),
+    queryFn: () => getUsers({ q: query.q || undefined, filter: query.filter, country, page: query.page, pageSize: PAGE_SIZE }),
     placeholderData: keepPreviousData,
   });
-  const totals = useQuery({ queryKey: keys.overview(), queryFn: () => getOverview(), staleTime: 60_000 });
+  const totals = useQuery({ queryKey: keys.overview(country), queryFn: () => getOverview(country), staleTime: 60_000 });
 
   const setQuery = (next: Partial<typeof query>) => setSp(new URLSearchParams(search(next, query)), { replace: true });
   const [text, setText] = useDebouncedSearch(query.q, (q) => setQuery({ q }));
@@ -69,7 +71,7 @@ export function UsersPage() {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Search name or email"
-        className="h-[46px] rounded-[12px] border border-input-border bg-white px-3.5 text-base text-ink"
+        className="h-[46px] rounded-[10px] border border-input-border bg-white px-3.5 text-base text-ink"
       />
     ) : (
       <>
@@ -113,7 +115,7 @@ export function UsersPage() {
             <Link key={u.id} to={`/admin/users/${u.id}`} className="flex items-center gap-3 rounded-[14px] border border-border bg-white px-3.5 py-3 text-ink no-underline hover:text-ink">
               <Avatar text={initials(u.name)} size={40} />
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="text-[15px] font-bold">{u.name}</span>
+                <span className="text-[15px] font-semibold">{u.name}</span>
                 <span className="break-all text-[13px] text-muted">{u.email} · {formatLastActive(u.lastActiveAt, now, { phone: true })}</span>
               </span>
               <Pill tone={t} className="px-2 py-[3px] !text-[11px]">{t.label}</Pill>
@@ -166,7 +168,7 @@ export function UsersPage() {
                       const on = u.id === selected;
                       const t = ACCESS_TONE[u.access.state];
                       return (
-                        <tr key={u.id} className={cx('border-t border-[#F4F4F5]', on ? 'bg-brand-softer' : 'bg-white')}>
+                        <tr key={u.id} className={cx('border-t border-soft', on ? 'bg-brand-softer' : 'bg-white')}>
                           <td className="px-4 py-2.5">
                             <button type="button" aria-pressed={on} onClick={() => open(u)} className="flex cursor-pointer items-center gap-2.5 border-0 bg-transparent py-1 text-left text-ink">
                               <Avatar text={initials(u.name)} size={34} />

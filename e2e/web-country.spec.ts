@@ -14,7 +14,11 @@ test.describe('Web: country picker', () => {
       await expect(page.getByRole('radio', { name: new RegExp(c) })).toBeVisible();
     }
     await expect(page.getByText('Coming soon')).toHaveCount(3);
-    await expect(page.getByText(/RWF · MTN MoMo, Airtel Money/)).toBeVisible();
+    await expect(page.getByText(/MTN MoMo, Airtel Money/)).toBeVisible();
+    for (const radio of await page.getByRole('radio').all()) {
+      await expect(radio).not.toContainText(/RWF|KES|UGX|TZS/); // no currency beside a country
+    }
+    if (!isPhone(info)) await expect(page.getByText('Join the waiting list')).toHaveCount(3);
     w.expectClean();
   });
 

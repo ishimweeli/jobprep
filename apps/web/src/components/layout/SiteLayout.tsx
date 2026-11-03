@@ -2,9 +2,7 @@ import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useMatches, useParams } from 'react-router-dom';
 import { useSession } from '../../features/auth/session';
 import { setStoredCountry } from '../../lib/country';
-import { countryPath, useCountries, useActiveCountrySlug } from '../../features/country/hooks';
-import { useLanding } from '../../features/landing/queries';
-import { FreeTestCta } from '../../features/landing/FreeTestCta';
+import { countryPath, useCountries } from '../../features/country/hooks';
 import { CountryNotOpen, WrongCountry } from '../../features/country/CountryGate';
 import { NotFoundPage } from '../../features/system/SystemPage';
 import { SkeletonList } from '../states';
@@ -14,22 +12,10 @@ import { PhoneTabBar } from './PhoneTabBar';
 
 /** Route `handle` flags. */
 export interface RouteHandle {
-  /** Landing-only shell parts drawn in Main.dc: country chip, "Teaching exams", "Try a free test", footer. */
+  /** Landing-only shell part drawn in Main.dc: the footer. */
   landing?: boolean;
   /** Signed-in phone users get the bottom tabs (NavPhone.dc) on this page. */
   tabs?: boolean;
-}
-
-function LandingHeader() {
-  const slug = useActiveCountrySlug();
-  const cat = useLanding(slug).data?.featuredCategory;
-  return (
-    <DesktopHeader
-      landing
-      teachingTo={cat ? `${countryPath(slug, 'tests')}?category=${encodeURIComponent(cat.slug)}` : undefined}
-      cta={<FreeTestCta />}
-    />
-  );
 }
 
 /** Shell shared by pages: skip link, desktop header, page, and (landing only, as designed) the footer. */
@@ -45,7 +31,7 @@ export function SiteShell({ children, landing }: { children: React.ReactNode; la
       >
         Skip to content
       </a>
-      {landing ? <LandingHeader /> : <DesktopHeader />}
+      <DesktopHeader />
       <div className="flex flex-1 flex-col">{children}</div>
       {landing && <Footer />}
       {tabs && <PhoneTabBar />}

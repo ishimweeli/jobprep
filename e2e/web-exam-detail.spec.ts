@@ -14,7 +14,7 @@ async function patchDetail(page: Page, slug: string, patch: (b: Record<string, u
 }
 
 test.describe('Web: exam details', () => {
-  test('free test: facts, sections, instructions, no-pass-mark note, Start Mock Test, no price', async ({ page, request }) => {
+  test('free test: facts, sections, instructions, no-pass-mark note, Get started, no price', async ({ page, request }) => {
     const w = watchErrors(page);
     const api = await (await request.get(`${API}/api/countries/rw/mock-tests/${FREE_SLUG}`)).json();
     await page.goto(`/rw/tests/${FREE_SLUG}`);
@@ -30,7 +30,7 @@ test.describe('Web: exam details', () => {
     await expect(page.getByTestId('no-pass-mark')).toHaveText(NO_PASS_MARK);
     await expect(page.getByText('You have not taken this test yet.')).toBeVisible();
 
-    await expect(page.getByRole('link', { name: 'Start Mock Test' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Get started' }).last()).toBeVisible();
     await expect(page.getByText('Free', { exact: true }).locator("visible=true").first()).toBeVisible();
     await expect(page.locator('main').getByText(/RWF/)).toHaveCount(0);
     await expect(page.getByRole('link', { name: /Get Full Access/ })).toHaveCount(0);
@@ -52,7 +52,7 @@ test.describe('Web: exam details', () => {
       await expect(page.getByRole('button', { name: `Get Full Access · ${api.pricing.priceLabel}` })).toBeVisible();
       await expect(page.getByText(`Pay with ${api.pricing.paymentMethods.join(' or ')}`)).toBeVisible();
     }
-    await expect(page.getByRole('link', { name: 'Start Mock Test' })).toHaveCount(0);
+    await expect(page.locator('a[href$="/start"]', { hasText: 'Get started' })).toHaveCount(0);
     await expect(page.getByTestId('no-pass-mark')).toHaveText(NO_PASS_MARK);
   });
 
@@ -85,7 +85,7 @@ test.describe('Web: exam details', () => {
     });
     await page.goto(`/rw/tests/${PAID_SLUG}`);
     await expect(page.getByText('Unlocked with Full Access')).toBeVisible();
-    await expect(page.getByRole('region', { name: 'Start' }).getByRole('link', { name: 'Start Mock Test' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Start' }).getByRole('link', { name: 'Get started' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'What the test covers' })).toHaveCount(0);
   });
 

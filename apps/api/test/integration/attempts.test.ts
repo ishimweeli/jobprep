@@ -4,7 +4,7 @@ import { createApp } from '../../src/app';
 import type { QuestionPayload } from '../../src/domain/scoring';
 import { LATE_SYNC_WINDOW_SECONDS, sweepExpiredAttempts } from '../../src/services/attempts';
 import { ConsoleEmailProvider } from '../../src/services/email';
-import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
+import { resetAndSeed, signedInAgent, TEST_PASSWORD, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
 const mail = new ConsoleEmailProvider(() => {});
@@ -164,8 +164,7 @@ describe('who can see an attempt', () => {
 
     advance(120);
     const device2 = request.agent(app);
-    await device2.post('/api/auth/otp/request').send({ purpose: 'sign_in', email });
-    await device2.post('/api/auth/sign-in').send({ email, code: mail.lastCode(email) });
+    expect((await device2.post('/api/auth/sign-in').send({ email, password: TEST_PASSWORD })).status).toBe(200);
     const res = await device2.get(`/api/attempts/${start.body.attemptId}`);
     expect(res.status).toBe(200);
     expect(res.body.answers[q.id]).toEqual({ selected: q.correct, flagged: true });
@@ -533,7 +532,7 @@ describe('resume prompt', () => {
 });
 
 describe('guest → account', () => {
-  it('a guest’s finished attempt is claimed on sign-up and is then reachable from the account', async () => {
+  it('a guest’s finished attempt is claimed when the email is verified and is then reachable from the account', async () => {
     const a = await guestStart();
     const key = await answerKey(MATHS);
     await save(a.id, a.token, [{ questionId: key[0]!.id, selected: key[0]!.correct }]);
@@ -541,8 +540,8 @@ describe('guest → account', () => {
 
     const email = nextEmail();
     const agent = request.agent(app);
-    await agent.post('/api/auth/otp/request').send({ purpose: 'sign_up', email, countryCode: 'RW' });
-    const signUp = await agent.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Saved Result', code: mail.lastCode(email), guestTokens: [a.token] });
+    await agent.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Saved Result', password: TEST_PASSWORD });
+    const signUp = await agent.post('/api/auth/verify-email').send({ email, code: mail.lastCode(email), guestTokens: [a.token] });
     expect(signUp.body.claimedAttempts).toBe(1);
     expect((await agent.get(`/api/attempts/${a.id}`)).status).toBe(200); // by session now, no header
   });

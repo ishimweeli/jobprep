@@ -10,9 +10,9 @@
   body {
     @apply m-0 bg-page font-sans text-ink antialiased;
   }
-  /* Visible focus: 3px #A78BFA, offset 2px (design system). */
+  /* Visible focus: 3px #6AA6EE, offset 2px (design system). */
   :focus-visible {
-    outline: 3px solid #a78bfa;
+    outline: 3px solid #6AA6EE;
     outline-offset: 2px;
   }
   /* The artboards use the browser default (bold) for headings; Tailwind preflight resets it. */
@@ -27,9 +27,9 @@
 }
 
 @layer components {
-  /* Inline text link, as in the design (violet, underlined). */
+  /* Inline text link, as in the design (blue, underlined). */
   .link {
-    @apply text-brand underline underline-offset-2 hover:text-brand-hover;
+    @apply text-link underline underline-offset-2 hover:text-link-hover;
   }
 }
 

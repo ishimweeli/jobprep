@@ -6,7 +6,7 @@ import { ConsoleEmailProvider } from '../../src/services/email';
 import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 /**
- * Backend support for the Batch 1 designs: sign-in tries, "Choose N", untimed practice, the new-user dashboard,
+ * Backend support for the Batch 1 designs: code tries, "Choose N", untimed practice, the new-user dashboard,
  * access states, checkout summary, details with an unfinished attempt, and the error reference.
  */
 const prisma = testPrisma();
@@ -34,51 +34,53 @@ async function grant(userId: string, startOffsetDays: number, endOffsetDays: num
   });
 }
 
-describe('sign-in codes: tries left and expiry', () => {
+describe('verification codes: tries left and expiry', () => {
+  const signUp = (a: request.Agent, email: string) => a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', password: 'a long enough password' });
+  const verify = (a: request.Agent, email: string, code: string) => a.post('/api/auth/verify-email').send({ email, code });
+
   it('counts down the tries on each wrong code, then the code is dead', async () => {
     const email = nextEmail();
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', email });
+    await signUp(a, email);
     const good = mail.lastCode(email)!;
     const wrong = good === '000000' ? '111111' : '000000';
     const left: unknown[] = [];
     for (let i = 0; i < 5; i++) {
-      const r = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: wrong });
+      const r = await verify(a, email, wrong);
       expect(r.body.error).toBe('invalid_code');
       left.push(r.body.triesLeft);
     }
     expect(left).toEqual([4, 3, 2, 1, 0]);
-    const dead = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: good });
+    const dead = await verify(a, email, good);
     expect(dead.body).toMatchObject({ error: 'too_many_attempts', triesLeft: 0 });
   });
 
-  it('a new code after the old one is dead works, and the request answer carries the real lifetime and resend wait', async () => {
+  it('a new code after the old one is dead works, and the answer carries the real lifetime and resend wait', async () => {
     const email = nextEmail();
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', email });
-    for (let i = 0; i < 5; i++) await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: '999999' });
+    const first = await signUp(a, email);
+    expect(first.body).toEqual({ status: 'verification_required', email, cooldownSeconds: 45, expiresInSeconds: 600 });
+    for (let i = 0; i < 5; i++) await verify(a, email, '999999');
     advance(46);
-    const again = await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', email });
-    expect(again.body).toEqual({ cooldownSeconds: 45, expiresInSeconds: 300 }); // the screen shows these, not hard-coded numbers
-    const ok = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: mail.lastCode(email) });
-    expect(ok.status).toBe(201);
+    const again = await a.post('/api/auth/verify-email/resend').send({ email });
+    expect(again.body).toEqual({ ok: true, cooldownSeconds: 45, expiresInSeconds: 600 }); // the screen shows these, not hard-coded numbers
+    const ok = await verify(a, email, mail.lastCode(email)!);
+    expect(ok.status).toBe(200);
   });
 
-  it('"expired" looks the same for an address with an account and one without (still no account discovery)', async () => {
+  it('"expired" looks the same for an unverified account and an address with none (still no account discovery)', async () => {
     const known = nextEmail();
-    await signedInAgent(app, mail, known);
     const unknown = nextEmail();
-    advance(60);
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: known });
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: unknown });
-    advance(301);
-    const k = await a.post('/api/auth/sign-in').send({ email: known, code: '123456' });
-    const u = await a.post('/api/auth/sign-in').send({ email: unknown, code: '123456' });
+    await signUp(a, known);
+    await a.post('/api/auth/verify-email/resend').send({ email: unknown });
+    advance(601);
+    const k = await verify(a, known, '123456');
+    const u = await verify(a, unknown, '123456');
     expect(k.body.error).toBe('code_expired');
     expect(u.body.error).toBe('code_expired');
     // and an address that never asked for a code just gets "invalid"
-    expect((await a.post('/api/auth/sign-in').send({ email: nextEmail(), code: '123456' })).body.error).toBe('invalid_code');
+    expect((await verify(a, nextEmail(), '123456')).body.error).toBe('invalid_code');
   });
 });
 

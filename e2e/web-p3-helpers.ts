@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { expect, type Page, type TestInfo } from '@playwright/test';
-import { API, isPhone, readOtp } from './web-helpers';
+import { API, isPhone, TEST_PASSWORD } from './web-helpers';
 
 /** Helpers for the Batch 1 specs (sign-in, account menu, access states, gates, practice). */
 
@@ -59,23 +59,11 @@ export async function openAccount(page: Page, info: TestInfo) {
 export const signOutControl = (page: Page, info: TestInfo) =>
   isPhone(info) ? page.getByRole('button', { name: 'Sign out' }) : page.getByRole('menuitem', { name: 'Sign out' });
 
-/** Fill the email step of /sign-in and move to the code step. */
-export async function requestSignInCode(page: Page, email: string) {
+/** Fill /sign-in with email and password and press Sign in. */
+export async function signInWithPassword(page: Page, email: string, password = TEST_PASSWORD) {
   await page.getByLabel('Email address').fill(email);
-  await page.getByRole('button', { name: 'Send code' }).click();
-  await expect(page.getByRole('heading', { name: 'Enter your code' })).toBeVisible();
-}
-
-export async function typeCode(page: Page, code: string) {
-  await page.getByLabel('Digit 1').click();
-  await page.keyboard.type(code);
-}
-
-export async function signInWithCode(page: Page, email: string) {
-  await requestSignInCode(page, email);
-  const code = await readOtp(page.request, email);
-  await typeCode(page, code);
-  await page.getByRole('button', { name: 'Verify and sign in' }).click();
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 }
 
 /** A running full attempt of the paid Accountant test for a user with access (used for "sign out with a test in progress"). */

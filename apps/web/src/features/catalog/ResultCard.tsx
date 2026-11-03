@@ -16,7 +16,7 @@ export function ResultCard({ slug, test }: { slug: string; test: TestCard }) {
           <span className="text-xs font-semibold text-muted md:text-[13px]">{test.category.name}</span>
           <AccessBadge isFree={test.isFree} />
         </div>
-        <h2 className="m-0 text-base font-bold leading-snug md:text-[19px] md:leading-[1.3]">{test.title}</h2>
+        <h2 className="m-0 text-base font-semibold leading-snug md:text-[17px] md:font-bold md:leading-[1.3]">{test.title}</h2>
         <ul className="m-0 flex list-none flex-wrap gap-x-[18px] gap-y-1.5 p-0 text-[13px] text-ink-2 md:text-sm">
           <li>{plural(test.questionCount, 'question')}</li>
           <li>{test.durationMinutes} min<span className="hidden md:inline">utes</span></li>

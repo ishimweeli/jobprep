@@ -10,7 +10,7 @@ import { adminUsersRouter } from './users';
 
 /**
  * Everything under /api/admin. There is no separate admin login or cookie: the person signs in like anyone else
- * (emailed code, normal session cookie) and must hold at least one active role, and have signed in within the
+ * (email + password or Google, normal session cookie) and must hold at least one active role, and have signed in within the
  * last ADMIN_SESSION_HOURS. Each route below names the permission it needs; permissions are the union over the
  * person's active roles. Requests that change data must come from the web app's own origin (CSRF).
  */

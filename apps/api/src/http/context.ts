@@ -4,6 +4,7 @@ import type { Config } from '../config';
 import { unauthorized } from './errors';
 import { findSessionUser, parseCookies, SESSION_COOKIE } from '../services/session';
 import type { ProviderRegistry } from '../payments/registry';
+import type { FetchLike } from '../payments/types';
 import type { ConsoleEmailProvider, EmailProvider } from '../services/email';
 
 export interface Ctx {
@@ -12,6 +13,8 @@ export interface Ctx {
   email: EmailProvider;
   providers: ProviderRegistry;
   now: () => Date;
+  /** Outbound HTTP for sign-in with Google (injected in tests; never call Google from a test). Default: global fetch. */
+  fetch?: FetchLike;
 }
 
 declare module 'express-serve-static-core' {

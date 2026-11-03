@@ -22,11 +22,11 @@ function Card({ id, title, phone, aside, children }: { id: string; title: string
     <section aria-labelledby={id} className={cx('flex flex-col bg-white border border-border', phone ? 'gap-3 rounded-[14px] p-4' : 'gap-3.5 rounded-[16px] p-[22px]')}>
       {aside ? (
         <div className="flex items-center justify-between">
-          <h2 id={id} className="m-0 text-lg">{title}</h2>
+          <h2 id={id} className="m-0 text-[17px]">{title}</h2>
           {aside}
         </div>
       ) : (
-        <h2 id={id} className={cx('m-0', phone ? 'text-[17px]' : 'text-lg')}>{title}</h2>
+        <h2 id={id} className="m-0 text-[17px]">{title}</h2>
       )}
       {children}
     </section>
@@ -74,8 +74,8 @@ function ProviderRows({ detail, phone }: { detail: CountryDetail; phone: boolean
       {detail.paymentMethods.map((p) => {
         const tone = MODE_TONE[p.mode];
         return (
-          <div key={p.provider} className={cx('flex items-center', phone ? 'gap-2.5' : 'gap-3 border-t border-[#F4F4F5] py-3')}>
-            <span aria-hidden="true" className={cx('flex-none', phone ? 'h-[26px] w-[26px] rounded-[7px]' : 'h-7 w-7 rounded-lg')} style={{ background: PROVIDER_SWATCH[p.provider] ?? '#A1A1AA' }} />
+          <div key={p.provider} className={cx('flex items-center', phone ? 'gap-2.5' : 'gap-3 border-t border-soft py-3')}>
+            <span aria-hidden="true" className={cx('flex-none', phone ? 'h-[26px] w-[26px] rounded-[7px]' : 'h-7 w-7 rounded-lg')} style={{ background: PROVIDER_SWATCH[p.provider] ?? '#CDD4DE' }} />
             <span className="flex flex-1 flex-col">
               <span className="font-semibold">{p.label}</span>
               {!phone && <span className="text-[13px] text-muted">Collections API</span>}
@@ -101,7 +101,7 @@ function Team({ team, phone }: { team: TeamMember[]; phone: boolean }) {
             <span className="text-[13px] text-ink-2">{teamRoleLabel(t)}</span>
           </div>
         ) : (
-          <div key={t.id} className="flex items-center gap-3 border-t border-[#F4F4F5] py-2.5">
+          <div key={t.id} className="flex items-center gap-3 border-t border-soft py-2.5">
             <span className="flex flex-1 flex-col">
               <span className="font-semibold">{t.name}</span>
               <span className="break-all text-[13px] text-muted">{t.email}</span>
@@ -131,7 +131,7 @@ export function AuditList({ items }: { items: AuditEntry[] }) {
   return (
     <>
       {items.map((l) => (
-        <div key={l.id} className="flex flex-col gap-0.5 border-t border-[#F4F4F5] py-2.5">
+        <div key={l.id} className="flex flex-col gap-0.5 border-t border-soft py-2.5">
           <span className="text-sm"><strong>{l.actor?.name ?? 'System'}</strong> {l.summary}</span>
           <span className="text-xs text-muted">{formatDateTime(l.at)}</span>
         </div>
@@ -175,11 +175,11 @@ export function SettingsPage() {
   const planCard = country.data && (
     <Card id="st-plan" title={`Full Access plan · ${country.data.country.name}`} phone={phone}>
       <div className={cx('grid grid-cols-2', phone ? 'gap-2.5' : 'gap-3')}>
-        <label className="flex flex-col gap-1.5 text-sm font-bold">
+        <label className="flex flex-col gap-1.5 text-sm font-semibold">
           Price ({cur})
           <input type="number" readOnly value={amountFromLabel(plan?.priceLabel)} placeholder="Set price" className={numberInput(phone)} />
         </label>
-        <label className="flex flex-col gap-1.5 text-sm font-bold">
+        <label className="flex flex-col gap-1.5 text-sm font-semibold">
           {phone ? 'Days' : 'Access length (days)'}
           <input type="number" readOnly value={plan?.durationDays ?? ''} className={numberInput(phone)} />
         </label>
@@ -197,14 +197,14 @@ export function SettingsPage() {
           Each country has its own price and currency — set them in <Link to="/admin/countries">Countries</Link>. A price change applies to new payments only. Active Full Access is never shortened.
         </p>
       )}
-      <InertButton kind="primary" sizeClass={phone ? 'min-h-12 rounded-[12px] text-base font-bold' : 'h-11 self-start rounded-[10px] px-4 text-[15px] font-bold'}>
+      <InertButton kind="primary" sizeClass={phone ? 'min-h-12 rounded-[10px] text-base font-semibold' : 'h-11 self-start rounded-[10px] px-4 text-[15px] font-semibold'}>
         Save plan
       </InertButton>
     </Card>
   );
 
   const stuckBox = (
-    <label className="flex flex-col gap-1.5 text-sm font-bold">
+    <label className="flex flex-col gap-1.5 text-sm font-semibold">
       Mark a pending payment as stuck after (minutes)
       <input
         type="number"
@@ -256,9 +256,9 @@ export function SettingsPage() {
       aside={phone ? undefined : <InertButton kind="outline-brand" sizeClass="h-10 rounded-[10px] px-3.5 text-sm font-semibold">Invite</InertButton>}
     >
       {team.isPending ? <Skeleton label="Loading the team…" /> : team.isError ? <ErrorBox error={team.error} onRetry={() => void team.refetch()} /> : <Team team={team.data} phone={phone} />}
-      {phone && <InertButton kind="outline-brand" sizeClass="min-h-11 rounded-[12px] text-[15px] font-semibold">Invite admin</InertButton>}
+      {phone && <InertButton kind="outline-brand" sizeClass="min-h-11 rounded-[10px] text-[15px] font-semibold">Invite admin</InertButton>}
       {!phone && (
-        <p className="m-0 text-[13px] text-muted">System admin: everything. Content editor: exams and questions only. Support: view users, resend login codes, check payments.</p>
+        <p className="m-0 text-[13px] text-muted">System admin: everything. Content editor: exams and questions only. Support: view users, send password resets, check payments.</p>
       )}
     </Card>
   );
@@ -297,7 +297,7 @@ export function SettingsPage() {
         {can('countries:read') && (
           <Link to="/admin/countries" className="flex items-center justify-between rounded-[14px] border border-border bg-white p-4 text-ink no-underline hover:text-ink">
             <span className="flex flex-col">
-              <span className="text-base font-bold">Countries</span>
+              <span className="text-base font-semibold">Countries</span>
               {c && <span className="text-[13px] text-muted">{c.live} live · {c.preparing} preparing · {c.planned} planned</span>}
             </span>
             <span aria-hidden="true">›</span>

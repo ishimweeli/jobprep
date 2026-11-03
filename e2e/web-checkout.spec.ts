@@ -1,26 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
-import { API, fillPayerNumber, isPhone, randomEmail, randomNational, readOtp, signUpViaApi, watchErrors } from './web-helpers';
+import { API, fillPayerNumber, finishSetupThroughUi, isPhone, randomNational, signUpThroughUi as signUpScreens, signUpViaApi, watchErrors } from './web-helpers';
 import {
   ACCOUNTANT_SLUG, choose, expectSaved, nextButton, questionHeading, simulatePayment, submitButton,
 } from './web-exam-helpers';
 
-/** Sign up through the real screens (country, email, code, goal). Returns the account's email. */
+/** Sign up through the real screens (create account, emailed code, the three setup steps). Returns the account's email. */
 async function signUpThroughUi(page: Page, name = 'Aline Uwase') {
-  const email = randomEmail('flowb');
-  await page.goto('/sign-up');
-  await page.getByRole('button', { name: 'Continue with Rwanda' }).click();
-  await page.getByLabel('Full name').fill(name);
-  await page.getByLabel('Email address').fill(email);
-  await page.getByRole('button', { name: 'Send code' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Enter the code' })).toBeVisible();
-  const code = await readOtp(page.request, email);
-  await page.getByLabel('Digit 1').click();
-  await page.keyboard.type(code);
-  await page.getByRole('button', { name: 'Verify' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'What are you preparing for?' })).toBeVisible();
-  await page.getByText('Accounting & finance', { exact: true }).click();
-  await page.getByRole('button', { name: 'Finish and see my Rwanda tests' }).click();
-  await expect(page).toHaveURL(/\/rw\/tests\?category=accounting-finance$/);
+  const { email } = await signUpScreens(page, { name });
+  await finishSetupThroughUi(page);
+  await expect(page).toHaveURL(/\/rw\/progress$/);
+  await page.goto('/rw/tests');
   return { email, name };
 }
 
@@ -212,7 +201,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     await expect(page.getByRole('dialog', { name: 'This test is part of Full Access' })).toBeVisible();
     await page.getByRole('link', { name: 'Create account and continue' }).click();
     await expect(page).toHaveURL(/\/sign-up\?next=%2Frw%2Fcheckout%3Ftest%3Daccountant-public-institution-mock-1$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Which country is your exam in?' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Create your account' })).toBeVisible();
   });
 
   test('a paid test that is not unlocked leads a signed-in user to checkout, not to the exam', async ({ page }) => {
@@ -243,7 +232,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     await expect(summary).toContainText('Every Kenya mock test · 30 days');
     await expect(summary).not.toContainText('[PRICE]'); // no price in the data: nothing is shown instead of a placeholder
     await expect(summary).toContainText('Paid once. Nothing renews.');
-    if (isPhone(info)) await expect(page.getByText('KE · KES')).toBeVisible(); // the top bar chip (the desktop heading has no chip)
+    if (isPhone(info)) await expect(page.getByText('KE · Kenya')).toBeVisible(); // the top bar chip: code and name, no currency (the desktop heading has no chip)
     await expect(page.getByLabel('M-Pesa phone number')).toHaveValue('712 345 678');
     await expect(page.getByText('+254', { exact: true })).toBeVisible();
     await expect(page.getByText('An M-Pesa prompt will appear on this phone. Enter your PIN there — we never ask for it.')).toBeVisible();

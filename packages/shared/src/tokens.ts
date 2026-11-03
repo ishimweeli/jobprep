@@ -3,31 +3,48 @@
  * Single source for the Tailwind preset (web) and any server-rendered output (emails, receipts).
  */
 export const colors = {
-  ink: '#18181B',
-  'ink-2': '#3F3F46',
-  muted: '#52525B',
-  border: '#E4E4E7',
-  'input-border': '#A1A1AA',
+  /** Body text and headings (ink-2 is the same colour in the Mwalimu Tools palette). */
+  ink: '#3A3F4A',
+  'ink-2': '#3A3F4A',
+  muted: '#5E6573',
+  border: '#E2E7EF',
+  /** Stronger divider (chart baselines, unselected pill outlines). */
+  'border-strong': '#DCE2EB',
+  'input-border': '#CDD4DE',
   surface: '#FFFFFF',
-  page: '#FAFAFA',
-  soft: '#F4F4F5',
+  page: '#EFF3F8',
+  soft: '#EEF1F5',
+  /** Submit button, the dashboard "Continue" card, admin mark and current-question ring: the brand blue itself (the near-black navy of the earlier artboards is gone). */
+  dark: '#164A7A',
+  /** Text on the dark panel (the continue card). */
+  'on-dark': '#DCE2EB',
+  /** Disabled dark button (Submit exam after time is up). */
+  disabled: '#A3ADBB',
+  /** Modal overlay colour; use with an opacity (bg-scrim/50). */
+  scrim: '#141E32',
+  /** Main buttons, logo, selected states. */
   brand: {
-    DEFAULT: '#6D28D9',
-    hover: '#5B21B6',
-    soft: '#EDE9FE',
-    softer: '#F5F3FF',
-    ring: '#A78BFA',
+    DEFAULT: '#164A7A',
+    hover: '#1E4BA8',
+    soft: '#E8EFFB',
+    softer: '#E8EFFB',
+    light: '#DCEBFA',
+    ring: '#6AA6EE',
   },
-  correct: { DEFAULT: '#047857', bg: '#D1FAE5' },
-  incorrect: { DEFAULT: '#B91C1C', bg: '#FEE2E2' },
-  flagged: { DEFAULT: '#B45309', ink: '#92400E', bg: '#FEF3C7' },
-  free: { DEFAULT: '#065F46', bg: '#D1FAE5' },
+  /** Inline text links. */
+  link: { DEFAULT: '#2D62CF', hover: '#1E4BA8' },
+  correct: { DEFAULT: '#1E6B3C', bg: '#E3F4E8', line: '#BFE3CB', mark: '#1E7A46' },
+  incorrect: { DEFAULT: '#A1281B', bg: '#FBE7E4', line: '#F0CFCA' },
+  flagged: { DEFAULT: '#8A5300', ink: '#8A5300', bg: '#FDF1DD', line: '#E9CF9B' },
+  /** Partly correct stays orange, as drawn. */
+  partial: { DEFAULT: '#9A3412', bg: '#FFEDD5' },
+  free: { DEFAULT: '#1E6B3C', bg: '#E3F4E8' },
 } as const;
 
 export const radii = {
-  control: '12px', // buttons, inputs
+  control: '10px', // buttons, inputs, selects
   card: '16px',
-  'card-lg': '18px',
+  'card-lg': '16px', // same as card since the typography/shape pass (ba8f27b)
   pill: '9999px',
 } as const;
 

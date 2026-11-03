@@ -5,8 +5,8 @@ import type { Ctx } from '../http/context';
 import { forbidden, HttpError, notFound, unauthorized } from '../http/errors';
 
 /**
- * Admin access is not a separate account type: it is a normal account (normal session cookie, normal emailed
- * sign-in code) that holds one or more active role assignments (UserRole). Nothing here creates or reads a
+ * Admin access is not a separate account type: it is a normal account (normal session cookie, normal email +
+ * password or Google sign-in) that holds one or more active role assignments (UserRole). Nothing here creates or reads a
  * session of its own; `attachUser` has already resolved the person and their active assignments.
  */
 

@@ -7,16 +7,16 @@ import { cx } from '../lib/cx';
 export function Logo({ size = 26 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" className="flex-none">
-      <rect width="32" height="32" rx="9" fill="#6D28D9" />
+      <rect width="32" height="32" rx="9" fill="#164A7A" />
       <path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-/** The status pill (Paid, Free, Live ...): 12px bold, pill radius, colours from the tone. */
+/** The status pill (Paid, Free, Live ...): 12px semibold, pill radius, colours from the tone. */
 export function Pill({ tone, className, children }: { tone: Pick<Tone, 'bg' | 'ink'>; className?: string; children: ReactNode }) {
   return (
-    <span className={cx('inline-block whitespace-nowrap rounded-full text-xs font-bold', className ?? 'px-[9px] py-[3px]')} style={{ background: tone.bg, color: tone.ink }}>
+    <span className={cx('inline-block whitespace-nowrap rounded-full text-xs font-semibold', className ?? 'px-[9px] py-[3px]')} style={{ background: tone.bg, color: tone.ink }}>
       {children}
     </span>
   );
@@ -26,7 +26,7 @@ export function Avatar({ text, size = 34, className }: { text: string; size?: nu
   return (
     <span
       aria-hidden="true"
-      className={cx('inline-flex flex-none items-center justify-center rounded-full bg-brand-soft font-extrabold text-brand-hover', className)}
+      className={cx('inline-flex flex-none items-center justify-center rounded-full bg-brand-soft font-semibold text-brand', className)}
       style={{ width: size, height: size, fontSize: size >= 48 ? (size >= 56 ? 18 : 16) : size >= 40 ? 14 : 13 }}
     >
       {text}
@@ -38,7 +38,7 @@ type Kind = 'primary' | 'secondary' | 'danger' | 'outline-brand';
 const KIND: Record<Kind, string> = {
   primary: 'border-0 bg-brand text-white',
   secondary: 'border border-input-border bg-white text-ink',
-  danger: 'border border-[#FCA5A5] bg-white text-[#991B1B]',
+  danger: 'border border-incorrect-line bg-white text-incorrect',
   'outline-brand': 'border border-brand bg-white text-brand',
 };
 
@@ -81,7 +81,7 @@ export function FilterChips({ label, items, value, onPick, className, scroll }: 
             className={cx(
               'min-h-10 rounded-full border px-3.5 text-sm font-semibold',
               scroll && 'flex-none',
-              on ? 'border-ink bg-ink text-white' : 'border-[#D4D4D8] bg-white text-ink',
+              on ? 'border-link bg-brand-soft text-brand' : 'border-border-strong bg-white text-ink',
             )}
           >
             {it.label}

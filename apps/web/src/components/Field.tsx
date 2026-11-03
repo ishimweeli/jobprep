@@ -24,7 +24,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
 
   return (
     <div className={cx('flex flex-col gap-1.5', wrapperClassName)}>
-      <label htmlFor={inputId} className={hideLabel ? 'sr-only' : 'text-sm font-bold'}>
+      <label htmlFor={inputId} className={hideLabel ? 'sr-only' : 'text-sm font-semibold'}>
         {label}
       </label>
       <div className="flex gap-2">
@@ -35,7 +35,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={cx(
-            'h-[52px] min-w-0 flex-1 rounded-control border bg-surface px-3.5 text-[17px] text-ink placeholder:text-muted',
+            'h-[48px] min-w-0 md:h-[44px] flex-1 rounded-control border bg-surface px-3.5 text-[17px] text-ink placeholder:text-muted',
             error ? 'border-incorrect' : 'border-input-border',
             className,
           )}

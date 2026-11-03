@@ -6,7 +6,7 @@ import { emailInput } from '../domain/email';
 import { handleCallback } from '../services/payments';
 
 /**
- * Test-only: lets e2e tests read the OTP the console email provider "sent".
+ * Test-only: lets e2e tests read the verification code / reset token the console email provider "sent".
  * Mounted only when ENABLE_TEST_ENDPOINTS is true, and config forces that off in production.
  */
 export function testSupportRouter(ctx: Ctx) {
@@ -18,6 +18,15 @@ export function testSupportRouter(ctx: Ctx) {
     const code = ctx.email.lastCode(email);
     if (!code) throw notFound('no_code_sent');
     res.json({ email, code });
+  });
+
+  /** The token in the last password-reset email to an address (console email provider only). */
+  router.get('/reset-token', (req, res) => {
+    if (!isConsoleEmail(ctx.email)) throw notFound();
+    const { email } = z.object({ email: emailInput }).parse(req.query);
+    const token = ctx.email.lastResetToken(email);
+    if (!token) throw notFound('no_reset_sent');
+    res.json({ email, token });
   });
 
   /**

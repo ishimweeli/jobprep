@@ -7,10 +7,11 @@ const randomEmail = () => `e2e.payer.${Date.now()}.${Math.floor(Math.random() * 
 const randomRwMsisdn = () => `+250789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`;
 
 async function signUp(request: APIRequestContext, email: string) {
-  await request.post(`${API}/api/auth/otp/request`, { data: { purpose: 'sign_up', countryCode: 'RW', email } });
+  const created = await request.post(`${API}/api/auth/sign-up`, { data: { countryCode: 'RW', email, name: 'E2E Payer', password: 'E2e-Pass-2026!' } });
+  expect(created.status()).toBe(201);
   const { code } = await (await request.get(`${API}/api/test/otp`, { params: { email } })).json();
-  const res = await request.post(`${API}/api/auth/sign-up`, { data: { countryCode: 'RW', email, name: 'E2E Payer', code } });
-  expect(res.status()).toBe(201);
+  const res = await request.post(`${API}/api/auth/verify-email`, { data: { email, code } });
+  expect(res.status()).toBe(200);
 }
 const simulate = (request: APIRequestContext, id: string, outcome: string) =>
   request.post(`${API}/api/test/payments/${id}/simulate`, { data: { outcome } });

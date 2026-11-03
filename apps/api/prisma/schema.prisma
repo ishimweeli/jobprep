@@ -66,9 +66,9 @@ enum UserStatus {
   SUSPENDED
 }
 
+/// A one-time emailed code is used ONCE, to verify a new account's email. It is not a sign-in method.
 enum OtpPurpose {
-  SIGN_UP
-  SIGN_IN
+  VERIFY_EMAIL
 }
 
 enum AccessSource {
@@ -336,13 +336,27 @@ model User {
   id            String     @id @default(cuid())
   countryCode   String
   country       Country    @relation(fields: [countryCode], references: [code])
-  /// Lower-cased. The account identity; one-time codes are emailed here.
+  /// Lower-cased. The account identity; the verification code and reset links are emailed here.
   email         String     @unique
   name          String
   status        UserStatus @default(ACTIVE)
   suspendedReason String?
+  /// `scrypt$N$r$p$salt$hash`. null = Google-only account, or an account made before passwords existed.
+  passwordHash  String?
+  /// Set when the person proves the address (the emailed code, a password reset, or Google).
+  emailVerifiedAt DateTime?
+  googleId      String?    @unique
+  /// Consecutive wrong passwords; 5 locks sign-in for 15 minutes (signInLockedUntil).
+  failedSignIns Int        @default(0)
+  signInLockedUntil DateTime?
+  // Setup (onboarding). The country is confirmed in step 1; the job goal is a category; level/subject/exam date refine it.
+  countryConfirmedAt DateTime?
   goalCategoryId String?
   goalCategory  Category?  @relation(fields: [goalCategoryId], references: [id])
+  level         String?
+  subject       String?
+  examDate      DateTime?  @db.Date
+  onboardedAt   DateTime?
   language      String     @default("en")
   createdAt     DateTime   @default(now())
   lastSeenAt    DateTime?
@@ -357,8 +371,22 @@ model User {
   grantsGiven  AccessGrant[]    @relation("GrantedBy")
   reportsResolved QuestionReport[] @relation("ResolvedBy")
   auditLogs    AuditLog[]
+  passwordResets PasswordReset[]
 
   @@index([countryCode])
+}
+
+/// A password-reset link. Only a hash of the token is stored; the token is single use and expires after an hour.
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model OtpCode {

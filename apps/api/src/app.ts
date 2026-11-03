@@ -17,6 +17,7 @@ import { meRouter } from './routes/me';
 import { paymentsRouter } from './routes/payments';
 import { testSupportRouter } from './routes/test-support';
 import { createProviderRegistry, type ProviderRegistry } from './payments/registry';
+import type { FetchLike } from './payments/types';
 import { ConsoleEmailProvider, type EmailProvider } from './services/email';
 import { serveWeb } from './http/static-web';
 
@@ -26,6 +27,8 @@ export interface AppDeps {
   email?: EmailProvider;
   providers?: ProviderRegistry;
   now?: () => Date;
+  /** Outbound HTTP for Google sign-in (tests inject a mock). */
+  fetch?: FetchLike;
 }
 
 export function createApp(deps: AppDeps) {
@@ -34,6 +37,7 @@ export function createApp(deps: AppDeps) {
     prisma, config, email: deps.email ?? new ConsoleEmailProvider(),
     providers: deps.providers ?? createProviderRegistry(config),
     now: deps.now ?? (() => new Date()),
+    fetch: deps.fetch,
   };
 
   const app = express();
@@ -55,9 +59,13 @@ export function createApp(deps: AppDeps) {
   // live in the database and always apply.
   const limit = createLimiter(config.RATE_LIMIT_ENABLED === true);
   app.use('/api', limit({ name: 'api-all', windowSeconds: 60, max: 1200 }));
-  app.post('/api/auth/otp/request', limit({ name: 'otp-request', windowSeconds: 60, max: 10 }));
   app.post('/api/attempts/:id/reports', limit({ name: 'question-report', windowSeconds: 3600, max: 20 }));
-  app.post(['/api/auth/sign-up', '/api/auth/sign-in'], limit({ name: 'otp-verify', windowSeconds: 60, max: 20 }));
+  app.post('/api/auth/sign-up', limit({ name: 'sign-up', windowSeconds: 60, max: 10 }));
+  app.post('/api/auth/sign-in', limit({ name: 'sign-in', windowSeconds: 60, max: 20 }));
+  app.post('/api/auth/verify-email', limit({ name: 'verify-email', windowSeconds: 60, max: 20 }));
+  app.post('/api/auth/verify-email/resend', limit({ name: 'verify-resend', windowSeconds: 60, max: 10 }));
+  app.post('/api/auth/forgot-password', limit({ name: 'forgot-password', windowSeconds: 60, max: 10 }));
+  app.post('/api/auth/reset-password', limit({ name: 'reset-password', windowSeconds: 60, max: 10 }));
   app.post(['/api/payments', '/api/payments/:id/resend'], limit({ name: 'payment-create', windowSeconds: 60, max: 10 }));
   app.post('/api/payments/:id/check', limit({ name: 'payment-check', windowSeconds: 60, max: 30 }));
   app.post('/api/payments/webhooks/:slug', limit({ name: 'webhooks', windowSeconds: 60, max: 600 }));

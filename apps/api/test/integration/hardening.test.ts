@@ -20,41 +20,60 @@ let emailSeq = 700000;
 const email = () => `rate${emailSeq++}@example.com`;
 
 describe('per-IP rate limits', () => {
-  it('login-code requests: 10 a minute per IP, then 429 with Retry-After', async () => {
+  const signUp = (client: string, addr: string) =>
+    request(limited).post('/api/auth/sign-up').set('X-Forwarded-For', client).send({ countryCode: 'RW', email: addr, name: 'Rate Test', password: 'a long enough password' });
+
+  it('sign-up: 10 a minute per IP, then 429 with Retry-After', async () => {
     const client = ip();
     const results: number[] = [];
     let last: request.Response | null = null;
     for (let i = 0; i < 12; i++) {
-      last = await request(limited).post('/api/auth/otp/request').set('X-Forwarded-For', client).send({ purpose: 'sign_up', countryCode: 'RW', email: email() });
+      last = await signUp(client, email());
       results.push(last.status);
     }
-    expect(results.slice(0, 10).every((s) => s === 200)).toBe(true);
+    expect(results.slice(0, 10).every((s) => s === 201)).toBe(true);
     expect(results.slice(10)).toEqual([429, 429]);
     expect(last!.body.error).toBe('rate_limited');
     expect(Number(last!.headers['retry-after'])).toBeGreaterThan(0);
     // another IP is unaffected
-    const other = await request(limited).post('/api/auth/otp/request').set('X-Forwarded-For', ip()).send({ purpose: 'sign_up', countryCode: 'RW', email: email() });
-    expect(other.status).toBe(200);
+    expect((await signUp(ip(), email())).status).toBe(201);
   });
 
-  it('guessing codes at sign-in is limited too (20 a minute per IP)', async () => {
+  it('guessing passwords at sign-in is limited too (20 a minute per IP)', async () => {
     const client = ip();
     const statuses: number[] = [];
     for (let i = 0; i < 22; i++) {
-      statuses.push((await request(limited).post('/api/auth/sign-in').set('X-Forwarded-For', client).send({ email: email(), code: '123456' })).status);
+      statuses.push((await request(limited).post('/api/auth/sign-in').set('X-Forwarded-For', client).send({ email: email(), password: 'guess-number-' + i })).status);
     }
-    expect(statuses.slice(0, 20).every((s) => s === 400)).toBe(true); // invalid code
+    expect(statuses.slice(0, 20).every((s) => s === 401)).toBe(true); // invalid_credentials
     expect(statuses.slice(20)).toEqual([429, 429]);
+  });
+
+  it.each([
+    ['verify-email', { email: 'rate.verify@example.com', code: '123456' }, 20, 400],
+    ['verify-email/resend', { email: 'rate.resend@example.com' }, 10, 200],
+    ['forgot-password', { email: 'rate.forgot@example.com' }, 10, 200],
+    ['reset-password', { token: 'x'.repeat(43), password: 'a long enough password' }, 10, 400],
+  ])('%s is limited per IP', async (path, body, max, okStatus) => {
+    const client = ip();
+    const statuses: number[] = [];
+    for (let i = 0; i < max + 2; i++) {
+      // vary the address so the per-address resend wait never answers first
+      const b = 'email' in body ? { ...body, email: i + '.' + body.email } : body;
+      statuses.push((await request(limited).post('/api/auth/' + path).set('X-Forwarded-For', client).send(b)).status);
+    }
+    expect(statuses.slice(0, max).every((s) => s === okStatus)).toBe(true);
+    expect(statuses.slice(max)).toEqual([429, 429]);
   });
 
   it('creating payments is limited (10 a minute), so a stuck client cannot spam payers with prompts', async () => {
     const client = ip();
     const p = email();
     const msisdn = '+250788710001';
-    // Sign up from this IP too (uses one login-code request and one verify).
+    // Sign up from this IP too (uses one sign-up and one verify).
     const agent = request.agent(limited);
-    await agent.post('/api/auth/otp/request').set('X-Forwarded-For', client).send({ purpose: 'sign_up', countryCode: 'RW', email: p });
-    await agent.post('/api/auth/sign-up').set('X-Forwarded-For', client).send({ countryCode: 'RW', email: p, name: 'Rate Test', code: mail.lastCode(p) });
+    await signUp(client, p);
+    await agent.post('/api/auth/verify-email').set('X-Forwarded-For', client).send({ email: p, code: mail.lastCode(p) });
     const statuses: number[] = [];
     for (let i = 0; i < 12; i++) {
       statuses.push((await agent.post('/api/payments').set('X-Forwarded-For', client).send({ provider: 'AIRTEL_MONEY', msisdn })).status);
@@ -98,16 +117,17 @@ describe('per-IP rate limits', () => {
   it('is off when disabled (development default)', async () => {
     const client = ip();
     for (let i = 0; i < 14; i++) {
-      const r = await request(unlimited).post('/api/auth/otp/request').set('X-Forwarded-For', client).send({ purpose: 'sign_up', countryCode: 'RW', email: email() });
-      expect(r.status).toBe(200);
+      const r = await request(unlimited).post('/api/auth/sign-up').set('X-Forwarded-For', client).send({ countryCode: 'RW', email: email(), name: 'Rate Test', password: 'a long enough password' });
+      expect(r.status).toBe(201);
     }
   });
 
   it('the per-address limits still protect one email address even from many IPs', async () => {
     const p = email();
-    const first = await request(unlimited).post('/api/auth/otp/request').set('X-Forwarded-For', ip()).send({ purpose: 'sign_up', countryCode: 'RW', email: p });
-    const second = await request(unlimited).post('/api/auth/otp/request').set('X-Forwarded-For', ip()).send({ purpose: 'sign_up', countryCode: 'RW', email: p });
-    expect([first.status, second.status]).toEqual([200, 429]);
+    const body = { countryCode: 'RW', email: p, name: 'Rate Test', password: 'a long enough password' };
+    const first = await request(unlimited).post('/api/auth/sign-up').set('X-Forwarded-For', ip()).send(body);
+    const second = await request(unlimited).post('/api/auth/sign-up').set('X-Forwarded-For', ip()).send(body);
+    expect([first.status, second.status]).toEqual([201, 429]);
     expect(second.body.error).toBe('otp_cooldown');
     await signedInAgent(unlimited, mail, email()); // helper still works with limits off
   });
@@ -146,12 +166,19 @@ describe('production configuration is checked at start-up', () => {
     ['a missing pawaPay API token', { PAWAPAY_API_TOKEN: '' }, /PAWAPAY_API_TOKEN/],
     ['the fake payment provider', { PAYMENT_PROVIDER_MODE: 'fake' }, /fake/],
     ['the console email provider', { EMAIL_PROVIDER: 'console' }, /EMAIL_PROVIDER=console/],
+    ['a Google client id without a secret', { GOOGLE_CLIENT_ID: 'id.apps.googleusercontent.com' }, /GOOGLE_CLIENT_ID/],
+    ['a Google client secret without an id', { GOOGLE_CLIENT_SECRET: 'google-secret' }, /GOOGLE_CLIENT_ID/],
     ['a missing SMTP host', { MAIL_HOST: '' }, /MAIL_HOST/],
     ['a missing SMTP username', { MAIL_USERNAME: '' }, /MAIL_USERNAME/],
     ['a missing SMTP password', { MAIL_PASSWORD: '' }, /MAIL_PASSWORD/],
     ['a missing From address', { MAIL_FROM_ADDRESS: '' }, /MAIL_FROM_ADDRESS/],
   ])('refuses %s', (_name, override, message) => {
     expect(() => loadConfig({ ...safe, ...override })).toThrow(message);
+  });
+
+  it('Google sign-in is optional: neither, or both, is fine', () => {
+    expect(loadConfig(safe).GOOGLE_CLIENT_ID).toBe('');
+    expect(loadConfig({ ...safe, GOOGLE_CLIENT_ID: 'id.apps.googleusercontent.com', GOOGLE_CLIENT_SECRET: 'google-secret' }).GOOGLE_CLIENT_SECRET).toBe('google-secret');
   });
 
   it('lists every problem at once so they can be fixed in one go', () => {

@@ -17,6 +17,8 @@
 >
 > Sections below describe the screens and are still accurate unless they say otherwise. Where they mention the old admin sign-in, port 5174 for the admin app, `jp_admin`, `/admin/auth/*`, `apps/admin` or `npm run dev:admin` / `build:admin`, read this note instead. Run the admin area with the web app: `npm run dev -w @jobprep/web`, then open `/admin`.
 
+> **Design update 2026-11-03 (MISSING_DESIGNS E5).** The desktop sidebar is now white (logo, "Admin" pill, a **Country** selector, the navigation with navy selected items and the amber count, the signed-in admin card with initials); the phone chrome is unchanged apart from the dark #182231 ADMIN pill. The selector (`components/CountrySelector.tsx`, `lib/adminCountry.ts`) is the global country filter: it sets `?country=` and is remembered in localStorage (`jobprep.admin.country`; `ALL` = no filter), lists only the countries the admin's scope allows (an admin with one country has no "All countries"), and is passed as the `country` query parameter of the Overview, Users, Exams and Payments calls (and the sidebar's pending count). Countries and Settings are not filtered (their endpoints take no country). Country-code boxes are the light chip; all colours come from the new tokens.
+
 **Rule applied (owner):** nothing without an artboard in `docs/design/source`. A designed button whose dialog, result or API is not designed is drawn exactly as in the artboard and is inert (`aria-disabled="true"`, no handler: `InertButton` in `src/components/ui.tsx`). Everything is listed under "Missing designs" below.
 
 ## What was built (one responsive implementation per screen; desktop >= 900 px = sidebar chrome, below = phone header and bottom bar)

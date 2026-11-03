@@ -27,10 +27,9 @@ test.describe('Web: landing (data-driven from /api/countries/rw/landing)', () =>
     await expect(page.getByRole('heading', { name: 'How JobPrep works' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Recently added' })).toBeVisible();
 
-    // Price and disclaimer are never hardcoded: they match the API.
-    const pricing = page.getByRole('region', { name: /pricing/i });
-    await expect(pricing).toContainText(landing.plan.priceLabel);
-    await expect(pricing).toContainText(`${landing.plan.durationDays} days`);
+    // The landing page has no pricing block any more (design 8a41ad1; pricing has its own page).
+    await expect(page.getByRole('region', { name: /pricing/i })).toHaveCount(0);
+    // The disclaimer is never hardcoded: it matches the API.
     await expect(page.getByTestId('disclaimer')).toHaveText(landing.country.disclaimer);
 
     await expectNoHorizontalScroll(page);
@@ -71,16 +70,16 @@ test.describe('Web: landing (data-driven from /api/countries/rw/landing)', () =>
   test('desktop header nav, phone header chip and menu button (as drawn)', async ({ page }, info) => {
     await page.goto('/rw');
     if (isPhone(info)) {
-      await expect(page.getByRole('link', { name: /Country: .*Change country/ })).toContainText('RWF');
+      await expect(page.getByRole('link', { name: 'Country: RW Rwanda. Change country' })).toHaveText(/RW\s?Rwanda/); // the code chip and the name, no currency
       await expect(page.getByRole('button', { name: 'Open menu' })).toBeVisible();
     } else {
       const nav = page.getByRole('navigation', { name: 'Main' });
       await expect(nav.getByRole('link', { name: 'Mock tests' })).toBeVisible();
-      await expect(nav.getByRole('link', { name: 'Teaching exams' })).toBeVisible();
+      await expect(nav.getByRole('link', { name: 'Teaching exams' })).toHaveCount(0); // removed on the owner's request
       await expect(nav.getByRole('link', { name: 'Pricing' })).toBeVisible();
       await expect(nav.getByRole('link', { name: 'My progress' })).toHaveCount(0); // signed-in users only (AccountMenu.dc)
-      await expect(page.getByRole('link', { name: /Country: .*Change country/ })).toContainText('Rwanda · RWF');
-      await expect(page.getByRole('link', { name: 'Try a free test' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Country: RW Rwanda. Change country' })).toHaveText(/RW\s?Rwanda/); // no currency beside the country
+      await expect(page.getByRole('banner').getByRole('link', { name: 'Get started' })).toBeVisible();
     }
   });
 

@@ -3,7 +3,8 @@ import request from 'supertest';
 import type { ConsoleEmailProvider } from '../src/services/email';
 import type { Config } from '../src/config';
 import { loadConfig } from '../src/config';
-import { seedDatabase, truncateAll } from '../prisma/seed-lib';
+import { hashPassword } from '../src/services/password';
+import { DEV_PASSWORD, seedDatabase, truncateAll } from '../prisma/seed-lib';
 
 export function testPrisma() {
   const url = process.env.TEST_DATABASE_URL;
@@ -29,19 +30,34 @@ export async function resetAndSeed(prisma: PrismaClient) {
   await seedDatabase(prisma);
 }
 
-/** Sign a fresh user up (Rwanda unless told otherwise) through the real endpoints; returns a cookie-keeping agent. */
+let devHash: Promise<string> | undefined;
+/** A verified, set-up account row (for tests that insert users directly): signs in with DEV_PASSWORD. */
+export async function readyAccount() {
+  devHash ??= hashPassword(DEV_PASSWORD);
+  const now = new Date();
+  return { passwordHash: await devHash, emailVerifiedAt: now, countryConfirmedAt: now, onboardedAt: now };
+}
+
+/** The password every helper-made account uses. */
+export const TEST_PASSWORD = 'correct horse battery';
+
+/**
+ * Sign a fresh user up (Rwanda unless told otherwise) through the real endpoints: sign-up with a password, then verify
+ * the emailed code. Returns a cookie-keeping agent that is signed in (30-day cookie).
+ */
 export async function signedInAgent(
   app: Parameters<typeof request>[0],
   mail: ConsoleEmailProvider,
   email: string,
   countryCode = 'RW',
+  password = TEST_PASSWORD,
 ) {
   const agent = request.agent(app);
-  const r = await agent.post('/api/auth/otp/request').send({ purpose: 'sign_up', email, countryCode });
-  if (r.status !== 200) throw new Error(`otp request failed: ${r.status} ${JSON.stringify(r.body)}`);
-  const res = await agent.post('/api/auth/sign-up').send({ countryCode, email, name: 'Test Candidate', code: mail.lastCode(email) });
-  if (res.status !== 201) throw new Error(`sign-up failed: ${res.status} ${JSON.stringify(res.body)}`);
-  return { agent, userId: res.body.user.id as string };
+  const r = await agent.post('/api/auth/sign-up').send({ name: 'Test Candidate', email, password, countryCode });
+  if (r.status !== 201) throw new Error(`sign-up failed: ${r.status} ${JSON.stringify(r.body)}`);
+  const res = await agent.post('/api/auth/verify-email').send({ email, code: mail.lastCode(email) });
+  if (res.status !== 200) throw new Error(`verify-email failed: ${res.status} ${JSON.stringify(res.body)}`);
+  return { agent, userId: res.body.user.id as string, email, password };
 }
 
 export const ADMINS = {
@@ -52,18 +68,16 @@ export const ADMINS = {
 } as const;
 
 /**
- * Sign a seeded admin in through the NORMAL sign-in endpoints (an admin is an ordinary account that holds roles);
- * returns a cookie-keeping agent.
+ * Sign a seeded admin in through the NORMAL sign-in endpoint (an admin is an ordinary account that holds roles) with the
+ * dev seed password; returns a cookie-keeping agent.
  */
 export async function adminAgent(
   app: Parameters<typeof request>[0],
-  mail: ConsoleEmailProvider,
+  _mail: ConsoleEmailProvider,
   email: string,
 ) {
   const agent = request.agent(app);
-  const r = await agent.post('/api/auth/otp/request').send({ purpose: 'sign_in', email });
-  if (r.status !== 200) throw new Error(`admin otp request failed: ${r.status} ${JSON.stringify(r.body)}`);
-  const res = await agent.post('/api/auth/sign-in').send({ email, code: mail.lastCode(email) });
+  const res = await agent.post('/api/auth/sign-in').send({ email, password: DEV_PASSWORD });
   if (res.status !== 200) throw new Error(`admin sign-in failed: ${res.status} ${JSON.stringify(res.body)}`);
   return agent;
 }

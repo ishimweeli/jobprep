@@ -50,6 +50,7 @@ export function describeAudit(e: { action: string; reason: string | null; metada
     case 'access.grant': return `granted ${s('days')} days of Full Access to ${s('targetName')}${why}`;
     case 'user.suspend': return `suspended ${s('targetName')}${why}`;
     case 'user.unsuspend': return `lifted the suspension of ${s('targetName')}${why}`;
+    case 'password.reset_sent': return `sent a password reset link to ${s('targetEmail')}`;
     case 'otp.resend': return `sent a login code to ${s('targetEmail')}`;
     case 'payment.check': return `checked a payment (${s('result')})`;
     case 'payment.manual_grant': return `granted access for payment ${s('reference')} (transaction ${s('transactionId')})${why}`;

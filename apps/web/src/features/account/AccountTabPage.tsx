@@ -44,7 +44,7 @@ function AccountTab({ session }: { session: MeResponse }) {
           type="button"
           onClick={() => void signOut.request()}
           disabled={signOut.busy}
-          className="flex min-h-[52px] cursor-pointer items-center justify-center gap-2.5 rounded-[14px] border border-[#FCA5A5] bg-surface text-base font-bold text-red-800"
+          className="flex min-h-[48px] cursor-pointer items-center justify-center gap-2.5 rounded-[14px] border border-incorrect-line bg-surface text-base font-semibold text-incorrect"
         >
           <StrokeIcon name="signOut" />
           Sign out

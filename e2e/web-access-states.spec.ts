@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
-import { API, expectNoHorizontalScroll, isPhone, readOtp, signUpViaApi, watchErrors } from './web-helpers';
+import { API, expectNoHorizontalScroll, isPhone, signUpViaApi, watchErrors } from './web-helpers';
 import { ACCOUNTANT_SLUG, buyAccessViaApi, completeViaApi, FREE_SLUG } from './web-exam-helpers';
-import { addGrant, cleanUser, me, requestSignInCode, typeCode } from './web-p3-helpers';
+import { addGrant, cleanUser, me, signInWithPassword } from './web-p3-helpers';
 
 async function setGoal(page: Page) {
   const body = (await (await page.request.get(`${API}/api/countries/RW/categories`)).json()) as { categories: { id: string; slug: string }[] };
@@ -166,13 +166,13 @@ test.describe('Web: details of an unlocked test (C30)', () => {
     const card = page.getByRole('region', { name: 'Start' });
     await expect(card).toContainText('Your access');
     await expect(card).toContainText(/Full Access · until \d+ \w+ 20\d\d/);
-    await expect(card.getByRole('link', { name: 'Start Mock Test' })).toBeVisible();
+    await expect(card.getByRole('link', { name: 'Get started' })).toBeVisible();
     await expect(page.getByRole('link', { name: /Review last attempt/ })).toHaveCount(0);
     await expect(page.getByText('You have this test in progress')).toHaveCount(0);
     await expectNoHorizontalScroll(page);
 
     // 2. in progress
-    await card.getByRole('link', { name: 'Start Mock Test' }).click();
+    await card.getByRole('link', { name: 'Get started' }).click();
     await expect(page).toHaveURL(/\/rw\/exam\/[a-z0-9]+$/);
     const attemptUrl = page.url();
     await page.getByRole('group', { name: 'Answer options' }).getByRole('button').first().click();
@@ -206,7 +206,7 @@ test.describe('Web: guest taps a paid test (C17)', () => {
     const dialog = page.getByRole('dialog', { name: 'This test is part of Full Access' });
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText('Accountant (Public Institution) — Mock 1 is not free. Full Access unlocks every mock test in Rwanda for 30 days for one payment of RWF 2,000.');
-    await expect(dialog).toContainText('Create a free account with your email address, so your access belongs to you on any device.');
+    await expect(dialog).toContainText('Create a free account with Google or your email, so your access belongs to you on any device.');
     await expect(dialog).toContainText('Pay with MTN MoMo or Airtel Money. You come straight back to this test.');
     await expect(dialog).not.toContainText('[PRICE]');
     const next = encodeURIComponent(`/rw/checkout?test=${ACCOUNTANT_SLUG}`);
@@ -231,9 +231,7 @@ test.describe('Web: guest taps a paid test (C17)', () => {
     await buy.click();
     await page.getByRole('link', { name: 'I already have an account' }).click();
     await expect(page).toHaveURL(/\/sign-in\?next=/);
-    await requestSignInCode(page, u.email);
-    await typeCode(page, await readOtp(page.request, u.email));
-    await page.getByRole('button', { name: 'Verify and sign in' }).click();
+    await signInWithPassword(page, u.email, u.password);
     await expect(page).toHaveURL(new RegExp(`/rw/checkout\\?test=${ACCOUNTANT_SLUG}$`));
     await expect(page.getByRole('button', { name: /^Pay RWF 2,000$/ })).toBeVisible();
     await cleanUser(id);

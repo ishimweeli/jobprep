@@ -107,7 +107,7 @@ export function CatalogPage() {
             </Link>{' '}
             › Mock tests
           </nav>
-          <h1 className="m-0 text-[34px] font-bold tracking-tight">Find your mock test</h1>
+          <h1 className="m-0 text-[28px] font-bold tracking-tight">Find your mock test</h1>
         </div>
         <div role="search" className="hidden gap-2.5 md:flex">
           <SearchBox
@@ -137,7 +137,7 @@ export function CatalogPage() {
               <p aria-live="polite" className="m-0 text-sm font-semibold text-ink-2 md:text-[15px]" data-testid="result-count">
                 {data ? (
                   <>
-                    <strong className="text-ink md:font-bold">{plural(data.total, 'mock test')}</strong>
+                    <strong className="text-ink md:font-semibold">{plural(data.total, 'mock test')}</strong>
                     <span className="hidden md:inline"> {scopeText(filters, catName)}</span>
                   </>
                 ) : (
@@ -239,7 +239,7 @@ function SearchBox({
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
-      {icon && <Search size={20} strokeWidth={2.2} className="pointer-events-none absolute left-4 top-4 text-muted" aria-hidden="true" />}
+      {icon && <Search size={20} strokeWidth={2.2} className="pointer-events-none absolute left-4 top-3 text-muted" aria-hidden="true" />}
       <input
         id={id}
         type="search"
@@ -250,7 +250,7 @@ function SearchBox({
         enterKeyHint="search"
         className={cx(
           'w-full rounded-control border border-input-border bg-surface text-base text-ink placeholder:text-muted',
-          compact ? 'h-12 px-3.5' : 'h-[52px] pl-[46px] pr-4',
+          compact ? 'h-12 px-3.5' : 'h-11 pl-[46px] pr-4',
         )}
       />
     </form>

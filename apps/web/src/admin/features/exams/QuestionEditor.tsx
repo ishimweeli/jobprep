@@ -24,9 +24,9 @@ function ReportBanner({ reports }: { reports: QuestionDetail['reports'] }) {
   const msg = reports.find((r) => r.message)?.message;
   const days = [...new Set([...reports].reverse().map((r) => formatDay(r.createdAt)))];
   return (
-    <div role="note" className="flex flex-col gap-1 rounded-[12px] border border-[#FCD34D] bg-[#FFFBEB] px-3.5 py-3">
-      <span className="text-sm font-bold text-[#78350F]">Reported by {plural(reports.length, 'candidate')}</span>
-      <span className="text-sm text-[#78350F]">{msg ? `“${msg}” · ` : ''}{days.join(', ')}</span>
+    <div role="note" className="flex flex-col gap-1 rounded-[10px] border border-flagged-line bg-flagged-bg px-3.5 py-3">
+      <span className="text-sm font-semibold text-flagged">Reported by {plural(reports.length, 'candidate')}</span>
+      <span className="text-sm text-flagged">{msg ? `“${msg}” · ` : ''}{days.join(', ')}</span>
     </div>
   );
 }
@@ -116,7 +116,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
 
   const stem = (
     <>
-      <label htmlFor={`${uid}-stem`} className="text-sm font-bold">Question</label>
+      <label htmlFor={`${uid}-stem`} className="text-sm font-semibold">Question</label>
       <textarea
         id={`${uid}-stem`}
         rows={phone ? 3 : 2}
@@ -131,7 +131,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
 
   const options = (
     <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-      <legend className="mb-2 p-0 text-sm font-bold">{phone ? 'Options — tap the circle for the correct one' : 'Options — select the correct answer'}</legend>
+      <legend className="mb-2 p-0 text-sm font-semibold">{phone ? 'Options — tap the circle for the correct one' : 'Options — select the correct answer'}</legend>
       {form.options.map((o) => {
         const right = form.correct.includes(o.key);
         return (
@@ -145,7 +145,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
               aria-label={phone ? `Mark option ${o.key} correct` : `Mark option ${o.key} as correct`}
               className={cx('flex-none accent-correct', phone ? 'h-[22px] w-[22px]' : 'h-5 w-5')}
             />
-            <span className={cx('font-bold text-ink-2', phone ? 'w-5' : 'w-7')}>{o.key}</span>
+            <span className={cx('font-semibold text-ink-2', phone ? 'w-5' : 'w-7')}>{o.key}</span>
             <input
               type="text"
               value={o.text}
@@ -156,7 +156,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
               className={cx(
                 'min-w-0 flex-1 px-3 text-ink',
                 phone ? 'h-[46px] text-base' : 'h-11 text-[15px]',
-                right ? 'rounded-[10px] border-2 border-correct bg-[#ECFDF5]' : fieldBox(bad('options') && !o.text.trim()),
+                right ? 'rounded-[10px] border-2 border-correct bg-correct-bg' : fieldBox(bad('options') && !o.text.trim()),
               )}
             />
           </div>
@@ -166,7 +166,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
   );
 
   const selectCls = cx('border border-input-border bg-white px-2.5 font-normal text-ink', phone ? 'h-[46px] rounded-[10px] px-3 text-base' : 'h-11 rounded-[10px] text-[15px]');
-  const lab = 'flex flex-col gap-1.5 text-sm font-bold';
+  const lab = 'flex flex-col gap-1.5 text-sm font-semibold';
   const topic = (
     <label className={lab}>
       Topic
@@ -201,7 +201,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
 
   const explanation = (
     <>
-      <label htmlFor={`${uid}-why`} className="text-sm font-bold">{phone ? 'Explanation' : 'Explanation shown after submission'}</label>
+      <label htmlFor={`${uid}-why`} className="text-sm font-semibold">{phone ? 'Explanation' : 'Explanation shown after submission'}</label>
       <textarea
         id={`${uid}-why`}
         rows={phone ? 4 : 3}
@@ -217,7 +217,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
   const feedback = (
     <>
       {all.length > 0 && (
-        <div role="alert" className="flex flex-col gap-0.5 rounded-[12px] border border-red-300 bg-red-50 px-3.5 py-3 text-sm font-semibold text-red-900">
+        <div role="alert" className="flex flex-col gap-0.5 rounded-[10px] border border-incorrect-line bg-incorrect-bg px-3.5 py-3 text-sm font-semibold text-incorrect">
           {all.map((p, i) => <span key={`${p.field}-${i}`}>{p.message}</span>)}
         </div>
       )}
@@ -245,10 +245,10 @@ function EditorForm({ testId, data, topics, cases, phone }: {
         {feedback}
         {editable && (
           <div className="flex flex-col gap-2">
-            <button type="button" onClick={() => run('publish')} disabled={save.isPending} aria-busy={save.isPending || undefined} className="min-h-[52px] rounded-[12px] border-0 bg-brand text-base font-bold text-white disabled:opacity-60">
+            <button type="button" onClick={() => run('publish')} disabled={save.isPending} aria-busy={save.isPending || undefined} className="min-h-12 rounded-[10px] border-0 bg-brand text-base font-semibold text-white disabled:opacity-60">
               Publish &amp; resolve reports
             </button>
-            <button type="button" onClick={() => run('draft')} disabled={save.isPending} aria-busy={save.isPending || undefined} className="min-h-12 rounded-[12px] border border-input-border bg-white text-[15px] font-semibold text-ink disabled:opacity-60">
+            <button type="button" onClick={() => run('draft')} disabled={save.isPending} aria-busy={save.isPending || undefined} className="min-h-12 rounded-[10px] border border-input-border bg-white text-[15px] font-semibold text-ink disabled:opacity-60">
               Save draft
             </button>
           </div>
@@ -262,7 +262,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex flex-col gap-0.5">
           <span className="text-[13px] font-semibold text-muted">{subtitle}</span>
-          <h2 id={`${uid}-t`} className="m-0 text-xl">Edit question {data.position.number} of {data.position.total}</h2>
+          <h2 id={`${uid}-t`} className="m-0 text-[17px]">Edit question {data.position.number} of {data.position.total}</h2>
         </div>
         <div className="flex gap-1.5">
           {prev ? <Link to={`/admin/exams/${testId}/q/${prev}`} aria-label="Previous question" className={arrow}>←</Link> : <button type="button" disabled aria-label="Previous question" className={cx(arrow, 'opacity-40')}>←</button>}
@@ -284,7 +284,7 @@ function EditorForm({ testId, data, topics, cases, phone }: {
             <button type="button" onClick={() => run('draft')} disabled={save.isPending} aria-busy={save.isPending || undefined} data-dirty={dirty || undefined} className="h-11 rounded-[10px] border border-input-border bg-white px-4 text-[15px] font-semibold text-ink disabled:opacity-60">
               Save draft
             </button>
-            <button type="button" onClick={() => run('publish')} disabled={save.isPending} aria-busy={save.isPending || undefined} className="h-11 rounded-[10px] border-0 bg-brand px-4 text-[15px] font-bold text-white disabled:opacity-60">
+            <button type="button" onClick={() => run('publish')} disabled={save.isPending} aria-busy={save.isPending || undefined} className="h-11 rounded-[10px] border-0 bg-brand px-4 text-[15px] font-semibold text-white disabled:opacity-60">
               Publish change &amp; resolve reports
             </button>
           </div>

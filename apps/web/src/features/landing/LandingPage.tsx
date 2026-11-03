@@ -4,13 +4,13 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Landing, TestCard } from '../../api/types';
 import { Badge } from '../../components/Badge';
-import { buttonClasses, LinkButton } from '../../components/Button';
+import { buttonClasses } from '../../components/Button';
 import { CategoryIcon } from '../../components/CategoryIcon';
 import { PhoneBrandHeader } from '../../components/layout/Header';
 import { QueryError, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate, languageList, languageListShort, plural } from '../../lib/format';
-import { countryPath, useActiveCountrySlug, useCountries, useCountryDetail } from '../country/hooks';
+import { countryPath, useActiveCountrySlug, useCountries } from '../country/hooks';
 import { HeroPreview } from './HeroPreview';
 import { useLanding } from './queries';
 
@@ -32,7 +32,6 @@ export function LandingPage() {
   const slug = useActiveCountrySlug();
   const landing = useLanding(slug);
   const countries = useCountries();
-  const detail = useCountryDetail(slug);
   const data = landing.data;
   const countryName = data?.country.name ?? countries.data?.find((c) => c.slug === slug)?.name;
   const freeTest = data ? [...data.featuredTests, ...data.recentlyAdded].find((x) => x.isFree) : undefined;
@@ -47,7 +46,7 @@ export function LandingPage() {
         <section className="border-b border-border bg-page">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-12 px-4 pb-7 pt-7 md:px-6 md:pb-16 md:pt-[72px]">
             <div className="flex min-w-0 flex-[1_1_520px] flex-col gap-4 md:gap-[22px]">
-              <span className="inline-flex min-h-[28px] self-start rounded-pill bg-brand-soft px-2.5 py-[5px] text-[13px] font-semibold text-brand-hover md:min-h-[34px] md:px-3 md:py-1.5 md:text-sm">
+              <span className="inline-flex min-h-[28px] self-start rounded-pill bg-brand-soft px-2.5 py-[5px] text-[13px] font-semibold text-brand md:min-h-[34px] md:px-3 md:py-1.5 md:text-sm">
                 {countryName ? (
                   <>
                     <span className="md:hidden">{countryName} recruitment exam practice</span>
@@ -57,7 +56,7 @@ export function LandingPage() {
                   <span aria-hidden="true">&nbsp;</span>
                 )}
               </span>
-              <h1 className="m-0 text-4xl font-extrabold leading-[1.08] tracking-[-0.03em] md:text-[56px] md:leading-[1.05]">
+              <h1 className="m-0 text-[32px] font-bold leading-[1.08] tracking-[-0.03em] md:text-[52px] md:leading-[1.05]">
                 {headA}
                 {headB ? (
                   <>
@@ -97,7 +96,6 @@ export function LandingPage() {
             <Categories slug={slug} data={data} />
             <Featured slug={slug} data={data} />
             <HowAndRecent slug={slug} data={data} />
-            <PricingSummary slug={slug} data={data} methods={detail.data?.paymentMethods.map((m) => m.label) ?? []} />
           </>
         )}
       </main>
@@ -132,7 +130,7 @@ function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[
       <form
         role="search"
         onSubmit={submit}
-        className="flex flex-col gap-2.5 rounded-[18px] border border-zinc-300 bg-surface p-3.5 md:rounded-[20px] md:p-[18px] md:shadow-search"
+        className="flex flex-col gap-2.5 rounded-card border border-border-strong bg-surface p-3.5 md:rounded-[20px] md:p-[18px] md:shadow-search"
       >
         <label htmlFor="hero-q" className="text-[15px] font-semibold md:text-base">
           {t('en', 'landing.searchPlaceholder')}
@@ -145,7 +143,7 @@ function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[
             onChange={(e) => setQ(e.target.value)}
             placeholder="e.g. Secondary Mathematics teacher, Accountant"
             autoComplete="off"
-            className="h-[52px] min-w-0 rounded-control border border-input-border bg-surface px-3.5 text-base text-ink placeholder:text-muted md:flex-[1_1_260px] md:px-4"
+            className="h-12 min-w-0 rounded-control border border-input-border bg-surface px-3.5 text-base text-ink placeholder:text-muted md:h-11 md:flex-[1_1_260px] md:px-4"
           />
           <button type="submit" className={buttonClasses({ variant: 'primary', size: 'lg', className: 'md:px-[22px]' })}>
             <Search size={18} strokeWidth={2.4} aria-hidden="true" />
@@ -170,7 +168,7 @@ function SectionHead({ id, title, sub, linkTo, linkText, phoneLinkText }: { id: 
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-3 md:items-end">
       <div className="flex flex-col gap-1.5">
-        <h2 id={id} className="m-0 text-[22px] font-bold tracking-tight md:text-3xl">
+        <h2 id={id} className="m-0 text-[17px] font-bold tracking-tight md:text-[22px]">
           {title}
         </h2>
         {sub && <p className="m-0 hidden text-base text-ink-2 md:block">{sub}</p>}
@@ -201,7 +199,7 @@ function Categories({ slug, data }: { slug: string; data: Landing }) {
             >
               <span
                 className={cx(
-                  'inline-flex h-11 w-11 flex-none items-center justify-center rounded-control md:h-12 md:w-12',
+                  'inline-flex h-11 w-11 flex-none items-center justify-center rounded-control md:w-12',
                   featured ? 'bg-brand text-white' : 'bg-soft text-ink-2',
                 )}
               >
@@ -209,9 +207,9 @@ function Categories({ slug, data }: { slug: string; data: Landing }) {
               </span>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5 md:gap-1">
                 <span className="flex flex-wrap items-center gap-2">
-                  <span className="text-base font-bold md:text-lg">{c.name}</span>
+                  <span className="text-base font-semibold md:text-lg">{c.name}</span>
                   {featured && (
-                    <span className="hidden rounded-pill bg-brand px-2 py-[3px] text-xs font-bold text-white md:inline">Most practised</span>
+                    <span className="hidden rounded-pill bg-brand px-2 py-[3px] text-xs font-semibold text-white md:inline">Most practised</span>
                   )}
                 </span>
                 {c.description && <span className="hidden text-[15px] leading-normal text-ink-2 md:block">{c.description}</span>}
@@ -274,7 +272,7 @@ function FeaturedCard({ slug, test }: { slug: string; test: TestCard }) {
         <span className="text-[13px] font-semibold text-muted">{test.profession}</span>
         <TestTag isFree={test.isFree} />
       </div>
-      <h3 className="m-0 text-[17px] leading-snug md:text-lg">{test.title}</h3>
+      <h3 className="m-0 text-[17px] leading-snug">{test.title}</h3>
       <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-sm text-ink-2">
         <span>{plural(test.questionCount, 'question')}</span>
         <span>{test.durationMinutes} min</span>
@@ -294,19 +292,19 @@ function FeaturedCard({ slug, test }: { slug: string; test: TestCard }) {
 
 function HowAndRecent({ slug, data }: { slug: string; data: Landing }) {
   return (
-    <section className="mx-auto flex max-w-[1200px] flex-wrap gap-8 px-4 pb-2 pt-6 md:px-6 md:pb-6 md:pt-12">
+    <section className="mx-auto flex max-w-[1200px] flex-wrap gap-8 px-4 pb-2 pt-6 md:px-6 md:pb-[72px] md:pt-12">
       <div aria-labelledby="how" role="region" className="flex min-w-0 flex-[1_1_520px] flex-col gap-3 md:gap-5">
-        <h2 id="how" className="m-0 text-[22px] font-bold tracking-tight md:text-3xl">
+        <h2 id="how" className="m-0 text-[17px] font-bold tracking-tight md:text-[22px]">
           How JobPrep works
         </h2>
         <ol className="m-0 flex list-none flex-col gap-2.5 p-0 md:grid md:grid-cols-[repeat(auto-fill,minmax(min(100%,230px),1fr))] md:gap-3.5">
           {STEPS.map((s, i) => (
             <li key={s.title} className="flex items-start gap-3 md:flex-col md:gap-2 md:rounded-card md:border md:border-border md:p-[18px]">
-              <span className="inline-flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand-soft text-sm font-extrabold text-brand-hover md:h-8 md:w-8 md:text-base">
+              <span className="inline-flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand md:h-8 md:w-8 md:text-base">
                 {i + 1}
               </span>
               <span className="flex flex-col gap-0.5 md:gap-2">
-                <span className="text-base font-bold md:text-[17px]">{s.title}</span>
+                <span className="text-base font-semibold md:text-[17px]">{s.title}</span>
                 <span className="text-[15px] leading-normal text-ink-2">{s.body}</span>
               </span>
             </li>
@@ -314,7 +312,7 @@ function HowAndRecent({ slug, data }: { slug: string; data: Landing }) {
         </ol>
       </div>
       <div aria-labelledby="recent" role="region" className="flex min-w-0 flex-[1_1_380px] flex-col gap-3 md:gap-5">
-        <h2 id="recent" className="m-0 text-[22px] font-bold tracking-tight md:text-3xl">
+        <h2 id="recent" className="m-0 text-[17px] font-bold tracking-tight md:text-[22px]">
           Recently added
         </h2>
         <ul className="m-0 list-none overflow-hidden rounded-[14px] border border-border p-0 md:rounded-card">
@@ -337,49 +335,6 @@ function HowAndRecent({ slug, data }: { slug: string; data: Landing }) {
             </li>
           ))}
         </ul>
-      </div>
-    </section>
-  );
-}
-
-function PricingSummary({ slug, data, methods }: { slug: string; data: Landing; methods: string[] }) {
-  const plan = data.plan;
-  const methodText = methods.length > 0 ? methods.join(' or ') : null;
-  return (
-    <section aria-labelledby="price" className="mx-auto max-w-[1200px] px-4 pb-8 pt-6 md:px-6 md:pb-[72px] md:pt-12">
-      <div className="flex flex-col gap-3 rounded-[18px] border border-border bg-page p-5 md:flex-row md:flex-wrap md:items-center md:gap-6 md:rounded-[20px] md:p-8">
-        <div className="flex min-w-0 flex-col gap-2 md:flex-[1_1_360px]">
-          <h2 id="price" className="m-0 text-xl font-bold md:text-[28px] md:tracking-tight">
-            <span className="md:hidden">Simple pricing</span>
-            <span className="hidden md:inline">Simple, transparent pricing</span>
-          </h2>
-          <p className="m-0 hidden text-base leading-[1.55] text-ink-2 md:block">
-            Every job category has free sample tests. When you are ready, one payment unlocks every mock test
-            {plan ? ` for ${plan.durationDays} days` : ''}
-            {methodText ? ` — pay with ${methodText}` : ''}.
-          </p>
-        </div>
-        <div className="flex gap-2.5 md:grid md:flex-[1_1_460px] md:grid-cols-[repeat(auto-fill,minmax(min(100%,200px),1fr))] md:gap-3">
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-[14px] border border-border bg-surface p-3.5 md:gap-1 md:rounded-card md:p-[18px]">
-            <span className="text-[13px] font-semibold text-muted md:text-sm">
-              <span className="md:hidden">Samples</span>
-              <span className="hidden md:inline">Sample tests</span>
-            </span>
-            <span className="text-[22px] font-extrabold md:text-[26px]">Free</span>
-            <span className="hidden text-sm text-ink-2 md:block">No account needed</span>
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-[14px] border-2 border-brand bg-surface p-[13px] md:gap-1 md:rounded-card md:p-[17px]">
-            <span className="text-[13px] font-semibold text-brand-hover md:text-sm">
-              {plan ? `${plan.name} · ${plan.durationDays} days` : 'Full Access'}
-            </span>
-            <span className="text-[22px] font-extrabold md:text-[26px]">{plan?.priceLabel ?? '—'}</span>
-            <span className="hidden text-sm text-ink-2 md:block">Every mock test, unlimited attempts</span>
-          </div>
-        </div>
-        {methodText && <p className="m-0 text-sm text-ink-2 md:hidden">Pay with {methodText}.</p>}
-        <LinkButton to={countryPath(slug, 'pricing')} variant="final" className="md:flex-none md:py-3.5">
-          See pricing
-        </LinkButton>
       </div>
     </section>
   );

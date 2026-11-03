@@ -4,7 +4,7 @@ import { cx } from '../../lib/cx';
 import { Dialog } from '../Dialog';
 import { buttonClasses } from '../Button';
 
-const row = 'flex min-h-[52px] items-center justify-between border-b border-soft px-1 text-base font-semibold text-ink no-underline hover:text-ink';
+const row = 'flex min-h-[48px] items-center justify-between border-b border-soft px-1 text-base font-semibold text-ink no-underline hover:text-ink';
 
 const LANGUAGE_BUTTON_NAME: Record<string, string> = { en: 'English', rw: 'Ikinyarwanda', sw: 'Kiswahili' };
 
@@ -22,7 +22,7 @@ export function GuestMenuSheet({ open, onClose }: { open: boolean; onClose: () =
       onClose={onClose}
       title="Menu"
       variant="sheet"
-      titleClassName="m-0 text-lg font-bold"
+      titleClassName="m-0 text-[17px] font-bold"
       panelClassName="flex flex-col gap-1.5 !pb-[22px] !pt-3.5"
       headerAction={
         <button type="button" onClick={onClose} className="min-h-[44px] cursor-pointer border-0 bg-transparent px-2 text-[15px] font-semibold text-brand">
@@ -39,10 +39,10 @@ export function GuestMenuSheet({ open, onClose }: { open: boolean; onClose: () =
       <Link to="/choose-country" onClick={onClose} className={row}>
         <span>Country</span>
         <span className="font-medium text-muted">
-          {country ? `${country.name} · ${country.currencyCode}` : slug.toUpperCase()} ›
+          {country ? country.name : slug.toUpperCase()} ›
         </span>
       </Link>
-      <div className="flex min-h-[52px] items-center justify-between border-b border-soft px-1">
+      <div className="flex min-h-[48px] items-center justify-between border-b border-soft px-1">
         <span className="text-base font-semibold">Language</span>
         <span role="group" aria-label="Language" className="inline-flex rounded-[10px] bg-soft p-[3px]">
           {languages.map((code, i) => (
@@ -53,7 +53,7 @@ export function GuestMenuSheet({ open, onClose }: { open: boolean; onClose: () =
               aria-disabled="true"
               className={cx(
                 'min-h-[36px] cursor-default rounded-lg border-0 px-2.5 text-sm',
-                i === 0 ? 'bg-surface font-bold text-ink' : 'bg-transparent font-semibold text-ink-2',
+                i === 0 ? 'bg-surface font-semibold text-ink' : 'bg-transparent font-semibold text-ink-2',
               )}
             >
               {LANGUAGE_BUTTON_NAME[code] ?? code.toUpperCase()}

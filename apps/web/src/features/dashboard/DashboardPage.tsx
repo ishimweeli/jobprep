@@ -87,7 +87,7 @@ function PracticeButton({ start, label, busy }: { start: () => void; label: stri
       type="button"
       onClick={start}
       disabled={busy}
-      className={buttonClasses({ variant: 'primary', className: 'cursor-pointer rounded-control px-5 py-3.5 md:self-start md:py-3 md:text-[15px]' })}
+      className={buttonClasses({ variant: 'primary', className: 'cursor-pointer px-5 md:self-start md:text-[15px]' })}
     >
       {label}
     </button>
@@ -103,7 +103,7 @@ function DashboardView({ d, slug }: { d: DashboardResponse; slug: string }) {
     <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-3.5 px-4 pb-6 pt-[18px] outline-none md:gap-5 md:px-6 md:pb-16 md:pt-7">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-0.5 md:gap-1">
-          <h1 className="m-0 text-[26px] tracking-tight md:text-[32px]">{headline(d)}</h1>
+          <h1 className="m-0 text-2xl tracking-tight md:text-[28px]">{headline(d)}</h1>
           <GoalLine d={d} />
         </div>
         {!fresh && (
@@ -117,7 +117,7 @@ function DashboardView({ d, slug }: { d: DashboardResponse; slug: string }) {
       </div>
 
       {practice.error && (
-        <p role="alert" className="m-0 rounded-control border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-900">
+        <p role="alert" className="m-0 rounded-control border border-incorrect-line bg-incorrect-bg p-3 text-sm font-semibold text-incorrect">
           {practice.error}
         </p>
       )}
@@ -131,10 +131,10 @@ function DashboardView({ d, slug }: { d: DashboardResponse; slug: string }) {
               {d.resume && <ResumeCard resume={d.resume} slug={slug} />}
               {d.recommended && (
                 <section aria-labelledby="rec" className="flex min-w-0 flex-[1_1_360px] flex-col gap-2 rounded-card border-2 border-brand bg-surface p-[17px] md:gap-3 md:rounded-card-lg md:p-[23px]">
-                  <h2 id="rec" className="m-0 text-[13px] font-semibold text-brand-hover md:text-sm">
+                  <h2 id="rec" className="m-0 text-[13px] font-semibold text-brand md:text-sm">
                     Recommended next
                   </h2>
-                  <p className="m-0 text-lg font-bold leading-snug md:text-xl md:leading-[1.35]">
+                  <p className="m-0 text-lg font-semibold leading-snug md:text-xl md:font-bold md:leading-[1.35]">
                     {d.recommended.topicName} practice<span className="hidden md:inline"> set</span>
                   </p>
                   <p className="m-0 text-sm text-ink-2 md:text-[15px]">{practiceLine(d.recommended, desktop)}</p>
@@ -171,10 +171,10 @@ function FreshView({ d, slug }: { d: DashboardResponse; slug: string }) {
   const resume = d.resume && <ResumeCard resume={d.resume} slug={slug} className="flex-none" />;
   const startCard = start && (
     <section aria-labelledby="st-t" className="flex flex-col gap-2.5 rounded-card-lg border-2 border-brand bg-surface p-[21px]">
-      <h2 id="st-t" className="m-0 text-sm font-bold text-brand-hover">
+      <h2 id="st-t" className="m-0 text-sm font-bold text-brand">
         Start here
       </h2>
-      <p className="m-0 text-xl font-extrabold leading-[1.3]">{start.title}</p>
+      <p className="m-0 text-xl font-bold leading-[1.3]">{start.title}</p>
       <p className="m-0 text-[15px] text-ink-2">
         {startHereLine(start)}. Take it once to see where you stand — we’ll point you to your weakest topics afterwards.
       </p>
@@ -185,19 +185,19 @@ function FreshView({ d, slug }: { d: DashboardResponse; slug: string }) {
   );
   const history = (
     <section aria-labelledby="sh-t" className="flex flex-col gap-3 rounded-card border border-border bg-surface p-5">
-      <h2 id="sh-t" className="m-0 text-lg">
+      <h2 id="sh-t" className="m-0 text-[17px]">
         Score history
       </h2>
       <div className="flex flex-col items-center gap-1.5 rounded-control border border-dashed border-input-border px-4 py-7 text-center">
         <BarChart3 size={32} strokeWidth={1.8} aria-hidden="true" className="text-muted" />
-        <p className="m-0 text-base font-bold">No scores yet</p>
+        <p className="m-0 text-base font-semibold">No scores yet</p>
         <p className="m-0 text-sm text-ink-2">Your scores and strongest and weakest topics will appear here after your first mock test.</p>
       </div>
     </section>
   );
   const more = d.suggestedTests.length > 0 && (
     <section aria-labelledby="sg-t" className="flex flex-col gap-2.5 rounded-card border border-border bg-surface p-5">
-      <h2 id="sg-t" className="m-0 text-lg">
+      <h2 id="sg-t" className="m-0 text-[17px]">
         More for your goal
       </h2>
       <ul className="m-0 flex list-none flex-col p-0">
@@ -208,7 +208,7 @@ function FreshView({ d, slug }: { d: DashboardResponse; slug: string }) {
                 <span className="text-[15px] font-semibold">{t.title}</span>
                 <span className="text-[13px] text-muted">{suggestedMeta(t)}</span>
               </span>
-              <span className={cx('whitespace-nowrap rounded-pill px-[9px] py-[3px] text-xs font-bold', t.isFree ? 'bg-free-bg text-free' : 'bg-brand-soft text-brand-hover')}>
+              <span className={cx('whitespace-nowrap rounded-pill px-[9px] py-[3px] text-xs font-semibold', t.isFree ? 'bg-free-bg text-free' : 'bg-brand-soft text-brand')}>
                 {t.isFree ? 'Free' : 'Full Access'}
               </span>
             </Link>
@@ -246,22 +246,22 @@ function FreshView({ d, slug }: { d: DashboardResponse; slug: string }) {
 function ResumeCard({ resume, slug, className }: { resume: NonNullable<DashboardResponse['resume']>; slug: string; className?: string }) {
   const left = useRemaining(resume.remainingSeconds);
   return (
-    <section aria-labelledby="cont" className={cx('flex min-w-0 flex-[1_1_360px] flex-col gap-2.5 rounded-card bg-ink p-[18px] text-white md:gap-3 md:rounded-card-lg md:p-6', className)}>
-      <h2 id="cont" className="m-0 text-[13px] font-semibold text-zinc-300 md:text-sm">
+    <section aria-labelledby="cont" className={cx('flex min-w-0 flex-[1_1_360px] flex-col gap-2.5 rounded-card bg-dark p-[18px] text-white md:gap-3 md:rounded-card-lg md:p-6', className)}>
+      <h2 id="cont" className="m-0 text-[13px] font-semibold text-on-dark md:text-sm">
         Continue where you stopped
       </h2>
-      <p className="m-0 text-lg font-bold md:text-xl md:leading-[1.35]">{resume.mockTest.title}</p>
-      <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-ink-2 md:h-2">
+      <p className="m-0 text-lg font-semibold md:text-xl md:font-bold md:leading-[1.35]">{resume.mockTest.title}</p>
+      <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-ink md:h-2">
         <div className="h-full bg-brand-ring" style={{ width: `${progressWidth(resume.answered, resume.total)}%` }} />
       </div>
-      <p className="m-0 text-sm text-zinc-300 md:text-[15px]">
+      <p className="m-0 text-sm text-on-dark md:text-[15px]">
         {resume.answered} of {resume.total} answered · {formatClock(left)} left<span className="hidden md:inline"> on the timer</span>
       </p>
       <ActionLink
         ready={ROUTES_READY.resume}
         to={countryPath(slug, 'tests', resume.mockTest.slug, 'start')}
         variant="plain"
-        className="!bg-surface !text-ink hover:!bg-surface rounded-control px-5 py-3.5 text-base md:self-start md:py-3 md:text-[15px]"
+        className="!bg-surface !text-ink hover:!bg-surface px-5 text-base md:self-start md:text-[15px]"
       >
         Resume test
       </ActionLink>
@@ -284,23 +284,23 @@ function ScoreChart({ d, geometry }: { d: DashboardResponse; geometry: ChartGeom
       {desktop &&
         geometry.gridLines.map((g) => (
           <g key={g.percent}>
-            <line x1="40" y1={g.y} x2="580" y2={g.y} stroke="#F4F4F5" />
-            <text x="30" y={g.y + 4} textAnchor="end" fontSize="12" fill="#52525B">
+            <line x1="40" y1={g.y} x2="580" y2={g.y} stroke="#EEF1F5" />
+            <text x="30" y={g.y + 4} textAnchor="end" fontSize="12" fill="#5E6573">
               {g.percent}%
             </text>
           </g>
         ))}
-      <line x1={desktop ? 40 : 10} y1={geometry.baseline} x2={desktop ? 580 : 330} y2={geometry.baseline} stroke="#D4D4D8" />
-      <polyline points={points.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke="#6D28D9" strokeWidth="3" strokeLinejoin="round" />
+      <line x1={desktop ? 40 : 10} y1={geometry.baseline} x2={desktop ? 580 : 330} y2={geometry.baseline} stroke="#DCE2EB" />
+      <polyline points={points.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke="#164A7A" strokeWidth="3" strokeLinejoin="round" />
       {points.map((p, i) => {
         const last = i === points.length - 1;
         return (
           <g key={i}>
-            <circle cx={p.x} cy={p.y} r={last ? (desktop ? 7 : 6) : desktop ? 6 : 5} fill="#6D28D9" stroke={last ? '#FFFFFF' : undefined} strokeWidth={last ? 2 : undefined} />
-            <text x={p.x} y={p.y - 14} textAnchor="middle" fontSize={labelSize} fontWeight="700" fill="#18181B">
+            <circle cx={p.x} cy={p.y} r={last ? (desktop ? 7 : 6) : desktop ? 6 : 5} fill="#164A7A" stroke={last ? '#FFFFFF' : undefined} strokeWidth={last ? 2 : undefined} />
+            <text x={p.x} y={p.y - 14} textAnchor="middle" fontSize={labelSize} fontWeight="700" fill="#3A3F4A">
               {p.percent}%
             </text>
-            <text x={p.x} y={geometry.dateY} textAnchor="middle" fontSize="12" fill="#52525B">
+            <text x={p.x} y={geometry.dateY} textAnchor="middle" fontSize="12" fill="#5E6573">
               {p.label}
             </text>
           </g>
@@ -315,7 +315,7 @@ function HistoryCard({ d }: { d: DashboardResponse }) {
   return (
     <section aria-labelledby="hist" className={cx(card, 'flex flex-col gap-2 flex-[999_1_520px] md:gap-3.5')}>
       <div className="flex items-baseline justify-between gap-2.5">
-        <h2 id="hist" className="m-0 text-[17px] md:text-xl">
+        <h2 id="hist" className="m-0 text-[17px]">
           Score history
         </h2>
         <span className="hidden text-sm text-ink-2 md:inline">All mock tests</span>
@@ -329,12 +329,12 @@ function TopicsCard({ d, onPractise }: { d: DashboardResponse; onPractise: (topi
   const { strong, needsWork } = d.topics;
   return (
     <section aria-labelledby="topics" className={cx(card, 'flex flex-col gap-1.5 flex-[1_1_320px] md:gap-3.5')}>
-      <h2 id="topics" className="m-0 mb-1 text-[17px] md:mb-0 md:text-xl">
+      <h2 id="topics" className="m-0 mb-1 text-[17px] md:mb-0">
         Topics
       </h2>
       {strong.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-bold uppercase text-free md:text-[13px] md:normal-case">Strong</span>
+          <span className="text-xs font-semibold uppercase text-free md:text-[13px] md:normal-case">Strong</span>
           {strong.map((t) => (
             <div key={t.topicId} className="flex justify-between py-1 text-[15px] md:py-1.5">
               <span>{t.name}</span>
@@ -345,7 +345,7 @@ function TopicsCard({ d, onPractise }: { d: DashboardResponse; onPractise: (topi
       )}
       {needsWork.length > 0 && (
         <div className={cx('mt-1.5 flex flex-col gap-1.5 md:mt-0', strong.length > 0 && 'md:border-t md:border-border md:pt-3')}>
-          <span className="text-xs font-bold uppercase text-flagged-ink md:text-[13px] md:normal-case">Needs work</span>
+          <span className="text-xs font-semibold uppercase text-flagged-ink md:text-[13px] md:normal-case">Needs work</span>
           {needsWork.map((t) => (
             <div key={t.topicId} className="flex items-center justify-between gap-2.5 text-[15px] md:py-1">
               <span>
@@ -355,7 +355,7 @@ function TopicsCard({ d, onPractise }: { d: DashboardResponse; onPractise: (topi
                 type="button"
                 onClick={() => onPractise(t.topicId)}
                 aria-label={`Practise ${t.name}`}
-                className="min-h-[44px] cursor-pointer border-0 bg-transparent py-2.5 text-sm font-semibold text-brand hover:text-brand-hover md:py-2"
+                className="min-h-[44px] cursor-pointer border-0 bg-transparent py-2.5 text-sm font-semibold text-link hover:text-link-hover md:py-2"
               >
                 Practise
               </button>
@@ -370,7 +370,7 @@ function TopicsCard({ d, onPractise }: { d: DashboardResponse; onPractise: (topi
 function RecentCard({ d, slug }: { d: DashboardResponse; slug: string }) {
   return (
     <section aria-labelledby="done" className={cx(card, 'flex flex-col gap-1 p-4 flex-[999_1_520px] md:gap-1.5')}>
-      <h2 id="done" className="m-0 mb-1.5 text-[17px] md:mb-2 md:text-xl">
+      <h2 id="done" className="m-0 mb-1.5 text-[17px] md:mb-2">
         Recently completed
       </h2>
       {d.recentlyCompleted.map((r) => (
@@ -387,7 +387,7 @@ function RecentCard({ d, slug }: { d: DashboardResponse; slug: string }) {
               {r.attemptNumber ? ` · attempt ${r.attemptNumber}` : ''}
             </span>
           </span>
-          <span className="text-base font-extrabold tabular md:text-[17px]">{r.percent === null ? '–' : `${Math.round(r.percent)}%`}</span>
+          <span className="text-base font-semibold tabular md:text-[17px]">{r.percent === null ? '–' : `${Math.round(r.percent)}%`}</span>
         </Link>
       ))}
     </section>

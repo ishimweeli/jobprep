@@ -95,7 +95,7 @@ test.describe('Users', () => {
     await expect(detail.getByText('Access changes ask for a reason and are recorded in the audit log.')).toBeVisible();
 
     // the four buttons are drawn, announced as unavailable, and do nothing
-    for (const name of ['Grant / extend 30 days', 'Send login code', 'View as candidate', 'Suspend account']) {
+    for (const name of ['Grant / extend 30 days', 'Send password reset', 'View as candidate', 'Suspend account']) {
       const b = detail.getByRole('button', { name });
       await expect(b).toHaveAttribute('aria-disabled', 'true');
       await b.dispatchEvent('click');

@@ -35,7 +35,7 @@ function RadioGroup({
 }) {
   return (
     <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
-      <legend className="mb-2 p-0 text-[15px] font-bold">{legend}</legend>
+      <legend className="mb-2 p-0 text-[15px] font-semibold">{legend}</legend>
       <div className={cx(variant === 'sheet' ? 'flex flex-wrap gap-2' : 'flex flex-col gap-2')}>
         {options.map((o) => {
           const on = o.value === value;
@@ -46,7 +46,7 @@ function RadioGroup({
                 <span
                   className={cx(
                     'flex min-h-[44px] cursor-pointer items-center justify-center rounded-[10px] border px-2 text-center text-sm font-semibold peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-ring',
-                    on ? 'border-brand bg-brand-softer text-brand-hover' : 'border-zinc-300 bg-surface text-ink',
+                    on ? 'border-brand bg-brand-softer text-brand' : 'border-border-strong bg-surface text-ink',
                   )}
                 >
                   {o.label}
@@ -97,7 +97,7 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
 
   const subject = (
     <div className="flex flex-col gap-2">
-      <label htmlFor={`${idPrefix}-subject`} className="text-[15px] font-bold">
+      <label htmlFor={`${idPrefix}-subject`} className="text-[15px] font-semibold">
         Subject / role
       </label>
       <select

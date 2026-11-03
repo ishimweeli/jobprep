@@ -70,7 +70,7 @@ test.describe('Web: country gate (C23)', () => {
     await expect(page.getByText(/Your account is set to/)).toContainText('Rwanda');
     await expect(page.getByText('Kenya mock test')).toBeVisible();
     await expect(page.getByRole('link', { name: 'See similar tests in Rwanda' })).toHaveAttribute('href', '/rw/tests');
-    await expect(page.getByRole('link', { name: 'Switch my account to Kenya' })).toHaveAttribute('href', '/account/settings?switch=KE');
+    await expect(page.getByRole('link', { name: 'Switch my account to Kenya' })).toHaveAttribute('href', '/account/country?to=KE');
     await expect(page.getByText(/Switching keeps your Rwanda results\./)).toBeVisible();
     await expectNoHorizontalScroll(page);
 
@@ -83,23 +83,15 @@ test.describe('Web: country gate (C23)', () => {
     await cleanUser(userId);
   });
 
-  test('wrong country: "Switch my account to Kenya" opens the switch sheet', async ({ page }) => {
+  test('wrong country: "Switch my account to Kenya" opens Change exam country with Kenya selected', async ({ page }) => {
     await signUpViaApi(page, 'Aline Uwase');
     await kenyaLive(page);
-    await page.route('**/api/me/country-change*', (r) =>
-      r.fulfill({
-        json: {
-          from: { code: 'RW', name: 'Rwanda' },
-          to: { code: 'KE', name: 'Kenya', status: 'LIVE', selectable: true, currencyCode: 'KES', paymentMethods: ['M-Pesa'] },
-          currentAccess: null,
-          keepsResults: true,
-        },
-      }),
-    );
     await page.goto('/ke/tests/county-accountant-mock-1');
     await page.getByRole('link', { name: 'Switch my account to Kenya' }).click();
-    await expect(page).toHaveURL(/\/account\/settings\?switch=KE$/);
-    await expect(page.getByRole('dialog', { name: 'Switch to Kenya?' })).toBeVisible();
+    await expect(page).toHaveURL(/\/account\/country\?to=KE$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Change exam country' })).toBeVisible();
+    await expect(page.getByRole('radio', { name: /Kenya/ })).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByRole('button', { name: 'Switch to Kenya' })).toBeVisible();
   });
 
   test('the API’s 403 country_mismatch (a stale country in the URL) never shows a raw error', async ({ page }) => {

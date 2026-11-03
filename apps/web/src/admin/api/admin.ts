@@ -29,12 +29,12 @@ export const adminMe = () => api<{ admin: AdminMe } | AdminMe>('/me').then((r) =
 
 // ── Reads
 export const getOverview = (country?: string) => api<Overview>('/overview', { query: { country } });
-export const getUsers = (q: { q?: string; filter?: string; page?: number; pageSize?: number }) => api<UsersPage>('/users', { query: q });
+export const getUsers = (q: { q?: string; filter?: string; country?: string; page?: number; pageSize?: number }) => api<UsersPage>('/users', { query: q });
 export const getUser = (id: string) => api<UserDetail>(`/users/${encodeURIComponent(id)}`);
-export const getPayments = (q: { status?: string; provider?: string; stuck?: boolean; q?: string; page?: number; pageSize?: number }) =>
+export const getPayments = (q: { status?: string; provider?: string; stuck?: boolean; country?: string; q?: string; page?: number; pageSize?: number }) =>
   api<PaymentsPage>('/payments', { query: { ...q, stuck: q.stuck ? 'true' : undefined } });
 export const checkPayment = (id: string) => api<PaymentCheck>(`/payments/${encodeURIComponent(id)}/check`, { method: 'POST' });
-export const getExams = (q: { q?: string; category?: string; page?: number; pageSize?: number }) => api<ExamsPage>('/exams', { query: q });
+export const getExams = (q: { q?: string; category?: string; country?: string; page?: number; pageSize?: number }) => api<ExamsPage>('/exams', { query: q });
 export const getMockTest = (id: string) => api<MockTestDetail>(`/mock-tests/${encodeURIComponent(id)}`);
 export const getCatalogOptions = () => api<CatalogOptions>('/catalog-options');
 export const getQuestion = (id: string) => api<QuestionDetail>(`/questions/${encodeURIComponent(id)}`);

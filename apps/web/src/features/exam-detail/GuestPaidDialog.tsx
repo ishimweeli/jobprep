@@ -27,7 +27,7 @@ export function GuestPaidDialog({
       onClose={onClose}
       title="This test is part of Full Access"
       variant="responsive"
-      titleClassName="m-0 pr-9 text-[22px] font-bold tracking-tight"
+      titleClassName="m-0 pr-9 text-[17px] font-bold tracking-tight"
       desktopPanelClassName="md:max-w-[500px] md:rounded-[20px] md:p-7"
       panelClassName="relative flex flex-col gap-3 md:gap-3.5"
       headerAction={
@@ -54,15 +54,15 @@ export function GuestPaidDialog({
       </p>
       <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
         <li className="flex items-start gap-3">
-          <span aria-hidden="true" className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-soft text-sm font-extrabold text-brand-hover">
+          <span aria-hidden="true" className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand">
             1
           </span>
           <span className="text-[15px] leading-normal">
-            <strong>Create a free account</strong> with your email address, so your access belongs to you on any device.
+            <strong>Create a free account</strong> with Google or your email, so your access belongs to you on any device.
           </span>
         </li>
         <li className="flex items-start gap-3">
-          <span aria-hidden="true" className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-soft text-sm font-extrabold text-brand-hover">
+          <span aria-hidden="true" className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand">
             2
           </span>
           <span className="text-[15px] leading-normal">
@@ -73,7 +73,7 @@ export function GuestPaidDialog({
       <Link to={signUpPath(next)} className={buttonClasses({ variant: 'primary', size: 'lg' })}>
         Create account and continue
       </Link>
-      <Link to={signInPath(next)} className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold' })}>
+      <Link to={signInPath(next)} className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold md:!min-h-[44px]' })}>
         I already have an account
       </Link>
       {sample && (

@@ -40,7 +40,7 @@ export function accountMenuItems(input: {
   return [
     { id: 'progress', label: 'My progress', secondary: null, icon: 'progress', to: `${base}/progress` },
     { id: 'access', label: 'My access', secondary: accessLine(input.access), icon: 'access', to: `${base}/progress` },
-    { id: 'country', label: 'Exam country', secondary: `${input.countryName} · change`, icon: 'country', to: '/choose-country' },
+    { id: 'country', label: 'Exam country', secondary: `${input.countryName} · change`, icon: 'country', to: '/account/country' },
     // Language has no picker design (C22): shown as drawn, inert.
     { id: 'language', label: 'Language', secondary: languageLine(input.languages), icon: 'language', to: null },
     // Help and support: no help page is designed and there is no support number yet, so no second line and no link.

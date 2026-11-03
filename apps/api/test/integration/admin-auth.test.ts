@@ -2,7 +2,8 @@ import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
 import { ConsoleEmailProvider } from '../../src/services/email';
-import { ADMINS, adminAgent, resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
+import { DEV_PASSWORD } from '../../prisma/seed-lib';
+import { ADMINS, adminAgent, readyAccount, resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
 const mail = new ConsoleEmailProvider(() => {});
@@ -22,22 +23,21 @@ async function makeAdmin(email: string, roles: { role: 'SYSTEM_ADMIN' | 'CONTENT
   const defs = await prisma.role.findMany();
   return prisma.user.create({
     data: {
-      email, name: `Admin ${email.split('@')[0]}`, countryCode: 'RW',
+      email, name: `Admin ${email.split('@')[0]}`, countryCode: 'RW', ...(await readyAccount()),
       roles: { create: roles.map((r) => ({ roleId: defs.find((d) => d.name === r.role)!.id, countryScope: r.countryScope ?? [], active: r.active ?? true })) },
     },
   });
 }
 
 describe('admins sign in like everyone else', () => {
-  it('the normal emailed code and the normal session cookie; no admin cookie; the response lists the roles', async () => {
+  it('email + password, the normal session cookie; no admin cookie; the response lists the roles', async () => {
     const a = request.agent(app);
-    expect((await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: ADMINS.SYSTEM })).body).toEqual({ cooldownSeconds: 45, expiresInSeconds: 300 });
-    const res = await a.post('/api/auth/sign-in').send({ email: ADMINS.SYSTEM, code: mail.lastCode(ADMINS.SYSTEM) });
+    const res = await a.post('/api/auth/sign-in').send({ email: ADMINS.SYSTEM, password: DEV_PASSWORD });
     expect(res.status).toBe(200);
     const cookie = String(res.headers['set-cookie']);
     expect(cookie).toMatch(/jp_session=/);
     expect(cookie).not.toMatch(/jp_admin/);
-    expect(res.body.user).toMatchObject({ name: 'Jean Bosco N.', email: ADMINS.SYSTEM, countryCode: 'RW', roles: ['SYSTEM_ADMIN'] });
+    expect(res.body.user).toMatchObject({ name: 'Jean Bosco N.', email: ADMINS.SYSTEM, countryCode: 'RW', roles: ['SYSTEM_ADMIN'], emailVerified: true, onboarding: { done: true, nextStep: null } });
     expect((await a.get('/api/me')).body.user.roles).toEqual(['SYSTEM_ADMIN']);
   });
 
@@ -78,14 +78,12 @@ describe('admins sign in like everyone else', () => {
     expect((await request(app).get('/api/admin/me').set('Cookie', 'jp_session=not-real')).status).toBe(401);
   });
 
-  it('the code an admin gets is an ordinary sign-in code: tries left on a wrong one, then it works', async () => {
+  it('a wrong password is the ordinary invalid_credentials answer, the right one works', async () => {
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: ADMINS.SUPPORT });
-    const code = mail.lastCode(ADMINS.SUPPORT)!;
-    const wrong = code === '000000' ? '111111' : '000000';
-    expect((await a.post('/api/auth/sign-in').send({ email: ADMINS.SUPPORT, code: wrong })).body).toMatchObject({ error: 'invalid_code', triesLeft: 4 });
-    expect((await a.post('/api/auth/sign-in').send({ email: ADMINS.SUPPORT, code })).status).toBe(200);
-    expect(await prisma.otpCode.count({ where: { purpose: 'SIGN_IN', email: ADMINS.SUPPORT } })).toBeGreaterThan(0);
+    const bad = await a.post('/api/auth/sign-in').send({ email: ADMINS.SUPPORT, password: 'not the password' });
+    expect([bad.status, bad.body.error]).toEqual([401, 'invalid_credentials']);
+    expect((await a.post('/api/auth/sign-in').send({ email: ADMINS.SUPPORT, password: DEV_PASSWORD })).status).toBe(200);
+    expect(mail.sent).toHaveLength(0); // signing in sends no email
   });
 
   it('sign-out is the normal sign-out and ends admin access too', async () => {
@@ -98,8 +96,7 @@ describe('admins sign in like everyone else', () => {
 
   it('only a hash of the session token is stored, and the session is stamped with the sign-in time', async () => {
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: ADMINS.EDITOR });
-    const res = await a.post('/api/auth/sign-in').send({ email: ADMINS.EDITOR, code: mail.lastCode(ADMINS.EDITOR) });
+    const res = await a.post('/api/auth/sign-in').send({ email: ADMINS.EDITOR, password: DEV_PASSWORD });
     const token = /jp_session=([^;]+)/.exec(String(res.headers['set-cookie']))![1]!;
     const sessions = await prisma.session.findMany({ where: { user: { email: ADMINS.EDITOR } }, orderBy: { createdAt: 'desc' } });
     expect(sessions.some((s) => s.tokenHash === token)).toBe(false);
@@ -144,8 +141,7 @@ describe('who gets in: an active account with an active role, signed in within 1
     const blocked = await a.get('/api/admin/me');
     expect([blocked.status, blocked.body.error]).toEqual([401, 'admin_sign_in_required']);
     advance(60);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: u.email });
-    const again = await a.post('/api/auth/sign-in').send({ email: u.email, code: mail.lastCode(u.email) });
+    const again = await a.post('/api/auth/sign-in').send({ email: u.email, password: DEV_PASSWORD });
     expect([again.status, again.body.error]).toEqual([403, 'account_suspended']);
   });
 
@@ -271,14 +267,15 @@ describe('admins are ordinary accounts in the user list', () => {
     expect((await sys.get(`/api/admin/users/${multi.id}`)).body.user.roles).toEqual(expect.arrayContaining(['CONTENT_EDITOR', 'SUPPORT']));
   });
 
-  it('support can send anyone a login code, including another admin; the audit line names the address', async () => {
+  it('support can send anyone a password-reset link, including another admin; the audit line names the address', async () => {
     const support = await adminAgent(app, mail, ADMINS.SUPPORT);
     const multi = await prisma.user.findUniqueOrThrow({ where: { email: ADMINS.MULTI } });
     mail.clear();
-    const res = await support.post(`/api/admin/users/${multi.id}/send-login-code`).send({});
+    const res = await support.post(`/api/admin/users/${multi.id}/send-password-reset`).send({});
     expect(res.status).toBe(200);
-    expect(mail.lastCode(ADMINS.MULTI)).toMatch(/^\d{6}$/);
-    const log = await prisma.auditLog.findFirstOrThrow({ where: { action: 'otp.resend', entityId: multi.id } });
+    expect(mail.lastResetToken(ADMINS.MULTI)).toBeTruthy();
+    expect(JSON.stringify(res.body)).not.toContain(mail.lastResetToken(ADMINS.MULTI)!);
+    const log = await prisma.auditLog.findFirstOrThrow({ where: { action: 'password.reset_sent', entityId: multi.id } });
     expect(log.metadata).toMatchObject({ targetEmail: ADMINS.MULTI });
   });
 

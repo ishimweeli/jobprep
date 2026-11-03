@@ -32,8 +32,8 @@ export function SystemPageBody({
             <path d={c.icon} />
           </svg>
         </span>
-        {c.code && <span className="text-sm font-bold text-muted">{c.code}</span>}
-        <h1 className="m-0 text-[25px] leading-[1.2] tracking-tight md:text-[30px]">{c.title}</h1>
+        {c.code && <span className="text-sm font-semibold text-muted">{c.code}</span>}
+        <h1 className="m-0 text-2xl leading-[1.2] tracking-tight md:text-[28px]">{c.title}</h1>
         <p className="m-0 text-base leading-[1.55] text-ink-2">{c.body}</p>
         {c.note && <p className="m-0 rounded-[10px] bg-free-bg px-3.5 py-2.5 text-sm font-semibold text-free">{c.note}</p>}
         <div className="flex w-full flex-col gap-2">

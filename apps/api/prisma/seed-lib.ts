@@ -1,6 +1,7 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { catalogues } from '@jobprep/shared';
 import { ROLE_LABELS, ROLE_PERMISSIONS, type AdminRoleCode } from '../src/domain/permissions';
+import { hashPassword } from '../src/services/password';
 import type { QDef, TestDef } from './seed-data/types';
 import {
   accountantFreeSample, accountantMock1, executiveSecretaryFree, executiveSecretaryMock2,
@@ -9,6 +10,9 @@ import {
 import {
   primaryTeacherGeneral, secondaryMathsS1S3, secondaryMathsS4S6, teachingProfessionCbc,
 } from './seed-data/tests-teaching';
+
+/** Password of the dev admins (system.admin@, content.editor@, support@, multi.role@jobprep.test). Never set in production. */
+export const DEV_PASSWORD = 'Password123!';
 
 const KEYS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
@@ -108,7 +112,8 @@ export async function seedDatabase(prisma: PrismaClient) {
   }
 
   // ── Roles & dev admins. An admin is a normal account (Rwanda) holding one or more role assignments; they sign in
-  // with the usual emailed code (printed by the console email provider).
+  // with email + DEV_PASSWORD (verified and set up, so e2e tests go straight to the app). Production seeds no passwords.
+  const devPasswordHash = process.env.NODE_ENV === 'production' ? null : await hashPassword(DEV_PASSWORD);
   const roleIds = {} as Record<AdminRoleCode, string>;
   for (const name of Object.keys(ROLE_PERMISSIONS) as AdminRoleCode[]) {
     const role = await prisma.role.create({
@@ -139,6 +144,7 @@ export async function seedDatabase(prisma: PrismaClient) {
     await prisma.user.create({
       data: {
         email: a.email, name: a.name, countryCode: 'RW', language: 'en',
+        passwordHash: devPasswordHash, emailVerifiedAt: new Date(), countryConfirmedAt: new Date(), onboardedAt: new Date(),
         roles: { create: a.roles.map((r) => ({ roleId: roleIds[r.role], countryScope: r.countryScope })) },
       },
     });

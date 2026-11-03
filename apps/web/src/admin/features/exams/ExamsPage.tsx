@@ -10,6 +10,7 @@ import { cx } from '../../lib/cx';
 import { formatCount, plural } from '../../lib/format';
 import { examsSearch, parseExamsQuery } from '../../lib/queryState';
 import { useDebouncedSearch } from '../../lib/useDebouncedSearch';
+import { useAdminCountry } from '../../lib/adminCountry';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { QuestionEditor } from './QuestionEditor';
 
@@ -29,14 +30,14 @@ function ExamRows({ rows, selectedId }: { rows: ExamRow[]; selectedId?: string }
             key={e.id}
             to={`/admin/exams/${e.id}`}
             aria-current={on ? 'true' : undefined}
-            className={cx('flex items-center gap-2.5 border-l-[3px] border-t border-t-[#F4F4F5] px-4 py-3 text-ink no-underline hover:text-ink', on ? 'border-l-brand bg-brand-softer' : 'border-l-transparent bg-white')}
+            className={cx('flex items-center gap-2.5 border-l-[3px] border-t border-t-soft px-4 py-3 text-ink no-underline hover:text-ink', on ? 'border-l-brand bg-brand-softer' : 'border-l-transparent bg-white')}
           >
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="text-sm font-semibold">{e.title}</span>
               <span className="text-xs text-muted">{e.category.name} · {plural(e.questionCount, 'question')} · {e.durationMinutes} min</span>
             </span>
             {e.openReports > 0 && (
-              <Pill tone={{ bg: '#FEF3C7', ink: '#92400E' }} className="px-[7px] py-0.5 !text-[11px]">{e.openReports} reported</Pill>
+              <Pill tone={{ bg: '#FDF1DD', ink: '#8A5300' }} className="px-[7px] py-0.5 !text-[11px]">{e.openReports} reported</Pill>
             )}
             <Pill tone={t} className="px-[7px] py-0.5 !text-[11px]">{t.label}</Pill>
           </Link>
@@ -56,10 +57,11 @@ export function ExamsPage() {
   const { testId, questionId } = useParams();
   const [sp, setSp] = useSearchParams();
   const query = parseExamsQuery(sp);
+  const { country } = useAdminCountry();
 
   const list = useQuery({
-    queryKey: keys.exams({ ...query }),
-    queryFn: () => getExams({ q: query.q || undefined, category: query.category || undefined, pageSize: 100 }),
+    queryKey: keys.exams({ ...query, country }),
+    queryFn: () => getExams({ q: query.q || undefined, category: query.category || undefined, country, pageSize: 100 }),
     placeholderData: keepPreviousData,
   });
   const catalog = useQuery({ queryKey: keys.catalog, queryFn: getCatalogOptions, staleTime: 5 * 60_000 });
@@ -144,7 +146,7 @@ export function ExamsPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <InertButton kind="secondary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">Import questions (CSV)</InertButton>
-          <InertButton kind="primary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-bold">+ New mock test</InertButton>
+          <InertButton kind="primary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">+ New mock test</InertButton>
         </div>
       </div>
       <div className="flex flex-wrap items-start gap-[18px]">

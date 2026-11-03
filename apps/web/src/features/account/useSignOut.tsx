@@ -62,7 +62,7 @@ export function SignOutDialog({
       onClose={onClose}
       title="Sign out?"
       variant="responsive"
-      titleClassName="m-0 text-[21px] font-bold md:text-[22px]"
+      titleClassName="m-0 text-[17px] font-semibold"
       desktopPanelClassName="md:max-w-[440px] md:rounded-[20px] md:p-[26px]"
       panelClassName="flex flex-col gap-3 !pt-[22px] !pb-6 md:gap-3.5"
     >
@@ -77,7 +77,7 @@ export function SignOutDialog({
         onClick={onConfirm}
         disabled={busy}
         aria-busy={busy || undefined}
-        className="min-h-[52px] cursor-pointer rounded-control border-0 bg-ink text-base font-bold text-white disabled:opacity-60 md:min-h-[50px]"
+        className="min-h-[48px] cursor-pointer rounded-[10px] border-0 bg-brand text-base font-semibold text-white disabled:opacity-60 md:min-h-[44px]"
       >
         Sign out
       </button>

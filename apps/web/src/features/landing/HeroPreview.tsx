@@ -21,9 +21,9 @@ export function HeroPreview() {
       <div className="flex items-center justify-between border-b border-border px-[18px] py-3.5">
         <div className="flex flex-col">
           <span className="text-[13px] text-muted">Secondary Mathematics · Mock 1</span>
-          <span className="text-[15px] font-bold">Question 12 of 50</span>
+          <span className="text-[15px] font-semibold">Question 12 of 50</span>
         </div>
-        <span className="tabular rounded-[10px] bg-soft px-3 py-2 font-bold">42:18</span>
+        <span className="tabular rounded-[10px] bg-soft px-3 py-2 font-semibold">42:18</span>
       </div>
       <div className="flex flex-col gap-3 px-[18px] py-5">
         <p className="m-0 text-[17px] font-semibold leading-snug">Solve for x: 2x² − 5x − 3 = 0</p>
@@ -33,7 +33,7 @@ export function HeroPreview() {
             className={`flex items-center gap-3 rounded-control px-3.5 py-3 ${o.selected ? 'border-2 border-brand bg-brand-softer' : 'border border-border bg-surface'}`}
           >
             <span
-              className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-bold ${o.selected ? 'bg-brand text-white' : 'bg-soft text-ink-2'}`}
+              className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-semibold ${o.selected ? 'bg-brand text-white' : 'bg-soft text-ink-2'}`}
             >
               {o.key}
             </span>

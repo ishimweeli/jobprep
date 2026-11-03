@@ -15,7 +15,7 @@ test.describe('Web: Flow A (no account) — landing to review to another test', 
     await expect(page).toHaveURL(/\/rw\/tests\?category=teaching-positions/);
     await page.getByRole('link', { name: `View test: ${FREE_TITLE}` }).click();
     await expect(page.getByRole('heading', { level: 1, name: FREE_TITLE })).toBeVisible();
-    await page.getByRole('link', { name: 'Start Mock Test' }).click();
+    await page.getByRole('link', { name: 'Get started' }).last().click();
 
     // the exam: no account, a guest token is kept on this device
     await expect(page).toHaveURL(/\/rw\/exam\/[a-z0-9]+$/);

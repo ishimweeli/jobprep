@@ -8,7 +8,7 @@ const base = { inProgress: null, previousAttempts: [] as PreviousAttempt[], atte
 describe('unlocked test states (ExamDetailUnlocked.dc)', () => {
   it('not started', () => {
     expect(unlockedState(base)).toBe('not_started');
-    expect(PRIMARY_LABEL.not_started).toBe('Start Mock Test');
+    expect(PRIMARY_LABEL.not_started).toBe('Get started');
     expect(reviewLastLabel(base)).toBeNull();
     expect(attemptsLine(base)).toBeNull();
   });

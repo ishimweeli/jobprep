@@ -14,11 +14,11 @@ export function SignedOutNotice() {
   return (
     <div
       role="status"
-      className="fixed left-1/2 top-[90px] z-[70] flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3.5 rounded-xl bg-ink px-[18px] py-3.5 text-[15px] text-white shadow-[0_12px_32px_rgba(0,0,0,0.2)]"
+      className="fixed left-1/2 top-[90px] z-[70] flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3.5 rounded-[10px] bg-ink px-[18px] py-3.5 text-[15px] text-white shadow-[0_12px_32px_rgba(0,0,0,0.2)]"
     >
       <span>
         You’re signed out.{' '}
-        <Link to="/sign-in" onClick={() => setNotice(null)} className="font-bold text-[#C4B5FD] underline hover:text-[#C4B5FD]">
+        <Link to="/sign-in" onClick={() => setNotice(null)} className="font-semibold text-[#8DBBF3] underline hover:text-[#8DBBF3]">
           Sign in again
         </Link>
       </span>

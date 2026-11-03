@@ -7,7 +7,7 @@ import { coveredUntil, daysLeft, nextGrantWindow } from '../../domain/access';
 import { formatMoney } from '../../domain/pricing';
 import type { Ctx } from '../../http/context';
 import { badRequest, conflict, notFound } from '../../http/errors';
-import { requestOtp } from '../../services/otp';
+import { sendResetOrThrow } from '../../services/password-reset';
 import { countryCodes, inCodes, pageSchema } from './util';
 
 const FILTERS = ['all', 'active', 'free', 'expired', 'suspended'] as const;
@@ -185,12 +185,12 @@ export function adminUsersRouter(ctx: Ctx) {
     res.json({ ok: true });
   });
 
-  /** Support: email the candidate a new sign-in code (the usual resend limits still apply). */
-  router.post('/users/:id/send-login-code', requirePermission('otp:resend'), async (req, res) => {
+  /** Support: email the person a password-reset link (the usual resend limits still apply; the admin never sees the link). */
+  router.post('/users/:id/send-password-reset', requirePermission('otp:resend'), async (req, res) => {
     const u = await loadUser(req);
     if (u.status === 'SUSPENDED') throw badRequest('user_suspended');
-    const out = await requestOtp({ prisma, config: ctx.config, email: ctx.email, now }, { email: u.email, purpose: 'SIGN_IN' });
-    await writeAudit(prisma, req.admin!, { action: 'otp.resend', entityType: 'user', entityId: u.id, countryCode: u.countryCode, metadata: { targetEmail: u.email, targetName: u.name } });
+    const out = await sendResetOrThrow({ prisma, config: ctx.config, email: ctx.email, now }, u);
+    await writeAudit(prisma, req.admin!, { action: 'password.reset_sent', entityType: 'user', entityId: u.id, countryCode: u.countryCode, metadata: { targetEmail: u.email, targetName: u.name } });
     res.json(out);
   });
 

@@ -2,7 +2,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
 import { ConsoleEmailProvider } from '../../src/services/email';
-import { ADMINS, adminAgent, resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
+import { ADMINS, adminAgent, readyAccount, resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
 const mail = new ConsoleEmailProvider(() => {});
@@ -37,7 +37,7 @@ const matrix: Row[] = [
   ['post', '/api/admin/users/x/access', ['SYSTEM']],
   ['post', '/api/admin/users/x/suspend', ['SYSTEM']],
   ['post', '/api/admin/users/x/unsuspend', ['SYSTEM']],
-  ['post', '/api/admin/users/x/send-login-code', ['SYSTEM', 'SUPPORT']],
+  ['post', '/api/admin/users/x/send-password-reset', ['SYSTEM', 'SUPPORT']],
   ['get', '/api/admin/payments', ['SYSTEM', 'SUPPORT']],
   ['get', '/api/admin/payments/x', ['SYSTEM', 'SUPPORT']],
   ['post', '/api/admin/payments/x/check', ['SYSTEM', 'SUPPORT']],
@@ -101,7 +101,7 @@ describe('role permissions (every route, every role)', () => {
     const covered = new Set(matrix.map(([, p]) => p.split('?')[0]!.replace(/\/x(?=\/|$)/g, '/:id').replace(/\/(RW)(?=\/|$)/g, '/:code').replace(/MTN_MOMO/, ':provider')));
     const expected = [
       '/api/admin/overview', '/api/admin/users', '/api/admin/users/:id', '/api/admin/users/:id/access', '/api/admin/users/:id/suspend',
-      '/api/admin/users/:id/unsuspend', '/api/admin/users/:id/send-login-code', '/api/admin/payments', '/api/admin/payments/:id',
+      '/api/admin/users/:id/unsuspend', '/api/admin/users/:id/send-password-reset', '/api/admin/payments', '/api/admin/payments/:id',
       '/api/admin/payments/:id/check', '/api/admin/payments/:id/manual-grant', '/api/admin/exams', '/api/admin/catalog-options',
       '/api/admin/mock-tests', '/api/admin/mock-tests/:id', '/api/admin/mock-tests/:id/publish', '/api/admin/mock-tests/:id/questions',
       '/api/admin/mock-tests/:id/import', '/api/admin/questions/:id', '/api/admin/categories', '/api/admin/categories/:id',
@@ -165,7 +165,7 @@ describe('forbidden actions are blocked AND change nothing', () => {
     expect((await support.get('/api/admin/users')).status).toBe(200);
     expect((await support.get(`/api/admin/users/${userId}`)).status).toBe(200);
     expect((await support.get('/api/admin/payments')).status).toBe(200);
-    expect((await support.post(`/api/admin/users/${userId}/send-login-code`).send({})).status).toBe(200);
+    expect((await support.post(`/api/admin/users/${userId}/send-password-reset`).send({})).status).toBe(200);
   });
 
   it('a content editor can still do exactly their job: view and edit exams', async () => {
@@ -231,7 +231,7 @@ describe('country restriction', () => {
   it('a Kenya-only support agent sees Kenya users and payments only', async () => {
     const role = await prisma.role.findUniqueOrThrow({ where: { name: 'SUPPORT' } });
     const email = 'kenya.support@jobprep.test';
-    await prisma.user.create({ data: { email, name: 'Kenya Support', countryCode: 'RW', roles: { create: { roleId: role.id, countryScope: ['KE'] } } } });
+    await prisma.user.create({ data: { email, name: 'Kenya Support', countryCode: 'RW', ...(await readyAccount()), roles: { create: { roleId: role.id, countryScope: ['KE'] } } } });
     const rw = await signedInAgent(app, mail, 'perm.rw@example.com');
     const ke = await prisma.user.create({ data: { countryCode: 'KE', email: 'kenyan.candidate@example.com', name: 'Kenyan Candidate' } });
     // sign in the Kenya-scoped support agent
@@ -241,7 +241,7 @@ describe('country restriction', () => {
     expect(users.results.every((u: { countryCode: string }) => u.countryCode === 'KE')).toBe(true);
     expect(users.results.some((u: { id: string }) => u.id === ke.id)).toBe(true);
     expect((await a.get(`/api/admin/users/${rw.userId}`)).body.error).toBe('user_not_found');
-    expect((await a.post(`/api/admin/users/${rw.userId}/send-login-code`).send({})).status).toBe(404);
+    expect((await a.post(`/api/admin/users/${rw.userId}/send-password-reset`).send({})).status).toBe(404);
     expect((await a.get(`/api/admin/users/${ke.id}`)).status).toBe(200);
     expect((await a.get('/api/admin/users?country=RW')).status).toBe(404);
     const pays = (await a.get('/api/admin/payments')).body;

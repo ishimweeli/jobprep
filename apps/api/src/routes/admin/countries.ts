@@ -239,7 +239,7 @@ export function adminCountriesRouter(ctx: Ctx) {
       const held = user?.roles.find((r) => r.roleId === role.id);
       if (held?.active) throw conflict('already_has_role');
       const addedToExisting = !!user;
-      if (!user) user = { ...(await tx.user.create({ data: { email: b.email, name: b.name, countryCode: 'RW', language: 'en' } })), roles: [] };
+      if (!user) user = { ...(await tx.user.create({ data: { email: b.email, name: b.name, countryCode: 'RW', language: 'en', countryConfirmedAt: ctx.now(), onboardedAt: ctx.now() } })), roles: [] };
       if (held) await tx.userRole.update({ where: { id: held.id }, data: { active: true, countryScope: b.countryScope } });
       else await tx.userRole.create({ data: { userId: user.id, roleId: role.id, countryScope: b.countryScope } });
       await writeAudit(tx, req.admin!, {

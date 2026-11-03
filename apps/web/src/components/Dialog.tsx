@@ -61,7 +61,7 @@ export function Dialog({
   panelClassName,
   headerAction,
   titleAs: Title = 'h2',
-  titleClassName = 'm-0 text-[21px] font-bold tracking-tight md:text-[26px]',
+  titleClassName = 'm-0 text-[17px] font-bold tracking-tight',
   desktopPanelClassName = 'md:max-w-[640px] md:rounded-[22px] md:p-7',
 }: DialogProps) {
   const titleId = useId();
@@ -124,7 +124,7 @@ export function Dialog({
   };
 
   const overlay = cx(
-    'fixed inset-0 z-50 flex flex-col bg-ink/50',
+    'fixed inset-0 z-50 flex flex-col bg-scrim/50',
     variant === 'sheet' && 'justify-end',
     variant === 'modal' && 'items-center justify-start px-4 pt-6 md:pt-[72px]',
     variant === 'responsive' && 'justify-end md:items-center md:justify-start md:px-4 md:pt-[72px]',

@@ -60,9 +60,19 @@ export const routes: RouteObject[] = [
     children: [
       { path: '/', element: <RootRedirect /> },
       { path: '/choose-country', lazy: async () => ({ Component: (await import('./features/country/ChooseCountryPage')).ChooseCountryPage }) },
-      // SignUp.dc / SignUpPhone.dc and SignIn.dc / SignInPhone.dc
+      // SignUp.dc, VerifyEmail.dc, SignIn.dc, ForgotPassword.dc, ResetPassword.dc, AuthCallback.dc (each with its Phone twin)
       { path: '/sign-up', lazy: async () => ({ Component: (await import('./features/auth/SignUpPage')).SignUpPage }) },
+      { path: '/verify-email', lazy: async () => ({ Component: (await import('./features/auth/VerifyEmailPage')).VerifyEmailPage }) },
       { path: '/sign-in', lazy: async () => ({ Component: (await import('./features/auth/SignInPage')).SignInPage }) },
+      { path: '/forgot-password', lazy: async () => ({ Component: (await import('./features/auth/ForgotPasswordPage')).ForgotPasswordPage }) },
+      { path: '/reset-password', lazy: async () => ({ Component: (await import('./features/auth/ResetPasswordPage')).ResetPasswordPage }) },
+      { path: '/auth/callback', lazy: async () => ({ Component: (await import('./features/auth/AuthCallbackPage')).AuthCallbackPage }) },
+      // OnboardCountry.dc / OnboardCategory.dc / OnboardGoal.dc (setup 1/3, 2/3, 3/3)
+      { path: '/setup/country', lazy: async () => ({ Component: (await import('./features/setup/SetupPages')).SetupCountryPage }) },
+      { path: '/setup/category', lazy: async () => ({ Component: (await import('./features/setup/SetupPages')).SetupCategoryPage }) },
+      { path: '/setup/goal', lazy: async () => ({ Component: (await import('./features/setup/SetupPages')).SetupGoalPage }) },
+      // ChangeCountry.dc / ChangeCountryPhone.dc (the account menu's "Exam country" row)
+      { path: '/account/country', lazy: async () => ({ Component: (await import('./features/account/ChangeCountryPage')).ChangeCountryPage }) },
       // The admin screens (apps/web/src/admin): signed-in people who hold a role. No candidate chrome here.
       { path: '/admin/*', element: <Suspense fallback={<RootFallback />}><AdminApp /></Suspense> },
       {

@@ -4,15 +4,15 @@ import { ACCESS_TONE, COUNTRY_TONE, MODE_TONE, TEST_TONE, accessSummary, history
 
 describe('status and badge mapping (colours of the artboards)', () => {
   it('payment statuses collapse to Paid / Pending / Failed', () => {
-    expect(paymentTone('SUCCESSFUL')).toMatchObject({ label: 'Paid', bg: '#D1FAE5', ink: '#065F46' });
-    expect(paymentTone('PENDING')).toMatchObject({ label: 'Pending', bg: '#FEF3C7', ink: '#92400E' });
-    for (const s of ['FAILED', 'DECLINED', 'EXPIRED'] as const) expect(paymentTone(s)).toMatchObject({ label: 'Failed', bg: '#FEE2E2', ink: '#991B1B' });
+    expect(paymentTone('SUCCESSFUL')).toMatchObject({ label: 'Paid', bg: '#E3F4E8', ink: '#1E6B3C' });
+    expect(paymentTone('PENDING')).toMatchObject({ label: 'Pending', bg: '#FDF1DD', ink: '#8A5300' });
+    for (const s of ['FAILED', 'DECLINED', 'EXPIRED'] as const) expect(paymentTone(s)).toMatchObject({ label: 'Failed', bg: '#FBE7E4', ink: '#A1281B' });
   });
   it('access states', () => {
     expect(ACCESS_TONE.active.label).toBe('Full Access');
-    expect(ACCESS_TONE.free).toMatchObject({ label: 'Free', bg: '#F4F4F5' });
+    expect(ACCESS_TONE.free).toMatchObject({ label: 'Free', bg: '#EEF1F5' });
     expect(ACCESS_TONE.expired.label).toBe('Expired');
-    expect(ACCESS_TONE.suspended.bg).toBe('#FEE2E2');
+    expect(ACCESS_TONE.suspended.bg).toBe('#FBE7E4');
   });
   it('test, country and provider states', () => {
     expect(TEST_TONE.PUBLISHED.label).toBe('Published');
@@ -66,6 +66,7 @@ describe('ACCESS box of a user', () => {
 describe('admin history sentence', () => {
   it('reads like the artboard', () => {
     expect(historySentence({ action: 'otp.resend', actor: 'Sandrine K.', reason: null })).toBe('Sandrine K. sent a login code');
+    expect(historySentence({ action: 'user.send_password_reset', actor: 'Sandrine K.', reason: null })).toBe('Sandrine K. sent a password reset email');
     expect(historySentence({ action: 'user.suspend', actor: 'Jean Bosco N.', reason: 'shared account' })).toBe('Jean Bosco N. suspended the account — reason: shared account');
     expect(historySentence({ action: 'x.y', actor: null, reason: null })).toBe('System x y');
   });

@@ -23,12 +23,12 @@ export function Skeleton({ className, label = 'Loading…' }: { className?: stri
 export function ErrorBox({ error, onRetry, className, children }: { error?: unknown; onRetry?: () => void; className?: string; children?: ReactNode }) {
   const offline = isApiError(error) && error.isNetwork;
   return (
-    <div role="alert" className={cx('flex flex-col items-start gap-2.5 rounded-[14px] border border-red-300 bg-red-50 p-[18px]', className)}>
-      <p className="m-0 text-base font-bold text-red-900">{offline ? 'You seem to be offline' : 'Something went wrong'}</p>
-      <p className="m-0 text-[15px] text-red-900">{offline ? 'Check your connection and try again.' : 'This could not be loaded. Try again in a moment.'}</p>
+    <div role="alert" className={cx('flex flex-col items-start gap-2.5 rounded-[14px] border border-incorrect-line bg-incorrect-bg p-[18px]', className)}>
+      <p className="m-0 text-base font-semibold text-incorrect">{offline ? 'You seem to be offline' : 'Something went wrong'}</p>
+      <p className="m-0 text-[15px] text-incorrect">{offline ? 'Check your connection and try again.' : 'This could not be loaded. Try again in a moment.'}</p>
       {children}
       {onRetry && (
-        <button type="button" onClick={onRetry} className="min-h-11 rounded-[10px] border border-red-300 bg-white px-4 text-[15px] font-semibold text-red-900">
+        <button type="button" onClick={onRetry} className="min-h-11 rounded-[10px] border border-incorrect-line bg-white px-4 text-[15px] font-semibold text-incorrect">
           Try again
         </button>
       )}

@@ -121,7 +121,7 @@ function Header({ exam }: { exam: ExamDetail }) {
         </Badge>
         <AccessBadge isFree={exam.isFree} className="px-2.5 py-1 text-xs md:text-[13px]" />
       </div>
-      <h1 className="m-0 text-[26px] font-bold leading-[1.2] tracking-tight md:text-[34px] md:leading-[1.15]">{exam.title}</h1>
+      <h1 className="m-0 text-2xl font-bold leading-[1.2] tracking-tight md:text-[28px] md:leading-[1.15]">{exam.title}</h1>
       {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2 md:text-[17px]">{exam.summary}</p>}
     </div>
   );
@@ -137,9 +137,9 @@ function Facts({ exam }: { exam: ExamDetail }) {
   return (
     <dl className="m-0 grid grid-cols-2 gap-2.5 md:grid-cols-[repeat(auto-fill,minmax(min(100%,160px),1fr))] md:gap-3">
       {facts.map((f) => (
-        <div key={f.label} className="flex flex-col-reverse gap-0.5 rounded-xl border border-border bg-surface p-3 md:rounded-[14px] md:p-4">
+        <div key={f.label} className="flex flex-col-reverse gap-0.5 rounded-[10px] border border-border bg-surface p-3 md:rounded-[14px] md:p-4">
           <dt className="text-[13px] text-muted md:text-sm">{f.label}</dt>
-          <dd className="m-0 text-xl font-extrabold md:text-2xl">{f.value}</dd>
+          <dd className="m-0 text-xl font-bold md:text-2xl">{f.value}</dd>
         </div>
       ))}
     </dl>
@@ -150,7 +150,7 @@ function Sections({ exam }: { exam: ExamDetail }) {
   if (exam.sections.length === 0) return null;
   return (
     <section aria-labelledby="sec" className={sectionCard}>
-      <h2 id="sec" className="m-0 mb-1.5 text-[17px] font-bold md:mb-0 md:text-xl">
+      <h2 id="sec" className="m-0 mb-1.5 text-[17px] font-bold md:mb-0">
         What the test covers
       </h2>
       <div className="hidden overflow-x-auto md:block">
@@ -196,7 +196,7 @@ function Instructions({ exam }: { exam: ExamDetail }) {
   const pass = passMarkDisplay(exam);
   return (
     <section aria-labelledby="ins" className={`${sectionCard} md:gap-3`}>
-      <h2 id="ins" className="m-0 text-[17px] font-bold md:text-xl">
+      <h2 id="ins" className="m-0 text-[17px] font-bold">
         Instructions
       </h2>
       {exam.instructions.length > 0 && (
@@ -223,7 +223,7 @@ function Attempts({ exam }: { exam: ExamDetail }) {
   const attempts = exam.previousAttempts;
   return (
     <section aria-labelledby="att" className={sectionCard}>
-      <h2 id="att" className="m-0 text-[17px] font-bold md:text-lg">
+      <h2 id="att" className="m-0 text-[17px] font-bold">
         Your previous attempts
       </h2>
       {attempts.length > 0 ? (
@@ -264,14 +264,14 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
   const accessCard = (
     <section aria-label="Start" className="flex flex-col gap-3 rounded-card border border-border bg-surface p-5">
       <span className="text-sm font-semibold text-muted">Your access</span>
-      <span className="text-[17px] font-bold">Full Access{until}</span>
+      <span className="text-[17px] font-semibold">Full Access{until}</span>
       {running && (
         <div className="flex flex-col gap-1.5 rounded-control bg-brand-softer px-3.5 py-3">
           <strong className="text-[15px]">You have this test in progress</strong>
           <span className="text-sm text-ink-2">
             {running.answered} of {running.total} answered · {formatClock(left)} left on the timer
           </span>
-          <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-[#DDD6FE]">
+          <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-brand-light">
             <div className="h-1.5 bg-brand" style={{ width: `${answeredShare(running)}%` }} />
           </div>
         </div>
@@ -281,7 +281,7 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
       </Link>
       {state === 'taken_before' && last && reviewLabel && (
         <>
-          <Link to={countryPath(slug, 'review', last.id)} className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold' })}>
+          <Link to={countryPath(slug, 'review', last.id)} className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold md:!min-h-[44px]' })}>
             {reviewLabel}
           </Link>
           <p className="m-0 text-[13px] text-muted">{attemptsLine(exam)}</p>
@@ -319,7 +319,7 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
                   Unlocked with Full Access
                 </Badge>
               </div>
-              <h1 className="m-0 text-[26px] font-bold leading-[1.15] tracking-tight md:text-[34px]">{exam.title}</h1>
+              <h1 className="m-0 text-2xl font-bold leading-[1.15] tracking-tight md:text-[28px]">{exam.title}</h1>
               {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2">{exam.summary}</p>}
             </div>
             <Facts exam={exam} />

@@ -18,12 +18,12 @@ function Actions({ phone }: { phone: boolean }) {
   if (phone) {
     return (
       <div className="flex flex-col gap-2">
-        <InertButton kind="primary" sizeClass="min-h-[52px] rounded-[12px] text-base font-bold">Grant / extend 30 days</InertButton>
+        <InertButton kind="primary" sizeClass="min-h-12 rounded-[10px] text-base font-semibold">Grant / extend 30 days</InertButton>
         <div className="grid grid-cols-2 gap-2">
-          <InertButton kind="secondary" sizeClass="min-h-12 rounded-[12px] text-[15px] font-semibold">Send login code</InertButton>
-          <InertButton kind="secondary" sizeClass="min-h-12 rounded-[12px] text-[15px] font-semibold">View as candidate</InertButton>
+          <InertButton kind="secondary" sizeClass="min-h-12 rounded-[10px] text-[15px] font-semibold">Send password reset</InertButton>
+          <InertButton kind="secondary" sizeClass="min-h-12 rounded-[10px] text-[15px] font-semibold">View as candidate</InertButton>
         </div>
-        <InertButton kind="danger" sizeClass="min-h-12 rounded-[12px] text-[15px] font-semibold">Suspend account</InertButton>
+        <InertButton kind="danger" sizeClass="min-h-12 rounded-[10px] text-[15px] font-semibold">Suspend account</InertButton>
         <p className="m-0 text-xs text-muted">{NOTE}</p>
       </div>
     );
@@ -31,8 +31,8 @@ function Actions({ phone }: { phone: boolean }) {
   return (
     <>
       <div className="grid grid-cols-2 gap-2">
-        <InertButton kind="primary" sizeClass="min-h-11 rounded-[10px] text-sm font-bold">Grant / extend 30 days</InertButton>
-        <InertButton kind="secondary" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">Send login code</InertButton>
+        <InertButton kind="primary" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">Grant / extend 30 days</InertButton>
+        <InertButton kind="secondary" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">Send password reset</InertButton>
         <InertButton kind="secondary" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">View as candidate</InertButton>
         <InertButton kind="danger" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">Suspend account</InertButton>
       </div>
@@ -65,19 +65,19 @@ function UserBody({ d, phone }: { d: UserDetailData; phone: boolean }) {
 
   if (phone) {
     const card = 'flex flex-col gap-1 rounded-[14px] border border-border bg-white p-4';
-    const row = 'flex justify-between gap-2.5 border-t border-[#F4F4F5] py-[9px] text-sm';
+    const row = 'flex justify-between gap-2.5 border-t border-soft py-[9px] text-sm';
     return (
       <>
         <div className="flex items-center gap-3">
           <Avatar text={ini} size={56} />
           <div className="flex flex-col">
-            <h2 className="m-0 text-[21px]">{d.user.name}</h2>
+            <h2 className="m-0 text-[17px]">{d.user.name}</h2>
             <span className="break-all text-sm text-muted">{d.user.email} · joined {formatDayYear(d.user.joinedAt)}</span>
           </div>
         </div>
         <div className="flex flex-col gap-0.5 rounded-[14px] p-4" style={{ background: tone.bg }}>
-          <span className="text-xs font-bold" style={{ color: tone.ink }}>ACCESS</span>
-          <span className="text-lg font-extrabold">{d.access.state === 'active' ? 'Full Access · active' : sum.line}</span>
+          <span className="text-xs font-semibold" style={{ color: tone.ink }}>ACCESS</span>
+          <span className="text-lg font-semibold">{d.access.state === 'active' ? 'Full Access · active' : sum.line}</span>
           {sum.meta && <span className="text-sm text-ink-2">{sum.meta}</span>}
         </div>
         <Actions phone />
@@ -121,7 +121,7 @@ function UserBody({ d, phone }: { d: UserDetailData; phone: boolean }) {
           <h3 id="ud-l" className="m-0 mb-1.5 text-base">Admin history</h3>
           <Rows empty="Nothing yet.">
             {d.adminHistory.map((h) => (
-              <p key={h.id} className="m-0 border-t border-[#F4F4F5] py-[9px] text-sm">{historySentence(h)} · {formatDateTime(h.at)}</p>
+              <p key={h.id} className="m-0 border-t border-soft py-[9px] text-sm">{historySentence(h)} · {formatDateTime(h.at)}</p>
             ))}
           </Rows>
         </section>
@@ -130,19 +130,19 @@ function UserBody({ d, phone }: { d: UserDetailData; phone: boolean }) {
   }
 
   const sec = 'flex flex-col gap-1';
-  const row = 'flex justify-between gap-2 border-t border-[#F4F4F5] py-2 text-sm';
+  const row = 'flex justify-between gap-2 border-t border-soft py-2 text-sm';
   return (
     <aside aria-labelledby="ud-name" className="sticky top-6 flex min-w-0 flex-[1_1_340px] flex-col gap-4 rounded-[16px] border border-border bg-white p-5">
       <div className="flex items-center gap-3">
         <Avatar text={ini} size={48} />
         <div className="flex flex-col">
-          <h2 id="ud-name" className="m-0 text-[19px]">{d.user.name}</h2>
+          <h2 id="ud-name" className="m-0 text-[17px]">{d.user.name}</h2>
           <span className="break-all text-[13px] text-muted">{d.user.email} · joined {formatDayYear(d.user.joinedAt)}</span>
         </div>
       </div>
-      <div className="flex flex-col gap-0.5 rounded-[12px] p-3.5" style={{ background: tone.bg }}>
-        <span className="text-xs font-bold" style={{ color: tone.ink }}>ACCESS</span>
-        <span className="text-base font-bold">{sum.line}</span>
+      <div className="flex flex-col gap-0.5 rounded-[10px] p-3.5" style={{ background: tone.bg }}>
+        <span className="text-xs font-semibold" style={{ color: tone.ink }}>ACCESS</span>
+        <span className="text-base font-semibold">{sum.line}</span>
         {sum.meta && <span className="text-[13px] text-ink-2">{sum.meta}</span>}
       </div>
       <Actions phone={false} />
@@ -175,7 +175,7 @@ function UserBody({ d, phone }: { d: UserDetailData; phone: boolean }) {
         <h3 id="ud-his" className="m-0 mb-1 text-[15px]">Admin history</h3>
         <Rows empty="Nothing yet.">
           {d.adminHistory.map((h) => (
-            <p key={h.id} className="m-0 border-t border-[#F4F4F5] py-2 text-sm">{historySentence(h)} · {formatDateTime(h.at)}</p>
+            <p key={h.id} className="m-0 border-t border-soft py-2 text-sm">{historySentence(h)} · {formatDateTime(h.at)}</p>
           ))}
         </Rows>
       </section>

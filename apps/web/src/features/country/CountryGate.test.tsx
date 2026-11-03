@@ -4,12 +4,13 @@ import { Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { CountrySummary, MeResponse } from '../../api/types';
 import { SystemPageBody } from '../system/SystemPage';
+import { testUser } from '../../test/fixtures';
 import { mockFetch, renderWithProviders } from '../../test/utils';
 import { CountryNotOpen, WrongCountry } from './CountryGate';
 
 const uganda: CountrySummary = { code: 'UG', slug: 'ug', name: 'Uganda', status: 'PREPARING', dialCode: '+256', currencyCode: 'UGX', languages: ['en'], selectable: false };
 const session = (access: boolean): MeResponse => ({
-  user: { id: 'u', name: 'Aline Uwase', email: 'aline@example.test', countryCode: 'RW', goalCategoryId: null, language: 'en' },
+  user: testUser(),
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en'] },
   access: { current: access ? { endsAt: '2026-11-25T00:00:00Z', daysLeft: 20, endingSoon: false } : null, expired: null, otherCountries: [] },
 });
@@ -53,7 +54,7 @@ describe('wrong country (CountryGate.dc)', () => {
     expect(screen.getByRole('heading', { name: 'This test is for Kenya' })).toBeInTheDocument();
     expect(screen.getByText(/Your account is set to/)).toHaveTextContent('so your Rwanda Full Access does not cover it.');
     expect(screen.getByRole('link', { name: 'See similar tests in Rwanda' })).toHaveAttribute('href', '/rw/tests');
-    expect(screen.getByRole('link', { name: 'Switch my account to Kenya' })).toHaveAttribute('href', '/account/settings?switch=KE');
+    expect(screen.getByRole('link', { name: 'Switch my account to Kenya' })).toHaveAttribute('href', '/account/country?to=KE');
     expect(screen.getByText('Switching keeps your Rwanda results. Your Rwanda Full Access stays with Rwanda.')).toBeInTheDocument();
   });
   it('without access it does not talk about Full Access', () => {

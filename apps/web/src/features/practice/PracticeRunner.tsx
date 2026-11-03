@@ -16,8 +16,8 @@ import {
 import { useStartPractice } from './useStartPractice';
 
 const FEEDBACK: Record<FeedbackTone, string> = {
-  correct: 'border-[#6EE7B7] bg-[#ECFDF5] text-free',
-  incorrect: 'border-[#FCA5A5] bg-[#FEF2F2] text-red-800',
+  correct: 'border-correct-line bg-correct-bg text-free',
+  incorrect: 'border-incorrect-line bg-incorrect-bg text-incorrect',
   partial: 'border-[#FDBA74] bg-[#FFF7ED] text-[#9A3412]',
 };
 
@@ -70,12 +70,12 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
         <Link to={countryPath(slug, 'progress')} aria-label="Back" className="-ml-3 inline-flex h-11 w-11 items-center justify-center text-xl text-ink no-underline hover:text-ink">
           <span aria-hidden="true">←</span>
         </Link>
-        <span className="flex-1 text-[17px] font-bold">Weak-area practice</span>
+        <span className="flex-1 text-[17px] font-semibold">Weak-area practice</span>
       </div>
       {/* Desktop header (Practice.dc) */}
       <div className="mx-auto hidden max-w-[1280px] items-center gap-4 px-6 py-3 md:flex">
         <div className="flex flex-1 flex-col">
-          <span className="text-base font-bold">Weak-area practice · {topics}</span>
+          <span className="text-base font-semibold">Weak-area practice · {topics}</span>
           <span className="text-[13px] text-muted">Feedback after every question · doesn’t affect your scores</span>
         </div>
       </div>
@@ -90,7 +90,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
         {header}
         <main id="main-content" tabIndex={-1} className="flex flex-1 justify-center p-4 outline-none md:p-6">
           <div className="flex w-full max-w-[820px] flex-col gap-4 md:self-start md:rounded-card-lg md:border md:border-border md:bg-surface md:p-7">
-            <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-brand-hover">
+            <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-brand">
               <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                 <path d="M4 20V10 M10 20V4 M16 20v-7 M22 20H2" />
               </svg>
@@ -115,7 +115,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
                 {more.error}
               </p>
             )}
-            <Link to={countryPath(slug, 'tests')} className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold' })}>
+            <Link to={countryPath(slug, 'tests')} className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold md:!min-h-[44px]' })}>
               Take a full mock test
             </Link>
           </div>
@@ -145,7 +145,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {choose ? <ChooseBadge choose={choose} /> : null}
-              {attempt.timer.untimed !== false && <span className="rounded-pill bg-soft px-2.5 py-1.5 text-[13px] font-bold text-ink-2">Untimed</span>}
+              {attempt.timer.untimed !== false && <span className="rounded-pill bg-soft px-2.5 py-1.5 text-[13px] font-semibold text-ink-2">Untimed</span>}
             </div>
           </div>
           <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-soft">
@@ -153,7 +153,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
           </div>
           <p className="m-0 text-lg font-semibold leading-normal md:text-[22px]">
             {q.stem}
-            {choose ? <strong className="font-bold"> Choose {choose}.</strong> : null}
+            {choose ? <strong className="font-semibold"> Choose {choose}.</strong> : null}
           </p>
           <div role="group" aria-label={choose ? `Answer options, choose ${choose}` : 'Answer options'} className="flex flex-col gap-2.5">
             {q.options.map((o) => {
@@ -170,7 +170,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
                   onClick={() => dispatch({ type: 'pick', question: q, key: o.key })}
                   className={cx(
                     'flex min-h-[56px] cursor-pointer items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-left text-ink',
-                    right ? 'border-2 border-correct bg-[#ECFDF5]' : wrong ? 'border-2 border-incorrect bg-[#FEF2F2]' : !checked && on ? 'border-2 border-brand bg-brand-softer' : 'border border-zinc-300 bg-surface',
+                    right ? 'border-2 border-correct bg-correct-bg' : wrong ? 'border-2 border-incorrect bg-incorrect-bg' : !checked && on ? 'border-2 border-brand bg-brand-softer' : 'border border-border-strong bg-surface',
                     checked && 'cursor-default',
                   )}
                 >
@@ -186,16 +186,16 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
                   ) : (
                     <span
                       className={cx(
-                        'inline-flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full text-sm font-bold',
+                        'inline-flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full text-sm font-semibold',
                         !checked && on ? 'bg-brand text-white' : 'bg-soft text-ink-2',
                       )}
                     >
                       {o.key}
                     </span>
                   )}
-                  {q.multiple && <span className="w-[18px] font-bold text-ink-2">{o.key}</span>}
+                  {q.multiple && <span className="w-[18px] font-semibold text-ink-2">{o.key}</span>}
                   <span className="flex-1 text-base md:text-lg">{o.text}</span>
-                  {tag && <span className={cx('text-[13px] font-bold', tag.kind === 'right' ? 'text-free' : 'text-red-800')}>{tag.text}</span>}
+                  {tag && <span className={cx('text-[13px] font-semibold', tag.kind === 'right' ? 'text-free' : 'text-incorrect')}>{tag.text}</span>}
                 </button>
               );
             })}
@@ -210,16 +210,16 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
           {fb && checked && (
             <div role="status" className={cx('flex flex-col gap-1.5 rounded-[14px] border px-4 py-3.5', FEEDBACK[fb.tone])}>
               <strong className="text-base">{fb.title}</strong>
-              {checked.explanation && <p className="m-0 text-[15px] leading-[1.6] text-[#27272A]">{checked.explanation}</p>}
+              {checked.explanation && <p className="m-0 text-[15px] leading-[1.6] text-ink">{checked.explanation}</p>}
             </div>
           )}
           {error && (
-            <p role="alert" className="m-0 rounded-control border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-900">
+            <p role="alert" className="m-0 rounded-control border border-incorrect-line bg-incorrect-bg p-3 text-sm font-semibold text-incorrect">
               {error}
             </p>
           )}
           <div className="flex flex-wrap items-center justify-between gap-2.5">
-            <button type="button" onClick={end} className="min-h-[48px] cursor-pointer border-0 bg-transparent px-1 text-[15px] font-semibold text-ink-2">
+            <button type="button" onClick={end} className="min-h-[48px] cursor-pointer border-0 bg-transparent px-1 text-[15px] font-semibold text-ink-2 md:min-h-[44px]">
               End practice
             </button>
             {checked ? (

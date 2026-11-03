@@ -13,12 +13,21 @@ const schema = z.object({
   WEB_DIST_DIR: z.string().min(1).optional(),
   DATABASE_URL: z.string().min(1),
   SESSION_SECRET: z.string().min(16),
-  OTP_TTL_SECONDS: z.coerce.number().int().positive().default(300),
+  /** The emailed verification code (new accounts only). */
+  OTP_TTL_SECONDS: z.coerce.number().int().positive().default(600),
   OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
   OTP_RESEND_COOLDOWN_SECONDS: z.coerce.number().int().nonnegative().default(45),
   OTP_MAX_PER_HOUR: z.coerce.number().int().positive().default(5),
+  /** Password sign-in: this many wrong passwords in a row lock the account for SIGN_IN_LOCK_MINUTES. */
+  SIGN_IN_MAX_FAILURES: z.coerce.number().int().positive().default(5),
+  SIGN_IN_LOCK_MINUTES: z.coerce.number().int().positive().default(15),
+  /** Password-reset links are valid for this long. */
+  PASSWORD_RESET_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
+  /** "Continue with Google" (optional). Both must be set to enable it; the redirect URI is ${PUBLIC_API_URL}/api/auth/google/callback. */
+  GOOGLE_CLIENT_ID: z.string().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().default(''),
   PAYMENT_PROVIDER_MODE: z.enum(['fake', 'sandbox', 'live']).default('fake'),
-  /** Where one-time codes and receipts go. `console` only prints (dev/test); production needs `smtp` and the MAIL_* settings. */
+  /** Where verification codes, password-reset links and receipts go. `console` only prints (dev/test); production needs `smtp` and the MAIL_* settings. */
   EMAIL_PROVIDER: z.enum(['console', 'smtp']).default('console'),
   MAIL_HOST: z.string().default(''),
   MAIL_PORT: z.coerce.number().int().positive().default(465),
@@ -82,6 +91,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     // pawaPay is the live provider. It cannot sign callbacks, so the secret in the callback URL is the only authentication;
     // an empty secret would reject every real payment. (The direct MTN/Airtel/M-Pesa adapters are not required here.)
     if (cfg.PAWAPAY_CALLBACK_SECRET.length < 16) problems.push('PAWAPAY_CALLBACK_SECRET must be set (at least 16 characters)');
+    // Google sign-in is optional, but half a configuration is a mistake that would fail at the first click.
+    if (!!cfg.GOOGLE_CLIENT_ID !== !!cfg.GOOGLE_CLIENT_SECRET) problems.push('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set together (or both left empty)');
     if (cfg.PAWAPAY_API_TOKEN.length === 0) problems.push('PAWAPAY_API_TOKEN must be set');
     if (problems.length > 0) throw new Error(`Unsafe production configuration: ${problems.join('; ')}`);
   }

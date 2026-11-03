@@ -57,19 +57,19 @@ function PricingBody({ slug, data, disclaimer }: { slug: string; data: PricingRe
   return (
     <>
       <div className="flex flex-col gap-2 md:items-center md:gap-2.5 md:text-center">
-        <h1 className="m-0 text-[28px] font-bold leading-[1.15] tracking-tight md:text-[40px] md:tracking-[-0.025em]">One price. Every mock test.</h1>
+        <h1 className="m-0 text-2xl font-bold leading-[1.15] tracking-tight md:text-[28px] md:tracking-[-0.025em]">One price. Every mock test.</h1>
         <p className="m-0 max-w-[36em] text-base leading-normal text-ink-2 md:text-lg">
           Try free sample tests first. {days ? `When you are ready, one payment unlocks everything for ${days} days.` : ''}
         </p>
       </div>
 
       <div className="grid items-stretch gap-[18px] md:grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))]">
-        <section aria-labelledby="p-pack" className="order-1 flex flex-col gap-3.5 rounded-[18px] border-2 border-brand bg-surface p-[19px] md:order-2 md:gap-4 md:rounded-[20px] md:p-[27px]">
-          <h2 id="p-pack" className="m-0 text-[17px] font-bold md:text-lg">
+        <section aria-labelledby="p-pack" className="order-1 flex flex-col gap-3.5 rounded-card border-2 border-brand bg-surface p-[19px] md:order-2 md:gap-4 md:rounded-[20px] md:p-[27px]">
+          <h2 id="p-pack" className="m-0 text-[17px] font-bold">
             {plan ? `${plan.name} · ${plan.durationDays} days` : 'Full Access'}
           </h2>
           <p className="m-0 flex items-baseline gap-1.5 md:gap-2">
-            <span className="text-[34px] font-extrabold md:text-[40px] md:tracking-tight">{plan?.priceLabel ?? '—'}</span>
+            <span className="text-[34px] font-bold md:text-[40px] md:tracking-tight">{plan?.priceLabel ?? '—'}</span>
             {plan?.priceLabel && plan.paidOnce && <span className="text-sm text-muted md:text-[15px]">paid once</span>}
           </p>
           {plan && (
@@ -82,7 +82,7 @@ function PricingBody({ slug, data, disclaimer }: { slug: string; data: PricingRe
             </ul>
           )}
           {sellable && (
-            <ActionLink ready={ROUTES_READY.checkout} to={countryPath(slug, 'checkout')} variant="primary" block className="mt-auto py-4 text-[17px] md:py-[15px] md:text-base">
+            <ActionLink ready={ROUTES_READY.checkout} to={countryPath(slug, 'checkout')} variant="primary" block className="mt-auto py-3 text-[17px] md:py-[11px] md:text-base">
               Continue to payment
             </ActionLink>
           )}
@@ -94,12 +94,12 @@ function PricingBody({ slug, data, disclaimer }: { slug: string; data: PricingRe
           )}
         </section>
 
-        <section aria-labelledby="p-free" className="order-2 flex flex-col gap-3 rounded-[18px] border border-border bg-surface p-5 md:order-1 md:gap-4 md:rounded-[20px] md:p-7">
+        <section aria-labelledby="p-free" className="order-2 flex flex-col gap-3 rounded-card border border-border bg-surface p-5 md:order-1 md:gap-4 md:rounded-[20px] md:p-7">
           <div className="flex items-baseline justify-between md:block">
-            <h2 id="p-free" className="m-0 text-[17px] font-bold md:text-lg">
+            <h2 id="p-free" className="m-0 text-[17px] font-bold">
               Free samples
             </h2>
-            <p className="m-0 text-2xl font-extrabold md:mt-4 md:text-[40px] md:tracking-tight">{data.free.priceLabel ?? 'Free'}</p>
+            <p className="m-0 text-2xl font-bold md:mt-4 md:text-[40px] md:tracking-tight">{data.free.priceLabel ?? 'Free'}</p>
           </div>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px] text-ink-2 md:gap-2.5 md:text-base">
             {FREE_LIST.map((f) => (
@@ -108,21 +108,21 @@ function PricingBody({ slug, data, disclaimer }: { slug: string; data: PricingRe
               </Feature>
             ))}
           </ul>
-          <LinkButton to={`${countryPath(slug, 'tests')}?price=free`} variant="secondary" block className="mt-auto py-3.5 text-base">
+          <LinkButton to={`${countryPath(slug, 'tests')}?price=free`} variant="secondary" block className="mt-auto py-3 text-base md:py-[11px]">
             Find a free test
           </LinkButton>
         </section>
       </div>
 
       {methods.length > 0 && (
-        <section aria-labelledby="pay" className="flex flex-col gap-2.5 rounded-[18px] border border-border bg-surface p-[18px] md:flex-row md:flex-wrap md:items-center md:gap-x-8 md:gap-y-4 md:rounded-[20px] md:px-7 md:py-6">
-          <h2 id="pay" className="m-0 text-[17px] font-bold md:flex-[1_1_240px] md:text-lg">
+        <section aria-labelledby="pay" className="flex flex-col gap-2.5 rounded-card border border-border bg-surface p-[18px] md:flex-row md:flex-wrap md:items-center md:gap-x-8 md:gap-y-4 md:rounded-[20px] md:px-7 md:py-6">
+          <h2 id="pay" className="m-0 text-[17px] font-bold md:flex-[1_1_240px]">
             Pay with Mobile Money
           </h2>
           <ul className="m-0 flex list-none gap-2 p-0 md:flex-wrap md:gap-2.5">
             {methods.map((m) => (
-              <li key={m.provider} className="flex flex-1 items-center gap-2 rounded-control border border-border p-2.5 text-sm font-bold md:flex-none md:gap-2.5 md:px-3.5 md:text-base">
-                <span aria-hidden="true" className="h-6 w-6 flex-none rounded-[7px] md:h-7 md:w-7 md:rounded-lg" style={{ background: PROVIDER_COLOURS[m.provider] ?? '#A1A1AA' }} />
+              <li key={m.provider} className="flex flex-1 items-center gap-2 rounded-control border border-border p-2.5 text-sm font-semibold md:flex-none md:gap-2.5 md:px-3.5 md:text-base">
+                <span aria-hidden="true" className="h-6 w-6 flex-none rounded-[7px] md:h-7 md:w-7 md:rounded-lg" style={{ background: PROVIDER_COLOURS[m.provider] ?? '#CDD4DE' }} />
                 {m.label}
               </li>
             ))}
@@ -169,11 +169,11 @@ function Faq({ days, disclaimer }: { days: number | undefined; disclaimer: strin
   ];
   return (
     <section aria-labelledby="faq" className="flex flex-col gap-2 md:gap-2.5">
-      <h2 id="faq" className="m-0 mb-1 text-[19px] font-bold md:mb-1.5 md:text-[22px]">
+      <h2 id="faq" className="m-0 mb-1 text-[17px] font-bold md:mb-1.5">
         Questions
       </h2>
       {items.map((i) => (
-        <details key={i.q} className="group rounded-xl border border-border bg-surface p-3.5 md:rounded-[14px] md:px-[18px] md:py-4">
+        <details key={i.q} className="group rounded-[10px] border border-border bg-surface p-3.5 md:rounded-[14px] md:px-[18px] md:py-4">
           <summary className="cursor-pointer text-[15px] font-semibold md:text-base">{i.q}</summary>
           <p className="m-0 mt-2 text-sm leading-[1.55] text-ink-2 md:mt-2.5 md:text-[15px] md:leading-[1.6]">{i.a}</p>
         </details>

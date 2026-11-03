@@ -57,14 +57,14 @@ export const gridAria = (n: number, s: ReviewStatus): string => `Question ${n}, 
 
 export const BADGE: Record<GridKind, { label: string; cls: string }> = {
   correct: { label: 'Correct', cls: 'bg-free-bg text-free' },
-  incorrect: { label: 'Incorrect', cls: 'bg-incorrect-bg text-red-800' },
+  incorrect: { label: 'Incorrect', cls: 'bg-incorrect-bg text-incorrect' },
   partial: { label: 'Partly correct', cls: 'bg-[#FFEDD5] text-[#9A3412]' },
   unanswered: { label: 'Not answered', cls: 'bg-soft text-ink-2' },
 };
 
 export const GRID_STYLE: Record<GridKind, string> = {
   correct: 'border border-correct bg-correct-bg text-free',
-  incorrect: 'border border-incorrect bg-incorrect-bg text-red-800',
+  incorrect: 'border border-incorrect bg-incorrect-bg text-incorrect',
   partial: 'border border-[#9A3412] bg-[#FFEDD5] text-[#9A3412]',
   unanswered: 'border border-dashed border-muted bg-surface text-ink-2',
 };

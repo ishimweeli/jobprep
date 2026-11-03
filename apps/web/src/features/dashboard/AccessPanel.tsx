@@ -53,16 +53,16 @@ export function MyAccessCard({ d, slug, className }: { d: DashboardResponse; slu
   return (
     <section aria-labelledby="ma-t" className={cx('flex min-w-0 flex-col gap-3 rounded-card border border-border bg-surface p-5', className)}>
       <div className="flex items-center justify-between gap-2">
-        <h2 id="ma-t" className="m-0 text-lg">
+        <h2 id="ma-t" className="m-0 text-[17px]">
           My access
         </h2>
-        <span className={cx('rounded-pill px-2.5 py-[3px] text-xs font-bold', badgeTone[view.badge.tone])}>{view.badge.text}</span>
+        <span className={cx('rounded-pill px-2.5 py-[3px] text-xs font-semibold', badgeTone[view.badge.tone])}>{view.badge.text}</span>
       </div>
-      <p className="m-0 text-[17px] font-bold">{view.title}</p>
+      <p className="m-0 text-[17px] font-semibold">{view.title}</p>
       <p className="m-0 text-[15px] leading-normal text-ink-2">{view.body}</p>
       {view.bar && (
         <div aria-hidden="true" className="h-2 overflow-hidden rounded-pill bg-soft">
-          <div className="h-2" style={{ width: `${view.bar.percent}%`, background: view.bar.amber ? '#D97706' : '#6D28D9' }} />
+          <div className="h-2" style={{ width: `${view.bar.percent}%`, background: view.bar.amber ? '#8A5300' : '#164A7A' }} />
         </div>
       )}
       {view.cta && (
@@ -80,7 +80,7 @@ export function MyAccessCard({ d, slug, className }: { d: DashboardResponse; slu
           type="button"
           onClick={() => resend.mutate()}
           disabled={resend.isPending}
-          className="cursor-pointer self-start border-0 bg-transparent py-1.5 text-[15px] font-semibold text-brand hover:text-brand-hover disabled:opacity-60"
+          className="cursor-pointer self-start border-0 bg-transparent py-1.5 text-[15px] font-semibold text-brand hover:text-brand disabled:opacity-60"
         >
           {view.link.label}
         </button>

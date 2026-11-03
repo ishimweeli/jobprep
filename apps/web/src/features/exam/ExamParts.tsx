@@ -38,12 +38,12 @@ export function FlagIcon({ size = 18 }: { size?: number }) {
  */
 export function OfflineBanner() {
   return (
-    <div role="status" className="border-b border-[#F59E0B] bg-flagged-bg">
+    <div role="status" className="border-b border-flagged-line bg-flagged-bg">
       <div className="mx-auto flex max-w-[1320px] items-start gap-2.5 px-4 py-3 md:items-center md:gap-3 md:px-6">
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#92400E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-px shrink-0 md:mt-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#8A5300" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-px shrink-0 md:mt-0">
           <path d="M2 8.8a15 15 0 0 1 4.2-2.7 M10.7 5.1A15 15 0 0 1 22 8.8 M5 12.5a10 10 0 0 1 5.2-2.7 M16.8 11.2a10 10 0 0 1 2.2 1.3 M8.5 16a5 5 0 0 1 7 0 M12 20h.01 M3 3l18 18" />
         </svg>
-        <p className="m-0 text-sm leading-normal text-[#78350F] md:text-[15px]">
+        <p className="m-0 text-sm leading-normal text-flagged md:text-[15px]">
           <strong>No connection.</strong>{' '}
           <span className="md:hidden">Keep answering — your answers are kept on this phone and will save when you are back online.</span>
           <span className="hidden md:inline">Keep answering — your answers are kept on this computer and will save when you reconnect. The timer keeps running.</span>
@@ -56,7 +56,7 @@ export function OfflineBanner() {
 /** "Back online. Your 3 waiting answers are saved." (TimeUpDesktop.dc, "Back online"). */
 export function OnlineBanner({ saved }: { saved: number }) {
   return (
-    <div role="status" className="hidden border-b border-[#6EE7B7] bg-correct-bg md:block">
+    <div role="status" className="hidden border-b border-correct-line bg-correct-bg md:block">
       <div className="mx-auto flex max-w-[1320px] items-center gap-3 px-6 py-3 text-[15px] text-free">
         <CheckIcon size={20} />
         <span>
@@ -72,7 +72,7 @@ export function OnlineBanner({ saved }: { saved: number }) {
 /** "Choose 3" badge next to the question number (MultiSelect.dc). */
 export function ChooseBadge({ choose }: { choose: number }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-pill bg-brand-soft px-2.5 py-1.5 text-[13px] font-bold text-brand-hover">
+    <span className="inline-flex items-center gap-1.5 rounded-pill bg-brand-soft px-2.5 py-1.5 text-[13px] font-semibold text-brand">
       <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 4h16v16H4z M8 12l3 3 5-6" />
       </svg>
@@ -123,7 +123,7 @@ export function AnswerOptions({
                 onClick={() => !disabled && onPick(o.key)}
                 className={cx(
                   'flex min-h-[58px] cursor-pointer items-center gap-3.5 rounded-[14px] px-3.5 py-2.5 text-left text-ink',
-                  on ? 'border-2 border-brand bg-brand-softer' : 'border border-zinc-300 bg-surface',
+                  on ? 'border-2 border-brand bg-brand-softer' : 'border border-border-strong bg-surface',
                 )}
               >
                 <span
@@ -134,7 +134,7 @@ export function AnswerOptions({
                     <path d="M5 12.5l4.5 4.5L19 7.5" />
                   </svg>
                 </span>
-                <span className="w-[18px] font-bold text-ink-2">{o.key}</span>
+                <span className="w-[18px] font-semibold text-ink-2">{o.key}</span>
                 <span className={cx('text-base leading-[1.4] md:text-lg', numeric && 'tabular')}>{o.text}</span>
               </button>
             );
@@ -159,12 +159,12 @@ export function AnswerOptions({
             onClick={() => !disabled && onPick(o.key)}
             className={cx(
               'flex min-h-[56px] cursor-pointer items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-left text-ink md:min-h-[60px] md:gap-3.5 md:px-4 md:py-3',
-              on ? 'border-2 border-brand bg-brand-softer' : 'border border-zinc-300 bg-surface',
+              on ? 'border-2 border-brand bg-brand-softer' : 'border border-border-strong bg-surface',
             )}
           >
             <span
               className={cx(
-                'inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full text-sm font-bold md:h-[34px] md:w-[34px] md:text-[15px]',
+                'inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full text-sm font-semibold md:h-[34px] md:w-[34px] md:text-[15px]',
                 on ? 'bg-brand text-white' : 'bg-soft text-ink-2',
               )}
             >
@@ -205,8 +205,8 @@ const toneClass: Record<CellState['tone'], string> = {
   open: 'border border-input-border bg-surface text-ink',
 };
 /** Answered but not saved yet (TimeUpDesktop.dc, offline): dashed amber outline. */
-const WAITING = 'border-2 border-dashed border-flagged bg-amber-50 text-flagged-ink';
-const RING = 'shadow-[0_0_0_2px_#FFFFFF,0_0_0_4px_#18181B]';
+const WAITING = 'border-2 border-dashed border-flagged bg-flagged-bg text-flagged-ink';
+const RING = 'shadow-[0_0_0_2px_#FFFFFF,0_0_0_4px_#164A7A]';
 
 export function NavCell({ cell, onGo, size, className }: { cell: CellState; onGo: () => void; size: 'sheet' | 'aside'; className?: string }) {
   return (
@@ -216,7 +216,7 @@ export function NavCell({ cell, onGo, size, className }: { cell: CellState; onGo
       aria-label={cell.aria}
       aria-current={cell.current ? 'true' : undefined}
       className={cx(
-        'relative cursor-pointer p-0 font-bold',
+        'relative cursor-pointer p-0 font-semibold',
         size === 'sheet' ? 'h-[46px] rounded-[10px] text-[15px]' : 'h-[40px] rounded-[9px] text-sm',
         cell.waiting ? WAITING : toneClass[cell.tone],
         cell.current && RING,
@@ -242,10 +242,10 @@ export function NavigatorAside({
     { label: 'Answered', box: 'bg-brand' },
     { label: 'Not answered', box: 'border border-input-border bg-surface' },
     { label: `Flagged (${counts.flagged})`, box: 'border border-flagged bg-flagged-bg' },
-    { label: 'Current', box: 'bg-surface shadow-[0_0_0_2px_#18181B]' },
+    { label: 'Current', box: 'bg-surface shadow-[0_0_0_2px_#164A7A]' },
   ];
   return (
-    <aside aria-label="Question navigator" className="flex min-w-0 flex-[1_1_300px] flex-col gap-4 rounded-[18px] border border-border bg-surface p-5">
+    <aside aria-label="Question navigator" className="flex min-w-0 flex-[1_1_300px] flex-col gap-4 rounded-card border border-border bg-surface p-5">
       <div className="flex items-baseline justify-between">
         <h2 className="m-0 text-[17px] font-bold">Questions</h2>
         <span className="text-sm text-ink-2">
@@ -289,7 +289,7 @@ export function NavSheet({
       onClose={onClose}
       title="Questions"
       variant="sheet"
-      titleClassName="m-0 text-[18px] font-bold"
+      titleClassName="m-0 text-[17px] font-bold"
       panelClassName="flex !max-h-[80dvh] flex-col gap-3.5 !pb-[22px]"
       headerAction={
         <button type="button" onClick={onClose} className="min-h-[44px] cursor-pointer border-0 bg-transparent px-3 text-[15px] font-semibold text-brand">
@@ -322,7 +322,7 @@ export function SubmitDialog({
       onClose={onClose}
       title="Submit your exam?"
       variant="responsive"
-      titleClassName="m-0 text-[21px] font-bold md:text-2xl"
+      titleClassName="m-0 text-[17px] font-bold md:text-[22px]"
       desktopPanelClassName="md:max-w-[480px] md:rounded-[20px] md:p-7"
       panelClassName="flex flex-col gap-3.5 !pt-[22px] !pb-6 md:gap-[18px] md:!pt-7"
     >
@@ -335,19 +335,19 @@ export function SubmitDialog({
       <dl className="m-0 hidden grid-cols-3 gap-2.5 text-center md:grid">
         <div className="flex flex-col-reverse rounded-control bg-brand-softer p-3">
           <dt className="text-[13px] text-ink-2">Answered</dt>
-          <dd className="m-0 text-2xl font-extrabold text-brand-hover">{counts.answered}</dd>
+          <dd className="m-0 text-2xl font-bold text-brand">{counts.answered}</dd>
         </div>
         <div className="flex flex-col-reverse rounded-control bg-soft p-3">
           <dt className="text-[13px] text-ink-2">Unanswered</dt>
-          <dd className="m-0 text-2xl font-extrabold">{counts.unanswered}</dd>
+          <dd className="m-0 text-2xl font-bold">{counts.unanswered}</dd>
         </div>
         <div className="flex flex-col-reverse rounded-control bg-flagged-bg p-3">
           <dt className="text-[13px] text-flagged-ink">Flagged</dt>
-          <dd className="m-0 text-2xl font-extrabold text-flagged-ink">{counts.flagged}</dd>
+          <dd className="m-0 text-2xl font-bold text-flagged-ink">{counts.flagged}</dd>
         </div>
       </dl>
       {error && (
-        <p role="alert" className="m-0 rounded-control border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-900">
+        <p role="alert" className="m-0 rounded-control border border-incorrect-line bg-incorrect-bg p-3 text-sm font-semibold text-incorrect">
           {error}
         </p>
       )}
@@ -356,7 +356,7 @@ export function SubmitDialog({
           <button
             type="button"
             onClick={onGoUnanswered}
-            className="min-h-[52px] cursor-pointer rounded-control border border-brand bg-surface text-base font-bold text-brand md:min-h-[48px]"
+            className="min-h-[48px] cursor-pointer rounded-control border border-brand bg-surface text-base font-semibold text-brand md:min-h-[44px]"
           >
             <span className="md:hidden">Go to unanswered</span>
             <span className="hidden md:inline">Go to first unanswered question</span>
@@ -367,7 +367,7 @@ export function SubmitDialog({
           onClick={onSubmit}
           disabled={submitting}
           aria-busy={submitting || undefined}
-          className="min-h-[52px] cursor-pointer rounded-control border-0 bg-ink p-[15px] text-center text-base font-bold text-white disabled:opacity-60 md:p-3.5"
+          className="min-h-[48px] cursor-pointer rounded-control border-0 bg-brand p-3 text-center text-base font-semibold text-white disabled:opacity-60 md:min-h-[44px] md:p-[11px]"
         >
           Submit now
         </button>

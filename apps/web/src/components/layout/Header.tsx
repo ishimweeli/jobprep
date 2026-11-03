@@ -13,15 +13,15 @@ import { CountryChip } from './CountryChip';
 const navLink = ({ isActive }: { isActive: boolean }) =>
   cx(
     'border-b-2 py-3 text-[15px] no-underline hover:text-ink',
-    isActive ? 'border-brand font-bold text-ink' : 'border-transparent font-medium text-ink-2',
+    isActive ? 'border-brand font-semibold text-ink' : 'border-transparent font-medium text-ink-2',
   );
 
 /**
- * Desktop header (md and up): logo, nav, country chip and, for guests, "Sign in" + "Create account"
- * (SignIn.dc, GuestPaid.dc, SystemPages.dc); for signed-in users the avatar that opens the account menu
- * (AccountMenu.dc). The landing header keeps its own extras ("Teaching exams", "Try a free test").
+ * Desktop header (md and up): logo, nav, country chip and, for guests, "Sign in" + "Get started" (the owner asked
+ * for one wording everywhere; it replaces "Create account" and the landing's "Try a free test"); for signed-in
+ * users the avatar that opens the account menu (AccountMenu.dc). The landing's "Teaching exams" link is gone too.
  */
-export function DesktopHeader({ landing, teachingTo, cta }: { landing?: boolean; teachingTo?: string; cta?: ReactNode }) {
+export function DesktopHeader() {
   const slug = useActiveCountrySlug();
   const { user, session, isLoading } = useSession();
   return (
@@ -32,11 +32,6 @@ export function DesktopHeader({ landing, teachingTo, cta }: { landing?: boolean;
           <NavLink to={countryPath(slug, 'tests')} end className={navLink}>
             Mock tests
           </NavLink>
-          {landing && teachingTo && (
-            <Link to={teachingTo} className="border-b-2 border-transparent py-3 text-[15px] font-medium text-ink-2 no-underline hover:text-ink">
-              Teaching exams
-            </Link>
-          )}
           <NavLink to={countryPath(slug, 'pricing')} className={navLink}>
             Pricing
           </NavLink>
@@ -57,17 +52,14 @@ export function DesktopHeader({ landing, teachingTo, cta }: { landing?: boolean;
               <Link to="/sign-in" className="inline-flex min-h-[44px] items-center px-3.5 text-[15px] font-semibold text-ink no-underline hover:text-ink">
                 Sign in
               </Link>
-              {!landing && (
-                <Link
-                  to="/sign-up"
-                  className="inline-flex min-h-[44px] items-center rounded-pill bg-brand px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-brand-hover hover:text-white"
-                >
-                  Create account
-                </Link>
-              )}
+              <Link
+                to="/sign-up"
+                className="inline-flex min-h-[44px] items-center rounded-pill bg-brand px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-brand-hover hover:text-white"
+              >
+                Get started
+              </Link>
             </>
           )}
-          {cta}
         </div>
       </div>
     </header>
@@ -78,7 +70,7 @@ export function DesktopHeader({ landing, teachingTo, cta }: { landing?: boolean;
  * Phone brand header. Landing: logo, country chip, Sign in and the menu button (which opens the guest menu sheet,
  * NavPhone.dc). `minimal` is the dashboard's logo-only header (DashboardNewPhone.dc).
  */
-export function PhoneBrandHeader({ menu = true, nameOnly, minimal }: { menu?: boolean; nameOnly?: boolean; minimal?: boolean }) {
+export function PhoneBrandHeader({ menu = true, minimal }: { menu?: boolean; minimal?: boolean }) {
   const slug = useActiveCountrySlug();
   const { user, isLoading } = useSession();
   const [sheet, setSheet] = useState(false);
@@ -87,9 +79,9 @@ export function PhoneBrandHeader({ menu = true, nameOnly, minimal }: { menu?: bo
       <Logo to={countryPath(slug)} size="md" />
       {!minimal && (
         <div className="flex items-center gap-0.5">
-          <CountryChip compact nameOnly={nameOnly} />
+          <CountryChip />
           {isLoading ? null : user ? (
-            <Link to="/account" aria-label={`${initials(user.name)} account: ${user.name}`} className="mx-1 inline-flex h-[38px] w-[38px] items-center justify-center rounded-full bg-brand-soft text-sm font-extrabold text-brand-hover no-underline hover:text-brand-hover">
+            <Link to="/account" aria-label={`${initials(user.name)} account: ${user.name}`} className="mx-1 inline-flex h-[38px] w-[38px] items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand no-underline hover:text-brand">
               {initials(user.name)}
             </Link>
           ) : (
@@ -125,7 +117,7 @@ export function PhoneBackHeader({ to, title, label = 'Back' }: { to: string; tit
       <Link to={to} aria-label={label} className="inline-flex h-11 w-11 items-center justify-center text-ink no-underline hover:text-ink">
         <ArrowLeft size={22} aria-hidden="true" />
       </Link>
-      <span className="text-[17px] font-bold">{title}</span>
+      <span className="text-[17px] font-semibold">{title}</span>
     </header>
   );
 }

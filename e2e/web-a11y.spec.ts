@@ -24,7 +24,7 @@ test.describe('Web: accessibility', () => {
     });
   }
 
-  test('focus ring is 3px #A78BFA and the skip link is the first tab stop', async ({ page }) => {
+  test('focus ring is 3px #6AA6EE and the skip link is the first tab stop', async ({ page }) => {
     await page.goto('/rw/pricing');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await page.keyboard.press('Tab');
@@ -35,7 +35,7 @@ test.describe('Web: accessibility', () => {
       const s = getComputedStyle(el);
       return { w: s.outlineWidth, c: s.outlineColor, o: s.outlineOffset, st: s.outlineStyle };
     });
-    expect(outline).toEqual({ w: '3px', c: 'rgb(167, 139, 250)', o: '2px', st: 'solid' });
+    expect(outline).toEqual({ w: '3px', c: 'rgb(106, 166, 238)', o: '2px', st: 'solid' });
   });
 
   test('phone: filter sheet is keyboard-operable (focus moves in, is trapped, Esc closes and returns focus)', async ({ page }, info) => {

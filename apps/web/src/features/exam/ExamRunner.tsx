@@ -211,7 +211,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
                 </span>
               )}
               <div className="flex min-w-0 flex-col">
-                <span className="truncate text-[13px] text-muted md:text-base md:font-bold md:text-ink">{state.attempt.mockTest.title}</span>
+                <span className="truncate text-[13px] text-muted md:text-base md:font-semibold md:text-ink">{state.attempt.mockTest.title}</span>
                 <span
                   role="status"
                   className={cx(
@@ -236,8 +236,8 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               aria-label="Time remaining"
               data-low={low || undefined}
               className={cx(
-                'flex items-center gap-2 rounded-[10px] px-3 py-2 text-lg font-extrabold tabular md:rounded-control md:px-3.5 md:text-[22px]',
-                low ? 'bg-red-100 text-red-800' : 'bg-soft text-ink',
+                'flex items-center gap-2 rounded-[10px] px-3 py-2 text-lg font-semibold tabular md:rounded-control md:px-3.5 md:text-[22px] md:font-bold',
+                low ? 'bg-incorrect-bg text-incorrect' : 'bg-soft text-ink',
               )}
             >
               <span className="hidden md:inline-flex">
@@ -246,7 +246,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               <span>{clock}</span>
             </div>
             {frozen ? (
-              <span className="hidden min-h-[44px] items-center rounded-control bg-zinc-400 px-[18px] text-[15px] font-bold text-white md:inline-flex">Submit exam</span>
+              <span className="hidden min-h-[44px] items-center rounded-control bg-disabled px-[18px] text-[15px] font-semibold text-white md:inline-flex">Submit exam</span>
             ) : (
               <button
                 type="button"
@@ -255,7 +255,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
                   setDialog('confirm');
                 }}
                 className={cx(
-                  'min-h-[44px] cursor-pointer rounded-[10px] border border-ink bg-ink px-3 text-sm font-bold text-white md:inline-flex md:items-center md:rounded-control md:px-[18px] md:text-[15px]',
+                  'min-h-[44px] cursor-pointer rounded-[10px] border border-dark bg-dark px-3 text-sm font-semibold text-white md:inline-flex md:items-center md:rounded-control md:px-[18px] md:text-[15px]',
                   offline ? 'hidden' : 'inline-flex items-center',
                 )}
               >
@@ -273,8 +273,8 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
                   aria-pressed={view === v}
                   onClick={() => setView(v)}
                   className={cx(
-                    'min-h-[42px] cursor-pointer rounded-[9px] border-0 text-[15px] font-bold',
-                    view === v ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(24,24,27,0.15)]' : 'bg-transparent text-ink-2',
+                    'min-h-[42px] cursor-pointer rounded-[9px] border-0 text-[15px] font-semibold',
+                    view === v ? 'bg-surface text-ink shadow-[0_1px_3px_rgba(20,30,50,0.15)]' : 'bg-transparent text-ink-2',
                   )}
                 >
                   {v === 'question' ? 'Question' : 'Case study'}
@@ -303,7 +303,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
             id="main-content"
             tabIndex={-1}
             className={cx(
-              'flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-[18px] outline-none md:flex-[999_1_600px] md:gap-[22px] md:overflow-visible md:rounded-[18px] md:border md:border-border md:bg-surface md:p-7',
+              'flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-[18px] outline-none md:flex-[999_1_600px] md:gap-[22px] md:overflow-visible md:rounded-card md:border md:border-border md:bg-surface md:p-7',
               kase && 'md:flex-[1_1_520px] md:gap-[18px] md:p-6',
             )}
           >
@@ -354,7 +354,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               <button
                 type="button"
                 onClick={() => setView('case')}
-                className="flex min-h-[48px] cursor-pointer items-center gap-2.5 rounded-control border border-[#DDD6FE] bg-brand-softer px-3 py-2.5 text-left text-sm font-semibold text-brand-hover md:hidden"
+                className="flex min-h-[48px] cursor-pointer items-center gap-2.5 rounded-control border border-brand-light bg-brand-softer px-3 py-2.5 text-left text-sm font-semibold text-brand md:hidden"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 4h12l4 4v12H4z M8 12h8 M8 16h5" />
@@ -364,7 +364,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
             )}
 
             <p className={cx('m-0 text-[19px] font-semibold leading-normal md:max-w-[40em] md:text-[22px]', kase && 'text-[18px] md:text-[21px]')}>{q.stem}
-              {q.multiple && q.choose ? <strong className="font-bold"> Choose {q.choose}.</strong> : null}
+              {q.multiple && q.choose ? <strong className="font-semibold"> Choose {q.choose}.</strong> : null}
             </p>
 
             <AnswerOptions question={q} selected={selected} onPick={pick} numeric={!!kase} blocked={blockedId === q.id} disabled={frozen} />
@@ -376,14 +376,14 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
                 type="button"
                 onClick={() => go(idx - 1)}
                 disabled={first}
-                className="min-h-[48px] cursor-pointer rounded-control border border-input-border bg-surface px-5 text-base font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                className="min-h-[44px] cursor-pointer rounded-control border border-input-border bg-surface px-5 text-base font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-50"
               >
                 ← Previous
               </button>
               <button
                 type="button"
                 onClick={onNext}
-                className="min-h-[48px] cursor-pointer rounded-control border border-brand bg-brand px-6 text-base font-bold text-white hover:bg-brand-hover"
+                className="min-h-[44px] cursor-pointer rounded-control border border-brand bg-brand px-6 text-base font-semibold text-white hover:bg-brand-hover"
               >
                 {last ? 'Finish' : 'Next →'}
               </button>
@@ -404,7 +404,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
           <button
             type="button"
             onClick={() => setView('question')}
-            className="min-h-[52px] w-full cursor-pointer rounded-control border-0 bg-brand text-base font-bold text-white"
+            className="min-h-[48px] w-full cursor-pointer rounded-control border-0 bg-brand text-base font-semibold text-white"
           >
             Back to question {q.number}
           </button>
@@ -416,14 +416,14 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
             onClick={() => go(idx - 1)}
             disabled={first}
             aria-label="Previous question"
-            className="h-[52px] w-[52px] cursor-pointer rounded-control border border-input-border bg-surface text-xl text-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-12 w-[52px] cursor-pointer rounded-control border border-input-border bg-surface text-xl text-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span aria-hidden="true">←</span>
           </button>
           <button
             type="button"
             onClick={() => setDialog('nav')}
-            className="h-[52px] flex-1 cursor-pointer rounded-control border border-border bg-soft text-[15px] font-bold text-ink"
+            className="h-12 flex-1 cursor-pointer rounded-control border border-border bg-soft text-[15px] font-semibold text-ink"
           >
             All questions · {counts.answered}/{counts.total}
           </button>
@@ -431,7 +431,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
             type="button"
             onClick={onNext}
             aria-label="Next question"
-            className="h-[52px] w-[84px] cursor-pointer rounded-control border border-brand bg-brand text-base font-bold text-white"
+            className="h-12 w-[84px] cursor-pointer rounded-control border border-brand bg-brand text-base font-semibold text-white"
           >
             Next
           </button>

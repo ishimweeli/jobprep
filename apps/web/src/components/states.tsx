@@ -50,7 +50,7 @@ export function EmptyState({ title, message, children, className }: EmptyStatePr
         className,
       )}
     >
-      <p className="m-0 text-base font-bold md:text-lg">{title}</p>
+      <p className="m-0 text-base font-semibold md:text-[17px]">{title}</p>
       {message && <p className="m-0 max-w-[34em] text-sm text-ink-2 md:text-[15px]">{message}</p>}
       {children}
     </div>
@@ -75,12 +75,12 @@ export function ErrorState({
   children,
 }: ErrorStateProps) {
   return (
-    <div role="alert" className={cx('flex flex-col gap-2.5 rounded-[14px] border border-red-300 bg-red-50 p-[18px]', className)}>
-      <p className="m-0 text-base font-bold text-red-900">{title}</p>
-      <p className="m-0 text-[15px] text-red-900">{message}</p>
+    <div role="alert" className={cx('flex flex-col gap-2.5 rounded-[14px] border border-incorrect-line bg-incorrect-bg p-[18px]', className)}>
+      <p className="m-0 text-base font-semibold text-incorrect">{title}</p>
+      <p className="m-0 text-[15px] text-incorrect">{message}</p>
       {children}
       {onRetry && (
-        <Button variant="final" size="sm" className="self-start font-bold" onClick={onRetry} loading={retrying}>
+        <Button variant="final" size="sm" className="self-start font-semibold" onClick={onRetry} loading={retrying}>
           Try again
         </Button>
       )}

@@ -1,11 +1,11 @@
 import { clearSessionHint, hasSessionHint, SESSION_HINT_KEY } from '../lib/sessionHint';
 import { setSystemState } from '../lib/systemState';
 import { ApiError, api } from './client';
-import type { CountryChangePreview, MeResponse, PublicUser } from './types';
+import type { MeResponse, PublicUser } from './types';
 
 export { SESSION_HINT_KEY };
 
-export const meKeys = { session: ['me'] as const, countryChange: (to: string) => ['me', 'country-change', to] as const };
+export const meKeys = { session: ['me'] as const };
 
 /** The signed-in session, or `null` for guests (401 is not an error here). */
 export async function getSession(): Promise<MeResponse | null> {
@@ -28,8 +28,17 @@ export async function getSession(): Promise<MeResponse | null> {
 export const patchMe = (input: { name?: string; goalCategoryId?: string | null; language?: string }) =>
   api<{ user: PublicUser }>('/me', { method: 'PATCH', body: input });
 
-export const getCountryChangePreview = (to: string) =>
-  api<CountryChangePreview>('/me/country-change', { query: { to: to.toUpperCase() } });
+/** What each setup step saves. Changing the country clears the job goal (and level and subject) on the server. */
+export interface OnboardingInput {
+  countryCode?: string;
+  goalCategoryId?: string;
+  level?: string;
+  subject?: string;
+  /** `YYYY-MM-DD`, or null to clear it. */
+  examDate?: string | null;
+  finish?: true;
+  skip?: true;
+}
 
-export const switchCountry = (countryCode: string) =>
-  api<{ user: PublicUser }>('/me/country', { method: 'POST', body: { countryCode: countryCode.toUpperCase(), confirm: true } });
+export const patchOnboarding = (input: OnboardingInput) =>
+  api<{ user: PublicUser }>('/me/onboarding', { method: 'PATCH', body: input });

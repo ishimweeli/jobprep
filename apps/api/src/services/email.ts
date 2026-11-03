@@ -30,10 +30,21 @@ export class ConsoleEmailProvider implements EmailProvider {
     return [...this.sent].reverse().find((m) => m.to === to);
   }
 
-  /** The most recent 6-digit code sent to an address. */
+  /** The most recent 6-digit verification code sent to an address (reset-link emails are skipped). */
   lastCode(to: string): string | null {
-    const m = this.lastTo(to)?.text.match(/\b(\d{6})\b/);
+    const last = [...this.sent].reverse().find((x) => x.to === to && !x.text.includes('reset-password?token='));
+    const m = last?.text.match(/\b(\d{6})\b/);
     return m ? m[1]! : null;
+  }
+
+  /** The token in the most recent password-reset link sent to an address. */
+  lastResetToken(to: string): string | null {
+    for (const msg of [...this.sent].reverse()) {
+      if (msg.to !== to) continue;
+      const m = msg.text.match(/reset-password\?token=([\w-]+)/);
+      if (m) return m[1]!;
+    }
+    return null;
   }
 
   clear() {

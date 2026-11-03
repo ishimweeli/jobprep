@@ -10,6 +10,7 @@ import { paymentNote, paymentTone } from '../../lib/badges';
 import { cx } from '../../lib/cx';
 import { formatCount, formatDateTime, formatLocalPhone, formatTime, formatTotals } from '../../lib/format';
 import { pageCount, parsePaymentsQuery, paymentsSearch } from '../../lib/queryState';
+import { useAdminCountry } from '../../lib/adminCountry';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { useAdmin } from '../auth/session';
 
@@ -43,7 +44,7 @@ function Actions({ p, phone, check }: { p: PaymentRow; phone: boolean; check: Re
   const canCheck = useAdmin().permissions.includes('payments:check');
   const busy = check.busyId === p.id;
   const note = check.errors[p.id] || check.results[p.id];
-  const size = phone ? 'min-h-11 rounded-[10px] text-[15px] font-bold' : 'min-h-9 rounded-lg px-3 text-[13px] font-semibold whitespace-nowrap';
+  const size = phone ? 'min-h-11 rounded-[10px] text-[15px] font-semibold' : 'min-h-9 rounded-lg px-3 text-[13px] font-semibold whitespace-nowrap';
   return (
     <div className={cx('flex flex-col gap-1.5', phone ? 'items-stretch' : 'items-end')}>
       {p.actions.includes('check') && canCheck && (
@@ -73,13 +74,14 @@ export function PaymentsPage() {
   const [sp, setSp] = useSearchParams();
   const query = parsePaymentsQuery(sp);
   const check = useCheck();
+  const { country: filterCountry } = useAdminCountry();
   const canUsers = admin.permissions.includes('users:read');
   const canCountries = admin.permissions.includes('countries:read');
 
   const list = useQuery({
-    queryKey: keys.payments({ ...query }),
+    queryKey: keys.payments({ ...query, country: filterCountry }),
     queryFn: () =>
-      getPayments({ status: query.status, stuck: query.stuck, provider: query.provider || undefined, q: query.q || undefined, page: query.page, pageSize: PAGE_SIZE }),
+      getPayments({ status: query.status, stuck: query.stuck, provider: query.provider || undefined, country: filterCountry, q: query.q || undefined, page: query.page, pageSize: PAGE_SIZE }),
     placeholderData: keepPreviousData,
   });
 
@@ -121,9 +123,9 @@ export function PaymentsPage() {
         {data && (
           <div className="grid grid-cols-2 gap-2.5">
             {[sums[0], sums[2]].map((s) => (
-              <div key={s!.k} className="rounded-[12px] border border-border bg-white p-3">
+              <div key={s!.k} className="rounded-[10px] border border-border bg-white p-3">
                 <span className="block text-xs font-semibold text-muted">{s!.k}</span>
-                <span className="text-xl font-extrabold">{s!.v}</span>
+                <span className="text-xl font-semibold">{s!.v}</span>
               </div>
             ))}
           </div>
@@ -132,10 +134,10 @@ export function PaymentsPage() {
         {rows.map((p) => {
           const t = paymentTone(p.status);
           return (
-            <article key={p.id} className={cx('flex flex-col gap-2 rounded-[14px] border p-3.5', p.stuck ? 'border-[#FCD34D] bg-[#FFFBEB]' : 'border-border bg-white')}>
+            <article key={p.id} className={cx('flex flex-col gap-2 rounded-[14px] border p-3.5', p.stuck ? 'border-flagged-line bg-flagged-bg' : 'border-border bg-white')}>
               <div className="flex items-start justify-between gap-2.5">
                 <span className="flex flex-col">
-                  <span className="text-[15px] font-bold">{p.user.name}</span>
+                  <span className="text-[15px] font-semibold">{p.user.name}</span>
                   <span className="break-all text-[13px] text-muted">{p.user.email} · {p.providerLabel}</span>
                 </span>
                 <Pill tone={t}>{t.label}</Pill>
@@ -170,7 +172,7 @@ export function PaymentsPage() {
           {sums.map((s) => (
             <div key={s.k} className="flex flex-col gap-0.5 rounded-[14px] border border-border bg-white p-4">
               <dt className="text-[13px] font-semibold text-muted">{s.k}</dt>
-              <dd className="m-0 text-2xl font-extrabold tabular">{s.v}</dd>
+              <dd className="m-0 text-2xl font-semibold tabular">{s.v}</dd>
             </div>
           ))}
         </dl>
@@ -198,7 +200,7 @@ export function PaymentsPage() {
                   {rows.map((p) => {
                     const t = paymentTone(p.status);
                     return (
-                      <tr key={p.id} className={cx('border-t border-[#F4F4F5] align-top', p.stuck ? 'bg-[#FFFBEB]' : 'bg-white')}>
+                      <tr key={p.id} className={cx('border-t border-soft align-top', p.stuck ? 'bg-flagged-bg' : 'bg-white')}>
                         <td className="whitespace-nowrap px-4 py-3 text-ink-2">{formatDateTime(p.createdAt)}</td>
                         <td className="px-2 py-3">
                           <span className="flex flex-col">

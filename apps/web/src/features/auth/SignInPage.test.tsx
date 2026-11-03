@@ -1,18 +1,14 @@
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { testSession, testUser } from '../../test/fixtures';
 import { mockFetch, renderWithProviders } from '../../test/utils';
 import { SignInPage } from './SignInPage';
 
-const countries = {
-  countries: [{ code: 'RW', slug: 'rw', name: 'Rwanda', status: 'LIVE', dialCode: '+250', currencyCode: 'RWF', languages: ['en', 'rw'], selectable: true }],
-};
-const user = { id: 'u1', name: 'Aline Uwase', email: 'aline@example.test', countryCode: 'RW', goalCategoryId: null, language: 'en' };
-
 function Where() {
   const l = useLocation();
-  return <div data-testid="where">{l.pathname}</div>;
+  return <div data-testid="where">{`${l.pathname}${l.search}`}</div>;
 }
 
 function renderSignIn(route = '/sign-in') {
@@ -29,190 +25,181 @@ function renderSignIn(route = '/sign-in') {
 }
 
 type Reply = { status?: number; body?: unknown; headers?: Record<string, string> };
-function server(opts: { request?: Reply[]; verify?: Reply[] }) {
-  const request = [...(opts.request ?? [{ body: { cooldownSeconds: 45, expiresInSeconds: 300 } }])];
-  const verify = [...(opts.verify ?? [])];
+function server(opts: { google?: boolean; signIn?: Reply; resend?: Reply; user?: Parameters<typeof testUser>[0] } = {}) {
   return mockFetch((url, init) => {
-    if (url === '/api/countries') return { body: countries };
-    if (url === '/api/auth/otp/request') return request.length > 1 ? request.shift()! : request[0]!;
-    if (url === '/api/auth/sign-in' && init?.method === 'POST') return verify.length > 1 ? verify.shift()! : verify[0]!;
-    if (url === '/api/me') return { body: { user, country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en'] }, access: { current: null, expired: null, otherCountries: [] } } };
+    if (url === '/api/auth/providers') return { body: { google: opts.google ?? false } };
+    if (url === '/api/auth/sign-in' && init?.method === 'POST') return opts.signIn ?? { body: { user: testUser(opts.user), claimedAttempts: 0 } };
+    if (url === '/api/auth/verify-email/resend' && init?.method === 'POST') return opts.resend ?? { body: { cooldownSeconds: 45, expiresInSeconds: 600 } };
+    if (url === '/api/me') return { body: testSession(opts.user) };
     return undefined;
   });
 }
 
-beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
-afterEach(() => {
-  vi.useRealTimers();
-  vi.unstubAllGlobals();
-});
+afterEach(() => vi.unstubAllGlobals());
 
-async function toCodeStep(u: ReturnType<typeof userEvent.setup>) {
-  await u.type(await screen.findByLabelText('Email address'), '  Aline@Example.test ');
-  await u.click(screen.getByRole('button', { name: 'Send code' }));
-  await screen.findByRole('heading', { name: 'Enter your code' });
-}
-const type = (code: string) => fireEvent.paste(screen.getByLabelText('Digit 1'), { clipboardData: { getData: () => code } });
-const verifyBtn = () => screen.getByRole('button', { name: 'Verify and sign in' });
+const fill = async (u: ReturnType<typeof userEvent.setup>, email = ' Aline@Example.test ', password = 'Password123!') => {
+  await u.type(await screen.findByLabelText('Email address'), email);
+  await u.type(screen.getByLabelText('Password'), password);
+};
+const body = (calls: { url: string; init?: RequestInit }[], url: string) => JSON.parse(String(calls.find((c) => c.url === url)?.init?.body));
 
 describe('sign-in screen (SignIn.dc)', () => {
-  it('rejects a malformed email inline without calling the API', async () => {
-    const { calls } = server({});
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+  it('draws the designed form: heading, fields, Forgot password, Remember me, Resend verification, Create an account', async () => {
+    server();
+    renderSignIn();
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getByText('Welcome back. Your practice is waiting.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email address')).toHaveAttribute('type', 'email');
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
+    expect(screen.getByRole('link', { name: 'Forgot password?' })).toHaveAttribute('href', '/forgot-password');
+    expect(screen.getByLabelText('Remember me')).not.toBeChecked();
+    expect(screen.getByRole('button', { name: 'Resend verification' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Create an account' })).toHaveAttribute('href', '/sign-up');
+  });
+
+  it('always draws Continue with Google and its divider, and Back to home (Sign in, top right)', async () => {
+    server({ google: false });
+    renderSignIn();
+    expect(await screen.findByRole('button', { name: 'Continue with Google' })).toBeInTheDocument();
+    expect(screen.getByText('or sign in with email')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/rw');
+  });
+
+  it('Google not set up: pressing it stays here and says so', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    server({ google: false });
+    const u = userEvent.setup();
+    renderSignIn();
+    await u.click(await screen.findByRole('button', { name: 'Continue with Google' }));
+    expect(await screen.findByText('Google sign-in isn’t available yet. Use your email instead.')).toBeInTheDocument();
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it('Google set up: pressing it leaves for the API with next', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    server({ google: true });
+    const u = userEvent.setup();
+    renderSignIn('/sign-in?next=%2Frw%2Ftests');
+    await screen.findByRole('button', { name: 'Continue with Google' });
+    await waitFor(async () => {
+      await u.click(screen.getByRole('button', { name: 'Continue with Google' }));
+      expect(assign).toHaveBeenCalledWith('/api/auth/google/start?next=%2Frw%2Ftests');
+    });
+  });
+
+  it('rejects a malformed email and an empty password inline without calling the API', async () => {
+    const { calls } = server();
+    const u = userEvent.setup();
     renderSignIn();
     await u.type(await screen.findByLabelText('Email address'), 'aline@');
-    await u.click(screen.getByRole('button', { name: 'Send code' }));
+    await u.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByText('Enter a valid email address, like name@example.com.')).toBeInTheDocument();
-    expect(calls.some((c) => c.url === '/api/auth/otp/request')).toBe(false);
+    expect(screen.getByText('Enter your password.')).toBeInTheDocument();
+    expect(calls.some((c) => c.url === '/api/auth/sign-in')).toBe(false);
   });
 
-  it('asks for a sign-in code, shows the real lifetime, and counts down the API resend wait', async () => {
-    const { calls } = server({});
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+  it('signs in with the normalised email, remember me and the guest tokens, then opens the dashboard', async () => {
+    localStorage.setItem('jobprep.guestTokens', JSON.stringify(['guesttoken-12345']));
+    const { calls } = server();
+    const u = userEvent.setup();
     renderSignIn();
-    await toCodeStep(u);
-    const req = calls.find((c) => c.url === '/api/auth/otp/request');
-    expect(JSON.parse(String(req?.init?.body))).toEqual({ purpose: 'sign_in', email: 'aline@example.test' });
-    expect(screen.getByText(/has a JobPrep account, a code is on its way to your email/)).toHaveTextContent('If aline@example.test has a JobPrep account, a code is on its way to your email. It works for 5 minutes.');
-    expect(screen.getByRole('button', { name: 'Resend code in 0:45' })).toBeDisabled();
-    act(() => void vi.advanceTimersByTime(46_000));
-    expect(screen.getByRole('button', { name: 'Resend code' })).toBeEnabled();
-  });
-
-  it('a wrong code shows the tries left from the API and clears the boxes', async () => {
-    server({ verify: [{ status: 400, body: { error: 'invalid_code', triesLeft: 3 } }] });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn();
-    await toCodeStep(u);
-    type('123456');
-    await u.click(verifyBtn());
-    expect(await screen.findByText('That code is not right')).toBeInTheDocument();
-    expect(screen.getByText('Check your email and try again. 3 tries left.')).toBeInTheDocument();
-    expect((screen.getByLabelText('Digit 1') as HTMLInputElement).value).toBe('');
-  });
-
-  it('too_many_attempts: "Request a new code", Verify is locked, resend follows the normal countdown', async () => {
-    const { calls } = server({ verify: [{ status: 400, body: { error: 'too_many_attempts', triesLeft: 0 } }] });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn();
-    await toCodeStep(u);
-    type('123456');
-    await u.click(verifyBtn());
-    expect(await screen.findByText('Too many tries')).toBeInTheDocument();
-    expect(screen.getByText('Request a new code.')).toBeInTheDocument();
-    expect(verifyBtn()).toHaveAttribute('aria-disabled', 'true');
-    const verifyCalls = () => calls.filter((c) => c.url === '/api/auth/sign-in').length;
-    const before = verifyCalls();
-    type('654321');
-    await u.click(verifyBtn());
-    expect(verifyCalls()).toBe(before); // locked: no request goes out
-    expect(screen.getByRole('button', { name: /Resend code in/ })).toBeDisabled();
-    act(() => void vi.advanceTimersByTime(46_000));
-    expect(screen.getByRole('button', { name: 'Send a new code' })).toBeEnabled();
-  });
-
-  it('code_expired: its own message with the real lifetime, and a new code unlocks everything', async () => {
-    server({ verify: [{ status: 400, body: { error: 'code_expired' } }] });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn();
-    await toCodeStep(u);
-    type('123456');
-    await u.click(verifyBtn());
-    expect(await screen.findByText('This code has expired')).toBeInTheDocument();
-    expect(screen.getByText('Codes work for 5 minutes. Send a new one below.')).toBeInTheDocument();
-    act(() => void vi.advanceTimersByTime(46_000));
-    await u.click(screen.getByRole('button', { name: 'Send a new code' }));
-    await waitFor(() => expect(screen.queryByText('This code has expired')).not.toBeInTheDocument());
-    expect(screen.getByRole('button', { name: /Resend code in/ })).toBeDisabled();
-  });
-
-  it('a 429 on resend becomes a friendly wait and restarts the countdown from the API seconds', async () => {
-    server({
-      request: [{ body: { cooldownSeconds: 1, expiresInSeconds: 300 } }, { status: 429, body: { error: 'otp_cooldown', retryAfterSeconds: 30 } }],
-    });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn();
-    await toCodeStep(u);
-    act(() => void vi.advanceTimersByTime(2000));
-    await u.click(screen.getByRole('button', { name: 'Resend code' }));
-    expect(await screen.findByText('You can ask for another code in 0:30.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Resend code in 0:(29|30)/ })).toBeDisabled();
-  });
-
-  it('too many codes in an hour says to try later', async () => {
-    server({ request: [{ status: 429, body: { error: 'otp_hourly_limit', retryAfterSeconds: 2400 } }] });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn();
-    await u.type(await screen.findByLabelText('Email address'), '  Aline@Example.test ');
-    await u.click(screen.getByRole('button', { name: 'Send code' }));
-    expect(await screen.findByText('You have asked for too many codes. Try again in about 40 minutes.')).toBeInTheDocument();
-  });
-
-  it('offline: "You seem to be offline", tap Verify again', async () => {
-    const calls: string[] = [];
-    mockFetch((url) => {
-      calls.push(url);
-      if (url === '/api/countries') return { body: countries };
-      if (url === '/api/auth/otp/request') return { body: { cooldownSeconds: 45, expiresInSeconds: 300 } };
-      return undefined;
-    });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn();
-    await toCodeStep(u);
-    type('123456');
-    await u.click(verifyBtn()); // the stub throws for /api/auth/sign-in: a network failure
-    expect(await screen.findByText('You seem to be offline')).toBeInTheDocument();
-    expect(screen.getByText('Check your connection, then tap Verify again.')).toBeInTheDocument();
-  });
-
-  it('a right code signs in and goes to the user\'s dashboard, or to a same-site ?next=', async () => {
-    server({ verify: [{ body: { user, claimedAttempts: 0 } }] });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn('/sign-in?next=%2Frw%2Fcheckout%3Ftest%3Dx');
-    await toCodeStep(u);
-    type('123456');
-    await u.click(verifyBtn());
-    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/checkout'));
+    await fill(u);
+    await u.click(screen.getByLabelText('Remember me'));
+    await u.click(screen.getByRole('button', { name: 'Sign in' }));
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/progress'));
+    expect(body(calls, '/api/auth/sign-in')).toEqual({ email: 'aline@example.test', password: 'Password123!', remember: true, guestTokens: ['guesttoken-12345'] });
     expect(localStorage.getItem('jobprep.session')).toBe('1');
   });
 
-  it('ignores an off-site ?next=', async () => {
-    server({ verify: [{ body: { user, claimedAttempts: 0 } }] });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn('/sign-in?next=https%3A%2F%2Fevil.example');
-    await toCodeStep(u);
-    type('123456');
-    await u.click(verifyBtn());
-    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/progress'));
+  it('goes to ?next= when setup is done', async () => {
+    server();
+    const u = userEvent.setup();
+    renderSignIn('/sign-in?next=%2Frw%2Ftests');
+    await fill(u);
+    await u.click(screen.getByRole('button', { name: 'Sign in' }));
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/tests'));
   });
 
-  it('the admin area asks for a fresh sign-in: a signed-in person stays on the screen, sees the notice, and returns to the admin page', async () => {
-    localStorage.setItem('jobprep.session', '1');
-    server({ verify: [{ body: { user: { ...user, roles: ['SYSTEM_ADMIN'] }, claimedAttempts: 0 } }] });
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderSignIn('/sign-in?next=%2Fadmin%2Fusers&reason=admin_stale');
-    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Please sign in again to use the admin area');
-    await toCodeStep(u);
-    type('123456');
-    await u.click(verifyBtn());
-    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/admin/users'));
+  it('goes to the setup step the API names, keeping ?next=', async () => {
+    server({ user: { onboarding: { done: false, nextStep: 'category' } } });
+    const u = userEvent.setup();
+    renderSignIn('/sign-in?next=%2Frw%2Fcheckout%3Ftest%3Dx');
+    await fill(u);
+    await u.click(screen.getByRole('button', { name: 'Sign in' }));
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/setup/category?next=%2Frw%2Fcheckout%3Ftest%3Dx'));
   });
 
-  it('a signed-in person without that reason is sent on to ?next= at once', async () => {
-    localStorage.setItem('jobprep.session', '1');
-    server({});
-    renderSignIn('/sign-in?next=%2Frw%2Fcheckout');
-    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/checkout'));
-  });
-
-  it('"Use a different email" goes back, and the page links to sign-up', async () => {
-    server({});
-    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+  it('401 invalid_credentials: "Email or password is incorrect", fields are kept', async () => {
+    server({ signIn: { status: 401, body: { error: 'invalid_credentials' } } });
+    const u = userEvent.setup();
     renderSignIn();
-    expect(await screen.findByRole('link', { name: 'Create a free account' })).toHaveAttribute('href', '/sign-up');
-    await toCodeStep(u);
-    await u.click(screen.getByRole('button', { name: 'Use a different email' }));
-    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    await fill(u, 'aline@example.test');
+    await u.click(screen.getByRole('button', { name: 'Sign in' }));
+    expect(await screen.findByText('Email or password is incorrect')).toBeInTheDocument();
+    expect(screen.getByText('Check them and try again, or reset your password.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email address')).toHaveValue('aline@example.test');
+  });
+
+  it('429 too_many_attempts: "Too many tries" with the wait', async () => {
+    server({ signIn: { status: 429, body: { error: 'too_many_attempts', retryAfterSeconds: 900 } } });
+    const u = userEvent.setup();
+    renderSignIn();
+    await fill(u, 'aline@example.test');
+    await u.click(screen.getByRole('button', { name: 'Sign in' }));
+    expect(await screen.findByText('Too many tries')).toBeInTheDocument();
+    expect(screen.getByText('For your security, wait 15 minutes, or reset your password.')).toBeInTheDocument();
+  });
+
+  it('403 email_not_verified, then Resend verification sends a code and opens the Check your email screen', async () => {
+    const { calls } = server({ signIn: { status: 403, body: { error: 'email_not_verified' } } });
+    const u = userEvent.setup();
+    renderSignIn('/sign-in?next=%2Frw%2Ftests');
+    await fill(u, 'aline@example.test');
+    await u.click(screen.getByRole('button', { name: 'Sign in' }));
+    expect(await screen.findByText('Please verify your email first')).toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'Resend verification' }));
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/verify-email?email=aline%40example.test&next=%2Frw%2Ftests'));
+    expect(body(calls, '/api/auth/verify-email/resend')).toEqual({ email: 'aline@example.test' });
+  });
+
+  it('Resend verification while a code was just sent opens its screen with the wait', async () => {
+    server({ resend: { status: 429, body: { error: 'otp_cooldown' }, headers: { 'Retry-After': '31' } } });
+    const u = userEvent.setup();
+    renderSignIn();
+    await u.type(await screen.findByLabelText('Email address'), 'aline@example.test');
+    await u.click(screen.getByRole('button', { name: 'Resend verification' }));
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/verify-email?email=aline%40example.test'));
+  });
+
+  it('Resend verification needs a valid email first', async () => {
+    const { calls } = server();
+    const u = userEvent.setup();
+    renderSignIn();
+    await u.click(await screen.findByRole('button', { name: 'Resend verification' }));
+    expect(await screen.findByText('Enter a valid email address, like name@example.com.')).toBeInTheDocument();
+    expect(calls.some((c) => c.url.includes('resend'))).toBe(false);
+  });
+
+  it('a failed Google round trip shows a plain message (no artboard)', async () => {
+    server();
+    renderSignIn('/sign-in?error=google_failed');
+    expect(await screen.findByText('Google sign-in did not work')).toBeInTheDocument();
+  });
+
+  it('?reason=admin_stale keeps the screen open for a signed-in admin and says why', async () => {
+    localStorage.setItem('jobprep.session', '1');
+    server();
+    renderSignIn('/sign-in?next=%2Fadmin%2Fusers&reason=admin_stale');
+    expect(await screen.findByText('Please sign in again to use the admin area')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('a signed-in person is sent on (to setup if it is unfinished)', async () => {
+    localStorage.setItem('jobprep.session', '1');
+    server({ user: { onboarding: { done: false, nextStep: 'goal' } } });
+    renderSignIn('/sign-in');
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/setup/goal'));
   });
 });

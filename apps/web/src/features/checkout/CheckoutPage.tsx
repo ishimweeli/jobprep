@@ -40,8 +40,8 @@ function Frame({ back, chip, children, footer, heading }: { back: string; chip?:
           <Link to={back} aria-label="Back" className="inline-flex h-11 w-11 items-center justify-center text-ink no-underline hover:text-ink">
             <ArrowLeft size={22} aria-hidden="true" />
           </Link>
-          <span className="flex-1 text-[17px] font-bold">Get Full Access</span>
-          {chip && <span className="mr-2 rounded-md bg-soft px-2 py-1 text-xs font-bold text-ink-2">{chip}</span>}
+          <span className="flex-1 text-[17px] font-semibold">Get Full Access</span>
+          {chip && <span className="mr-2 rounded-md bg-soft px-2 py-1 text-xs font-semibold text-ink-2">{chip}</span>}
         </header>
         <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col gap-4 px-4 py-[18px] outline-none md:flex-none md:px-0 md:py-0">
           <H className="m-0 hidden text-[26px] font-bold tracking-tight md:block md:pb-0">Get Full Access</H>
@@ -209,7 +209,8 @@ function CheckoutFlow({
   }
 
   const price = priceText(summary);
-  const chip = copy.variant === 'prefix' ? `${summary.country.code} · ${summary.country.currencyCode}` : undefined;
+  // "KE · Kenya": the code and the name; no currency beside the country (the currency stays on the price).
+  const chip = copy.variant === 'prefix' ? `${summary.country.code} · ${summary.country.name}` : undefined;
   const sellable = canPay(summary);
   const other = otherProvider(summary.paymentMethods, payment?.provider ?? providerDown?.provider ?? provider);
   const shownPhone = payment ? formatPhone(payment.msisdn, dial) : formatPhone(toMsisdn(number, dial) ?? `${dial}${number.replace(/\D/g, '')}`, dial);
@@ -280,7 +281,10 @@ function CheckoutFlow({
             form="pay-form"
             disabled={!sellable || create.isPending || !!numberError}
             aria-busy={create.isPending || undefined}
-            className="min-h-[56px] w-full cursor-pointer rounded-[14px] border-0 bg-brand text-[17px] font-bold text-white hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-45 md:min-h-[52px] md:rounded-control md:text-base"
+            className={cx(
+              'min-h-[48px] w-full cursor-pointer border-0 bg-brand text-[17px] font-semibold text-white hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-45 md:min-h-[44px] md:rounded-control md:text-base',
+              copy.variant === 'prefix' ? 'rounded-control' : 'rounded-[14px]',
+            )}
           >
             {price ? `Pay ${price}` : 'Pay'}
           </button>
@@ -289,7 +293,7 @@ function CheckoutFlow({
             key="different-number"
             type="button"
             onClick={() => setEditing(true)}
-            className="min-h-[52px] w-full cursor-pointer rounded-[14px] border border-input-border bg-surface text-base font-semibold text-ink"
+            className="min-h-[48px] w-full cursor-pointer rounded-[14px] border border-input-border bg-surface text-base font-semibold text-ink md:min-h-[44px] md:rounded-control"
           >
             Use a different number
           </button>
@@ -299,10 +303,10 @@ function CheckoutFlow({
       <section aria-label="Order summary" className="flex flex-col gap-2.5 rounded-card border border-border bg-surface p-4">
         <div className="flex justify-between gap-2.5">
           <span className="flex flex-col gap-0.5">
-            <span className="text-base font-bold">{copy.summaryTitle}</span>
+            <span className="text-base font-semibold">{copy.summaryTitle}</span>
             <span className="text-sm text-ink-2">{copy.summaryLine}</span>
           </span>
-          {price && <span className="whitespace-nowrap text-base font-extrabold">{price}</span>}
+          {price && <span className="whitespace-nowrap text-base font-semibold">{price}</span>}
         </div>
         <p className="m-0 border-t border-border pt-2.5 text-[13px] text-muted">{copy.note}</p>
       </section>
@@ -310,7 +314,7 @@ function CheckoutFlow({
       {phase === 'form' && (
         <form id="pay-form" onSubmit={submit} noValidate className="flex flex-col gap-4">
           <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-            <legend className="mb-2.5 p-0 text-base font-bold">Pay with</legend>
+            <legend className="mb-2.5 p-0 text-base font-semibold">Pay with</legend>
             {summary.paymentMethods.map((m) => {
               const on = m.provider === provider;
               return (
@@ -321,12 +325,12 @@ function CheckoutFlow({
                   onClick={() => setProvider(m.provider)}
                   className={cx(
                     'flex min-h-[60px] cursor-pointer items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-left text-ink',
-                    on ? 'border-2 border-brand bg-brand-softer' : 'border border-zinc-300 bg-surface',
+                    on ? 'border-2 border-brand bg-brand-softer' : 'border border-border-strong bg-surface',
                   )}
                 >
                   <span aria-hidden="true" className="h-8 w-8 rounded-[9px]" style={{ background: providerSwatch(m.provider) }} />
                   <span className="flex flex-1 flex-col">
-                    <span className="text-base font-bold">{m.label}</span>
+                    <span className="text-base font-semibold">{m.label}</span>
                     {m.hint && <span className="text-[13px] text-muted">{m.hint}</span>}
                   </span>
                   <span aria-hidden="true" className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-muted">
@@ -340,7 +344,7 @@ function CheckoutFlow({
           <NumberField copy={copy} dial={dial} providerLabel={providerLabel} value={number} onChange={(v) => { setNumber(v); setNumberError(null); }} error={numberError} />
 
           {formError && (
-            <p role="alert" className="m-0 rounded-control border border-amber-300 bg-amber-50 p-3.5 text-sm font-semibold text-amber-900">
+            <p role="alert" className="m-0 rounded-control border border-flagged-line bg-flagged-bg p-3.5 text-sm font-semibold text-flagged">
               {formError}
             </p>
           )}
@@ -350,13 +354,13 @@ function CheckoutFlow({
       {phase === 'pending' && payment && <Pending payment={payment} phone={receiptNumber(payment.msisdn, dial, copy.variant)} again={() => again.mutate()} sending={again.isPending} />}
 
       {phase === 'failed' && payment && (
-        <section role="alert" className="flex flex-col gap-2.5 rounded-[14px] border border-amber-300 bg-amber-50 p-[18px]">
-          <p className="m-0 text-base font-bold text-amber-900">Payment not completed</p>
-          <p className="m-0 text-[15px] text-amber-900">{notCompletedMessage(payment)}</p>
+        <section role="alert" className="flex flex-col gap-2.5 rounded-[14px] border border-flagged-line bg-flagged-bg p-[18px]">
+          <p className="m-0 text-base font-semibold text-flagged">Payment not completed</p>
+          <p className="m-0 text-[15px] text-flagged">{notCompletedMessage(payment)}</p>
           <button
             type="button"
             onClick={() => backToForm()}
-            className="min-h-[44px] cursor-pointer self-start rounded-control border-0 bg-ink px-[18px] py-3 text-[15px] font-bold text-white"
+            className="min-h-[44px] cursor-pointer self-start rounded-control border-0 bg-brand px-[18px] py-3 text-[15px] font-semibold text-white"
           >
             Try again
           </button>
@@ -374,9 +378,9 @@ const ICON_PATH: Record<ResultCard['icon'], string> = {
   ok: 'M5 12.5l4.5 4.5L19 7.5',
 };
 const TONE: Record<ResultCard['tone'], string> = {
-  red: 'bg-red-100 text-red-800',
+  red: 'bg-incorrect-bg text-incorrect',
   amber: 'bg-flagged-bg text-flagged-ink',
-  purple: 'bg-brand-soft text-brand-hover',
+  purple: 'bg-brand-soft text-brand',
   green: 'bg-free-bg text-free',
 };
 
@@ -385,12 +389,12 @@ function ResultSummary({ summary, price }: { summary: CheckoutSummary; price: st
   return (
     <section aria-label="Order summary" className="flex justify-between gap-2.5 rounded-card border border-border bg-surface p-4">
       <span className="flex flex-col gap-0.5">
-        <span className="text-base font-bold">JobPrep Full Access · {summary.country.name}</span>
+        <span className="text-base font-semibold">JobPrep Full Access · {summary.country.name}</span>
         <span className="text-sm text-ink-2">
           Every {summary.country.name} mock test · {summary.plan?.durationDays ?? 30} days
         </span>
       </span>
-      {price && <span className="whitespace-nowrap text-base font-extrabold tabular">{price}</span>}
+      {price && <span className="whitespace-nowrap text-base font-semibold tabular">{price}</span>}
     </section>
   );
 }
@@ -406,7 +410,7 @@ function ResultCardView({ card, onAction }: { card: ResultCard; onAction: (a: Re
         </span>
         <h1 className="m-0 text-[22px]">{card.title}</h1>
         <p className="m-0 text-[15px] leading-[1.55] text-ink-2">{card.body}</p>
-        {card.notCharged && <p className="m-0 text-[15px] font-bold text-ink">You were not charged.</p>}
+        {card.notCharged && <p className="m-0 text-[15px] font-semibold text-ink">You were not charged.</p>}
       </section>
       <button type="button" onClick={() => onAction(card.cta.action)} className={buttonClasses({ variant: 'primary', size: 'lg', className: 'cursor-pointer' })}>
         {card.cta.label}
@@ -415,7 +419,7 @@ function ResultCardView({ card, onAction }: { card: ResultCard; onAction: (a: Re
         <button
           type="button"
           onClick={() => onAction(card.alt!.action)}
-          className="cursor-pointer border-0 bg-transparent p-2.5 text-center text-[15px] font-semibold text-brand hover:text-brand-hover"
+          className="cursor-pointer border-0 bg-transparent p-2.5 text-center text-[15px] font-semibold text-brand hover:text-brand"
         >
           {card.alt.label}
         </button>
@@ -438,7 +442,7 @@ function NumberField({
       aria-invalid={error ? true : undefined}
       aria-describedby={error ? 'msisdn-help msisdn-err' : 'msisdn-help'}
       className={cx(
-        'h-[54px] min-w-0 rounded-control bg-surface px-3.5 text-lg text-ink',
+        'h-12 min-w-0 rounded-control bg-surface px-3.5 text-lg text-ink md:h-11',
         copy.variant === 'prefix' ? 'flex-1' : 'w-full tracking-[0.02em]',
         error ? 'border-2 border-incorrect' : 'border border-input-border',
       )}
@@ -446,12 +450,12 @@ function NumberField({
   );
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor="msisdn" className="text-base font-bold">
+      <label htmlFor="msisdn" className="text-base font-semibold">
         {copy.phoneLabel(providerLabel)}
       </label>
       {copy.variant === 'prefix' ? (
         <div className="flex gap-2">
-          <span className="inline-flex h-[54px] shrink-0 items-center rounded-control border border-zinc-300 bg-soft px-3 font-semibold">{dial}</span>
+          <span className="inline-flex h-12 shrink-0 items-center rounded-control md:h-11 border border-border-strong bg-soft px-3 font-semibold">{dial}</span>
           {input}
         </div>
       ) : (
@@ -475,7 +479,7 @@ function Pending({ payment, phone, again, sending }: { payment: PaymentView; pho
     <>
       <section role="status" className="flex flex-col items-center gap-3 rounded-card border border-border bg-surface px-[18px] py-[22px] text-center">
         <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft">
-          <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#5B21B6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="#164A7A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="6" y="2" width="12" height="20" rx="2.5" />
             <path d="M11 18h2" />
           </svg>

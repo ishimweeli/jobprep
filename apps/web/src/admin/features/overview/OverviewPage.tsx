@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getCountries, getOverview, keys } from '../../api/admin';
 import type { Overview } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
@@ -9,7 +9,8 @@ import { InertButton, Pill } from '../../components/ui';
 import { ACCESS_TAG, paymentTone } from '../../lib/badges';
 import { barHeights, chartSummary } from '../../lib/chart';
 import { cx } from '../../lib/cx';
-import { COUNTRY_NAMES, countryName, formatCount, formatDay, formatLongDate, formatTime } from '../../lib/format';
+import { countryName, formatCount, formatDay, formatLongDate, formatTime } from '../../lib/format';
+import { useAdminCountry } from '../../lib/adminCountry';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { useAdmin } from '../auth/session';
 import { buildAlerts, buildKpis, optionLabel } from './overviewModel';
@@ -22,11 +23,11 @@ function Section({ id, title, aside, phone, className, children }: { id: string;
     <section aria-labelledby={id} className={cx(phone ? phoneCard : cx(card, 'gap-1 p-5'), className)}>
       {aside ? (
         <div className={cx('flex items-baseline justify-between', phone ? 'mb-1.5' : 'mb-2')}>
-          <h2 id={id} className={cx('m-0', phone ? 'text-[17px]' : 'text-lg')}>{title}</h2>
+          <h2 id={id} className={cx('m-0', 'text-[17px]')}>{title}</h2>
           {aside}
         </div>
       ) : (
-        <h2 id={id} className={cx('m-0', phone ? 'mb-1.5 text-[17px]' : 'mb-2 text-lg')}>{title}</h2>
+        <h2 id={id} className={cx('m-0', phone ? 'mb-1.5 text-[17px]' : 'mb-2 text-[17px]')}>{title}</h2>
       )}
       {children}
     </section>
@@ -37,18 +38,14 @@ export function OverviewPage() {
   const admin = useAdmin();
   const isDesktop = useIsDesktop();
   const navigate = useNavigate();
-  const [sp, setSp] = useSearchParams();
-  const country = sp.get('country')?.toUpperCase() || undefined;
+  const { country, setCountry, options: codes, canChooseAll: showAll } = useAdminCountry();
   const [search, setSearch] = useState('');
   const canCountries = admin.permissions.includes('countries:read');
 
   const q = useQuery({ queryKey: keys.overview(country), queryFn: () => getOverview(country), placeholderData: (prev) => prev });
   const countries = useQuery({ queryKey: keys.countries, queryFn: getCountries, enabled: canCountries && isDesktop, staleTime: 5 * 60_000 });
 
-  const scope = admin.countryScope;
-  const codes = scope.length ? scope : Object.keys(COUNTRY_NAMES);
   const statusOf = (code: string) => countries.data?.countries.find((c) => c.code === code)?.status;
-  const showAll = scope.length !== 1;
 
   const onSearch = (e: FormEvent) => {
     e.preventDefault();
@@ -71,13 +68,8 @@ export function OverviewPage() {
           <div className="flex flex-wrap gap-2">
             <select
               aria-label="Country"
-              value={country ?? (showAll ? '' : (scope[0] ?? ''))}
-              onChange={(e) => {
-                const next = new URLSearchParams(sp);
-                if (e.target.value) next.set('country', e.target.value);
-                else next.delete('country');
-                setSp(next, { replace: true });
-              }}
+              value={country ?? ''}
+              onChange={(e) => setCountry(e.target.value)}
               className="h-11 rounded-[10px] border border-input-border bg-white px-3 text-[15px] font-semibold text-ink"
             >
               {showAll && <option value="">All countries</option>}
@@ -101,7 +93,7 @@ export function OverviewPage() {
                 className="h-11 w-[300px] max-w-full rounded-[10px] border border-input-border bg-white px-3.5 text-[15px] text-ink"
               />
             </form>
-            <InertButton kind="primary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-bold">
+            <InertButton kind="primary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">
               + New mock test
             </InertButton>
           </div>
@@ -135,8 +127,8 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
       {kpis.map((k) => (
         <div key={k.label} className={cx('flex flex-col gap-1 border border-border bg-white', phone ? 'min-w-0 gap-0.5 rounded-[14px] p-3.5' : 'rounded-[16px] p-[18px]')}>
           <dt className={cx('font-semibold text-muted', phone ? 'text-xs' : 'text-sm')}>{k.label}</dt>
-          <dd className={cx('m-0 font-extrabold tabular', phone ? 'text-[22px]' : 'text-[28px] tracking-[-0.02em]')}>{k.value}</dd>
-          <dd className={cx('m-0 font-semibold', phone ? 'text-xs' : 'text-[13px]')} style={{ color: k.good ? '#065F46' : '#52525B' }}>
+          <dd className={cx('m-0 font-semibold tabular', phone ? 'text-[22px]' : 'text-[28px] tracking-[-0.02em]')}>{k.value}</dd>
+          <dd className={cx('m-0 font-semibold', phone ? 'text-xs' : 'text-[13px]')} style={{ color: k.good ? '#1E6B3C' : '#5E6573' }}>
             {k.delta}
           </dd>
         </div>
@@ -146,7 +138,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
 
   const attention = (
     <Section id="ao-att" title="Needs attention" phone={phone} className={phone ? '' : 'flex-[1_1_360px]'}>
-      {alerts.length === 0 && <p className="m-0 border-t border-[#F4F4F5] py-3 text-sm text-muted">Nothing needs attention right now.</p>}
+      {alerts.length === 0 && <p className="m-0 border-t border-soft py-3 text-sm text-muted">Nothing needs attention right now.</p>}
       {alerts.map((a) => {
         const allowed = a.to.startsWith('/admin/payments') ? canPayments : canExams;
         const inner = (
@@ -159,7 +151,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
             {phone ? <span aria-hidden="true" className="text-muted">›</span> : <span className="whitespace-nowrap text-sm font-semibold text-brand">{a.action}</span>}
           </>
         );
-        const cls = cx('flex items-start gap-3 border-t border-[#F4F4F5] py-3 text-ink no-underline hover:text-ink', phone && 'gap-2.5');
+        const cls = cx('flex items-start gap-3 border-t border-soft py-3 text-ink no-underline hover:text-ink', phone && 'gap-2.5');
         return allowed ? (
           <Link key={a.key} to={a.to} className={cls}>
             {inner}
@@ -175,7 +167,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
 
   const legend = (small: boolean) => (
     <div className={cx('flex gap-3.5 text-ink-2', small ? 'pt-1.5 text-xs' : 'text-[13px]')}>
-      <span className="flex items-center gap-1.5"><span className={cx('rounded-[3px] bg-[#DDD6FE]', small ? 'h-2.5 w-2.5' : 'h-3 w-3')} />Sign-ups</span>
+      <span className="flex items-center gap-1.5"><span className={cx('rounded-[3px] bg-brand-light', small ? 'h-2.5 w-2.5' : 'h-3 w-3')} />Sign-ups</span>
       <span className="flex items-center gap-1.5"><span className={cx('rounded-[3px] bg-brand', small ? 'h-2.5 w-2.5' : 'h-3 w-3')} />Payments</span>
     </div>
   );
@@ -185,11 +177,11 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
       <div
         role="img"
         aria-label={summary}
-        className={cx('flex items-end border-b border-[#D4D4D8]', phone ? 'h-[130px] gap-1' : 'h-[200px] gap-2 px-1')}
+        className={cx('flex items-end border-b border-border-strong', phone ? 'h-[130px] gap-1' : 'h-[200px] gap-2 px-1')}
       >
         {bars.map((b, i) => (
           <div key={d[i] ?? i} className={cx('flex h-full flex-1 items-end', phone ? 'gap-px' : 'gap-0.5')}>
-            <span className={cx('flex-1 bg-[#DDD6FE]', phone ? 'rounded-t-[3px]' : 'rounded-t')} style={{ height: b.s }} />
+            <span className={cx('flex-1 bg-brand-light', phone ? 'rounded-t-[3px]' : 'rounded-t')} style={{ height: b.s }} />
             <span className={cx('flex-1 bg-brand', phone ? 'rounded-t-[3px]' : 'rounded-t')} style={{ height: b.p }} />
           </div>
         ))}
@@ -215,7 +207,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
   ) : (
     <section aria-labelledby="ao-ch" className={cx(card, 'flex-[999_1_520px] gap-3 p-5')}>
       <div className="flex flex-wrap items-center justify-between gap-2.5">
-        <h2 id="ao-ch" className="m-0 text-lg">New sign-ups and Full Access payments · last 14 days</h2>
+        <h2 id="ao-ch" className="m-0 text-[17px]">New sign-ups and Full Access payments · last 14 days</h2>
         {legend(false)}
       </div>
       {chartBars}
@@ -231,7 +223,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
   const top = phone ? (
     <Section id="op-t" title="Most-taken this week" phone>
       {o.topMockTests.map((t) => (
-        <div key={t.mockTestId} className="flex justify-between gap-2.5 border-t border-[#F4F4F5] py-2.5">
+        <div key={t.mockTestId} className="flex justify-between gap-2.5 border-t border-soft py-2.5">
           <span className="flex min-w-0 flex-col">
             <span className="text-sm font-semibold">{t.title}</span>
             <span className="text-xs text-muted">avg {t.avgPercent === null ? '—' : `${t.avgPercent}%`} · {tag(t.isFree).label}</span>
@@ -261,7 +253,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
           </thead>
           <tbody>
             {o.topMockTests.map((t) => (
-              <tr key={t.mockTestId} className="border-t border-[#F4F4F5]">
+              <tr key={t.mockTestId} className="border-t border-soft">
                 <td className="py-[11px] pr-2 font-semibold">{t.title}</td>
                 <td className="px-2 py-[11px]"><Pill tone={tag(t.isFree)} className="px-2 py-0.5">{tag(t.isFree).label}</Pill></td>
                 <td className="px-2 py-[11px] text-right tabular">{formatCount(t.attempts)}</td>
@@ -287,7 +279,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
       {o.latestPayments.map((p) => {
         const tone = paymentTone(p.status);
         return (
-          <div key={p.id} className="flex items-center justify-between gap-2.5 border-t border-[#F4F4F5] py-2.5">
+          <div key={p.id} className="flex items-center justify-between gap-2.5 border-t border-soft py-2.5">
             <span className="flex flex-col">
               <span className="text-sm font-semibold">{p.user.name}</span>
               <span className="text-xs text-muted">{p.providerLabel} · {formatTime(p.createdAt)}</span>
@@ -296,7 +288,7 @@ function OverviewBody({ o, phone }: { o: Overview; phone: boolean }) {
           </div>
         );
       })}
-      {o.latestPayments.length === 0 && <p className="m-0 border-t border-[#F4F4F5] py-2.5 text-sm text-muted">No payments yet.</p>}
+      {o.latestPayments.length === 0 && <p className="m-0 border-t border-soft py-2.5 text-sm text-muted">No payments yet.</p>}
     </Section>
   );
 

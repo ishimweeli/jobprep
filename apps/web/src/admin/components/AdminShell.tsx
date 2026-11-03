@@ -3,68 +3,86 @@ import type { ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { getPayments, keys } from '../api/admin';
 import { useAdmin } from '../features/auth/session';
+import { useAdminCountry } from '../lib/adminCountry';
 import { cx } from '../lib/cx';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
+import { initials } from '../lib/format';
 import { useIsDesktop } from '../lib/useMediaQuery';
 import { ADMIN_HOME, rolesLabel, visibleNav, type NavItem } from '../lib/permissions';
+import { CountrySelector } from './CountrySelector';
 import { Logo } from './ui';
 
 /** The pending-payments number on the Payments item (the artboard's amber count). Only for admins who may read payments. */
-function usePendingCount(enabled: boolean): number {
+function usePendingCount(enabled: boolean, country?: string): number {
   const q = useQuery({
-    queryKey: [...keys.payments({ nav: true })],
-    queryFn: () => getPayments({ pageSize: 1 }),
+    queryKey: [...keys.payments({ nav: true, country })],
+    queryFn: () => getPayments({ pageSize: 1, country }),
     enabled,
     staleTime: 30_000,
   });
   return q.data?.summary.pendingNow ?? 0;
 }
 
-function Icon({ path, size }: { path: string; size: number }) {
+function Icon({ path, size, strokeWidth = 2 }: { path: string; size: number; strokeWidth?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <path d={path} />
     </svg>
   );
 }
 
-const AdminMark = ({ dark }: { dark?: boolean }) => (
-  <span className={cx('rounded-md px-[7px] py-[3px] text-[11px] font-bold', dark ? 'bg-ink text-white' : 'bg-[#3F3F46] text-[#E4E4E7]')}>ADMIN</span>
-);
+/** The phone header's pill (AdminOverviewPhone.dc): dark, upper case. The desktop sidebar has its own softer "Admin" pill. */
+const AdminMark = () => <span className="rounded-md bg-dark px-[7px] py-[3px] text-[11px] font-semibold text-white">ADMIN</span>;
 
 function Sidebar({ items, pending }: { items: NavItem[]; pending: number }) {
   const admin = useAdmin();
   return (
-    <aside aria-label="Admin navigation" className="sticky top-0 flex h-screen w-60 flex-none flex-col gap-5 overflow-y-auto bg-ink px-3.5 py-5 text-white">
-      <div className="flex items-center gap-2.5 px-2">
-        <Logo size={30} />
-        <span className="text-lg font-extrabold">JobPrep</span>
-        <AdminMark />
-      </div>
-      <nav aria-label="Admin" className="flex flex-col gap-1">
+    <aside aria-label="Admin navigation" className="sticky top-0 flex h-screen w-[248px] flex-none flex-col gap-[18px] overflow-y-auto border-r border-border bg-white px-3.5 py-[18px]">
+      <Link to={ADMIN_HOME} className="flex items-center gap-2.5 px-1 no-underline hover:no-underline">
+        <span className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[9px] bg-brand">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+          </svg>
+        </span>
+        <span className="text-lg font-semibold text-brand">JobPrep</span>
+        <span className="rounded-full bg-brand-soft px-2 py-[3px] text-[11px] font-semibold text-brand">Admin</span>
+      </Link>
+      <CountrySelector />
+      <nav aria-label="Admin" className="flex flex-col gap-0.5">
         {items.map((n) => (
           <NavLink
             key={n.key}
             to={n.to}
             end={n.to === ADMIN_HOME}
             className={({ isActive }) =>
-              cx('flex items-center gap-3 rounded-[10px] px-3 py-[11px] text-[15px] font-semibold no-underline hover:text-white', isActive ? 'bg-[#3F3F46] text-white' : 'bg-transparent text-[#D4D4D8]')
+              cx('flex min-h-[40px] items-center gap-3 rounded-[10px] px-3 text-[15px] no-underline hover:no-underline', isActive ? 'bg-brand-soft font-semibold text-brand hover:text-brand' : 'bg-transparent font-medium text-ink hover:text-ink')
             }
           >
-            <Icon path={n.icon} size={20} />
-            <span className="flex-1">{n.label}</span>
-            {n.key === 'payments' && pending > 0 && (
-              <span className="rounded-full bg-[#F59E0B] px-[7px] py-0.5 text-xs font-bold text-ink">
-                {pending}
-                <span className="sr-only"> pending</span>
-              </span>
+            {({ isActive }) => (
+              <>
+                <span className={isActive ? 'text-brand' : 'text-muted'}>
+                  <Icon path={n.icon} size={18} strokeWidth={1.8} />
+                </span>
+                <span className="flex-1">{n.label}</span>
+                {n.key === 'payments' && pending > 0 && (
+                  <span className="rounded-full bg-flagged-bg px-2 py-0.5 text-xs font-semibold text-flagged">
+                    {pending}
+                    <span className="sr-only"> pending</span>
+                  </span>
+                )}
+              </>
             )}
           </NavLink>
         ))}
       </nav>
-      <div className="mt-auto flex flex-col gap-0.5 border-t border-[#3F3F46] p-3">
-        <span className="text-sm font-semibold">{admin.name}</span>
-        <span className="text-[13px] text-[#A1A1AA]">{rolesLabel(admin.roles)}</span>
+      <div className="mt-auto flex items-center gap-2.5 border-t border-border px-1 pt-3">
+        <span aria-hidden="true" className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full bg-brand-soft text-[13px] font-semibold text-brand">
+          {initials(admin.name)}
+        </span>
+        <span className="flex min-w-0 flex-col">
+          <span className="text-sm font-semibold text-ink">{admin.name}</span>
+          <span className="text-xs text-muted">{rolesLabel(admin.roles)}</span>
+        </span>
       </div>
     </aside>
   );
@@ -79,7 +97,7 @@ function BottomNav({ items }: { items: NavItem[] }) {
           to={n.to}
           end={n.to === ADMIN_HOME}
           className={({ isActive }) =>
-            cx('flex min-h-[52px] flex-col items-center gap-0.5 py-1.5 text-[11px] no-underline', isActive ? 'font-bold text-brand' : 'font-semibold text-muted hover:text-muted')
+            cx('flex min-h-[48px] flex-col items-center gap-0.5 py-1.5 text-[11px] no-underline', isActive ? 'font-semibold text-brand' : 'font-semibold text-muted hover:text-muted')
           }
         >
           <Icon path={n.phoneIcon} size={22} />
@@ -103,7 +121,7 @@ interface ShellProps {
 }
 
 /**
- * The chrome of every screen: the dark sidebar with the admin's name on desktop, the white header and the
+ * The chrome of every screen: the white sidebar (logo and Admin pill, the Country filter, the navigation and the signed-in admin) on desktop, the white header and the
  * bottom bar on a phone. The same pages render inside both.
  */
 export function AdminShell({ title, back, headerExtra, gap = 18, children }: ShellProps) {
@@ -111,7 +129,8 @@ export function AdminShell({ title, back, headerExtra, gap = 18, children }: She
   const isDesktop = useIsDesktop();
   useDocumentTitle(`${title} · Admin`);
   const canPayments = admin.permissions.includes('payments:read');
-  const pending = usePendingCount(canPayments && isDesktop);
+  const { country } = useAdminCountry();
+  const pending = usePendingCount(canPayments && isDesktop, country);
   const items = visibleNav(admin.permissions, isDesktop ? 'desktop' : 'phone');
 
   const skip = (
@@ -144,7 +163,7 @@ export function AdminShell({ title, back, headerExtra, gap = 18, children }: She
             <Logo size={26} />
           )}
           <h1 className="m-0 flex-1 text-[19px]">{title}</h1>
-          <AdminMark dark />
+          <AdminMark />
         </div>
         {headerExtra}
       </header>

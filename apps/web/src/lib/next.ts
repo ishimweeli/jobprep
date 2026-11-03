@@ -28,3 +28,43 @@ export function safeNext(raw: string | null | undefined): string | null {
   if (/^\/[a-z]+:/i.test(raw)) return null;
   return raw;
 }
+
+function withNext(path: string, next: string | null | undefined, extra: Record<string, string> = {}): string {
+  const params = new URLSearchParams(extra);
+  const safe = safeNext(next);
+  if (safe) params.set('next', safe);
+  const qs = params.toString();
+  return qs ? `${path}?${qs}` : path;
+}
+
+/** Setup steps: `/setup/country`, `/setup/category`, `/setup/goal` (OnboardCountry / OnboardCategory / OnboardGoal), keeping `?next=`. */
+export function setupPath(step: 'country' | 'category' | 'goal', next?: string | null): string {
+  return withNext(`/setup/${step}`, next);
+}
+
+/** The "Check your email" screen for an address (VerifyEmail.dc), keeping `?next=`. */
+export function verifyEmailPath(email: string, next?: string | null): string {
+  return withNext('/verify-email', next, { email });
+}
+
+/** `/sign-in?next=` without a `next` is just `/sign-in`. */
+export function signInPathFor(next?: string | null, extra: Record<string, string> = {}): string {
+  return withNext('/sign-in', next, extra);
+}
+
+export function signUpPathFor(next?: string | null): string {
+  return withNext('/sign-up', next);
+}
+
+/**
+ * A `next` that leads to a payment ("from a paid-test tap as a guest": `/rw/checkout?test=<slug>`): the test it is for.
+ * The sign-up and setup screens then say "payment for <test title>" (SignUp.dc / OnboardGoal.dc `fromPaid`).
+ */
+export function paidTestFromNext(next: string | null | undefined): { country: string; testSlug: string } | null {
+  const safe = safeNext(next);
+  if (!safe) return null;
+  const m = /^\/([a-z]{2})\/checkout\?(.*)$/i.exec(safe);
+  if (!m) return null;
+  const testSlug = new URLSearchParams(m[2]).get('test');
+  return testSlug ? { country: m[1]!.toLowerCase(), testSlug } : null;
+}

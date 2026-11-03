@@ -99,6 +99,60 @@ with existing styling. The designer should draw them.
 - **Several roles on one account:** Settings → Admin team shows each person's roles as comma-separated labels in the existing role slot (phone: the grey text; desktop: the one closed select shows "Content editor, Support"); the admin sidebar's role line under the name does the same. Navigation is the union of the roles' pages. Nothing to change, add or remove a single role exists yet (A13).
 - **Admin sign-in screens (previously gap A1) no longer exist:** admin uses the normal candidate sign-in (C12 / E1). There is nothing to design for them. The E2 notes on "Admin sign-in" refer to that same screen.
 
+### E4 — New sign-in (password, Google, setup)
+
+Built from the 2026-11-03 artboards `SignUp`, `VerifyEmail`, `OnboardCountry`, `OnboardCategory`, `OnboardGoal`, `AuthCallback`, `SignIn`, `ForgotPassword`, `ResetPassword`, `ChangeCountry`
+(each with its Phone twin; one responsive component per screen). These are the states and flows the artboards do not draw, built the plainest way with existing styling.
+
+- **Google not set up yet (undesigned state):** "Continue with Google" and its divider ("or sign in with email" / "or") are always drawn as designed. While `GET /api/auth/providers` says `google: false` (no credentials configured), pressing the button does not leave the page; a plain amber status line appears under it: "Google sign-in isn’t available yet. Use your email instead." With `google: true` it goes to `/api/auth/google/start?next=&countryCode=`.
+- **Back to home** (top right, on the logo row) is drawn on Sign in, Create account, Check your email, Forgot password and Reset password, and links to the landing page of the browsing country; not on the setup steps or "Signing you in".
+- **Google sign-in failed:** Google sends the person back to `/sign-in?error=google_failed`. Not drawn; shown as a red box above the email field in the same style as the three sign-in errors: "Google sign-in did not work" / "Please try again, or sign in with your email and password." Also used when `/auth/callback` finds no session.
+- **Guest attempts are not claimed through Google:** the API's Google start is a plain redirect and takes no guest tokens, so a guest who signs in with Google keeps no attempts (password sign-in and email verification do send them). Needs a decision.
+- **Reset link no longer valid** (`/reset-password` with an expired, used or missing token): no artboard. Built with the app's error state under the "Choose a new password" heading: "This reset link is not valid" / "It may have expired or already been used. Ask for a new link." and a button "Send a new reset link" to Forgot password. A save that fails because the link died says "This link is no longer valid. Ask for a new one."
+- **Check your email, the error and wait states:** only the empty boxes are drawn. Built with the existing code-error boxes: wrong code ("That code is not right", tries left from the API), expired ("This code has expired"), five wrong codes ("Too many tries", Verify locked), a wait before another code ("You can ask for another code in 0:31."), "We sent you a new code." after "Send a new code". "Send a new code" shows a countdown ("Send a new code in 0:45") while the API's wait runs.
+- **Sign-in other errors:** suspended account ("This account is suspended" / "Please contact support."), offline, and a server error use the same red box; field errors ("Enter your password.", the invalid-email line) are inline. "Resend verification" with no valid email typed asks for the email first. If the resend itself is rate-limited a box says how long to wait.
+- **Sign-up other errors:** an existing address shows "This email address already has an account." (red box above the button); field errors for name, email and password are inline. The password hint "Use 8 or more characters." turns red when it fails.
+- **Terms and Privacy policy:** drawn as a link in "By continuing you agree to the Terms and Privacy policy." but those pages do not exist (see the C-list); it is plain blue text, not a link.
+- **Setup 1/3 and Change exam country, meta lines:** the artboards say "Suggested · 90 mock tests" / "24 mock tests" (no currency beside a country, as of design ba8f27b). The countries list has no test count, so the number is the sum of the country's category counts (`GET /countries/:code/categories`, live countries only; the line shows just "Suggested" until it loads). "Coming soon" rows are as drawn (disabled).
+- **Setup 1/3, "Not listed? Tell us your country":** no follow-up screen is drawn; the link is drawn as text and does nothing.
+- **Setup 2/3, meta lines:** "N mock tests" from the API (plus the category description when it has one); the artboard's extra words ("most practised") are not in the API.
+- **Setup 3/3, exam date:** a free-text box ("e.g. 14 Dec 2026") with no calendar. It accepts "14 Dec 2026", "14 December 2026" and "2026-12-14"; anything else shows the inline line "Enter the date like 14 Dec 2026." (not drawn). Level and subject chips can be un-pressed by tapping again (the artboard pre-presses one of each only as a demo); both are optional. The values saved are the chip labels as drawn ("Secondary (S1–S3)", "Mathematics", …).
+- **Setup 3/3, "Skip for now" in the fromPaid variant:** drawn going to the dashboard even when a payment was pending; built as drawn, so the pending payment intent is dropped (the person taps the test again).
+- **fromPaid variants:** the test title comes from the test's own API record; if it cannot be loaded the blue note is simply not shown (the button text still changes to "Finish and continue to payment").
+- **Change exam country (`/account/country`):** reached from the account menu row, the Account tab row, the Account settings country row, the country chip's picker for a signed-in person and the "Switch my account to Kenya" link on the wrong-country page (which pre-selects that country with `?to=`). Not drawn: the case where no other country is live (the radio list starts on the current country and the button reads "Choose a different country", disabled, as drawn), and the explainer's wording when the person has no Full Access (the access bullet is left out). Payment methods in the first bullet come from the new country's own record. The older "Switch to X?" sheet is retired.
+- **Account settings:** the screen has no change-password row and no way to edit the name or email (nothing is drawn). A person who only used Google has no password to reset until they use Forgot password.
+- **Designer note, `AccountMenu`:** the "Account settings" row still says "Name, phone number" in the artboard; accounts have no phone number, so the build says "Name, email". Please redraw.
+- **Designer note, `AccountMenu`:** "Account settings" links to `ChangeCountry.dc` in the artboard, the same target as "Exam country", which looks like a copy-paste slip. Built: Exam country opens Change exam country, Account settings opens the account page (name, email, exam country).
+- **Admin, Users detail:** the button reads "Send password reset" and, like the other three actions, is drawn but inert (the confirmation and result dialogs, A5, are still not designed). The audit-history sentence reads "{name} sent a password reset email".
+- **Top of the new screens:** only the logo is drawn (no site header, no "Skip to content" bar); the dark side panel of the old sign-up layout is gone, as in the artboards.
+
+### E5 — Design update: palette and screen changes
+
+- **Owner wording change (3 Nov 2026), differs from the artboards:** the guest header button reads "Get started" on every page (it replaces "Create account" and the landing's "Try a free test"; it opens sign-up), and the primary button on a test that has not been started reads "Get started" instead of "Start Mock Test". The artboards (Main, ExamDetail, SignIn…) still show the old words: please redraw.
+
+Design update of 2026-11-03 (commit `8a41ad1`): new palette (Mwalimu Tools, no purple), the landing page without a pricing section, a Country selector in the admin sidebar,
+light country-code chips. Built from the artboards; these are the gaps it leaves.
+
+- **Admin sidebar Country selector (desktop):** only the closed button is drawn ("ALL", "All countries", "Rwanda live · Kenya preparing", a chevron). Not drawn: the **open menu**, and the **button
+  when one country is chosen**. Built the plainest way: a list in a small white card of the same style (an "All countries" row, then one row per country with its code chip and status), and the chosen
+  country shown on the button as its code chip, its name and its status in lower case. The choice is the global country filter: it sets `?country=` (and is remembered in the browser) for Overview, Users, Exams and
+  Payments. **Countries and Settings are not filtered**: their API calls take no country, so the button there changes nothing (drawn as is). The **phone** artboards have no selector, so phones have none (the Overview
+  page's own Country select on desktop is still drawn and now sets the same filter).
+- **Users search wording:** the desktop artboard says "Search name, email or phone" and the phone artboard "Search name or phone"; accounts have no phone number and the API searches name and email only, so
+  the field says "Search name or email" until the designer confirms.
+- **Disabled "Submit exam" (time up)** is drawn white text on #A3ADBB (2.3:1). Disabled controls are exempt from WCAG contrast, so it is built as drawn; the designer may want a darker grey.
+- **Input borders #CDD4DE are 1.5:1 against white** (WCAG 1.4.11 asks 3:1 for the boundary of a form field), and the focus ring #6AA6EE is 2.5:1 against white. Built as drawn; text pairs all pass AA.
+- **Button hover** is not drawn. Navy buttons (Submit included, now the same navy) turn #1E4BA8 (the link-hover blue of the palette) on hover; links keep the drawn #1E4BA8.
+- **Design update `ba8f27b` (no currency beside a country, lighter type, smaller shapes), things the artboards do not settle:**
+  - **Mock-test count per country** is drawn only on the desktop picker ("90 mock tests · MTN MoMo, Airtel Money"); there is no API field for it, so it is the sum of the country's category counts (one extra request per live country). A live country whose categories fail to load shows only its payment methods.
+  - **Country that is not live:** desktop draws the tag "Coming soon" and the line "Join the waiting list", the phone draws only "Coming soon" as the line (no tag). Built as drawn per screen size; the country-gate and change-country screens are built by the sign-in/setup pass.
+  - **Heading weight:** headings without a weight in the artboards render bold (700) in the browser; the brief says "headings max 600". Built as the artboards render (700); one rule in `styles/index.css` plus the `font-bold` on headings changes it if the designer wants 600.
+  - **Oval avatar:** `AdminUsers.dc` draws the user avatar 48 wide by 44 tall with a 999px radius (an oval; it looks like a bulk 48-to-44 height edit). Built as a 48px circle.
+  - **Chip heights:** several phone chips are drawn 40px high (catalog categories, Review filters, admin filters); built 44px to keep the touch-target rule.
+  - **Accessible name of the country chip** is the artboard's aria-label "Country: Rwanda. Change country", which does not contain the visible code "RW" (WCAG 2.5.3 label in name asks the visible text to be part of the name). Built as drawn.
+  - **Checkout inputs and Pay button** are 48px in `Checkout.dc` (phone-width column) and 44px in `CheckoutStates.dc` (desktop); built 48px on phone and 44px from the desktop breakpoint. The Rwanda pay button keeps its 14px radius on phone and the Kenya one is 10px, as drawn.
+- **Text links:** "See all N incorrect answers", "← Back to results" and the topic "Practise" are drawn as default links (blue #2D62CF) and built so.
+
 ---
 
 ## 0. Brief that applies to every screen
@@ -116,11 +170,11 @@ existing artboards for header, footer, cards and spacing. Where an item says "ma
 
 **Design system (from the approved design — match exactly).**
 - Font Inter 400–800, system-ui fallback; tabular numbers for timers, scores, prices.
-- Colours: ink #18181B, ink-2 #3F3F46, muted #52525B, border #E4E4E7, input border #A1A1AA, surface #FFFFFF,
-  page #FAFAFA, soft #F4F4F5. Brand violet primary #6D28D9, hover/text #5B21B6, soft #EDE9FE / #F5F3FF, focus ring #A78BFA.
-  Status: correct #047857 on #D1FAE5 · incorrect #B91C1C on #FEE2E2 · flagged #B45309/#92400E on #FEF3C7 · free badge #065F46 on #D1FAE5.
+- Colours (Mwalimu Tools palette, see `docs/SPEC.md` and `packages/shared/src/tokens.ts`): text #3A3F4A, secondary text #5E6573, page #EFF3F8, surface #FFFFFF, soft grey #EEF1F5,
+  card border #E2E7EF, input border #CDD4DE. Brand navy #164A7A (selected background #E8EFFB, focus ring #6AA6EE), links #2D62CF / hover #1E4BA8.
+  Status: correct #1E6B3C on #E3F4E8 · incorrect #A1281B on #FBE7E4 · flagged #8A5300 on #FDF1DD · free badge #1E6B3C on #E3F4E8 · partly correct stays orange.
 - Radius: buttons and inputs 12px, cards 16–18px, chips and badges pill.
-- Buttons: primary violet · secondary violet outline · final/submit near-black #18181B · neutral grey outline.
+- Buttons: primary navy · secondary navy outline · final/submit dark #182231 · neutral grey outline.
 - Touch targets ≥ 44px; text contrast ≥ 4.5:1; **never colour alone** (flagged cells also carry a corner mark; review uses ✓/✕ labels).
 - Icons: simple stroke SVG (Lucide is fine). **No emoji. No decorative animation, especially during exams.**
 - Visible focus ring on everything interactive; dialogs and sheets are real modals (labelled, closable, Esc).

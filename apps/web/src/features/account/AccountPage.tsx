@@ -1,20 +1,17 @@
 import { ChevronRight } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { PhoneBackHeader } from '../../components/layout/Header';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
-import { ChangeCountrySheet } from './ChangeCountrySheet';
 
 /**
  * Account settings (ChangeCountryPhone.dc): name, email, exam country. Only the phone artboard exists; on desktop
  * the same layout sits in a centred column (the account menu links here). No profile editing is drawn.
- * Tapping the exam country row opens the country picker; choosing a live country opens "Switch to X?" here.
+ * Tapping the exam country row opens Change exam country (ChangeCountry.dc).
  */
 export function AccountPage() {
   useDocumentTitle('Account');
   const { session, user } = useSession();
-  const [params, setParams] = useSearchParams();
-  const switchTo = params.get('switch');
   if (!user || !session) return null;
 
   const row = 'flex justify-between border-b border-soft py-3.5';
@@ -25,21 +22,21 @@ export function AccountPage() {
         <dl className="m-0 rounded-[14px] border border-border bg-surface px-4 py-1">
           <div className={row}>
             <dt className="text-muted">Name</dt>
-            <dd className="m-0 font-bold">{user.name}</dd>
+            <dd className="m-0 font-semibold">{user.name}</dd>
           </div>
           <div className={row}>
             <dt className="text-muted">Email</dt>
-            <dd className="m-0 min-w-0 break-all pl-3 text-right font-bold">{user.email}</dd>
+            <dd className="m-0 min-w-0 break-all pl-3 text-right font-semibold">{user.email}</dd>
           </div>
           <div className="flex items-center justify-between py-1.5">
             <dt className="text-muted">Exam country</dt>
             <dd className="m-0">
               <Link
-                to="/choose-country"
+                to="/account/country"
                 aria-label={`Exam country: ${session.country.name}. Change`}
-                className="inline-flex min-h-[44px] items-center gap-1.5 font-bold text-ink no-underline hover:text-ink"
+                className="inline-flex min-h-[44px] items-center gap-1.5 font-semibold text-ink no-underline hover:text-ink"
               >
-                <span className="rounded bg-ink px-1 text-[11px] text-white">{session.country.code}</span>
+                <span className="rounded border border-border bg-page px-1 text-[11px] text-muted">{session.country.code}</span>
                 {session.country.name}
                 <ChevronRight size={16} aria-hidden="true" />
               </Link>
@@ -47,7 +44,6 @@ export function AccountPage() {
           </div>
         </dl>
       </main>
-      {switchTo && <ChangeCountrySheet open onClose={() => setParams({})} to={switchTo} />}
     </div>
   );
 }

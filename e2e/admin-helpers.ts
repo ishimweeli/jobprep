@@ -8,7 +8,7 @@ import path from 'node:path';
  * Helpers for the admin specs. The admin screens are part of the web app (/admin). Their specs run against a second
  * instance of the web dev server on 5174 whose Vite proxy sends /api to a separate API instance on 4001 (its own
  * database, reseeded), so they never touch the data the candidate specs use on 4000/5173. Every call (admin and
- * candidate) goes through the same origin as the page. People sign in through the normal sign-in (email + emailed code).
+ * candidate) goes through the same origin as the page. People sign in through the normal sign-in (email + password).
  */
 export const BASE = process.env.ADMIN_URL ?? 'http://localhost:5174';
 export const ADMINS = {
@@ -19,6 +19,10 @@ export const ADMINS = {
   multi: 'multi.role@jobprep.test',
 } as const;
 export type Role = keyof typeof ADMINS;
+/** The seeded dev admins are verified and set up, with this password. */
+export const ADMIN_PASSWORD = 'Password123!';
+/** A password for the throwaway candidates the specs create. */
+export const CANDIDATE_PASSWORD = 'Password123!';
 
 export const isPhone = (info: TestInfo) => info.project.name === 'phone-390';
 
@@ -28,6 +32,7 @@ export const randomEmail = (tag = 'e2e') => `${tag}.${Date.now().toString(36)}${
 /** A mobile-money payer number (what a payment carries as `msisdn`; it is not the account identity). */
 export const randomMsisdn = () => `+250789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`;
 
+/** The 6-digit code emailed at sign-up (test endpoint). */
 export async function readOtp(request: APIRequestContext, email: string): Promise<string> {
   const res = await request.get(`${BASE}/api/test/otp`, { params: { email } });
   expect(res.ok(), 'GET /api/test/otp (needs ENABLE_TEST_ENDPOINTS=true)').toBeTruthy();
@@ -60,7 +65,7 @@ export async function expectAccessible(page: Page, what: string) {
 }
 
 // ───────────────────────── Sessions (the normal session cookie, jp_session)
-// Sign-in codes are limited (a wait between codes per email, and a cap an hour), so the specs share one session per role
+// Signing in on every spec is slow and wrong passwords lock an account, so the specs share one session per role
 // kept in a temp file, and only sign in again when it is gone or no longer valid. An admin session is only good for
 // admin calls for 12 hours after sign-in: a cached one that is older is simply replaced.
 
@@ -80,25 +85,11 @@ async function sessionIsValid(playwright: Playwright, cookies: Cookie[]): Promis
   }
 }
 
-/** Asks for a sign-in code through the normal API, waiting out the cooldown when a code was asked for a moment ago. */
-export async function requestCode(request: APIRequestContext, email: string) {
-  for (let i = 0; i < 3; i++) {
-    const r = await request.post(`${BASE}/api/auth/otp/request`, { data: { purpose: 'sign_in', email } });
-    if (r.status() === 200) return;
-    const body = (await r.json()) as { error: string; retryAfterSeconds?: number };
-    if (body.error !== 'otp_cooldown') throw new Error(`sign-in code request failed: ${body.error} (${body.retryAfterSeconds ?? '-'}s)`);
-    await new Promise((res) => setTimeout(res, ((body.retryAfterSeconds ?? 45) + 1) * 1000));
-  }
-  throw new Error('sign-in code request kept hitting the cooldown');
-}
-
 async function signInViaApi(playwright: Playwright, role: Role): Promise<Cookie[]> {
   const ctx = await playwright.request.newContext();
   try {
-    await requestCode(ctx, ADMINS[role]);
-    const code = await readOtp(ctx, ADMINS[role]);
-    const r = await ctx.post(`${BASE}/api/auth/sign-in`, { data: { email: ADMINS[role], code, guestTokens: [] } });
-    expect(r.status(), 'sign-in').toBe(200);
+    const r = await ctx.post(`${BASE}/api/auth/sign-in`, { data: { email: ADMINS[role], password: ADMIN_PASSWORD, remember: false, guestTokens: [] } });
+    expect(r.status(), `sign-in as ${role} (the dev seed must have been run: password ${ADMIN_PASSWORD})`).toBe(200);
     return (await ctx.storageState()).cookies as Cookie[];
   } finally {
     await ctx.dispose();
@@ -149,11 +140,18 @@ export const FREE_SAMPLE = { country: 'RW', slug: 'procurement-officer-free-samp
 
 export async function signUpCandidate(request: APIRequestContext, name = 'E2E Admin Subject') {
   const email = randomEmail();
-  const r1 = await request.post(`${BASE}/api/auth/otp/request`, { data: { purpose: 'sign_up', countryCode: 'RW', email } });
-  expect(r1.status()).toBe(200);
+  const r1 = await request.post(`${BASE}/api/auth/sign-up`, { data: { name, email, password: CANDIDATE_PASSWORD, countryCode: 'RW' } });
+  expect(r1.status(), 'sign-up').toBe(201);
   const code = await readOtp(request, email);
-  const r2 = await request.post(`${BASE}/api/auth/sign-up`, { data: { countryCode: 'RW', email, name, code } });
-  expect(r2.status()).toBe(201);
+  const r2 = await request.post(`${BASE}/api/auth/verify-email`, { data: { email, code } });
+  expect(r2.status(), 'verify-email').toBe(200);
+  // Setup is not what these specs test: finish it (country, first category, skip the rest) so the account is as complete as a returning candidate's.
+  const cats = await request.get(`${BASE}/api/countries/RW/categories`);
+  const goalCategoryId = ((await cats.json()) as { categories: { id: string }[] }).categories[0]!.id;
+  const r3 = await request.patch(`${BASE}/api/me/onboarding`, { data: { countryCode: 'RW', goalCategoryId } });
+  expect(r3.status(), 'setup: country and goal').toBe(200);
+  const r4 = await request.patch(`${BASE}/api/me/onboarding`, { data: { skip: true } });
+  expect(r4.status(), 'skip setup').toBe(200);
   // `msisdn` is the mobile-money number this candidate pays with (a payment field, not the account identity).
   return { email, name, msisdn: randomMsisdn() };
 }

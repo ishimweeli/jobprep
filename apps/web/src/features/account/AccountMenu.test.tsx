@@ -6,12 +6,13 @@ import type { MeResponse } from '../../api/types';
 import { PhoneTabBar } from '../../components/layout/PhoneTabBar';
 import { SignedOutNotice } from '../../components/layout/SignedOutNotice';
 import { setNotice } from '../../lib/notice';
+import { testUser } from '../../test/fixtures';
 import { mockFetch, renderWithProviders } from '../../test/utils';
 import { AccountMenu } from './AccountMenu';
 import { AccountTabPage } from './AccountTabPage';
 
 const session: MeResponse = {
-  user: { id: 'u1', name: 'Aline Uwase', email: 'aline@example.test', countryCode: 'RW', goalCategoryId: null, language: 'en' },
+  user: testUser(),
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en', 'rw'] },
   access: { current: { endsAt: '2026-11-25T00:00:00Z', daysLeft: 23, endingSoon: false }, expired: null, otherCountries: [] },
 };

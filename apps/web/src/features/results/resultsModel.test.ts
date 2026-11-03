@@ -47,9 +47,9 @@ describe('comparison wording', () => {
 
 describe('topics', () => {
   it('bar colours: weak amber, under 70% light violet, otherwise violet', () => {
-    expect(topicBarColor({ percent: 50, weak: true })).toBe('#D97706');
-    expect(topicBarColor({ percent: 67, weak: false })).toBe('#8B5CF6');
-    expect(topicBarColor({ percent: 83, weak: false })).toBe('#6D28D9');
+    expect(topicBarColor({ percent: 50, weak: true })).toBe('#8A5300');
+    expect(topicBarColor({ percent: 67, weak: false })).toBe('#2D62CF');
+    expect(topicBarColor({ percent: 83, weak: false })).toBe('#164A7A');
   });
   it('answer text joins several picks', () => {
     expect(answerText(['A', 'B'])).toBe('A, B');

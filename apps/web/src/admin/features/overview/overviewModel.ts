@@ -48,7 +48,7 @@ export function buildAlerts(o: Overview, phone: boolean): Alert[] {
       meta: stuck.oldestMinutes === null ? '' : phone ? `Oldest ${stuck.oldestMinutes} min ago` : `${where}oldest ${stuck.oldestMinutes} min ago`,
       action: 'Review',
       to: '/admin/payments?stuck=true',
-      dot: '#D97706',
+      dot: '#8A5300',
     });
   }
   const rep = a.reportedQuestions;
@@ -59,7 +59,7 @@ export function buildAlerts(o: Overview, phone: boolean): Alert[] {
       meta: rep.top ? `${rep.top.mockTestTitle} · Q${rep.top.questionNumber} reported ${times(rep.top.reports)}` : '',
       action: 'Open',
       to: '/admin/exams',
-      dot: '#D97706',
+      dot: '#8A5300',
     });
   }
   const top = a.examRequests[0];
@@ -70,7 +70,7 @@ export function buildAlerts(o: Overview, phone: boolean): Alert[] {
       meta: phone ? 'No mock test yet' : 'No mock test exists for this search yet',
       action: 'Plan exam',
       to: '/admin/exams',
-      dot: '#6D28D9',
+      dot: '#164A7A',
     });
   }
   return out;

@@ -14,16 +14,17 @@ Node.js + Express + TypeScript API, PostgreSQL with Prisma, React (Vite) web app
 
 ## Design system (match exactly)
 - Font: Inter (400–800), system-ui fallback. Tabular numbers for timers and scores.
-- Colors: ink #18181B, ink-2 #3F3F46, muted #52525B, border #E4E4E7, input border #A1A1AA, surface #FFFFFF, page #FAFAFA, soft #F4F4F5.
-- Brand violet: primary #6D28D9, hover/text #5B21B6, soft #EDE9FE / #F5F3FF, focus ring #A78BFA.
-- Status: correct #047857 on #D1FAE5; incorrect #B91C1C on #FEE2E2; flagged #B45309/#92400E on #FEF3C7; free badge #065F46 on #D1FAE5.
+- Palette (Mwalimu Tools; the source of truth is packages/shared/src/tokens.ts, copied from the artboards): text/ink #3A3F4A (ink-2 is the same), secondary text #5E6573, page #EFF3F8, surface #FFFFFF, soft grey (badges, hover, tracks) #EEF1F5, card border #E2E7EF, stronger divider #DCE2EB, input border #CDD4DE.
+- Brand navy: main buttons, logo and selected states #164A7A; selected/soft background #E8EFFB (lighter #DCEBFA); focus ring #6AA6EE (3px, offset 2px). Text links #2D62CF, hover #1E4BA8 (also the hover of main buttons). No purple anywhere.
+- Status: correct #1E6B3C on #E3F4E8 (line #BFE3CB, tick/accent #1E7A46); incorrect #A1281B on #FBE7E4 (line #F0CFCA); flagged/warning #8A5300 on #FDF1DD (line #E9CF9B); free badge #1E6B3C on #E3F4E8; "Partly correct" stays orange #9A3412 on #FFEDD5.
+- Dark: #182231 for the Submit button, the dashboard "Continue where you stopped" card and pressed chips (text on it #DCE2EB); modal overlay rgba(20,30,50,.5-.6).
 - Radius: buttons/inputs 12px, cards 16–18px, chips/badges pill.
-- Buttons: primary violet, secondary violet outline, final/submit near-black #18181B, neutral grey outline.
+- Buttons: primary navy #164A7A, secondary navy outline, final/submit dark #182231, neutral grey outline.
 - Touch targets ≥ 44px; text contrast ≥ 4.5:1; never rely on colour alone (flagged cells also carry a corner mark, review uses ✓/✕ labels).
 - Icons: simple stroke SVGs (Lucide is fine). No emoji. No decorative animation, especially during exams.
 
 ## Screens (desktop + phone for each)
-1. **Landing**: headline "Practice Smarter. Pass with Confidence.", search "Which job exam are you preparing for?" + "Find Mock Tests", popular search chips, 6 category cards (Teaching positions highlighted), featured teacher tests, how it works (4 steps), recently added, pricing summary, footer disclaimer "Independent practice platform — not affiliated with MIFOTRA or REB."
+1. **Landing**: headline "Practice Smarter. Pass with Confidence.", search "Which job exam are you preparing for?" + "Find Mock Tests", popular search chips, 6 category cards (Teaching positions highlighted), featured teacher tests, how it works (4 steps), recently added, footer disclaimer (no pricing section; pricing is its own page) "Independent practice platform — not affiliated with MIFOTRA or REB."
 2. **Exam discovery**: search by job title/subject/category; category chips; filters for price, difficulty, language, subject (phone: bottom-sheet filters); result cards (category, title, questions, minutes, language, difficulty, Free / Full Access tag, one "View test" action); empty state with "Request this exam".
 3. **Exam details**: title, category, questions, time limit, total marks, language, section table, instructions, "No official pass mark is published" note, previous attempts. Free test → "Start Mock Test" (no account needed). Paid test → "Get Full Access · RWF 2,000" plus "Try the free sample". Phone: fixed bottom CTA bar.
 4. **Mock exam**: distraction-free header (exam name, "All answers saved", countdown timer, Submit). Large question text, A–D answer buttons, Flag for review, Previous/Next, progress bar, question navigator grid (answered / not answered / flagged / current). Phone: navigator opens as a bottom sheet. Submit confirmation shows answered/unanswered/flagged counts and time left, with "Go to first unanswered", "Submit now", "Keep working". Timer turns red under 5 minutes.

@@ -19,8 +19,8 @@ describe('account menu items', () => {
     expect(accessLine({ current: { endsAt: 'x', daysLeft: 1, endingSoon: true } })).toBe('Full Access · 1 day left');
     expect(accessLine({ current: null })).toBeNull();
   });
-  it('Exam country opens the switch-country flow, settings opens the account page', () => {
-    expect(items.find((i) => i.id === 'country')).toMatchObject({ secondary: 'Rwanda · change', to: '/choose-country' });
+  it('Exam country opens Change exam country (ChangeCountry.dc), settings opens the account page', () => {
+    expect(items.find((i) => i.id === 'country')).toMatchObject({ secondary: 'Rwanda · change', to: '/account/country' });
     expect(items.find((i) => i.id === 'settings')).toMatchObject({ secondary: 'Name, email', to: '/account/settings' });
     expect(items.find((i) => i.id === 'progress')?.to).toBe('/rw/progress');
   });

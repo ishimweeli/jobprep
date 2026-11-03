@@ -24,8 +24,8 @@ export function PhoneTabBar() {
           end={t.end ?? false}
           className={({ isActive }) =>
             cx(
-              'flex min-h-[52px] flex-col items-center gap-0.5 py-1.5 text-xs no-underline',
-              isActive ? 'font-bold text-brand hover:text-brand' : 'font-semibold text-muted hover:text-muted',
+              'flex min-h-[48px] flex-col items-center gap-0.5 py-1.5 text-xs no-underline',
+              isActive ? 'font-semibold text-brand hover:text-brand' : 'font-semibold text-muted hover:text-muted',
             )
           }
         >

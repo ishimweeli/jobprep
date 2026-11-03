@@ -47,7 +47,7 @@ test.describe('Web: navigation (C13 desktop header, C29 phone tabs)', () => {
     await expect(sheet).toBeVisible();
     await expect(sheet.getByRole('link', { name: 'Mock tests' })).toBeVisible();
     await expect(sheet.getByRole('link', { name: 'Pricing' })).toBeVisible();
-    await expect(sheet.getByRole('link', { name: /Country/ })).toContainText('Rwanda · RWF');
+    await expect(sheet.getByRole('link', { name: /Country/ })).toHaveText('CountryRwanda ›'); // the country only, no currency
     // the language switch is drawn but inert (no picker design)
     await expect(sheet.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'English' })).toHaveAttribute('aria-pressed', 'true');
     await expect(sheet.getByRole('group', { name: 'Language' }).getByRole('button').first()).toHaveAttribute('aria-disabled', 'true');
@@ -85,17 +85,17 @@ test.describe('Web: navigation (C13 desktop header, C29 phone tabs)', () => {
     await expect(page.getByText('Aline Uwase')).toBeVisible();
     await button.click();
     await menu.getByRole('menuitem', { name: /Exam country/ }).click();
-    await expect(page).toHaveURL(/\/choose-country$/);
+    await expect(page).toHaveURL(/\/account\/country$/); // the Change exam country screen
     w.expectClean();
   });
 
-  test('desktop, guest: country chip, Sign in and Create account in the header', async ({ page }, info) => {
+  test('desktop, guest: country chip, Sign in and Get started in the header', async ({ page }, info) => {
     test.skip(isPhone(info), 'desktop header');
     await page.goto('/rw/pricing');
     const header = page.locator('header').first();
     await expect(header.getByRole('link', { name: /Country: .*Change country/ })).toBeVisible();
     await expect(header.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/sign-in');
-    await expect(header.getByRole('link', { name: 'Create account' })).toHaveAttribute('href', '/sign-up');
+    await expect(header.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/sign-up');
     await expect(header.getByRole('link', { name: 'My progress' })).toHaveCount(0);
   });
 });

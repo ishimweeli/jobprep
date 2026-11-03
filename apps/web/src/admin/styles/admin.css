@@ -10,13 +10,13 @@
   scroll-padding-bottom: 88px;
 }
 
-/* The artboards: links are violet and underlined unless a link says otherwise. */
+/* The artboards: links are blue and underlined unless a link says otherwise. */
 :where(html.admin-area) a {
-  color: theme('colors.brand.DEFAULT');
+  color: theme('colors.link.DEFAULT');
   text-decoration-line: underline;
 }
 :where(html.admin-area) a:hover {
-  color: theme('colors.brand.hover');
+  color: theme('colors.link.hover');
 }
 
 :where(html.admin-area) :is(button, input, select, textarea) {

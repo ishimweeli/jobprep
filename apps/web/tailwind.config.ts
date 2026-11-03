@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       boxShadow: {
-        search: '0 1px 2px rgba(24,24,27,0.04), 0 8px 24px rgba(24,24,27,0.06)',
-        preview: '0 24px 48px rgba(24,24,27,0.10)',
+        search: '0 1px 2px rgba(20,30,50,0.04), 0 8px 24px rgba(20,30,50,0.06)',
+        preview: '0 24px 48px rgba(20,30,50,0.10)',
         modal: '0 24px 64px rgba(0,0,0,0.25)',
       },
       borderRadius: { 'sheet': '20px' },

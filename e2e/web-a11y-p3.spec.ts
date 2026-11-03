@@ -1,8 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { API, isPhone, randomEmail, randomMsisdn, signUpViaApi } from './web-helpers';
+import { API, isPhone, randomMsisdn, signUpViaApi } from './web-helpers';
 import { ACCOUNTANT_SLUG, buyAccessViaApi, completeViaApi, FREE_SLUG, startFreeExam } from './web-exam-helpers';
-import { cleanUser, me, openAccount, requestSignInCode } from './web-p3-helpers';
+import { cleanUser, me, openAccount } from './web-p3-helpers';
 
 async function expectNoViolations(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -11,10 +11,13 @@ async function expectNoViolations(page: Page) {
 }
 
 test.describe('Web: accessibility of the Batch 1 screens', () => {
-  test('axe: sign-in (both steps), 404, country gate, guest dialog', async ({ page }, info) => {
+  test('axe: sign-in (plain and with an error), 404, country gate, guest dialog', async ({ page }, info) => {
     await page.goto('/sign-in');
     await expectNoViolations(page);
-    await requestSignInCode(page, randomEmail('a11y'));
+    await page.getByLabel('Email address').fill('nobody@example.test');
+    await page.getByLabel('Password', { exact: true }).fill('Password123!');
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(page.getByText('Email or password is incorrect')).toBeVisible();
     await expectNoViolations(page);
     await page.goto('/rw/nothing-here');
     await expect(page.getByText('Error 404')).toBeVisible();

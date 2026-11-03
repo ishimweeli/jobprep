@@ -64,18 +64,18 @@ describe('exam access card', () => {
     expect(screen.queryByRole('link', { name: /Get Full Access/ })).not.toBeInTheDocument();
   });
 
-  it('free test: Start Mock Test, no account needed', () => {
+  it('free test: Get started, no account needed', () => {
     const exam = { ...base, isFree: true, access: { ...base.access, state: 'FREE' as const, canStart: true, needsFullAccess: false }, pricing: null };
     expect(accessView(exam, 'ke').startPath).toBe('/ke/tests/accountant-mock-1/start');
     renderCard(exam);
-    expect(screen.getByRole('link', { name: 'Start Mock Test' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Get started' })).toBeInTheDocument();
     expect(screen.getByText('Free')).toBeInTheDocument();
     expect(screen.getByText(/No account needed/)).toBeInTheDocument();
   });
 
   it('granted test shows days left from the API', () => {
     renderCard({ ...base, access: { ...base.access, state: 'GRANTED', canStart: true, needsFullAccess: false, daysLeft: 23 }, pricing: null });
-    expect(screen.getByRole('link', { name: 'Start Mock Test' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Get started' })).toBeInTheDocument();
     expect(screen.getByText('Unlocked · 23 days left')).toBeInTheDocument();
   });
 });

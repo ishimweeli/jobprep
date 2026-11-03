@@ -40,7 +40,7 @@ export const PROVIDER_SWATCH: Record<string, string> = {
   AIRTEL_MONEY: '#E40000',
   MPESA: '#16A34A',
 };
-export const providerSwatch = (provider: string) => PROVIDER_SWATCH[provider] ?? '#A1A1AA';
+export const providerSwatch = (provider: string) => PROVIDER_SWATCH[provider] ?? '#CDD4DE';
 
 /**
  * The two drawn variants of the screen, picked by the country's data: Rwanda's artboard types the whole number

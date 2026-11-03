@@ -12,7 +12,7 @@ export function unlockedState(exam: Pick<ExamDetail, 'inProgress' | 'previousAtt
 }
 
 export const PRIMARY_LABEL: Record<UnlockedState, string> = {
-  not_started: 'Start Mock Test',
+  not_started: 'Get started',
   in_progress: 'Resume test',
   taken_before: 'Start a new attempt',
 };

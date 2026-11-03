@@ -15,7 +15,7 @@ export function Chip({ pressed, compact, className, children, ...rest }: ChipPro
       className={cx(
         'shrink-0 rounded-pill border font-semibold transition-colors',
         compact ? 'min-h-[44px] px-3.5 text-sm' : 'min-h-touch px-4 text-[15px]',
-        pressed ? 'border-brand bg-brand text-white' : 'border-zinc-300 bg-surface text-ink hover:bg-soft',
+        pressed ? 'border-brand bg-brand text-white' : 'border-border-strong bg-surface text-ink hover:bg-soft',
         className,
       )}
       {...rest}
