@@ -29,7 +29,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
 class Component extends DCLogic {
   renderVals() {
     var self = this, st = this.state || {}, p = this.props;
-    var DATA = [["RW","Rwanda","Suggested · 90 mock tests · RWF",1,0],["KE","Kenya","24 mock tests · KES",0,0],["UG","Uganda","Coming soon",0,1],["TZ","Tanzania","Coming soon",0,1]];
+    var DATA = [["RW","Rwanda","Suggested · 90 mock tests",1,0],["KE","Kenya","24 mock tests",0,0],["UG","Uganda","Coming soon",0,1],["TZ","Tanzania","Coming soon",0,1]];
     var sel = st.sel !== undefined ? st.sel : 0;
     var items = DATA.map(function (d, i) {
       var on = i === sel;

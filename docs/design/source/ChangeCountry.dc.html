@@ -44,7 +44,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
 class Component extends DCLogic {
   renderVals() {
     var self = this, st = this.state || {}, p = this.props;
-    var D = [['RW', 'Rwanda', 'Current · Full Access until 24 Nov 2026', 'RWF', 'MTN MoMo or Airtel Money', 0], ['KE', 'Kenya', '24 mock tests · KES', 'KES', 'M-Pesa or Airtel Money', 0], ['UG', 'Uganda', 'Coming soon', '', '', 1], ['TZ', 'Tanzania', 'Coming soon', '', '', 1]];
+    var D = [['RW', 'Rwanda', 'Current · Full Access until 24 Nov 2026', 'RWF', 'MTN MoMo or Airtel Money', 0], ['KE', 'Kenya', '24 mock tests', 'KES', 'M-Pesa or Airtel Money', 0], ['UG', 'Uganda', 'Coming soon', '', '', 1], ['TZ', 'Tanzania', 'Coming soon', '', '', 1]];
     var sel = st.sel !== undefined ? st.sel : 1;
     var items = D.map(function (d, i) { var on = i === sel; return { code: d[0], name: d[1], meta: d[2], metaInk: i === 0 ? '#1E6B3C' : '#5E6573', dis: d[5] ? 'true' : 'false', op: d[5] ? '0.55' : '1', checked: on ? 'true' : 'false', bg: on ? '#E8EFFB' : '#fff', top: i === 0 ? '0' : '1px solid #EEF1F5', tick: on ? '1' : '0', pick: function () { if (!d[5]) self.setState({ sel: i }); } }; });
     var c = D[sel];

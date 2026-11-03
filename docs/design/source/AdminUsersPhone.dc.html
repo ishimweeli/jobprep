@@ -21,9 +21,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <div style="display: flex; align-items: center; gap: 10px; min-height: 44px">
       <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#164A7A"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       <h1 style="margin: 0; font-size: 19px; flex: 1 1 auto">Users</h1>
-      <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #182231; color: #FFFFFF">ADMIN</span>
+      <span style="font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 6px; background: #164A7A; color: #FFFFFF">ADMIN</span>
     </div>
-    <input type="search" aria-label="Search name or phone" value="{{q}}" onInput="{{onQ}}" placeholder="Search name or phone" style="height: 46px; border: 1px solid #CDD4DE; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 16px; color: #3A3F4A; background: #FFFFFF">
+    <input type="search" aria-label="Search name or phone" value="{{q}}" onInput="{{onQ}}" placeholder="Search name or phone" style="height: 46px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 14px; font: inherit; font-size: 16px; color: #3A3F4A; background: #FFFFFF">
     <div role="group" aria-label="Access status" style="display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px">
       <sc-for list="{{filters}}" as="f" hint-placeholder-count="5">
         <button type="button" onClick="{{f.pick}}" aria-pressed="{{f.pressed}}" style="flex: 0 0 auto; font: inherit; font-size: 14px; font-weight: 600; min-height: 40px; padding: 0 14px; border-radius: 999px; border: {{f.border}}; background: {{f.bg}}; color: {{f.ink}}">{{f.label}}</button>
@@ -35,21 +35,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 24px; text-align: center; color: #3A3F4A; background: #FFFFFF; border: 1px dashed #CDD4DE; border-radius: 14px">No users match.</p></sc-if>
     <sc-for list="{{rows}}" as="u" hint-placeholder-count="6">
       <a href="AdminUserPhone.dc.html" style="display: flex; gap: 12px; align-items: center; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 14px; padding: 12px 14px; text-decoration: none; color: #3A3F4A">
-        <span style="flex: 0 0 auto; width: 40px; height: 40px; border-radius: 999px; background: #E8EFFB; color: #164A7A; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center">{{u.init}}</span>
+        <span style="flex: 0 0 auto; width: 40px; height: 40px; border-radius: 999px; background: #E8EFFB; color: #164A7A; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center">{{u.init}}</span>
         <span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px">
-          <span style="font-weight: 700; font-size: 15px">{{u.name}}</span>
+          <span style="font-weight: 600; font-size: 15px">{{u.name}}</span>
           <span style="font-size: 13px; color: #5E6573">{{u.phone}} · {{u.last}}</span>
         </span>
-        <span style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: {{u.aBg}}; color: {{u.aInk}}; white-space: nowrap">{{u.access}}</span>
+        <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: {{u.aBg}}; color: {{u.aInk}}; white-space: nowrap">{{u.access}}</span>
       </a>
     </sc-for>
   </main>
   <nav aria-label="Admin" style="flex: 0 0 auto; position: sticky; bottom: 0; background: #FFFFFF; border-top: 1px solid #E2E7EF; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 4px 2px 8px">
-    <a href="AdminOverviewPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z"></path></svg>Overview</a>
-    <a href="AdminUsersPhone.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #164A7A; font-size: 11px; font-weight: 700; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9"></path></svg>Users</a>
-    <a href="AdminExamsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5"></path></svg>Exams</a>
-    <a href="AdminPaymentsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v13H3z M3 10h18"></path></svg>Payments</a>
-    <a href="AdminSettingsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4.2 4.2l2.1 2.1 M17.7 17.7l2.1 2.1 M2 12h3 M19 12h3 M4.2 19.8l2.1-2.1 M17.7 6.3l2.1-2.1"></path></svg>Settings</a>
+    <a href="AdminOverviewPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 48px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z"></path></svg>Overview</a>
+    <a href="AdminUsersPhone.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #164A7A; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 48px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9"></path></svg>Users</a>
+    <a href="AdminExamsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 48px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5"></path></svg>Exams</a>
+    <a href="AdminPaymentsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 48px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v13H3z M3 10h18"></path></svg>Payments</a>
+    <a href="AdminSettingsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 48px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4.2 4.2l2.1 2.1 M17.7 17.7l2.1 2.1 M2 12h3 M19 12h3 M4.2 19.8l2.1-2.1 M17.7 6.3l2.1-2.1"></path></svg>Settings</a>
   </nav>
 </div>
 </x-dc>
@@ -75,7 +75,7 @@ class Component extends DCLogic {
     });
     var filters = [['all', 'All'], ['active', 'Full Access'], ['free', 'Free'], ['expired', 'Expired'], ['suspended', 'Suspended']].map(function (x) {
       var on = f === x[0];
-      return { label: x[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #182231' : '1px solid #DCE2EB', bg: on ? '#182231' : '#FFFFFF', ink: on ? '#FFFFFF' : '#3A3F4A',
+      return { label: x[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #2D62CF' : '1px solid #DCE2EB', bg: on ? '#E8EFFB' : '#FFFFFF', ink: on ? '#164A7A' : '#3A3F4A',
         pick: function () { self.setState({ f: x[0] }); } };
     });
     return { rows: rows, filters: filters, q: st.q || '', empty: rows.length === 0,

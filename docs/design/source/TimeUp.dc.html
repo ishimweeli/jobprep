@@ -23,9 +23,9 @@ a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2p
       <span style="width: 88px; height: 88px; border-radius: 999px; background: #EEF1F5; display: inline-flex; align-items: center; justify-content: center">
         <svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#3A3F4A" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5 M9 2h6"></path></svg>
       </span>
-      <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.02em">Time is up</h1>
+      <h1 style="margin: 0; font-size: 24px; letter-spacing: -0.02em">Time is up</h1>
       <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3A3F4A">Your exam was submitted automatically with <strong style="color: #3A3F4A">47 of 50</strong> questions answered. Nothing you answered was lost.</p>
-      <a href="Results.dc.html" style="width: 100%; text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 14px; margin-top: 8px">See my results</a>
+      <a href="Results.dc.html" style="width: 100%; text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 12px; border-radius: 10px; margin-top: 8px">See my results</a>
     </main>
   </sc-if>
 
@@ -39,7 +39,7 @@ a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2p
         <span style="font-size: 13px; color: #5E6573">Sec. Mathematics (S1–S3) · Mock 1</span>
         <span style="font-size: 12px; color: #8A5300; font-weight: 600">3 answers waiting to save</span>
       </div>
-      <div role="timer" style="font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px; padding: 8px 12px; border-radius: 10px; background: #EEF1F5">38:02</div>
+      <div role="timer" style="font-variant-numeric: tabular-nums; font-weight: 600; font-size: 18px; padding: 8px 12px; border-radius: 10px; background: #EEF1F5">38:02</div>
     </header>
     <main style="flex: 1 1 auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px">
       <div style="display: flex; flex-direction: column">
@@ -50,7 +50,7 @@ a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2p
       <div style="display: flex; flex-direction: column; gap: 10px">
         <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
           <button type="button" aria-pressed="{{o.pressed}}" style="font: inherit; text-align: left; display: flex; gap: 12px; align-items: center; min-height: 56px; padding: 10px 14px; border-radius: 14px; border: {{o.border}}; background: {{o.bg}}; color: #3A3F4A">
-            <span style="width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; background: {{o.keyBg}}; color: {{o.keyInk}}">{{o.key}}</span>
+            <span style="width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; background: {{o.keyBg}}; color: {{o.keyInk}}">{{o.key}}</span>
             <span style="font-size: 17px">{{o.text}}</span>
           </button>
         </sc-for>

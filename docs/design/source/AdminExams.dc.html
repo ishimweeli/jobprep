@@ -21,10 +21,10 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
 <aside aria-label="Admin navigation" style="flex: 1 1 248px; max-width: 100%; background: #fff; border-right: 1px solid #E2E7EF; padding: 18px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
   <a href="AdminOverview.dc.html" style="text-decoration: none; padding: 0 4px; display: flex; align-items: center; gap: 10px">
     <span style="width: 34px; height: 34px; border-radius: 9px; background: #164A7A; display: flex; align-items: center; justify-content: center; flex: none"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
-    <span style="font-size: 18px; font-weight: 700; color: #164A7A">JobPrep</span>
+    <span style="font-size: 18px; font-weight: 600; color: #164A7A">JobPrep</span>
     <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #E8EFFB; color: #164A7A">Admin</span>
   </a>
-  <div style="display: flex; flex-direction: column; gap: 6px"><span style="padding: 0 4px; font-size: 11px; font-weight: 600; color: #5E6573; text-transform: uppercase; letter-spacing: 0.06em">Country</span><button type="button" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #EFF3F8; border: 1px solid #E2E7EF; border-radius: 12px; font-family: inherit; color: #3A3F4A; text-align: left; cursor: pointer"><span style="width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid #E2E7EF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5E6573">ALL</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">All countries</span><span style="font-size: 12px; color: #5E6573">Rwanda live · Kenya preparing</span></span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6573" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button></div>
+  <div style="display: flex; flex-direction: column; gap: 6px"><span style="padding: 0 4px; font-size: 11px; font-weight: 600; color: #5E6573; text-transform: uppercase; letter-spacing: 0.06em">Country</span><button type="button" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #EFF3F8; border: 1px solid #E2E7EF; border-radius: 10px; font-family: inherit; color: #3A3F4A; text-align: left; cursor: pointer"><span style="width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid #E2E7EF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #5E6573">ALL</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">All countries</span><span style="font-size: 12px; color: #5E6573">Rwanda live · Kenya preparing</span></span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6573" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button></div>
   <nav aria-label="Admin" style="display: flex; flex-direction: column; gap: 2px">
     <sc-for list="{{nav}}" as="n" hint-placeholder-count="6">
       <a href="{{n.href}}" aria-current="{{n.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size: 15px; text-decoration: none; background: {{n.bg}}; color: {{n.ink}}; font-weight: {{n.weight}}">
@@ -35,7 +35,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
     </sc-for>
   </nav>
   <div style="margin-top: auto; padding: 12px 4px 0; border-top: 1px solid #E2E7EF; display: flex; align-items: center; gap: 10px">
-    <span style="width: 34px; height: 34px; border-radius: 50%; background: #E8EFFB; color: #164A7A; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none">JB</span>
+    <span style="width: 34px; height: 34px; border-radius: 50%; background: #E8EFFB; color: #164A7A; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none">JB</span>
     <span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px; color: #3A3F4A">Jean Bosco N.</span><span style="font-size: 12px; color: #5E6573">System admin</span></span>
   </div>
 </aside>
@@ -48,7 +48,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
     </div>
     <div style="display: flex; gap: 8px; flex-wrap: wrap">
       <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #CDD4DE; background: #FFFFFF; color: #3A3F4A">Import questions (CSV)</button>
-      <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #164A7A; color: #FFFFFF">+ New mock test</button>
+      <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #164A7A; color: #FFFFFF">+ New mock test</button>
     </div>
   </div>
 
@@ -65,8 +65,8 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
             <span style="font-weight: 600; font-size: 14px">{{e.name}}</span>
             <span style="font-size: 12px; color: #5E6573">{{e.cat}} · {{e.q}} questions · {{e.min}} min</span>
           </span>
-          <sc-if value="{{e.hasReports}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #FDF1DD; color: #8A5300">{{e.reports}} reported</span></sc-if>
-          <span style="font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: {{e.sBg}}; color: {{e.sInk}}">{{e.status}}</span>
+          <sc-if value="{{e.hasReports}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: #FDF1DD; color: #8A5300">{{e.reports}} reported</span></sc-if>
+          <span style="font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: {{e.sBg}}; color: {{e.sInk}}">{{e.status}}</span>
         </div>
       </sc-for>
     </section>
@@ -75,7 +75,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
       <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
         <div style="display: flex; flex-direction: column; gap: 2px">
           <span style="font-size: 13px; color: #5E6573; font-weight: 600">Secondary Mathematics (S1–S3) — Mock 1 · Free · Published</span>
-          <h2 id="qe-t" style="margin: 0; font-size: 20px">Edit question 31 of 50</h2>
+          <h2 id="qe-t" style="margin: 0; font-size: 17px">Edit question 31 of 50</h2>
         </div>
         <div style="display: flex; gap: 6px">
           <button type="button" aria-label="Previous question" style="font: inherit; width: 44px; height: 40px; border-radius: 10px; border: 1px solid #CDD4DE; background: #FFFFFF; color: #3A3F4A">←</button>
@@ -83,43 +83,43 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
         </div>
       </div>
 
-      <div role="note" style="background: #FDF1DD; border: 1px solid #E9CF9B; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
-        <span style="font-weight: 700; font-size: 14px; color: #8A5300">Reported by 2 candidates</span>
+      <div role="note" style="background: #FDF1DD; border: 1px solid #E9CF9B; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-weight: 600; font-size: 14px; color: #8A5300">Reported by 2 candidates</span>
         <span style="font-size: 14px; color: #8A5300">“Option D says ‘7.5 and 8’ — confusing, it looks partly right.” · 31 Oct, 1 Nov</span>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 6px">
-        <label for="qe-stem" style="font-weight: 700; font-size: 14px">Question</label>
+        <label for="qe-stem" style="font-weight: 600; font-size: 14px">Question</label>
         <textarea id="qe-stem" rows="2" style="font: inherit; font-size: 16px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 10px 12px; resize: vertical; color: #3A3F4A">The median of 3, 8, 5, 12, 7 and 10 is…</textarea>
       </div>
 
       <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
-        <legend style="font-weight: 700; font-size: 14px; padding: 0; margin-bottom: 8px">Options — select the correct answer</legend>
+        <legend style="font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 8px">Options — select the correct answer</legend>
         <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
           <div style="display: flex; gap: 10px; align-items: center">
             <input type="radio" name="correct" checked="{{o.right}}" aria-label="Mark option {{o.key}} as correct" style="width: 20px; height: 20px; accent-color: #1E7A46">
-            <span style="width: 28px; font-weight: 700; color: #3A3F4A">{{o.key}}</span>
+            <span style="width: 28px; font-weight: 600; color: #3A3F4A">{{o.key}}</span>
             <input type="text" value="{{o.text}}" aria-label="Option {{o.key}}" style="flex: 1 1 auto; min-width: 0; height: 44px; border: {{o.border}}; border-radius: 10px; padding: 0 12px; font: inherit; font-size: 15px; background: {{o.bg}}; color: #3A3F4A">
           </div>
         </sc-for>
       </fieldset>
 
       <div style="display: flex; flex-direction: column; gap: 6px">
-        <label for="qe-why" style="font-weight: 700; font-size: 14px">Explanation shown after submission</label>
+        <label for="qe-why" style="font-weight: 600; font-size: 14px">Explanation shown after submission</label>
         <textarea id="qe-why" rows="3" style="font: inherit; font-size: 15px; line-height: 1.5; border: 1px solid #CDD4DE; border-radius: 10px; padding: 10px 12px; resize: vertical; color: #3A3F4A">Order the data: 3, 5, 7, 8, 10, 12. With an even number of values, the median is the mean of the two middle values: (7 + 8) ÷ 2 = 7.5.</textarea>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 12px">
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Topic
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Topic
           <select style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 10px; font: inherit; font-weight: 400; font-size: 15px; background: #FFFFFF; color: #3A3F4A"><option>Statistics &amp; probability</option><option>Algebra &amp; functions</option></select>
         </label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Difficulty
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Difficulty
           <select style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 10px; font: inherit; font-weight: 400; font-size: 15px; background: #FFFFFF; color: #3A3F4A"><option>Standard</option><option>Foundation</option><option>Challenging</option></select>
         </label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Marks
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Marks
           <input type="number" value="1" style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #3A3F4A">
         </label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Case study
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Case study
           <select style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 10px; font: inherit; font-weight: 400; font-size: 15px; background: #FFFFFF; color: #3A3F4A"><option>None</option><option>Umucyo District Hospital</option></select>
         </label>
       </div>
@@ -128,7 +128,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
         <span style="font-size: 13px; color: #5E6573; align-self: center">Last edited by Marie C. · 12 Oct · 1,204 attempts · 41% answered correctly</span>
         <div style="display: flex; gap: 8px">
           <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #CDD4DE; background: #FFFFFF; color: #3A3F4A">Save draft</button>
-          <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #164A7A; color: #FFFFFF">Publish change &amp; resolve reports</button>
+          <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #164A7A; color: #FFFFFF">Publish change &amp; resolve reports</button>
         </div>
       </div>
     </section>

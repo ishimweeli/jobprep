@@ -21,10 +21,10 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
 <aside aria-label="Admin navigation" style="flex: 1 1 248px; max-width: 100%; background: #fff; border-right: 1px solid #E2E7EF; padding: 18px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
   <a href="AdminOverview.dc.html" style="text-decoration: none; padding: 0 4px; display: flex; align-items: center; gap: 10px">
     <span style="width: 34px; height: 34px; border-radius: 9px; background: #164A7A; display: flex; align-items: center; justify-content: center; flex: none"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
-    <span style="font-size: 18px; font-weight: 700; color: #164A7A">JobPrep</span>
+    <span style="font-size: 18px; font-weight: 600; color: #164A7A">JobPrep</span>
     <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #E8EFFB; color: #164A7A">Admin</span>
   </a>
-  <div style="display: flex; flex-direction: column; gap: 6px"><span style="padding: 0 4px; font-size: 11px; font-weight: 600; color: #5E6573; text-transform: uppercase; letter-spacing: 0.06em">Country</span><button type="button" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #EFF3F8; border: 1px solid #E2E7EF; border-radius: 12px; font-family: inherit; color: #3A3F4A; text-align: left; cursor: pointer"><span style="width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid #E2E7EF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5E6573">ALL</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">All countries</span><span style="font-size: 12px; color: #5E6573">Rwanda live · Kenya preparing</span></span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6573" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button></div>
+  <div style="display: flex; flex-direction: column; gap: 6px"><span style="padding: 0 4px; font-size: 11px; font-weight: 600; color: #5E6573; text-transform: uppercase; letter-spacing: 0.06em">Country</span><button type="button" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #EFF3F8; border: 1px solid #E2E7EF; border-radius: 10px; font-family: inherit; color: #3A3F4A; text-align: left; cursor: pointer"><span style="width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid #E2E7EF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #5E6573">ALL</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">All countries</span><span style="font-size: 12px; color: #5E6573">Rwanda live · Kenya preparing</span></span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6573" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button></div>
   <nav aria-label="Admin" style="display: flex; flex-direction: column; gap: 2px">
     <sc-for list="{{nav}}" as="n" hint-placeholder-count="6">
       <a href="{{n.href}}" aria-current="{{n.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size: 15px; text-decoration: none; background: {{n.bg}}; color: {{n.ink}}; font-weight: {{n.weight}}">
@@ -35,7 +35,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
     </sc-for>
   </nav>
   <div style="margin-top: auto; padding: 12px 4px 0; border-top: 1px solid #E2E7EF; display: flex; align-items: center; gap: 10px">
-    <span style="width: 34px; height: 34px; border-radius: 50%; background: #E8EFFB; color: #164A7A; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none">JB</span>
+    <span style="width: 34px; height: 34px; border-radius: 50%; background: #E8EFFB; color: #164A7A; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none">JB</span>
     <span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px; color: #3A3F4A">Jean Bosco N.</span><span style="font-size: 12px; color: #5E6573">System admin</span></span>
   </div>
 </aside>
@@ -50,7 +50,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
       <select aria-label="Country" style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-size: 15px; font-weight: 600; background: #FFFFFF; color: #3A3F4A"><option>All countries</option><option>Rwanda</option><option>Kenya (preparing)</option></select>
       <label for="ao-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search users, phone numbers or exams</label>
       <input id="ao-q" type="search" placeholder="Search users, phone or exam" style="width: 300px; max-width: 100%; height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 14px; font: inherit; font-size: 15px; background: #FFFFFF; color: #3A3F4A">
-      <a href="AdminExams.dc.html" style="display: inline-flex; align-items: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 15px; padding: 0 16px; height: 44px; border-radius: 10px">+ New mock test</a>
+      <a href="AdminExams.dc.html" style="display: inline-flex; align-items: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 0 16px; height: 44px; border-radius: 10px">+ New mock test</a>
     </div>
   </div>
 
@@ -58,7 +58,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
     <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
       <div style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 18px; display: flex; flex-direction: column-reverse; gap: 4px">
         <span style="font-size: 13px; color: {{k.deltaInk}}; font-weight: 600">{{k.delta}}</span>
-        <dd style="margin: 0; font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em">{{k.value}}</dd>
+        <dd style="margin: 0; font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em">{{k.value}}</dd>
         <dt style="font-size: 14px; color: #5E6573; font-weight: 600">{{k.label}}</dt>
       </div>
     </sc-for>
@@ -66,7 +66,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
 
   <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
     <section aria-labelledby="ao-att" style="flex: 1 1 360px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 4px">
-      <h2 id="ao-att" style="margin: 0 0 8px; font-size: 18px">Needs attention</h2>
+      <h2 id="ao-att" style="margin: 0 0 8px; font-size: 17px">Needs attention</h2>
       <sc-for list="{{alerts}}" as="a" hint-placeholder-count="4">
         <a href="{{a.href}}" style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #EEF1F5; text-decoration: none; color: #3A3F4A">
           <span aria-hidden="true" style="flex: 0 0 auto; width: 10px; height: 10px; margin-top: 6px; border-radius: 999px; background: {{a.dot}}"></span>
@@ -78,7 +78,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
 
     <section aria-labelledby="ao-ch" style="flex: 999 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
       <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
-        <h2 id="ao-ch" style="margin: 0; font-size: 18px">New sign-ups and Full Access payments · last 14 days</h2>
+        <h2 id="ao-ch" style="margin: 0; font-size: 17px">New sign-ups and Full Access payments · last 14 days</h2>
         <div style="display: flex; gap: 14px; font-size: 13px; color: #3A3F4A">
           <span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #DCEBFA"></span>Sign-ups</span>
           <span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #164A7A"></span>Payments</span>
@@ -98,13 +98,13 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
 
   <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
     <section aria-labelledby="ao-top" style="flex: 999 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
-      <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 id="ao-top" style="margin: 0; font-size: 18px">Most-taken mock tests this week</h2><a href="AdminExams.dc.html" style="font-size: 14px; font-weight: 600">All exams</a></div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 id="ao-top" style="margin: 0; font-size: 17px">Most-taken mock tests this week</h2><a href="AdminExams.dc.html" style="font-size: 14px; font-weight: 600">All exams</a></div>
       <div style="overflow-x: auto">
         <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px">
           <thead><tr style="text-align: left; color: #5E6573; font-size: 12px"><th style="padding: 8px 0; font-weight: 600">Mock test</th><th style="padding: 8px; font-weight: 600">Access</th><th style="padding: 8px; font-weight: 600; text-align: right">Attempts</th><th style="padding: 8px; font-weight: 600; text-align: right">Avg score</th><th style="padding: 8px 0; font-weight: 600; text-align: right">Completion</th></tr></thead>
           <tbody>
             <sc-for list="{{top}}" as="t" hint-placeholder-count="5">
-              <tr style="border-top: 1px solid #EEF1F5"><td style="padding: 11px 0; font-weight: 600">{{t.name}}</td><td style="padding: 11px 8px"><span style="font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: {{t.tagBg}}; color: {{t.tagInk}}">{{t.tag}}</span></td><td style="padding: 11px 8px; text-align: right; font-variant-numeric: tabular-nums">{{t.n}}</td><td style="padding: 11px 8px; text-align: right; font-variant-numeric: tabular-nums">{{t.avg}}</td><td style="padding: 11px 0; text-align: right; font-variant-numeric: tabular-nums">{{t.done}}</td></tr>
+              <tr style="border-top: 1px solid #EEF1F5"><td style="padding: 11px 0; font-weight: 600">{{t.name}}</td><td style="padding: 11px 8px"><span style="font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: {{t.tagBg}}; color: {{t.tagInk}}">{{t.tag}}</span></td><td style="padding: 11px 8px; text-align: right; font-variant-numeric: tabular-nums">{{t.n}}</td><td style="padding: 11px 8px; text-align: right; font-variant-numeric: tabular-nums">{{t.avg}}</td><td style="padding: 11px 0; text-align: right; font-variant-numeric: tabular-nums">{{t.done}}</td></tr>
             </sc-for>
           </tbody>
         </table>
@@ -112,11 +112,11 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6
     </section>
 
     <section aria-labelledby="ao-pay" style="flex: 1 1 360px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 4px">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px"><h2 id="ao-pay" style="margin: 0; font-size: 18px">Latest payments</h2><a href="AdminPayments.dc.html" style="font-size: 14px; font-weight: 600">All payments</a></div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px"><h2 id="ao-pay" style="margin: 0; font-size: 17px">Latest payments</h2><a href="AdminPayments.dc.html" style="font-size: 14px; font-weight: 600">All payments</a></div>
       <sc-for list="{{pays}}" as="p" hint-placeholder-count="5">
         <div style="display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid #EEF1F5">
           <span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px">{{p.who}}</span><span style="font-size: 12px; color: #5E6573">{{p.meta}}</span></span>
-          <span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{p.bg}}; color: {{p.ink}}">{{p.status}}</span>
+          <span style="font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: {{p.bg}}; color: {{p.ink}}">{{p.status}}</span>
         </div>
       </sc-for>
     </section>

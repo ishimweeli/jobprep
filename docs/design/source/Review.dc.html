@@ -21,17 +21,17 @@ a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2p
 <header style="border-bottom: 1px solid #E2E7EF; background: #FFFFFF">
   <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
     <a href="Results.dc.html" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; text-decoration: none; padding: 10px 0">← Back to results</a>
-    <span style="flex: 1 1 auto; font-weight: 700; font-size: 16px">Answer review · Secondary Mathematics (S1–S3) — Mock 1</span>
-    <a href="Exam.dc.html" style="text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 11px 16px; border-radius: 12px">Practise weak areas</a>
+    <span style="flex: 1 1 auto; font-weight: 600; font-size: 16px">Answer review · Secondary Mathematics (S1–S3) — Mock 1</span>
+    <a href="Exam.dc.html" style="text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 11px 16px; border-radius: 10px">Practise weak areas</a>
   </div>
 </header>
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
-  <aside aria-label="Jump to a question" style="flex: 1 1 280px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+  <aside aria-label="Jump to a question" style="flex: 1 1 280px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
     <h2 style="margin: 0; font-size: 17px">All 50 questions</h2>
     <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
       <sc-for list="{{grid}}" as="g" hint-placeholder-count="50">
-        <a href="#rq{{g.n}}" aria-label="{{g.aria}}" style="height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 700; border: {{g.border}}; background: {{g.bg}}; color: {{g.ink}}">{{g.mark}}</a>
+        <a href="#rq{{g.n}}" aria-label="{{g.aria}}" style="height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 600; border: {{g.border}}; background: {{g.bg}}; color: {{g.ink}}">{{g.mark}}</a>
       </sc-for>
     </div>
     <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #3A3F4A">
@@ -49,27 +49,27 @@ a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2p
     </div>
 
     <sc-for list="{{items}}" as="q" hint-placeholder-count="3">
-      <article id="rq{{q.n}}" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+      <article id="rq{{q.n}}" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
         <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
-          <span style="font-weight: 800; font-size: 16px">Question {{q.n}}</span>
-          <span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: {{q.badgeBg}}; color: {{q.badgeInk}}">{{q.badge}}</span>
-          <sc-if value="{{q.flagged}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #FDF1DD; color: #8A5300">Flagged</span></sc-if>
+          <span style="font-weight: 600; font-size: 16px">Question {{q.n}}</span>
+          <span style="font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: {{q.badgeBg}}; color: {{q.badgeInk}}">{{q.badge}}</span>
+          <sc-if value="{{q.flagged}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #FDF1DD; color: #8A5300">Flagged</span></sc-if>
           <span style="margin-left: auto; font-size: 14px; color: #5E6573">{{q.topic}}</span>
         </div>
         <p style="margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5">{{q.text}}</p>
         <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
           <sc-for list="{{q.opts}}" as="o" hint-placeholder-count="4">
-            <li style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 14px; border-radius: 12px; border: {{o.border}}; background: {{o.bg}}">
-              <span style="width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: #EEF1F5; color: #3A3F4A">{{o.key}}</span>
+            <li style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 14px; border-radius: 10px; border: {{o.border}}; background: {{o.bg}}">
+              <span style="width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; background: #EEF1F5; color: #3A3F4A">{{o.key}}</span>
               <span style="flex: 1 1 200px; font-size: 16px">{{o.text}}</span>
-              <sc-if value="{{o.isRight}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #1E6B3C">✓ Correct answer</span></sc-if>
-              <sc-if value="{{o.isWrongPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #A1281B">✕ Your answer</span></sc-if>
-              <sc-if value="{{o.isRightPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #1E6B3C">· Your answer</span></sc-if>
+              <sc-if value="{{o.isRight}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 600; color: #1E6B3C">✓ Correct answer</span></sc-if>
+              <sc-if value="{{o.isWrongPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 600; color: #A1281B">✕ Your answer</span></sc-if>
+              <sc-if value="{{o.isRightPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 600; color: #1E6B3C">· Your answer</span></sc-if>
             </li>
           </sc-for>
         </ul>
-        <div style="background: #E8EFFB; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
-          <span style="font-size: 14px; font-weight: 700; color: #164A7A">Explanation</span>
+        <div style="background: #E8EFFB; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 14px; font-weight: 600; color: #164A7A">Explanation</span>
           <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3A3F4A">{{q.why}}</p>
         </div>
       </article>
@@ -114,7 +114,7 @@ class Component extends DCLogic {
     });
     var tabs = [['incorrect', 'Incorrect (11)'], ['flagged', 'Flagged (1)'], ['unanswered', 'Unanswered (3)'], ['all', 'All questions']].map(function (t) {
       var on = s.tab === t[0];
-      return { label: t[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #182231' : '1px solid #DCE2EB', bg: on ? '#182231' : '#FFFFFF', ink: on ? '#FFFFFF' : '#3A3F4A',
+      return { label: t[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #2D62CF' : '1px solid #DCE2EB', bg: on ? '#E8EFFB' : '#FFFFFF', ink: on ? '#164A7A' : '#3A3F4A',
         pick: function () { self.setState({ tab: t[0] }); } };
     });
     var wrong = [3, 7, 14, 19, 22, 27, 31, 35, 41, 44, 47], blank = [24, 49, 50];

@@ -17,13 +17,13 @@ a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #6AA
 </style>
 </helmet>
 <div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A; background: #EFF3F8; min-height: 100vh; position: relative">
-  <div aria-hidden="true" style="padding: 18px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E7EF; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px">
+  <div aria-hidden="true" style="padding: 18px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E7EF; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px">
     <svg width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#164A7A"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>JobPrep
   </div>
   <div aria-hidden="true" style="max-width: 1100px; margin: 0 auto; padding: 72px 24px; display: flex; flex-direction: column; gap: 18px">
-    <div style="height: 56px; width: 60%; background: #E2E7EF; border-radius: 12px"></div>
+    <div style="height: 56px; width: 60%; background: #E2E7EF; border-radius: 10px"></div>
     <div style="height: 20px; width: 45%; background: #E2E7EF; border-radius: 8px"></div>
-    <div style="height: 120px; width: 55%; background: #EEF1F5; border-radius: 18px"></div>
+    <div style="height: 120px; width: 55%; background: #EEF1F5; border-radius: 16px"></div>
   </div>
 
   <div style="position: absolute; inset: 0; background: rgba(20,30,50,0.55); display: flex; align-items: flex-start; justify-content: center; padding: 72px 16px 16px">
@@ -35,9 +35,9 @@ a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #6AA
       <div role="radiogroup" aria-label="Country" style="display: flex; flex-direction: column; gap: 10px">
         <sc-for list="{{countries}}" as="c" hint-placeholder-count="4">
           <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #3A3F4A">
-            <span style="flex: 0 0 auto; width: 42px; height: 42px; border-radius: 10px; background: #EFF3F8; color: #5E6573; border: 1px solid #E2E7EF; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
+            <span style="flex: 0 0 auto; width: 42px; height: 42px; border-radius: 10px; background: #EFF3F8; color: #5E6573; border: 1px solid #E2E7EF; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
             <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px">
-              <span style="display: flex; gap: 8px; align-items: center"><span style="font-weight: 700; font-size: 17px">{{c.name}}</span><sc-if value="{{c.soon}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #EEF1F5; color: #3A3F4A">Coming soon</span></sc-if></span>
+              <span style="display: flex; gap: 8px; align-items: center"><span style="font-weight: 600; font-size: 17px">{{c.name}}</span><sc-if value="{{c.soon}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: #EEF1F5; color: #3A3F4A">Coming soon</span></sc-if></span>
               <span style="font-size: 14px; color: #5E6573">{{c.meta}}</span>
             </span>
             <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid #5E6573; display: inline-flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{c.dot}}"></span></span>
@@ -45,16 +45,16 @@ a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #6AA
         </sc-for>
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
-        <label style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Language
-          <select style="height: 48px; border: 1px solid #CDD4DE; border-radius: 12px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 16px; background: #FFFFFF; color: #3A3F4A">
+        <label style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px">Language
+          <select style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 16px; background: #FFFFFF; color: #3A3F4A">
             <sc-for list="{{langs}}" as="l" hint-placeholder-count="2"><option>{{l}}</option></sc-for>
           </select>
         </label>
         <sc-if value="{{live}}" hint-placeholder-val="{{ true }}">
-          <a href="{{target}}" style="flex: 1 1 220px; text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 16px; padding: 14px; border-radius: 12px">Continue to {{name}}</a>
+          <a href="{{target}}" style="flex: 1 1 220px; text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 16px; padding: 11px; border-radius: 10px">Continue to {{name}}</a>
         </sc-if>
         <sc-if value="{{soon}}" hint-placeholder-val="{{ false }}">
-          <button type="button" style="flex: 1 1 220px; font: inherit; font-weight: 700; font-size: 16px; min-height: 50px; border-radius: 12px; border: 1px solid #164A7A; background: #FFFFFF; color: #164A7A">Notify me when {{name}} opens</button>
+          <button type="button" style="flex: 1 1 220px; font: inherit; font-weight: 600; font-size: 16px; min-height: 44px; border-radius: 10px; border: 1px solid #164A7A; background: #FFFFFF; color: #164A7A">Notify me when {{name}} opens</button>
         </sc-if>
       </div>
       <p style="margin: 0; font-size: 13px; color: #5E6573">Detected from your connection: Rwanda. Mock tests are independent practice material, not affiliated with any government recruitment body.</p>
@@ -68,10 +68,10 @@ class Component extends DCLogic {
   renderVals() {
     var self = this;
     var list = [
-      { code: 'RW', name: 'Rwanda', meta: 'RWF · MTN MoMo, Airtel Money · 90 mock tests', langs: ['English', 'Kinyarwanda'], target: 'Main.dc.html' },
-      { code: 'KE', name: 'Kenya', meta: 'KES · M-Pesa, Airtel Money · 24 mock tests', langs: ['English', 'Kiswahili'], target: 'MainKenyaPhone.dc.html' },
-      { code: 'UG', name: 'Uganda', meta: 'UGX · MTN MoMo, Airtel Money', langs: ['English'], soon: true },
-      { code: 'TZ', name: 'Tanzania', meta: 'TZS · M-Pesa, Airtel Money', langs: ['Kiswahili', 'English'], soon: true }
+      { code: 'RW', name: 'Rwanda', meta: '90 mock tests · MTN MoMo, Airtel Money', langs: ['English', 'Kinyarwanda'], target: 'Main.dc.html' },
+      { code: 'KE', name: 'Kenya', meta: '24 mock tests · M-Pesa, Airtel Money', langs: ['English', 'Kiswahili'], target: 'MainKenyaPhone.dc.html' },
+      { code: 'UG', name: 'Uganda', meta: 'Join the waiting list', langs: ['English'], soon: true },
+      { code: 'TZ', name: 'Tanzania', meta: 'Join the waiting list', langs: ['Kiswahili', 'English'], soon: true }
     ];
     var cur = list.filter(function (c) { return c.code === self.state.c; })[0];
     return {

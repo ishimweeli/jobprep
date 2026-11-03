@@ -19,50 +19,50 @@ a:focus-visible,select:focus-visible{outline:3px solid #6AA6EE;outline-offset:2p
 <div style="width: 390px; min-height: 1650px; background: #EFF3F8; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A">
   <header style="background: #FFFFFF; border-bottom: 1px solid #E2E7EF; padding: 8px 8px; display: flex; align-items: center; gap: 4px">
     <a href="MainPhone.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #3A3F4A; font-size: 20px">←</a>
-    <span style="font-weight: 700; font-size: 17px">Pricing</span>
+    <span style="font-weight: 600; font-size: 17px">Pricing</span>
   </header>
 
   <main style="padding: 22px 16px 32px; display: flex; flex-direction: column; gap: 18px">
     <div style="display: flex; flex-direction: column; gap: 8px">
-      <h1 style="margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.02em">One price. Every mock test.</h1>
+      <h1 style="margin: 0; font-size: 24px; line-height: 1.15; letter-spacing: -0.02em">One price. Every mock test.</h1>
       <p style="margin: 0; font-size: 16px; color: #3A3F4A; line-height: 1.5">Try free sample tests first. One payment unlocks everything for 30 days.</p>
     </div>
 
-    <section aria-labelledby="pp-pack" style="background: #FFFFFF; border: 2px solid #164A7A; border-radius: 18px; padding: 19px; display: flex; flex-direction: column; gap: 14px">
+    <section aria-labelledby="pp-pack" style="background: #FFFFFF; border: 2px solid #164A7A; border-radius: 16px; padding: 19px; display: flex; flex-direction: column; gap: 14px">
       <h2 id="pp-pack" style="margin: 0; font-size: 17px">Full Access · 30 days</h2>
-      <p style="margin: 0; display: flex; align-items: baseline; gap: 6px"><span style="font-size: 34px; font-weight: 800">RWF 2,000</span><span style="font-size: 14px; color: #5E6573">paid once</span></p>
+      <p style="margin: 0; display: flex; align-items: baseline; gap: 6px"><span style="font-size: 34px; font-weight: 700">RWF 2,000</span><span style="font-size: 14px; color: #5E6573">paid once</span></p>
       <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: #3A3F4A">
         <sc-for list="{{packList}}" as="f" hint-placeholder-count="5">
           <li style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#164A7A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{f}}</li>
         </sc-for>
       </ul>
-      <a href="Checkout.dc.html" style="text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 14px">Continue to payment</a>
+      <a href="Checkout.dc.html" style="text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 12px; border-radius: 10px">Continue to payment</a>
       <p style="margin: 0; font-size: 13px; color: #5E6573; text-align: center">No subscription. Nothing renews.</p>
     </section>
 
-    <section aria-labelledby="pp-free" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
-      <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 id="pp-free" style="margin: 0; font-size: 17px">Free samples</h2><span style="font-size: 24px; font-weight: 800">RWF 0</span></div>
+    <section aria-labelledby="pp-free" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 id="pp-free" style="margin: 0; font-size: 17px">Free samples</h2><span style="font-size: 24px; font-weight: 700">RWF 0</span></div>
       <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: #3A3F4A">
         <sc-for list="{{freeList}}" as="f" hint-placeholder-count="3">
           <li style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#1E7A46" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{f}}</li>
         </sc-for>
       </ul>
-      <a href="CatalogPhone.dc.html" style="text-align: center; text-decoration: none; border: 1px solid #164A7A; color: #164A7A; font-weight: 700; font-size: 16px; padding: 14px; border-radius: 14px">Find a free test</a>
+      <a href="CatalogPhone.dc.html" style="text-align: center; text-decoration: none; border: 1px solid #164A7A; color: #164A7A; font-weight: 600; font-size: 16px; padding: 12px; border-radius: 10px">Find a free test</a>
     </section>
 
-    <section aria-labelledby="pp-pay" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+    <section aria-labelledby="pp-pay" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
       <h2 id="pp-pay" style="margin: 0; font-size: 17px">Pay with Mobile Money</h2>
       <div style="display: flex; gap: 8px">
-        <span style="flex: 1 1 0; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #E2E7EF; border-radius: 12px; padding: 10px; font-weight: 700; font-size: 14px"><span aria-hidden="true" style="width: 24px; height: 24px; border-radius: 7px; background: #FFCB05"></span>MTN MoMo</span>
-        <span style="flex: 1 1 0; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #E2E7EF; border-radius: 12px; padding: 10px; font-weight: 700; font-size: 14px"><span aria-hidden="true" style="width: 24px; height: 24px; border-radius: 7px; background: #E40000"></span>Airtel Money</span>
+        <span style="flex: 1 1 0; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #E2E7EF; border-radius: 10px; padding: 10px; font-weight: 600; font-size: 14px"><span aria-hidden="true" style="width: 24px; height: 24px; border-radius: 7px; background: #FFCB05"></span>MTN MoMo</span>
+        <span style="flex: 1 1 0; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #E2E7EF; border-radius: 10px; padding: 10px; font-weight: 600; font-size: 14px"><span aria-hidden="true" style="width: 24px; height: 24px; border-radius: 7px; background: #E40000"></span>Airtel Money</span>
       </div>
       <p style="margin: 0; font-size: 14px; color: #3A3F4A">Approve with your PIN on your phone. JobPrep never asks for your PIN.</p>
     </section>
 
     <section aria-labelledby="pp-faq" style="display: flex; flex-direction: column; gap: 8px">
-      <h2 id="pp-faq" style="margin: 0 0 4px; font-size: 19px">Questions</h2>
+      <h2 id="pp-faq" style="margin: 0 0 4px; font-size: 17px">Questions</h2>
       <sc-for list="{{faq}}" as="q" hint-placeholder-count="4">
-        <details style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 12px; padding: 14px">
+        <details style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 10px; padding: 14px">
           <summary style="font-weight: 600; font-size: 15px; cursor: pointer">{{q.q}}</summary>
           <p style="margin: 8px 0 0; font-size: 14px; color: #3A3F4A; line-height: 1.55">{{q.a}}</p>
         </details>

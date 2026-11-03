@@ -24,16 +24,16 @@ a:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 
   <main style="flex: 1 1 auto; padding: 18px 16px 24px; display: flex; flex-direction: column; gap: 16px">
     <div style="display: flex; flex-direction: column; gap: 10px">
-      <span style="align-self: flex-start; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: {{v.tagBg}}; color: {{v.tagInk}}">{{v.tag}}</span>
-      <h1 style="margin: 0; font-size: 26px; line-height: 1.2; letter-spacing: -0.02em">{{v.title}}</h1>
+      <span style="align-self: flex-start; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{v.tagBg}}; color: {{v.tagInk}}">{{v.tag}}</span>
+      <h1 style="margin: 0; font-size: 24px; line-height: 1.2; letter-spacing: -0.02em">{{v.title}}</h1>
       <p style="margin: 0; font-size: 16px; color: #3A3F4A; line-height: 1.55">{{v.summary}}</p>
     </div>
 
     <dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
       <sc-for list="{{v.facts}}" as="f" hint-placeholder-count="4">
-        <div style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 12px; padding: 12px; display: flex; flex-direction: column-reverse; gap: 2px">
+        <div style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 10px; padding: 12px; display: flex; flex-direction: column-reverse; gap: 2px">
           <dt style="font-size: 13px; color: #5E6573">{{f.label}}</dt>
-          <dd style="margin: 0; font-size: 20px; font-weight: 800">{{f.value}}</dd>
+          <dd style="margin: 0; font-size: 20px; font-weight: 700">{{f.value}}</dd>
         </div>
       </sc-for>
     </dl>
@@ -76,12 +76,12 @@ a:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 
   <footer style="position: sticky; bottom: 0; background: #FFFFFF; border-top: 1px solid #E2E7EF; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 8px">
     <sc-if value="{{isFree}}" hint-placeholder-val="{{ true }}">
-      <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #5E6573">This test</span><span style="font-weight: 800; font-size: 18px">Free</span></div>
-      <a href="ExamMobile.dc.html" style="text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 14px">Start Mock Test</a>
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #5E6573">This test</span><span style="font-weight: 600; font-size: 18px">Free</span></div>
+      <a href="ExamMobile.dc.html" style="text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 12px; border-radius: 10px">Start Mock Test</a>
     </sc-if>
     <sc-if value="{{isPaid}}" hint-placeholder-val="{{ false }}">
-      <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #5E6573">Full Access · 30 days</span><span style="font-weight: 800; font-size: 18px">RWF 2,000</span></div>
-      <a href="Checkout.dc.html" style="text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 14px">Unlock with Mobile Money</a>
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #5E6573">Full Access · 30 days</span><span style="font-weight: 600; font-size: 18px">RWF 2,000</span></div>
+      <a href="Checkout.dc.html" style="text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 17px; padding: 12px; border-radius: 10px">Unlock with Mobile Money</a>
       <a href="ExamMobile.dc.html" style="text-align: center; text-decoration: none; color: #164A7A; font-weight: 600; font-size: 15px; padding: 8px">Try the free 15-question sample</a>
     </sc-if>
   </footer>
