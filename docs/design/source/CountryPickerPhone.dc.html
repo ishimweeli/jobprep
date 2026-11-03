@@ -12,35 +12,35 @@
 <style>
 body{margin:0}
 *{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: #FFFFFF; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
+<div style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: #FFFFFF; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A">
   <main style="flex: 1 1 auto; overflow-y: auto; padding: 28px 16px 16px; display: flex; flex-direction: column; gap: 16px">
-    <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#164A7A"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     <h1 style="margin: 0; font-size: 26px; line-height: 1.2; letter-spacing: -0.02em">Where are you sitting your exam?</h1>
-    <p style="margin: 0; font-size: 16px; color: #3F3F46; line-height: 1.5">We’ll show mock tests, prices and payment methods for your country.</p>
+    <p style="margin: 0; font-size: 16px; color: #3A3F4A; line-height: 1.5">We’ll show mock tests, prices and payment methods for your country.</p>
     <div role="radiogroup" aria-label="Country" style="display: flex; flex-direction: column; gap: 10px">
       <sc-for list="{{countries}}" as="c" hint-placeholder-count="4">
-        <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="font: inherit; text-align: left; display: flex; gap: 12px; align-items: center; min-height: 68px; padding: 12px 14px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #18181B">
-          <span style="flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; background: #18181B; color: #FFFFFF; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
+        <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="font: inherit; text-align: left; display: flex; gap: 12px; align-items: center; min-height: 68px; padding: 12px 14px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #3A3F4A">
+          <span style="flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; background: #EFF3F8; color: #5E6573; border: 1px solid #E2E7EF; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
           <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px">
             <span style="font-weight: 700; font-size: 16px">{{c.name}}</span>
-            <span style="font-size: 13px; color: #52525B">{{c.meta}}</span>
+            <span style="font-size: 13px; color: #5E6573">{{c.meta}}</span>
           </span>
-          <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid #52525B; display: inline-flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{c.dot}}"></span></span>
+          <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid #5E6573; display: inline-flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{c.dot}}"></span></span>
         </button>
       </sc-for>
     </div>
-    <p style="margin: 0; font-size: 13px; color: #52525B">Detected from your connection: Rwanda.</p>
+    <p style="margin: 0; font-size: 13px; color: #5E6573">Detected from your connection: Rwanda.</p>
   </main>
-  <footer style="flex: 0 0 auto; border-top: 1px solid #E4E4E7; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 8px">
+  <footer style="flex: 0 0 auto; border-top: 1px solid #E2E7EF; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 8px">
     <sc-if value="{{live}}" hint-placeholder-val="{{ true }}">
-      <a href="{{target}}" style="text-align: center; text-decoration: none; background: #6D28D9; color: #FFFFFF; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 14px">Continue to {{name}}</a>
+      <a href="{{target}}" style="text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 14px">Continue to {{name}}</a>
     </sc-if>
     <sc-if value="{{soon}}" hint-placeholder-val="{{ false }}">
-      <button type="button" style="font: inherit; font-weight: 700; font-size: 17px; min-height: 54px; border-radius: 14px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9">Notify me when {{name}} opens</button>
+      <button type="button" style="font: inherit; font-weight: 700; font-size: 17px; min-height: 54px; border-radius: 14px; border: 1px solid #164A7A; background: #FFFFFF; color: #164A7A">Notify me when {{name}} opens</button>
     </sc-if>
   </footer>
 </div>
@@ -60,7 +60,7 @@ class Component extends DCLogic {
     return {
       countries: list.map(function (c) {
         var on = c.code === self.state.c;
-        return Object.assign({}, c, { checked: on ? 'true' : 'false', border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF', dot: on ? '#6D28D9' : 'transparent',
+        return Object.assign({}, c, { checked: on ? 'true' : 'false', border: on ? '2px solid #164A7A' : '1px solid #DCE2EB', bg: on ? '#E8EFFB' : '#FFFFFF', dot: on ? '#164A7A' : 'transparent',
           pick: function () { self.setState({ c: c.code }); } });
       }),
       name: cur.name, target: cur.target || 'MainPhone.dc.html', live: !cur.soon, soon: !!cur.soon

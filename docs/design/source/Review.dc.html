@@ -12,32 +12,32 @@
 <style>
 body{margin:0;background:#FFFFFF}
 *{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh">
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A; background: #EFF3F8; min-height: 100vh">
 
-<header style="border-bottom: 1px solid #E4E4E7; background: #FFFFFF">
+<header style="border-bottom: 1px solid #E2E7EF; background: #FFFFFF">
   <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
     <a href="Results.dc.html" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; text-decoration: none; padding: 10px 0">← Back to results</a>
     <span style="flex: 1 1 auto; font-weight: 700; font-size: 16px">Answer review · Secondary Mathematics (S1–S3) — Mock 1</span>
-    <a href="Exam.dc.html" style="text-decoration: none; background: #6D28D9; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 11px 16px; border-radius: 12px">Practise weak areas</a>
+    <a href="Exam.dc.html" style="text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 600; font-size: 15px; padding: 11px 16px; border-radius: 12px">Practise weak areas</a>
   </div>
 </header>
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
-  <aside aria-label="Jump to a question" style="flex: 1 1 280px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+  <aside aria-label="Jump to a question" style="flex: 1 1 280px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
     <h2 style="margin: 0; font-size: 17px">All 50 questions</h2>
     <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
       <sc-for list="{{grid}}" as="g" hint-placeholder-count="50">
         <a href="#rq{{g.n}}" aria-label="{{g.aria}}" style="height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 700; border: {{g.border}}; background: {{g.bg}}; color: {{g.ink}}">{{g.mark}}</a>
       </sc-for>
     </div>
-    <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #3F3F46">
-      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #D1FAE5; border: 1px solid #047857"></span>Correct (36)</li>
-      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FEE2E2; border: 1px solid #B91C1C"></span>Incorrect, marked ✕ (11)</li>
-      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FFFFFF; border: 1px dashed #52525B"></span>Unanswered, marked – (3)</li>
+    <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #3A3F4A">
+      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #E3F4E8; border: 1px solid #1E7A46"></span>Correct (36)</li>
+      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FBE7E4; border: 1px solid #A1281B"></span>Incorrect, marked ✕ (11)</li>
+      <li style="display: flex; gap: 8px; align-items: center"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FFFFFF; border: 1px dashed #5E6573"></span>Unanswered, marked – (3)</li>
     </ul>
   </aside>
 
@@ -49,28 +49,28 @@ a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2p
     </div>
 
     <sc-for list="{{items}}" as="q" hint-placeholder-count="3">
-      <article id="rq{{q.n}}" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+      <article id="rq{{q.n}}" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
         <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
           <span style="font-weight: 800; font-size: 16px">Question {{q.n}}</span>
           <span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: {{q.badgeBg}}; color: {{q.badgeInk}}">{{q.badge}}</span>
-          <sc-if value="{{q.flagged}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #FEF3C7; color: #92400E">Flagged</span></sc-if>
-          <span style="margin-left: auto; font-size: 14px; color: #52525B">{{q.topic}}</span>
+          <sc-if value="{{q.flagged}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #FDF1DD; color: #8A5300">Flagged</span></sc-if>
+          <span style="margin-left: auto; font-size: 14px; color: #5E6573">{{q.topic}}</span>
         </div>
         <p style="margin: 0; font-size: 19px; font-weight: 600; line-height: 1.5">{{q.text}}</p>
         <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
           <sc-for list="{{q.opts}}" as="o" hint-placeholder-count="4">
             <li style="display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 14px; border-radius: 12px; border: {{o.border}}; background: {{o.bg}}">
-              <span style="width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: #F4F4F5; color: #3F3F46">{{o.key}}</span>
+              <span style="width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: #EEF1F5; color: #3A3F4A">{{o.key}}</span>
               <span style="flex: 1 1 200px; font-size: 16px">{{o.text}}</span>
-              <sc-if value="{{o.isRight}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #065F46">✓ Correct answer</span></sc-if>
-              <sc-if value="{{o.isWrongPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #991B1B">✕ Your answer</span></sc-if>
-              <sc-if value="{{o.isRightPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #065F46">· Your answer</span></sc-if>
+              <sc-if value="{{o.isRight}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #1E6B3C">✓ Correct answer</span></sc-if>
+              <sc-if value="{{o.isWrongPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #A1281B">✕ Your answer</span></sc-if>
+              <sc-if value="{{o.isRightPick}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #1E6B3C">· Your answer</span></sc-if>
             </li>
           </sc-for>
         </ul>
-        <div style="background: #F5F3FF; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
-          <span style="font-size: 14px; font-weight: 700; color: #5B21B6">Explanation</span>
-          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #27272A">{{q.why}}</p>
+        <div style="background: #E8EFFB; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 14px; font-weight: 700; color: #164A7A">Explanation</span>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3A3F4A">{{q.why}}</p>
         </div>
       </article>
     </sc-for>
@@ -97,7 +97,7 @@ class Component extends DCLogic {
       { n: 38, st: 'correct', flagged: false, topic: 'Pedagogy & CBC', text: 'Which of the following is one of the generic competences in Rwanda’s Competence-Based Curriculum?', opts: ['Memorisation of definitions', 'Research and problem solving', 'Examination technique', 'Strict obedience'], right: 1, pick: 1,
         why: 'The CBC lists generic competences that cut across all subjects, including critical thinking, creativity and innovation, research and problem solving, communication, cooperation, and lifelong learning.' }
     ];
-    var badge = { correct: ['Correct', '#D1FAE5', '#065F46'], incorrect: ['Incorrect', '#FEE2E2', '#991B1B'], unanswered: ['Not answered', '#F4F4F5', '#3F3F46'] };
+    var badge = { correct: ['Correct', '#E3F4E8', '#1E6B3C'], incorrect: ['Incorrect', '#FBE7E4', '#A1281B'], unanswered: ['Not answered', '#EEF1F5', '#3A3F4A'] };
     var items = data.filter(function (q) {
       if (s.tab === 'all') return true;
       if (s.tab === 'flagged') return q.flagged;
@@ -108,13 +108,13 @@ class Component extends DCLogic {
         opts: q.opts.map(function (t, k) {
           var r = k === q.right, p = k === q.pick;
           return { key: keys[k], text: t, isRight: r, isWrongPick: p && !r, isRightPick: p && r,
-            border: r ? '2px solid #047857' : (p ? '2px solid #B91C1C' : '1px solid #E4E4E7'),
-            bg: r ? '#ECFDF5' : (p ? '#FEF2F2' : '#FFFFFF') };
+            border: r ? '2px solid #1E7A46' : (p ? '2px solid #A1281B' : '1px solid #E2E7EF'),
+            bg: r ? '#E3F4E8' : (p ? '#FBE7E4' : '#FFFFFF') };
         }) });
     });
     var tabs = [['incorrect', 'Incorrect (11)'], ['flagged', 'Flagged (1)'], ['unanswered', 'Unanswered (3)'], ['all', 'All questions']].map(function (t) {
       var on = s.tab === t[0];
-      return { label: t[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #18181B' : '1px solid #D4D4D8', bg: on ? '#18181B' : '#FFFFFF', ink: on ? '#FFFFFF' : '#18181B',
+      return { label: t[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #182231' : '1px solid #DCE2EB', bg: on ? '#182231' : '#FFFFFF', ink: on ? '#FFFFFF' : '#3A3F4A',
         pick: function () { self.setState({ tab: t[0] }); } };
     });
     var wrong = [3, 7, 14, 19, 22, 27, 31, 35, 41, 44, 47], blank = [24, 49, 50];
@@ -123,8 +123,8 @@ class Component extends DCLogic {
       var w = wrong.indexOf(i) >= 0, b2 = blank.indexOf(i) >= 0;
       grid.push({ n: i, mark: w ? i + '✕' : (b2 ? i + '–' : String(i)),
         aria: 'Question ' + i + (w ? ', incorrect' : b2 ? ', not answered' : ', correct'),
-        bg: w ? '#FEE2E2' : (b2 ? '#FFFFFF' : '#D1FAE5'), ink: w ? '#991B1B' : (b2 ? '#3F3F46' : '#065F46'),
-        border: w ? '1px solid #B91C1C' : (b2 ? '1px dashed #52525B' : '1px solid #047857') });
+        bg: w ? '#FBE7E4' : (b2 ? '#FFFFFF' : '#E3F4E8'), ink: w ? '#A1281B' : (b2 ? '#3A3F4A' : '#1E6B3C'),
+        border: w ? '1px solid #A1281B' : (b2 ? '1px dashed #5E6573' : '1px solid #1E7A46') });
     }
     return { items: items, tabs: tabs, grid: grid };
   }

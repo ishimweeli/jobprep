@@ -12,21 +12,21 @@
 <style>
 body{margin:0}
 *{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: #FFFFFF; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
-  <header style="flex: 0 0 auto; padding: 14px 16px 12px; border-bottom: 1px solid #E4E4E7; display: flex; flex-direction: column; gap: 12px">
+<div style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: #FFFFFF; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A">
+  <header style="flex: 0 0 auto; padding: 14px 16px 12px; border-bottom: 1px solid #E2E7EF; display: flex; flex-direction: column; gap: 12px">
     <div style="display: flex; align-items: center; gap: 10px">
       <div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column">
-        <span style="font-size: 13px; color: #52525B">Accountant — Mock 1</span>
-        <span style="font-size: 12px; color: #047857; font-weight: 600">✓ Saved</span>
+        <span style="font-size: 13px; color: #5E6573">Accountant — Mock 1</span>
+        <span style="font-size: 12px; color: #1E7A46; font-weight: 600">✓ Saved</span>
       </div>
-      <div role="timer" aria-label="Time remaining" style="font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px; padding: 8px 12px; border-radius: 10px; background: #F4F4F5">31:47</div>
-      <a href="ResultsPhone.dc.html" style="text-decoration: none; font-weight: 700; font-size: 14px; padding: 13px 12px; border-radius: 10px; background: #18181B; color: #FFFFFF">Submit</a>
+      <div role="timer" aria-label="Time remaining" style="font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px; padding: 8px 12px; border-radius: 10px; background: #EEF1F5">31:47</div>
+      <a href="ResultsPhone.dc.html" style="text-decoration: none; font-weight: 700; font-size: 14px; padding: 13px 12px; border-radius: 10px; background: #182231; color: #FFFFFF">Submit</a>
     </div>
-    <div role="group" aria-label="View" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); background: #F4F4F5; border-radius: 12px; padding: 4px">
+    <div role="group" aria-label="View" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); background: #EEF1F5; border-radius: 12px; padding: 4px">
       <sc-for list="{{seg}}" as="s" hint-placeholder-count="2">
         <button type="button" onClick="{{s.pick}}" aria-pressed="{{s.pressed}}" style="font: inherit; font-weight: 700; font-size: 15px; min-height: 42px; border-radius: 9px; border: 0; background: {{s.bg}}; color: {{s.ink}}; box-shadow: {{s.shadow}}">{{s.label}}</button>
       </sc-for>
@@ -34,51 +34,51 @@ a:focus-visible,button:focus-visible{outline:3px solid #A78BFA;outline-offset:2p
   </header>
 
   <sc-if value="{{showCase}}" hint-placeholder-val="{{ false }}">
-    <main style="flex: 1 1 auto; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.6; color: #27272A">
-      <span style="font-size: 12px; font-weight: 700; color: #5B21B6">CASE STUDY · QUESTIONS 36–45</span>
-      <h1 style="margin: 0; font-size: 18px; line-height: 1.35; color: #18181B">Umucyo District Hospital, financial year 2025/26</h1>
+    <main style="flex: 1 1 auto; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.6; color: #3A3F4A">
+      <span style="font-size: 12px; font-weight: 700; color: #164A7A">CASE STUDY · QUESTIONS 36–45</span>
+      <h1 style="margin: 0; font-size: 18px; line-height: 1.35; color: #3A3F4A">Umucyo District Hospital, financial year 2025/26</h1>
       <p style="margin: 0">The hospital has moved from cash-basis to accrual-basis reporting. Cash movements for the year ended 30 June 2026:</p>
-      <div style="border: 1px solid #E4E4E7; border-radius: 12px; overflow: hidden">
+      <div style="border: 1px solid #E2E7EF; border-radius: 12px; overflow: hidden">
         <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
-          <div style="display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-top: 1px solid #F4F4F5; font-size: 14px; font-weight: {{r.w}}; background: {{r.bg}}"><span>{{r.k}}</span><span style="font-variant-numeric: tabular-nums; white-space: nowrap">{{r.v}}</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-top: 1px solid #EEF1F5; font-size: 14px; font-weight: {{r.w}}; background: {{r.bg}}"><span>{{r.k}}</span><span style="font-variant-numeric: tabular-nums; white-space: nowrap">{{r.v}}</span></div>
         </sc-for>
       </div>
-      <p style="margin: 0; font-weight: 700; color: #18181B">Additional information</p>
+      <p style="margin: 0; font-weight: 700; color: #3A3F4A">Additional information</p>
       <ol style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px">
         <li>Unpaid medicine invoices at 30 June 2026: RWF 36,000,000. None at the start of the year.</li>
         <li>RWF 25,000,000 of the donor grant is for 2026/27 activities.</li>
         <li>The equipment has a 10-year useful life and no residual value.</li>
       </ol>
     </main>
-    <div style="flex: 0 0 auto; border-top: 1px solid #E4E4E7; padding: 10px 12px 14px">
-      <button type="button" onClick="{{toQuestion}}" style="width: 100%; font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF">Back to question 37</button>
+    <div style="flex: 0 0 auto; border-top: 1px solid #E2E7EF; padding: 10px 12px 14px">
+      <button type="button" onClick="{{toQuestion}}" style="width: 100%; font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #164A7A; color: #FFFFFF">Back to question 37</button>
     </div>
   </sc-if>
 
   <sc-if value="{{showQuestion}}" hint-placeholder-val="{{ true }}">
     <main style="flex: 1 1 auto; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px">
       <div style="display: flex; flex-direction: column">
-        <span style="font-size: 13px; color: #52525B; font-weight: 600">Case question 2 of 10 · 2.5 marks</span>
+        <span style="font-size: 13px; color: #5E6573; font-weight: 600">Case question 2 of 10 · 2.5 marks</span>
         <h1 style="margin: 0; font-size: 17px">Question 37 of 45</h1>
       </div>
-      <button type="button" onClick="{{toCase}}" style="font: inherit; text-align: left; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 12px; border-radius: 12px; border: 1px solid #DDD6FE; background: #F5F3FF; color: #5B21B6; font-weight: 600; font-size: 14px">
+      <button type="button" onClick="{{toCase}}" style="font: inherit; text-align: left; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 12px; border-radius: 12px; border: 1px solid #DCEBFA; background: #E8EFFB; color: #164A7A; font-weight: 600; font-size: 14px">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z M8 12h8 M8 16h5"></path></svg>
         Based on: Umucyo District Hospital case
       </button>
       <p style="margin: 0; font-size: 18px; line-height: 1.5; font-weight: 600">Under accrual accounting, what amount should be recognised as the medicines expense for 2025/26?</p>
       <div role="group" aria-label="Answer options" style="display: flex; flex-direction: column; gap: 10px">
         <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
-          <button type="button" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="font: inherit; text-align: left; display: flex; gap: 12px; align-items: center; min-height: 56px; padding: 10px 14px; border-radius: 14px; border: {{o.border}}; background: {{o.bg}}; color: #18181B">
+          <button type="button" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="font: inherit; text-align: left; display: flex; gap: 12px; align-items: center; min-height: 56px; padding: 10px 14px; border-radius: 14px; border: {{o.border}}; background: {{o.bg}}; color: #3A3F4A">
             <span style="flex: 0 0 auto; width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; background: {{o.keyBg}}; color: {{o.keyInk}}">{{o.key}}</span>
             <span style="font-size: 17px; font-variant-numeric: tabular-nums">{{o.text}}</span>
           </button>
         </sc-for>
       </div>
     </main>
-    <nav aria-label="Question controls" style="flex: 0 0 auto; border-top: 1px solid #E4E4E7; padding: 10px 12px 14px; display: flex; gap: 8px">
-      <button type="button" aria-label="Previous question" style="font: inherit; width: 52px; height: 52px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; font-size: 20px">←</button>
-      <button type="button" style="flex: 1 1 auto; font: inherit; font-weight: 700; font-size: 15px; height: 52px; border-radius: 12px; border: 1px solid #E4E4E7; background: #F4F4F5; color: #18181B">All questions · 36/45</button>
-      <button type="button" aria-label="Next question" style="font: inherit; font-weight: 700; width: 84px; height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; font-size: 16px">Next</button>
+    <nav aria-label="Question controls" style="flex: 0 0 auto; border-top: 1px solid #E2E7EF; padding: 10px 12px 14px; display: flex; gap: 8px">
+      <button type="button" aria-label="Previous question" style="font: inherit; width: 52px; height: 52px; border-radius: 12px; border: 1px solid #CDD4DE; background: #FFFFFF; color: #3A3F4A; font-size: 20px">←</button>
+      <button type="button" style="flex: 1 1 auto; font: inherit; font-weight: 700; font-size: 15px; height: 52px; border-radius: 12px; border: 1px solid #E2E7EF; background: #EEF1F5; color: #3A3F4A">All questions · 36/45</button>
+      <button type="button" aria-label="Next question" style="font: inherit; font-weight: 700; width: 84px; height: 52px; border-radius: 12px; border: 0; background: #164A7A; color: #FFFFFF; font-size: 16px">Next</button>
     </nav>
   </sc-if>
 </div>
@@ -88,7 +88,7 @@ class Component extends DCLogic {
   constructor(props) { super(props); this.state = { view: 'question', pick: 1 }; }
   renderVals() {
     var self = this, s = this.state, keys = ['A', 'B', 'C', 'D'];
-    var plain = { w: '400', bg: '#FFFFFF' }, head = { w: '700', bg: '#FAFAFA' };
+    var plain = { w: '400', bg: '#FFFFFF' }, head = { w: '700', bg: '#EFF3F8' };
     var rows = [
       Object.assign({ k: 'Receipts', v: 'RWF' }, head),
       Object.assign({ k: 'Government transfers', v: '820,000,000' }, plain),
@@ -102,12 +102,12 @@ class Component extends DCLogic {
     ];
     var opts = ['RWF 280,000,000', 'RWF 316,000,000', 'RWF 244,000,000', 'RWF 36,000,000'].map(function (t, k) {
       var on = s.pick === k;
-      return { key: keys[k], text: t, pressed: on ? 'true' : 'false', border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF', keyBg: on ? '#6D28D9' : '#F4F4F5', keyInk: on ? '#FFFFFF' : '#3F3F46',
+      return { key: keys[k], text: t, pressed: on ? 'true' : 'false', border: on ? '2px solid #164A7A' : '1px solid #DCE2EB', bg: on ? '#E8EFFB' : '#FFFFFF', keyBg: on ? '#164A7A' : '#EEF1F5', keyInk: on ? '#FFFFFF' : '#3A3F4A',
         pick: function () { self.setState({ pick: k }); } };
     });
     var seg = [['question', 'Question'], ['case', 'Case study']].map(function (x) {
       var on = s.view === x[0];
-      return { label: x[1], pressed: on ? 'true' : 'false', bg: on ? '#FFFFFF' : 'transparent', ink: on ? '#18181B' : '#3F3F46', shadow: on ? '0 1px 3px rgba(24,24,27,0.15)' : 'none',
+      return { label: x[1], pressed: on ? 'true' : 'false', bg: on ? '#FFFFFF' : 'transparent', ink: on ? '#3A3F4A' : '#3A3F4A', shadow: on ? '0 1px 3px rgba(20,30,50,0.15)' : 'none',
         pick: function () { self.setState({ view: x[0] }); } };
     });
     return {

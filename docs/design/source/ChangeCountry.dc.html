@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JobPrep — Change exam country</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 930px; background: #EFF3F8; font-family: Inter, system-ui, sans-serif; color: #3A3F4A; box-sizing: border-box; padding: 20px 24px 64px; position: relative"><a href="Main.dc.html" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; align-self: flex-start"><span style="width: 34px; height: 34px; border-radius: 9px; background: #164A7A; display: flex; align-items: center; justify-content: center; flex: none"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="font-size: 18px; font-weight: 700; color: #164A7A">JobPrep</span></a><main style="max-width: 448px; margin: 48px auto 0; display: flex; flex-direction: column; gap: 22px"><div style="display: flex; flex-direction: column; gap: 8px"><a href="DashboardNew.dc.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 16px; text-decoration: none; align-self: flex-start; min-height: 32px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>Back</a><h1 style="margin: 0; font-size: 34px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em">Change exam country</h1><p style="margin: 0; font-size: 16px; line-height: 1.5; color: #5E6573">Everything you see will switch to the new country: mock tests, prices, payment methods and language.</p></div><div role="radiogroup" aria-label="Exam country" style="background: #fff; border: 1px solid #E2E7EF; border-radius: 14px; overflow: hidden">
+  <sc-for list="{{items}}" as="c" hint-placeholder-count="4">
+    <button type="button" role="radio" aria-checked="{{c.checked}}" aria-disabled="{{c.dis}}" onClick="{{c.pick}}" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 0; border-top: {{c.top}}; background: {{c.bg}}; font-family: inherit; color: #3A3F4A; text-align: left; min-height: 56px; width: 100%; cursor: pointer; opacity: {{c.op}}">
+      <span style="width: 34px; height: 26px; border-radius: 6px; background: #EFF3F8; border: 1px solid #E2E7EF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5E6573; flex: none">{{c.code}}</span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 600">{{c.name}}</span><span style="font-size: 13px; color: {{c.metaInk}}">{{c.meta}}</span></span>
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D62CF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity: {{c.tick}}"><path d="M20 6L9 17l-5-5"></path></svg>
+    </button>
+  </sc-for>
+</div>
+<sc-if value="{{changing}}" hint-placeholder-val="{{ true }}">
+  <div style="background: #E8EFFB; border: 1px solid #DCEBFA; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.5">
+    <strong style="color: #164A7A">If you switch to {{newName}}</strong>
+    <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px">
+      <li>You’ll see only {{newName}} mock tests, prices in {{newCur}} and {{newPay}}.</li>
+      <li>Your Rwanda Full Access (23 days left) only covers Rwanda tests. It keeps running and is there if you switch back.</li>
+      <li>Your Rwanda results stay in your history. Your job goal is cleared, so you’ll choose one for {{newName}} next.</li>
+    </ul>
+  </div>
+  <a href="OnboardCategory.dc.html" style="width: 100%; justify-content: center; height: 50px; padding: 0 14px; border-radius: 12px; background: #164A7A; color: #fff; border: 0; font: 600 16px Inter, system-ui, sans-serif; display: inline-flex; align-items: center; text-decoration: none; box-sizing: border-box">Switch to {{newName}}</a>
+</sc-if>
+<sc-if value="{{same}}" hint-placeholder-val="{{ false }}">
+  <button type="button" disabled style="width: 100%; height: 50px; border-radius: 12px; background: #164A7A; color: #fff; border: 0; font: 600 16px Inter, system-ui, sans-serif; opacity: 0.45; cursor: not-allowed">Choose a different country</button>
+</sc-if>
+<div style="display: flex; justify-content: center"><a href="DashboardNew.dc.html" style="height: 44px; padding: 0 14px; color: #2D62CF; font: 600 14px Inter, system-ui, sans-serif; display: inline-flex; align-items: center; text-decoration: none">Keep Rwanda</a></div></main></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 930}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, st = this.state || {}, p = this.props;
+    var D = [['RW', 'Rwanda', 'Current · Full Access until 24 Nov 2026', 'RWF', 'MTN MoMo or Airtel Money', 0], ['KE', 'Kenya', '24 mock tests · KES', 'KES', 'M-Pesa or Airtel Money', 0], ['UG', 'Uganda', 'Coming soon', '', '', 1], ['TZ', 'Tanzania', 'Coming soon', '', '', 1]];
+    var sel = st.sel !== undefined ? st.sel : 1;
+    var items = D.map(function (d, i) { var on = i === sel; return { code: d[0], name: d[1], meta: d[2], metaInk: i === 0 ? '#1E6B3C' : '#5E6573', dis: d[5] ? 'true' : 'false', op: d[5] ? '0.55' : '1', checked: on ? 'true' : 'false', bg: on ? '#E8EFFB' : '#fff', top: i === 0 ? '0' : '1px solid #EEF1F5', tick: on ? '1' : '0', pick: function () { if (!d[5]) self.setState({ sel: i }); } }; });
+    var c = D[sel];
+    return { items: items, changing: sel !== 0, same: sel === 0, newName: c[1], newCur: c[3], newPay: c[4] };
+  }
+}
+</script>
+</body>
+</html>

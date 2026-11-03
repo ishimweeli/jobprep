@@ -10,54 +10,54 @@
 <helmet>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#FAFAFA}
+body{margin:0;background:#EFF3F8}
 *{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh; position: relative">
-  <div aria-hidden="true" style="padding: 18px 32px; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px">
-    <svg width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>JobPrep
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A; background: #EFF3F8; min-height: 100vh; position: relative">
+  <div aria-hidden="true" style="padding: 18px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E7EF; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px">
+    <svg width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#164A7A"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>JobPrep
   </div>
   <div aria-hidden="true" style="max-width: 1100px; margin: 0 auto; padding: 72px 24px; display: flex; flex-direction: column; gap: 18px">
-    <div style="height: 56px; width: 60%; background: #E4E4E7; border-radius: 12px"></div>
-    <div style="height: 20px; width: 45%; background: #E4E4E7; border-radius: 8px"></div>
-    <div style="height: 120px; width: 55%; background: #F4F4F5; border-radius: 18px"></div>
+    <div style="height: 56px; width: 60%; background: #E2E7EF; border-radius: 12px"></div>
+    <div style="height: 20px; width: 45%; background: #E2E7EF; border-radius: 8px"></div>
+    <div style="height: 120px; width: 55%; background: #EEF1F5; border-radius: 18px"></div>
   </div>
 
-  <div style="position: absolute; inset: 0; background: rgba(24,24,27,0.55); display: flex; align-items: flex-start; justify-content: center; padding: 72px 16px 16px">
+  <div style="position: absolute; inset: 0; background: rgba(20,30,50,0.55); display: flex; align-items: flex-start; justify-content: center; padding: 72px 16px 16px">
     <div role="dialog" aria-modal="true" aria-labelledby="cp-t" style="width: 100%; max-width: 640px; background: #FFFFFF; border-radius: 22px; padding: 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 24px 64px rgba(0,0,0,0.25)">
       <div style="display: flex; flex-direction: column; gap: 6px">
         <h1 id="cp-t" style="margin: 0; font-size: 26px; letter-spacing: -0.02em">Where are you sitting your exam?</h1>
-        <p style="margin: 0; font-size: 16px; color: #3F3F46">We show mock tests, prices and payment methods for your country. You can change this later from the top of any page.</p>
+        <p style="margin: 0; font-size: 16px; color: #3A3F4A">We show mock tests, prices and payment methods for your country. You can change this later from the top of any page.</p>
       </div>
       <div role="radiogroup" aria-label="Country" style="display: flex; flex-direction: column; gap: 10px">
         <sc-for list="{{countries}}" as="c" hint-placeholder-count="4">
-          <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #18181B">
-            <span style="flex: 0 0 auto; width: 42px; height: 42px; border-radius: 10px; background: #18181B; color: #FFFFFF; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
+          <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #3A3F4A">
+            <span style="flex: 0 0 auto; width: 42px; height: 42px; border-radius: 10px; background: #EFF3F8; color: #5E6573; border: 1px solid #E2E7EF; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
             <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px">
-              <span style="display: flex; gap: 8px; align-items: center"><span style="font-weight: 700; font-size: 17px">{{c.name}}</span><sc-if value="{{c.soon}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #F4F4F5; color: #3F3F46">Coming soon</span></sc-if></span>
-              <span style="font-size: 14px; color: #52525B">{{c.meta}}</span>
+              <span style="display: flex; gap: 8px; align-items: center"><span style="font-weight: 700; font-size: 17px">{{c.name}}</span><sc-if value="{{c.soon}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #EEF1F5; color: #3A3F4A">Coming soon</span></sc-if></span>
+              <span style="font-size: 14px; color: #5E6573">{{c.meta}}</span>
             </span>
-            <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid #52525B; display: inline-flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{c.dot}}"></span></span>
+            <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid #5E6573; display: inline-flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{c.dot}}"></span></span>
           </button>
         </sc-for>
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
         <label style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Language
-          <select style="height: 48px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 16px; background: #FFFFFF; color: #18181B">
+          <select style="height: 48px; border: 1px solid #CDD4DE; border-radius: 12px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 16px; background: #FFFFFF; color: #3A3F4A">
             <sc-for list="{{langs}}" as="l" hint-placeholder-count="2"><option>{{l}}</option></sc-for>
           </select>
         </label>
         <sc-if value="{{live}}" hint-placeholder-val="{{ true }}">
-          <a href="{{target}}" style="flex: 1 1 220px; text-align: center; text-decoration: none; background: #6D28D9; color: #FFFFFF; font-weight: 700; font-size: 16px; padding: 14px; border-radius: 12px">Continue to {{name}}</a>
+          <a href="{{target}}" style="flex: 1 1 220px; text-align: center; text-decoration: none; background: #164A7A; color: #FFFFFF; font-weight: 700; font-size: 16px; padding: 14px; border-radius: 12px">Continue to {{name}}</a>
         </sc-if>
         <sc-if value="{{soon}}" hint-placeholder-val="{{ false }}">
-          <button type="button" style="flex: 1 1 220px; font: inherit; font-weight: 700; font-size: 16px; min-height: 50px; border-radius: 12px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9">Notify me when {{name}} opens</button>
+          <button type="button" style="flex: 1 1 220px; font: inherit; font-weight: 700; font-size: 16px; min-height: 50px; border-radius: 12px; border: 1px solid #164A7A; background: #FFFFFF; color: #164A7A">Notify me when {{name}} opens</button>
         </sc-if>
       </div>
-      <p style="margin: 0; font-size: 13px; color: #52525B">Detected from your connection: Rwanda. Mock tests are independent practice material, not affiliated with any government recruitment body.</p>
+      <p style="margin: 0; font-size: 13px; color: #5E6573">Detected from your connection: Rwanda. Mock tests are independent practice material, not affiliated with any government recruitment body.</p>
     </div>
   </div>
 </div>
@@ -77,7 +77,7 @@ class Component extends DCLogic {
     return {
       countries: list.map(function (c) {
         var on = c.code === self.state.c;
-        return Object.assign({}, c, { soon: !!c.soon, checked: on ? 'true' : 'false', border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF', dot: on ? '#6D28D9' : 'transparent',
+        return Object.assign({}, c, { soon: !!c.soon, checked: on ? 'true' : 'false', border: on ? '2px solid #164A7A' : '1px solid #DCE2EB', bg: on ? '#E8EFFB' : '#FFFFFF', dot: on ? '#164A7A' : 'transparent',
           pick: function () { self.setState({ c: c.code }); } });
       }),
       langs: cur.langs, name: cur.name, target: cur.target || 'Main.dc.html', live: !cur.soon, soon: !!cur.soon

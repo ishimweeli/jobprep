@@ -14,7 +14,7 @@
    "x": 0,
    "y": 0,
    "w": 1440,
-   "h": 2700,
+   "h": 2400,
    "title": "1 · Landing",
    "expand": "fill"
   },
@@ -127,7 +127,7 @@
    "x": 0,
    "y": 3120,
    "w": 390,
-   "h": 2500,
+   "h": 2150,
    "title": "1m · Landing (phone)"
   },
   "CatalogPhone.dc.html": {
@@ -288,7 +288,7 @@
    "x": 1990,
    "y": 11100,
    "w": 390,
-   "h": 1700,
+   "h": 1450,
    "title": "C2m · Kenya landing (phone)"
   },
   "CheckoutKenyaPhone.dc.html": {
@@ -316,44 +316,43 @@
   },
   "SignUp.dc.html": {
    "x": 0,
-   "y": 13220,
+   "y": 17930,
    "w": 1440,
-   "h": 900,
-   "title": "S1 · Sign up — country first (desktop)",
-   "is_interactive": true,
-   "expand": "fill"
-  },
-  "SignUpPhone.dc.html": {
-   "x": 1520,
-   "y": 13220,
-   "w": 390,
-   "h": 844,
-   "title": "S1m · Sign up — country first (phone)",
-   "is_interactive": true
-  },
-  "ChangeCountryPhone.dc.html": {
-   "x": 1990,
-   "y": 13220,
-   "w": 390,
-   "h": 844,
-   "title": "S2m · Changing country later (phone)"
-  },
-  "SignIn.dc.html": {
-   "x": 0,
-   "y": 14540,
-   "w": 1440,
-   "h": 900,
-   "title": "C12 · Sign-in (desktop)",
+   "h": 930,
+   "title": "A1 · Create account (desktop)",
    "expand": "fill",
    "is_interactive": true
   },
-  "SignInPhone.dc.html": {
+  "SignUpPhone.dc.html": {
    "x": 0,
-   "y": 16210,
+   "y": 19280,
    "w": 390,
    "h": 844,
-   "title": "C12 · Sign-in (phone)",
+   "title": "A1 · Create account (phone)",
    "is_interactive": true
+  },
+  "ChangeCountryPhone.dc.html": {
+   "x": 13680,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A10 · Change exam country (phone)",
+   "is_interactive": true
+  },
+  "SignIn.dc.html": {
+   "x": 9120,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A7 · Sign in (desktop)",
+   "expand": "fill"
+  },
+  "SignInPhone.dc.html": {
+   "x": 9120,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A7 · Sign in (phone)"
   },
   "AccountMenu.dc.html": {
    "x": 1520,
@@ -505,6 +504,128 @@
    "h": 900,
    "title": "C7 + C8 · Time up and offline (desktop)",
    "expand": "fill"
+  },
+  "VerifyEmail.dc.html": {
+   "x": 1520,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A2 · Verify email (desktop)",
+   "expand": "fill"
+  },
+  "VerifyEmailPhone.dc.html": {
+   "x": 1520,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A2 · Verify email (phone)"
+  },
+  "OnboardCountry.dc.html": {
+   "x": 3040,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A3 · Setup 1/3: country (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "OnboardCountryPhone.dc.html": {
+   "x": 3040,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A3 · Setup 1/3: country (phone)",
+   "is_interactive": true
+  },
+  "OnboardCategory.dc.html": {
+   "x": 4560,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A4 · Setup 2/3: job category (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "OnboardCategoryPhone.dc.html": {
+   "x": 4560,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A4 · Setup 2/3: job category (phone)",
+   "is_interactive": true
+  },
+  "OnboardGoal.dc.html": {
+   "x": 6080,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A5 · Setup 3/3: position (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "OnboardGoalPhone.dc.html": {
+   "x": 6080,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A5 · Setup 3/3: position (phone)",
+   "is_interactive": true
+  },
+  "AuthCallback.dc.html": {
+   "x": 7600,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A6 · Signing in (desktop)",
+   "expand": "fill"
+  },
+  "AuthCallbackPhone.dc.html": {
+   "x": 7600,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A6 · Signing in (phone)"
+  },
+  "ForgotPassword.dc.html": {
+   "x": 10640,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A8 · Forgot password (desktop)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ForgotPasswordPhone.dc.html": {
+   "x": 10640,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A8 · Forgot password (phone)",
+   "is_interactive": true
+  },
+  "ResetPassword.dc.html": {
+   "x": 12160,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A9 · Reset password (desktop)",
+   "expand": "fill"
+  },
+  "ResetPasswordPhone.dc.html": {
+   "x": 12160,
+   "y": 19280,
+   "w": 390,
+   "h": 844,
+   "title": "A9 · Reset password (phone)"
+  },
+  "ChangeCountry.dc.html": {
+   "x": 13680,
+   "y": 17930,
+   "w": 1440,
+   "h": 930,
+   "title": "A10 · Change exam country (desktop)",
+   "expand": "fill",
+   "is_interactive": true
   }
  },
  "order": [
@@ -570,7 +691,22 @@
   "MultiSelectPhone.dc.html",
   "Practice.dc.html",
   "PracticePhone.dc.html",
-  "TimeUpDesktop.dc.html"
+  "TimeUpDesktop.dc.html",
+  "VerifyEmail.dc.html",
+  "VerifyEmailPhone.dc.html",
+  "OnboardCountry.dc.html",
+  "OnboardCountryPhone.dc.html",
+  "OnboardCategory.dc.html",
+  "OnboardCategoryPhone.dc.html",
+  "OnboardGoal.dc.html",
+  "OnboardGoalPhone.dc.html",
+  "AuthCallback.dc.html",
+  "AuthCallbackPhone.dc.html",
+  "ForgotPassword.dc.html",
+  "ForgotPasswordPhone.dc.html",
+  "ResetPassword.dc.html",
+  "ResetPasswordPhone.dc.html",
+  "ChangeCountry.dc.html"
  ],
  "notes": {
   "row1": {
@@ -635,6 +771,20 @@
    "text": "Batch 1 — missing screens (phone)",
    "kind": "title1",
    "maxW": 16640
+  },
+  "row10": {
+   "x": 0,
+   "y": 17630,
+   "text": "Sign up and sign in — same flow as Mwalimu Tools (desktop)",
+   "kind": "title1",
+   "maxW": 15120
+  },
+  "row11": {
+   "x": 0,
+   "y": 18980,
+   "text": "Sign up and sign in (phone)",
+   "kind": "title1",
+   "maxW": 15120
   }
  },
  "designSystems": []

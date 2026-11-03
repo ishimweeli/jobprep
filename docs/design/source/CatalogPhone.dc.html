@@ -12,20 +12,20 @@
 <style>
 body{margin:0}
 *{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
-  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 8px 16px 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #EFF3F8; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A">
+  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E2E7EF; padding: 8px 16px 12px; display: flex; flex-direction: column; gap: 10px">
     <div style="display: flex; align-items: center; gap: 4px">
-      <a href="MainPhone.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; margin-left: -12px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #18181B; font-size: 20px">←</a>
+      <a href="MainPhone.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; margin-left: -12px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #3A3F4A; font-size: 20px">←</a>
       <h1 style="margin: 0; font-size: 19px">Find your mock test</h1>
     </div>
     <div role="search" style="display: flex; gap: 8px">
       <label for="pc-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search job title or subject</label>
-      <input id="pc-q" type="search" value="{{query}}" onInput="{{onQuery}}" placeholder="Job title or subject" style="flex: 1 1 auto; min-width: 0; height: 48px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 16px; color: #18181B; background: #FFFFFF">
-      <button type="button" onClick="{{openFilters}}" style="flex: 0 0 auto; font: inherit; font-weight: 600; font-size: 15px; height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B; display: inline-flex; align-items: center; gap: 6px">
+      <input id="pc-q" type="search" value="{{query}}" onInput="{{onQuery}}" placeholder="Job title or subject" style="flex: 1 1 auto; min-width: 0; height: 48px; border: 1px solid #CDD4DE; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 16px; color: #3A3F4A; background: #FFFFFF">
+      <button type="button" onClick="{{openFilters}}" style="flex: 0 0 auto; font: inherit; font-weight: 600; font-size: 15px; height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid #CDD4DE; background: #FFFFFF; color: #3A3F4A; display: inline-flex; align-items: center; gap: 6px">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16 M7 12h10 M10 18h4"></path></svg>
         Filters{{filterBadge}}
       </button>
@@ -38,32 +38,32 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78B
   </header>
 
   <main aria-live="polite" style="flex: 1 1 auto; overflow-y: auto; padding: 14px 16px 20px; display: flex; flex-direction: column; gap: 12px">
-    <p style="margin: 0; font-size: 14px; color: #3F3F46; font-weight: 600">{{countLabel}}</p>
+    <p style="margin: 0; font-size: 14px; color: #3A3F4A; font-weight: 600">{{countLabel}}</p>
     <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
-      <div style="background: #FFFFFF; border: 1px dashed #A1A1AA; border-radius: 14px; padding: 24px 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center">
+      <div style="background: #FFFFFF; border: 1px dashed #CDD4DE; border-radius: 14px; padding: 24px 16px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center">
         <p style="margin: 0; font-weight: 700; font-size: 16px">No mock tests match yet</p>
-        <p style="margin: 0; font-size: 14px; color: #3F3F46">Try a broader job title, or request this exam.</p>
-        <button type="button" onClick="{{clear}}" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #6D28D9; background: #FFFFFF; color: #6D28D9">Clear search</button>
+        <p style="margin: 0; font-size: 14px; color: #3A3F4A">Try a broader job title, or request this exam.</p>
+        <button type="button" onClick="{{clear}}" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #164A7A; background: #FFFFFF; color: #164A7A">Clear search</button>
       </div>
     </sc-if>
     <sc-for list="{{results}}" as="e" hint-placeholder-count="4">
-      <a href="ExamDetailPhone.dc.html" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #18181B">
+      <a href="ExamDetailPhone.dc.html" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #3A3F4A">
         <span style="display: flex; justify-content: space-between; gap: 8px; align-items: center">
-          <span style="font-size: 12px; font-weight: 600; color: #52525B">{{e.cat}}</span>
+          <span style="font-size: 12px; font-weight: 600; color: #5E6573">{{e.cat}}</span>
           <span style="font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: {{e.tagBg}}; color: {{e.tagInk}}">{{e.tag}}</span>
         </span>
         <span style="font-weight: 700; font-size: 16px; line-height: 1.35">{{e.title}}</span>
-        <span style="font-size: 13px; color: #3F3F46">{{e.q}} questions · {{e.min}} min · {{e.lang}} · {{e.diff}}</span>
+        <span style="font-size: 13px; color: #3A3F4A">{{e.q}} questions · {{e.min}} min · {{e.lang}} · {{e.diff}}</span>
       </a>
     </sc-for>
   </main>
 
   <sc-if value="{{showFilters}}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; background: rgba(24,24,27,0.5); display: flex; flex-direction: column; justify-content: flex-end">
+    <div style="position: absolute; inset: 0; background: rgba(20,30,50,0.5); display: flex; flex-direction: column; justify-content: flex-end">
       <div role="dialog" aria-modal="true" aria-labelledby="flt" style="background: #FFFFFF; border-radius: 20px 20px 0 0; padding: 18px 16px 20px; display: flex; flex-direction: column; gap: 16px">
         <div style="display: flex; justify-content: space-between; align-items: center">
           <h2 id="flt" style="margin: 0; font-size: 18px">Filters</h2>
-          <button type="button" onClick="{{reset}}" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #6D28D9">Reset</button>
+          <button type="button" onClick="{{reset}}" style="font: inherit; font-weight: 600; font-size: 15px; min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #164A7A">Reset</button>
         </div>
         <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
           <legend style="font-weight: 700; font-size: 15px; padding: 0; margin-bottom: 8px">Price</legend>
@@ -75,11 +75,11 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78B
         </fieldset>
         <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
           <legend style="font-weight: 700; font-size: 15px; padding: 0; margin-bottom: 8px">Difficulty</legend>
-          <label style="display: flex; gap: 10px; align-items: center; font-size: 15px; min-height: 40px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #6D28D9"> Foundation</label>
-          <label style="display: flex; gap: 10px; align-items: center; font-size: 15px; min-height: 40px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #6D28D9"> Standard</label>
-          <label style="display: flex; gap: 10px; align-items: center; font-size: 15px; min-height: 40px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #6D28D9"> Challenging</label>
+          <label style="display: flex; gap: 10px; align-items: center; font-size: 15px; min-height: 40px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #164A7A"> Foundation</label>
+          <label style="display: flex; gap: 10px; align-items: center; font-size: 15px; min-height: 40px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #164A7A"> Standard</label>
+          <label style="display: flex; gap: 10px; align-items: center; font-size: 15px; min-height: 40px"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #164A7A"> Challenging</label>
         </fieldset>
-        <button type="button" onClick="{{closeFilters}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF">Show {{count}} results</button>
+        <button type="button" onClick="{{closeFilters}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #164A7A; color: #FFFFFF">Show {{count}} results</button>
       </div>
     </div>
   </sc-if>
@@ -109,16 +109,16 @@ class Component extends DCLogic {
       if (s.price === 'Package' && e.free) return false;
       return true;
     }).map(function (e) {
-      return Object.assign({}, e, e.free ? { tag: 'Free', tagBg: '#D1FAE5', tagInk: '#065F46' } : { tag: 'Full Access', tagBg: '#F4F4F5', tagInk: '#3F3F46' });
+      return Object.assign({}, e, e.free ? { tag: 'Free', tagBg: '#E3F4E8', tagInk: '#1E6B3C' } : { tag: 'Full Access', tagBg: '#EEF1F5', tagInk: '#3A3F4A' });
     });
     var cats = ['All', 'Teaching', 'Leadership', 'Government', 'Finance', 'Procurement', 'Other'].map(function (n) {
       var on = !q && s.cat === n;
-      return { label: n, pressed: on ? 'true' : 'false', border: on ? '1px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#6D28D9' : '#FFFFFF', ink: on ? '#FFFFFF' : '#18181B',
+      return { label: n, pressed: on ? 'true' : 'false', border: on ? '1px solid #164A7A' : '1px solid #DCE2EB', bg: on ? '#164A7A' : '#FFFFFF', ink: on ? '#FFFFFF' : '#3A3F4A',
         pick: function () { self.setState({ cat: n, query: '' }); } };
     });
     var prices = [['All', 'All'], ['Free', 'Free'], ['Package', 'Full Access']].map(function (p) {
       var on = s.price === p[0];
-      return { label: p[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF', ink: on ? '#5B21B6' : '#18181B',
+      return { label: p[1], pressed: on ? 'true' : 'false', border: on ? '1px solid #164A7A' : '1px solid #DCE2EB', bg: on ? '#E8EFFB' : '#FFFFFF', ink: on ? '#164A7A' : '#3A3F4A',
         pick: function () { self.setState({ price: p[0] }); } };
     });
     return {

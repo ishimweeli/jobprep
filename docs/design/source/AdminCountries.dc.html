@@ -10,32 +10,33 @@
 <helmet>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#FAFAFA}
+body{margin:0;background:#EFF3F8}
 *{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B; background: #FAFAFA; min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch">
+<div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A; background: #EFF3F8; min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch">
 
-<aside aria-label="Admin navigation" style="flex: 1 1 240px; max-width: 100%; background: #18181B; color: #FFFFFF; padding: 20px 14px; display: flex; flex-direction: column; gap: 20px">
-  <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
-    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-    <span style="font-weight: 800; font-size: 18px">JobPrep</span>
-    <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #3F3F46; color: #E4E4E7">ADMIN</span>
-  </div>
-  <nav style="display: flex; flex-direction: column; gap: 4px">
-    <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
-      <a href="{{n.href}}" aria-current="{{n.current}}" style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600; background: {{n.bg}}; color: {{n.ink}}">
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{n.icon}}"></path></svg>
+<aside aria-label="Admin navigation" style="flex: 1 1 248px; max-width: 100%; background: #fff; border-right: 1px solid #E2E7EF; padding: 18px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+  <a href="AdminOverview.dc.html" style="text-decoration: none; padding: 0 4px; display: flex; align-items: center; gap: 10px">
+    <span style="width: 34px; height: 34px; border-radius: 9px; background: #164A7A; display: flex; align-items: center; justify-content: center; flex: none"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+    <span style="font-size: 18px; font-weight: 700; color: #164A7A">JobPrep</span>
+    <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #E8EFFB; color: #164A7A">Admin</span>
+  </a>
+  <div style="display: flex; flex-direction: column; gap: 6px"><span style="padding: 0 4px; font-size: 11px; font-weight: 600; color: #5E6573; text-transform: uppercase; letter-spacing: 0.06em">Country</span><button type="button" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #EFF3F8; border: 1px solid #E2E7EF; border-radius: 12px; font-family: inherit; color: #3A3F4A; text-align: left; cursor: pointer"><span style="width: 30px; height: 30px; border-radius: 8px; background: #fff; border: 1px solid #E2E7EF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5E6573">ALL</span><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">All countries</span><span style="font-size: 12px; color: #5E6573">Rwanda live · Kenya preparing</span></span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6573" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button></div>
+  <nav aria-label="Admin" style="display: flex; flex-direction: column; gap: 2px">
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="6">
+      <a href="{{n.href}}" aria-current="{{n.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size: 15px; text-decoration: none; background: {{n.bg}}; color: {{n.ink}}; font-weight: {{n.weight}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="{{n.iconInk}}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{n.icon}}"></path></svg>
         <span style="flex: 1 1 auto">{{n.label}}</span>
-        <sc-if value="{{n.hasCount}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #F59E0B; color: #18181B">{{n.count}}</span></sc-if>
+        <sc-if value="{{n.hasCount}}" hint-placeholder-val="{{ false }}"><span style="background: #FDF1DD; color: #8A5300; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px">{{n.count}}</span></sc-if>
       </a>
     </sc-for>
   </nav>
-  <div style="margin-top: auto; padding: 12px; border-top: 1px solid #3F3F46; display: flex; flex-direction: column; gap: 2px">
-    <span style="font-weight: 600; font-size: 14px">Jean Bosco N.</span>
-    <span style="font-size: 13px; color: #A1A1AA">System admin</span>
+  <div style="margin-top: auto; padding: 12px 4px 0; border-top: 1px solid #E2E7EF; display: flex; align-items: center; gap: 10px">
+    <span style="width: 34px; height: 34px; border-radius: 50%; background: #E8EFFB; color: #164A7A; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none">JB</span>
+    <span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px; color: #3A3F4A">Jean Bosco N.</span><span style="font-size: 12px; color: #5E6573">System admin</span></span>
   </div>
 </aside>
 
@@ -43,51 +44,51 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78B
   <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
     <div style="display: flex; flex-direction: column; gap: 2px">
       <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.02em">Countries</h1>
-      <span style="font-size: 14px; color: #52525B">Each country has its own exams, price, currency, payment methods and languages. Candidates only see Live countries.</span>
+      <span style="font-size: 14px; color: #5E6573">Each country has its own exams, price, currency, payment methods and languages. Candidates only see Live countries.</span>
     </div>
-    <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #6D28D9; color: #FFFFFF">+ Add country</button>
+    <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #164A7A; color: #FFFFFF">+ Add country</button>
   </div>
 
   <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
     <section aria-label="Country list" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
       <sc-for list="{{countries}}" as="c" hint-placeholder-count="4">
-        <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #18181B">
-          <span style="flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; background: #18181B; color: #FFFFFF; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
-          <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 16px">{{c.name}}</span><span style="font-size: 13px; color: #52525B">{{c.summary}}</span></span>
+        <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #3A3F4A">
+          <span style="flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; background: #EFF3F8; color: #5E6573; border: 1px solid #E2E7EF; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
+          <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 16px">{{c.name}}</span><span style="font-size: 13px; color: #5E6573">{{c.summary}}</span></span>
           <span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{c.sBg}}; color: {{c.sInk}}">{{c.status}}</span>
         </button>
       </sc-for>
     </section>
 
-    <section aria-labelledby="cn-t" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 18px">
+    <section aria-labelledby="cn-t" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 18px">
       <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
         <h2 id="cn-t" style="margin: 0; font-size: 21px">{{d.name}}</h2>
-        <span style="font-size: 13px; color: #52525B">{{d.url}}</span>
+        <span style="font-size: 13px; color: #5E6573">{{d.url}}</span>
       </div>
 
       <sc-if value="{{d.hasChecklist}}" hint-placeholder-val="{{ false }}">
-        <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
-          <span style="font-weight: 700; font-size: 14px; color: #78350F">Before this country can go live</span>
+        <div style="background: #FDF1DD; border: 1px solid #E9CF9B; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-weight: 700; font-size: 14px; color: #8A5300">Before this country can go live</span>
           <sc-for list="{{d.checklist}}" as="k" hint-placeholder-count="3">
-            <span style="font-size: 14px; color: #78350F; display: flex; gap: 8px"><span aria-hidden="true">{{k.mark}}</span>{{k.t}}</span>
+            <span style="font-size: 14px; color: #8A5300; display: flex; gap: 8px"><span aria-hidden="true">{{k.mark}}</span>{{k.t}}</span>
           </sc-for>
         </div>
       </sc-if>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 12px">
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Status<select style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"><option>{{d.status}}</option><option>Live</option><option>Preparing</option><option>Planned</option></select></label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Currency<input type="text" value="{{d.cur}}" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Full Access price<input type="text" value="{{d.price}}" placeholder="Set price" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Access days<input type="number" value="30" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Phone prefix<input type="text" value="{{d.dial}}" style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"></label>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Default language<select style="height: 44px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #18181B; background: #FFFFFF"><option>{{d.lang1}}</option></select></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Status<select style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #3A3F4A; background: #FFFFFF"><option>{{d.status}}</option><option>Live</option><option>Preparing</option><option>Planned</option></select></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Currency<input type="text" value="{{d.cur}}" style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #3A3F4A; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Full Access price<input type="text" value="{{d.price}}" placeholder="Set price" style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #3A3F4A; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Access days<input type="number" value="30" style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #3A3F4A; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Phone prefix<input type="text" value="{{d.dial}}" style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #3A3F4A; background: #FFFFFF"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Default language<select style="height: 44px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 0 12px; font: inherit; font-weight: 400; font-size: 15px; color: #3A3F4A; background: #FFFFFF"><option>{{d.lang1}}</option></select></label>
       </div>
 
       <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
         <legend style="font-weight: 700; font-size: 14px; padding: 0; margin-bottom: 8px">Payment methods</legend>
         <div style="display: flex; flex-wrap: wrap; gap: 8px">
           <sc-for list="{{d.pays}}" as="p" hint-placeholder-count="2">
-            <label style="display: flex; gap: 8px; align-items: center; border: 1px solid #D4D4D8; border-radius: 10px; padding: 10px 12px; font-size: 15px"><input type="checkbox" checked="{{p.on}}" style="width: 18px; height: 18px; accent-color: #6D28D9">{{p.n}}<span style="font-size: 12px; color: #52525B">{{p.state}}</span></label>
+            <label style="display: flex; gap: 8px; align-items: center; border: 1px solid #DCE2EB; border-radius: 10px; padding: 10px 12px; font-size: 15px"><input type="checkbox" checked="{{p.on}}" style="width: 18px; height: 18px; accent-color: #164A7A">{{p.n}}<span style="font-size: 12px; color: #5E6573">{{p.state}}</span></label>
           </sc-for>
         </div>
       </fieldset>
@@ -96,26 +97,26 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78B
         <legend style="font-weight: 700; font-size: 14px; padding: 0; margin-bottom: 8px">Interface and question languages</legend>
         <div style="display: flex; flex-wrap: wrap; gap: 8px">
           <sc-for list="{{d.langs}}" as="l" hint-placeholder-count="2">
-            <span style="display: inline-flex; gap: 6px; align-items: center; border: 1px solid #D4D4D8; border-radius: 999px; padding: 8px 12px; font-size: 14px; font-weight: 600">{{l.n}}<span style="font-size: 12px; font-weight: 500; color: #52525B">{{l.done}}</span></span>
+            <span style="display: inline-flex; gap: 6px; align-items: center; border: 1px solid #DCE2EB; border-radius: 999px; padding: 8px 12px; font-size: 14px; font-weight: 600">{{l.n}}<span style="font-size: 12px; font-weight: 500; color: #5E6573">{{l.done}}</span></span>
           </sc-for>
-          <button type="button" style="font: inherit; font-weight: 600; font-size: 14px; min-height: 38px; padding: 0 12px; border-radius: 999px; border: 1px dashed #A1A1AA; background: #FFFFFF; color: #3F3F46">+ Language</button>
+          <button type="button" style="font: inherit; font-weight: 600; font-size: 14px; min-height: 38px; padding: 0 12px; border-radius: 999px; border: 1px dashed #CDD4DE; background: #FFFFFF; color: #3A3F4A">+ Language</button>
         </div>
       </fieldset>
 
       <section aria-labelledby="cn-cat" style="display: flex; flex-direction: column; gap: 6px">
-        <div style="display: flex; justify-content: space-between; align-items: baseline"><h3 id="cn-cat" style="margin: 0; font-size: 15px">Job categories</h3><button type="button" style="font: inherit; font-weight: 600; font-size: 14px; border: 0; background: transparent; color: #6D28D9; padding: 8px 0">Copy structure from Rwanda</button></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline"><h3 id="cn-cat" style="margin: 0; font-size: 15px">Job categories</h3><button type="button" style="font: inherit; font-weight: 600; font-size: 14px; border: 0; background: transparent; color: #164A7A; padding: 8px 0">Copy structure from Rwanda</button></div>
         <sc-for list="{{d.cats}}" as="k" hint-placeholder-count="5">
-          <div style="display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid #F4F4F5; font-size: 14px"><span style="font-weight: 600">{{k.n}}</span><span style="color: #3F3F46">{{k.c}}</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid #EEF1F5; font-size: 14px"><span style="font-weight: 600">{{k.n}}</span><span style="color: #3A3F4A">{{k.c}}</span></div>
         </sc-for>
       </section>
 
       <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Independence notice shown in the footer and FAQ
-        <textarea rows="2" style="font: inherit; font-weight: 400; font-size: 15px; border: 1px solid #A1A1AA; border-radius: 10px; padding: 10px 12px; color: #18181B">{{d.notice}}</textarea>
+        <textarea rows="2" style="font: inherit; font-weight: 400; font-size: 15px; border: 1px solid #CDD4DE; border-radius: 10px; padding: 10px 12px; color: #3A3F4A">{{d.notice}}</textarea>
       </label>
 
-      <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid #E4E4E7">
-        <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #A1A1AA; background: #FFFFFF; color: #18181B">Preview as candidate</button>
-        <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #6D28D9; color: #FFFFFF">Save country</button>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid #E2E7EF">
+        <button type="button" style="font: inherit; font-weight: 600; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #CDD4DE; background: #FFFFFF; color: #3A3F4A">Preview as candidate</button>
+        <button type="button" style="font: inherit; font-weight: 700; font-size: 15px; height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #164A7A; color: #FFFFFF">Save country</button>
       </div>
     </section>
   </div>
@@ -137,9 +138,9 @@ class Component extends DCLogic {
     ];
     var nav = items.map(function (it, i) {
       var on = i === 4;
-      return { label: it[0], href: it[1], icon: it[2], current: on ? 'page' : 'false', bg: on ? '#3F3F46' : 'transparent', ink: on ? '#FFFFFF' : '#D4D4D8', hasCount: i === 3, count: '3' };
+      return { label: it[0], href: it[1], icon: it[2], current: on ? 'page' : 'false', bg: on ? '#E8EFFB' : 'transparent', ink: on ? '#164A7A' : '#3A3F4A', iconInk: on ? '#164A7A' : '#5E6573', weight: on ? '600' : '500', hasCount: i === 3, count: '3' };
     });
-    var S = { Live: ['#D1FAE5', '#065F46'], Preparing: ['#FEF3C7', '#92400E'], Planned: ['#F4F4F5', '#3F3F46'] };
+    var S = { Live: ['#E3F4E8', '#1E6B3C'], Preparing: ['#FDF1DD', '#8A5300'], Planned: ['#EEF1F5', '#3A3F4A'] };
     var data = [
       { code: 'RW', name: 'Rwanda', status: 'Live', cur: 'RWF', price: '2,000', dial: '+250', url: 'jobprep.nexvecta.com/rw', lang1: 'English', summary: 'RWF 2,000 · 90 tests · 4,218 users',
         pays: [{ n: 'MTN MoMo', on: true, state: 'live' }, { n: 'Airtel Money', on: true, state: 'live' }],
@@ -167,7 +168,7 @@ class Component extends DCLogic {
     var countries = data.map(function (c) {
       var on = c.code === sel, s = S[c.status];
       return { code: c.code, name: c.name, summary: c.summary, status: c.status, sBg: s[0], sInk: s[1], pressed: on ? 'true' : 'false',
-        border: on ? '2px solid #6D28D9' : '1px solid #E4E4E7', bg: on ? '#F5F3FF' : '#FFFFFF', pick: function () { self.setState({ sel: c.code }); } };
+        border: on ? '2px solid #164A7A' : '1px solid #E2E7EF', bg: on ? '#E8EFFB' : '#FFFFFF', pick: function () { self.setState({ sel: c.code }); } };
     });
     var d = data.filter(function (c) { return c.code === sel; })[0];
     d = Object.assign({}, d, { hasChecklist: d.checklist.length > 0, cats: d.cats.length ? d.cats : [{ n: 'No categories yet', c: '' }] });

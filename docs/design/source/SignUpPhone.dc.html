@@ -2,130 +2,27 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>JobPrep — Create your account on phone</title>
+<title>JobPrep — Create account</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
-*{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: #FFFFFF; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
-  <header style="flex: 0 0 auto; padding: 14px 16px 6px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px">
-    <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>JobPrep
-  </header>
-  <main style="flex: 1 1 auto; overflow-y: auto; padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 18px">
-      <div style="display: flex; align-items: center; gap: 10px">
-        <sc-if value="{{canBack}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{back}}" aria-label="Back" style="font: inherit; width: 40px; height: 40px; border-radius: 10px; border: 1px solid #D4D4D8; background: #FFFFFF; color: #18181B; font-size: 18px; cursor: pointer">←</button></sc-if>
-        <span style="font-size: 14px; font-weight: 600; color: #52525B">Step {{step}} of 4</span>
-        <span aria-hidden="true" style="flex: 1 1 auto; height: 6px; background: #F4F4F5; border-radius: 999px; overflow: hidden"><span style="display: block; height: 6px; background: #6D28D9; width: {{pct}}"></span></span>
-      </div>
-
-      <sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
-        <div style="display: flex; flex-direction: column; gap: 6px">
-          <h1 style="margin: 0; font-size: 24px; letter-spacing: -0.02em">Which country is your exam in?</h1>
-          <p style="margin: 0; font-size: 15px; color: #3F3F46">Everything you see — mock tests, prices, payments and language — will be for this country.</p>
-        </div>
-        <div role="radiogroup" aria-label="Country" style="display: flex; flex-direction: column; gap: 10px">
-          <sc-for list="{{countries}}" as="c" hint-placeholder-count="4">
-            <button type="button" role="radio" aria-checked="{{c.checked}}" aria-disabled="{{c.disabledAttr}}" onClick="{{c.pick}}" style="font: inherit; text-align: left; cursor: pointer; display: flex; gap: 12px; align-items: center; min-height: 64px; padding: 12px 14px; border-radius: 14px; border: {{c.border}}; background: {{c.bg}}; color: #18181B; opacity: {{c.op}}">
-              <span style="flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; background: #18181B; color: #FFFFFF; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{c.code}}</span>
-              <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700; font-size: 16px">{{c.name}}</span><span style="font-size: 13px; color: #52525B">{{c.meta}}</span></span>
-              <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid #52525B; display: inline-flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{c.dot}}"></span></span>
-            </button>
-          </sc-for>
-        </div>
-        <button type="button" onClick="{{toPhone}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer">Continue with {{cc.name}}</button>
-      </sc-if>
-
-      <sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
-        <div style="display: flex; flex-direction: column; gap: 6px">
-          <h1 style="margin: 0; font-size: 24px; letter-spacing: -0.02em">Your phone number</h1>
-          <p style="margin: 0; font-size: 15px; color: #3F3F46">We’ll text you a 6-digit code. Use the number you pay with by {{cc.pay}}.</p>
-        </div>
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Full name
-          <input type="text" value="{{cc.sampleName}}" autocomplete="name" style="height: 52px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 14px; font: inherit; font-weight: 400; font-size: 17px; color: #18181B">
-        </label>
-        <div style="display: flex; flex-direction: column; gap: 6px">
-          <label for="su-tel" style="font-weight: 700; font-size: 14px">Phone number</label>
-          <div style="display: flex; gap: 8px">
-            <span style="flex: 0 0 auto; height: 52px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid #D4D4D8; border-radius: 12px; background: #F4F4F5; font-weight: 700"><span style="font-size: 11px; background: #18181B; color: #FFFFFF; border-radius: 4px; padding: 1px 4px">{{cc.code}}</span>{{cc.dial}}</span>
-            <input id="su-tel" type="tel" inputmode="numeric" autocomplete="tel-national" value="{{cc.samplePhone}}" style="flex: 1 1 auto; min-width: 0; height: 52px; border: 1px solid #A1A1AA; border-radius: 12px; padding: 0 14px; font: inherit; font-size: 18px; color: #18181B">
-          </div>
-        </div>
-        <button type="button" onClick="{{toCode}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer">Send code</button>
-        <p style="margin: 0; font-size: 13px; color: #52525B">Already have an account? <a href="DashboardPhone.dc.html">Sign in</a></p>
-      </sc-if>
-
-      <sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
-        <div style="display: flex; flex-direction: column; gap: 6px">
-          <h1 style="margin: 0; font-size: 24px; letter-spacing: -0.02em">Enter the code</h1>
-          <p style="margin: 0; font-size: 15px; color: #3F3F46">Sent by SMS to {{cc.dial}} {{cc.samplePhone}}.</p>
-        </div>
-        <div role="group" aria-label="6-digit code" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px">
-          <sc-for list="{{digits}}" as="d" hint-placeholder-count="6">
-            <input type="text" inputmode="numeric" maxlength="1" value="{{d.v}}" aria-label="Digit {{d.n}}" style="height: 58px; text-align: center; font: inherit; font-size: 24px; font-weight: 700; border: 1px solid #A1A1AA; border-radius: 12px; color: #18181B; min-width: 0">
-          </sc-for>
-        </div>
-        <button type="button" onClick="{{toGoal}}" style="font: inherit; font-weight: 700; font-size: 16px; min-height: 52px; border-radius: 12px; border: 0; background: #6D28D9; color: #FFFFFF; cursor: pointer">Verify</button>
-        <p style="margin: 0; font-size: 14px; color: #3F3F46">Didn’t get it? <button type="button" style="font: inherit; font-weight: 600; color: #6D28D9; background: transparent; border: 0; padding: 6px 2px; cursor: pointer">Resend in 0:42</button></p>
-      </sc-if>
-
-      <sc-if value="{{s4}}" hint-placeholder-val="{{ false }}">
-        <div style="display: flex; flex-direction: column; gap: 6px">
-          <h1 style="margin: 0; font-size: 24px; letter-spacing: -0.02em">What are you preparing for?</h1>
-          <p style="margin: 0; font-size: 15px; color: #3F3F46">Job categories in {{cc.name}}. You can change this anytime.</p>
-        </div>
-        <div role="radiogroup" aria-label="Job category" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
-          <sc-for list="{{goals}}" as="g" hint-placeholder-count="6">
-            <button type="button" role="radio" aria-checked="{{g.checked}}" onClick="{{g.pick}}" style="font: inherit; text-align: left; cursor: pointer; min-height: 72px; padding: 12px; border-radius: 12px; border: {{g.border}}; background: {{g.bg}}; color: #18181B; display: flex; flex-direction: column; gap: 2px">
-              <span style="font-weight: 700; font-size: 15px">{{g.n}}</span><span style="font-size: 12px; color: #52525B">{{g.c}}</span>
-            </button>
-          </sc-for>
-        </div>
-        <a href="{{cc.home}}" style="text-align: center; text-decoration: none; font-weight: 700; font-size: 16px; padding: 15px; border-radius: 12px; background: #6D28D9; color: #FFFFFF">Finish and see my {{cc.name}} tests</a>
-      </sc-if>
-  </main>
-</div>
+<div style="width: 390px; min-height: 844px; background: #EFF3F8; font-family: Inter, system-ui, sans-serif; color: #3A3F4A; box-sizing: border-box; padding: 20px 20px 32px; display: flex; flex-direction: column; gap: 28px; position: relative"><a href="MainPhone.dc.html" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; align-self: flex-start"><span style="width: 36px; height: 36px; border-radius: 10px; background: #164A7A; display: flex; align-items: center; justify-content: center; flex: none"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="font-size: 19px; font-weight: 700; color: #164A7A">JobPrep</span></a><main style="display: flex; flex-direction: column; gap: 20px"><div style="display: flex; flex-direction: column; gap: 8px"><h1 style="margin: 0; font-size: 30px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em">Create your account</h1><p style="margin: 0; font-size: 16px; line-height: 1.5; color: #5E6573">Free to start. Free sample tests need no account at all.</p></div><sc-if value="{{fromPaid}}" hint-placeholder-val="{{ false }}"><div role="note" style="background: #E8EFFB; border: 1px solid #DCEBFA; border-radius: 12px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: #164A7A"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px"><path d="M3 6h18v13H3z M3 10h18"></path></svg><span>{{fromPaidText}}</span></div></sc-if><div style="background: #fff; border: 1px solid #E2E7EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px"><button type="button" style="height: 50px; border: 1px solid #DCE2EB; background: #fff; border-radius: 12px; font: 600 16px Inter, system-ui, sans-serif; color: #3A3F4A; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer"><span aria-hidden="true" style="width: 24px; height: 24px; border: 1px solid #DCE2EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #2D62CF">G</span>Continue with Google</button><div style="display: flex; align-items: center; gap: 12px; color: #5E6573; font-size: 14px"><span style="flex: 1; height: 1px; background: #E2E7EF"></span>or<span style="flex: 1; height: 1px; background: #E2E7EF"></span></div><div style="display: flex; flex-direction: column; gap: 6px; min-width: 0"><label for="su1" style="font-size: 15px; font-weight: 600">Your name</label><input id="su1" type="text" placeholder="e.g. Aline Uwase" style="height: 50px; border: 1px solid #CDD4DE; border-radius: 12px; padding: 0 14px; font: 400 16px Inter, system-ui, sans-serif; color: #3A3F4A; box-sizing: border-box; width: 100%; min-width: 0; background: #fff"></div><div style="display: flex; flex-direction: column; gap: 6px; min-width: 0"><label for="su2" style="font-size: 15px; font-weight: 600">Email</label><input id="su2" type="email" placeholder="name@example.com" style="height: 50px; border: 1px solid #CDD4DE; border-radius: 12px; padding: 0 14px; font: 400 16px Inter, system-ui, sans-serif; color: #3A3F4A; box-sizing: border-box; width: 100%; min-width: 0; background: #fff"></div><div style="display: flex; flex-direction: column; gap: 6px; min-width: 0"><label for="su3" style="font-size: 15px; font-weight: 600">Password</label><input id="su3" type="password" placeholder="At least 8 characters" style="height: 50px; border: 1px solid #CDD4DE; border-radius: 12px; padding: 0 14px; font: 400 16px Inter, system-ui, sans-serif; color: #3A3F4A; box-sizing: border-box; width: 100%; min-width: 0; background: #fff"></div><span style="font-size: 13px; color: #5E6573; margin-top: -8px">Use 8 or more characters.</span><a href="VerifyEmailPhone.dc.html" style="width: 100%; justify-content: center; height: 50px; padding: 0 14px; border-radius: 12px; background: #164A7A; color: #fff; border: 0; font: 600 16px Inter, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; text-decoration: none; box-sizing: border-box; cursor: pointer">Create account</a></div><p style="margin: 0; text-align: center; font-size: 15px; color: #5E6573">Already have an account? <a href="SignInPhone.dc.html" style="font-weight: 600; text-decoration: none">Sign in</a></p><p style="margin: 0; text-align: center; font-size: 13px; color: #5E6573">By continuing you agree to the <a href="#" style="text-decoration: none">Terms and Privacy policy</a>.</p></main></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}, "continueTo": {"editor": "enum", "options": ["Dashboard", "Payment for the test they chose"], "default": "Dashboard"}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { step: 1, c: 'RW', g: 0 }; }
   renderVals() {
-    var self = this, s = this.state;
-    var C = {
-      RW: { code: 'RW', name: 'Rwanda', dial: '+250', meta: 'RWF · MTN MoMo, Airtel Money · 90 mock tests', pay: 'MTN MoMo or Airtel Money', samplePhone: '788 123 456', sampleName: 'Aline Uwase', home: 'DashboardPhone.dc.html',
-        cats: [['Teaching positions', '38 tests'], ['School leadership', '9 tests'], ['Government administration', '14 tests'], ['Accounting & finance', '11 tests'], ['Procurement', '6 tests'], ['Other professional', '12 tests']] },
-      KE: { code: 'KE', name: 'Kenya', dial: '+254', meta: 'KES · M-Pesa, Airtel Money · 24 mock tests', pay: 'M-Pesa or Airtel Money', samplePhone: '712 345 678', sampleName: 'Wanjiku Kamau', home: 'MainKenyaPhone.dc.html',
-        cats: [['Teaching positions', '10 tests'], ['National public service', '5 tests'], ['County government', '3 tests'], ['Accounting & finance', '3 tests'], ['Procurement', '2 tests'], ['Other professional', '1 test']] },
-      UG: { code: 'UG', name: 'Uganda', meta: 'Coming soon — join the waiting list', soon: true },
-      TZ: { code: 'TZ', name: 'Tanzania', meta: 'Coming soon — join the waiting list', soon: true }
-    };
-    var cc = C[s.c];
-    var countries = ['RW', 'KE', 'UG', 'TZ'].map(function (k) {
-      var c = C[k], on = s.c === k;
-      return { code: c.code, name: c.name, meta: c.meta, checked: on ? 'true' : 'false', disabledAttr: c.soon ? 'true' : 'false', op: c.soon ? '0.6' : '1',
-        border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF', dot: on ? '#6D28D9' : 'transparent',
-        pick: function () { if (!c.soon) self.setState({ c: k, g: 0 }); } };
-    });
-    var goals = cc.cats.map(function (x, i) {
-      var on = s.g === i;
-      return { n: x[0], c: x[1], checked: on ? 'true' : 'false', border: on ? '2px solid #6D28D9' : '1px solid #D4D4D8', bg: on ? '#F5F3FF' : '#FFFFFF',
-        pick: function () { self.setState({ g: i }); } };
-    });
-    return {
-      step: s.step, pct: (s.step * 25) + '%', s1: s.step === 1, s2: s.step === 2, s3: s.step === 3, s4: s.step === 4,
-      canBack: s.step > 1, back: function () { self.setState({ step: Math.max(1, self.state.step - 1) }); },
-      toPhone: function () { self.setState({ step: 2 }); }, toCode: function () { self.setState({ step: 3 }); }, toGoal: function () { self.setState({ step: 4 }); },
-      countries: countries, cc: cc, goals: goals,
-      digits: ['4', '8', '1', '9', '', ''].map(function (v, i) { return { v: v, n: i + 1 }; })
-    };
+    var self = this, st = this.state || {}, p = this.props;
+    var __paid = (p.continueTo ?? 'Dashboard') !== 'Dashboard';
+    return { fromPaid: __paid, fromPaidText: 'After you create your account and finish setup, you’ll go straight to payment for Accountant (Public Institution) — Mock 1.' };
   }
 }
 </script>

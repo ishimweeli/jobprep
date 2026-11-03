@@ -12,67 +12,67 @@
 <style>
 body{margin:0}
 *{box-sizing:border-box}
-a{color:#6D28D9}a:hover{color:#5B21B6}
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+a{color:#2D62CF}a:hover{color:#1E4BA8}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #6AA6EE;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 390px; min-height: 1500px; display: flex; flex-direction: column; background: #FAFAFA; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #18181B">
-  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 8px 16px 10px; display: flex; flex-direction: column; gap: 10px">
+<div style="width: 390px; min-height: 1500px; display: flex; flex-direction: column; background: #EFF3F8; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: #3A3F4A">
+  <header style="flex: 0 0 auto; background: #FFFFFF; border-bottom: 1px solid #E2E7EF; padding: 8px 16px 10px; display: flex; flex-direction: column; gap: 10px">
     <div style="display: flex; align-items: center; gap: 10px; min-height: 44px">
-      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6D28D9"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#164A7A"></rect><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       <h1 style="margin: 0; font-size: 19px; flex: 1 1 auto">Overview</h1>
-      <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #18181B; color: #FFFFFF">ADMIN</span>
+      <span style="font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: #182231; color: #FFFFFF">ADMIN</span>
     </div>
   </header>
   <main style="flex: 1 1 auto; padding: 14px 16px 20px; display: flex; flex-direction: column; gap: 14px">
-    <span style="font-size: 13px; color: #52525B">Sunday, 1 November 2026</span>
+    <span style="font-size: 13px; color: #5E6573">Sunday, 1 November 2026</span>
     <dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
       <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
-        <div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 14px; display: flex; flex-direction: column-reverse; gap: 2px">
+        <div style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 14px; padding: 14px; display: flex; flex-direction: column-reverse; gap: 2px">
           <span style="font-size: 12px; color: {{k.ink}}; font-weight: 600">{{k.delta}}</span>
           <dd style="margin: 0; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">{{k.value}}</dd>
-          <dt style="font-size: 12px; color: #52525B; font-weight: 600">{{k.label}}</dt>
+          <dt style="font-size: 12px; color: #5E6573; font-weight: 600">{{k.label}}</dt>
         </div>
       </sc-for>
     </dl>
-    <section aria-labelledby="op-a" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+    <section aria-labelledby="op-a" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
       <h2 id="op-a" style="margin: 0 0 6px; font-size: 17px">Needs attention</h2>
       <sc-for list="{{alerts}}" as="a" hint-placeholder-count="4">
-        <a href="{{a.href}}" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #F4F4F5; text-decoration: none; color: #18181B">
+        <a href="{{a.href}}" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #EEF1F5; text-decoration: none; color: #3A3F4A">
           <span aria-hidden="true" style="flex: 0 0 auto; width: 10px; height: 10px; margin-top: 6px; border-radius: 999px; background: {{a.dot}}"></span>
-          <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">{{a.title}}</span><span style="font-size: 13px; color: #52525B">{{a.meta}}</span></span>
-          <span aria-hidden="true" style="color: #52525B">›</span>
+          <span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">{{a.title}}</span><span style="font-size: 13px; color: #5E6573">{{a.meta}}</span></span>
+          <span aria-hidden="true" style="color: #5E6573">›</span>
         </a>
       </sc-for>
     </section>
-    <section aria-labelledby="op-c" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+    <section aria-labelledby="op-c" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
       <h2 id="op-c" style="margin: 0 0 6px; font-size: 17px">Sign-ups and payments · 14 days</h2>
-      <div role="img" aria-label="Daily sign-ups and payments over 14 days, rising towards the end." style="display: flex; gap: 4px; align-items: flex-end; height: 130px; border-bottom: 1px solid #D4D4D8">
+      <div role="img" aria-label="Daily sign-ups and payments over 14 days, rising towards the end." style="display: flex; gap: 4px; align-items: flex-end; height: 130px; border-bottom: 1px solid #DCE2EB">
         <sc-for list="{{bars}}" as="b" hint-placeholder-count="14">
-          <div style="flex: 1 1 0; display: flex; gap: 1px; align-items: flex-end; height: 100%"><span style="flex: 1 1 0; height: {{b.s}}; background: #DDD6FE; border-radius: 3px 3px 0 0"></span><span style="flex: 1 1 0; height: {{b.p}}; background: #6D28D9; border-radius: 3px 3px 0 0"></span></div>
+          <div style="flex: 1 1 0; display: flex; gap: 1px; align-items: flex-end; height: 100%"><span style="flex: 1 1 0; height: {{b.s}}; background: #DCEBFA; border-radius: 3px 3px 0 0"></span><span style="flex: 1 1 0; height: {{b.p}}; background: #164A7A; border-radius: 3px 3px 0 0"></span></div>
         </sc-for>
       </div>
-      <div style="display: flex; gap: 14px; font-size: 12px; color: #3F3F46; padding-top: 6px"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #DDD6FE"></span>Sign-ups</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #6D28D9"></span>Payments</span></div>
+      <div style="display: flex; gap: 14px; font-size: 12px; color: #3A3F4A; padding-top: 6px"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #DCEBFA"></span>Sign-ups</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #164A7A"></span>Payments</span></div>
     </section>
-    <section aria-labelledby="op-t" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+    <section aria-labelledby="op-t" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
       <h2 id="op-t" style="margin: 0 0 6px; font-size: 17px">Most-taken this week</h2>
       <sc-for list="{{top}}" as="t" hint-placeholder-count="4">
-        <div style="display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid #F4F4F5"><span style="display: flex; flex-direction: column; min-width: 0"><span style="font-weight: 600; font-size: 14px">{{t.name}}</span><span style="font-size: 12px; color: #52525B">avg {{t.avg}} · {{t.tag}}</span></span><strong style="font-variant-numeric: tabular-nums; font-size: 14px">{{t.n}}</strong></div>
+        <div style="display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid #EEF1F5"><span style="display: flex; flex-direction: column; min-width: 0"><span style="font-weight: 600; font-size: 14px">{{t.name}}</span><span style="font-size: 12px; color: #5E6573">avg {{t.avg}} · {{t.tag}}</span></span><strong style="font-variant-numeric: tabular-nums; font-size: 14px">{{t.n}}</strong></div>
       </sc-for>
     </section>
-    <section aria-labelledby="op-p" style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+    <section aria-labelledby="op-p" style="background: #FFFFFF; border: 1px solid #E2E7EF; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
       <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px"><h2 id="op-p" style="margin: 0; font-size: 17px">Latest payments</h2><a href="AdminPaymentsPhone.dc.html" style="font-size: 14px; font-weight: 600; padding: 8px 0">All</a></div>
       <sc-for list="{{pays}}" as="p" hint-placeholder-count="4">
-        <div style="display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid #F4F4F5"><span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px">{{p.who}}</span><span style="font-size: 12px; color: #52525B">{{p.meta}}</span></span><span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{p.bg}}; color: {{p.ink}}">{{p.status}}</span></div>
+        <div style="display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid #EEF1F5"><span style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px">{{p.who}}</span><span style="font-size: 12px; color: #5E6573">{{p.meta}}</span></span><span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: {{p.bg}}; color: {{p.ink}}">{{p.status}}</span></div>
       </sc-for>
     </section>
   </main>
-  <nav aria-label="Admin" style="flex: 0 0 auto; position: sticky; bottom: 0; background: #FFFFFF; border-top: 1px solid #E4E4E7; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 4px 2px 8px">
-    <a href="AdminOverviewPhone.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #6D28D9; font-size: 11px; font-weight: 700; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z"></path></svg>Overview</a>
-    <a href="AdminUsersPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9"></path></svg>Users</a>
-    <a href="AdminExamsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5"></path></svg>Exams</a>
-    <a href="AdminPaymentsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v13H3z M3 10h18"></path></svg>Payments</a>
-    <a href="AdminSettingsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #52525B; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4.2 4.2l2.1 2.1 M17.7 17.7l2.1 2.1 M2 12h3 M19 12h3 M4.2 19.8l2.1-2.1 M17.7 6.3l2.1-2.1"></path></svg>Settings</a>
+  <nav aria-label="Admin" style="flex: 0 0 auto; position: sticky; bottom: 0; background: #FFFFFF; border-top: 1px solid #E2E7EF; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 4px 2px 8px">
+    <a href="AdminOverviewPhone.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #164A7A; font-size: 11px; font-weight: 700; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h8V3H3z M13 21h8V11h-8z M3 21h8v-6H3z M13 9h8V3h-8z"></path></svg>Overview</a>
+    <a href="AdminUsersPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.9"></path></svg>Users</a>
+    <a href="AdminExamsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5"></path></svg>Exams</a>
+    <a href="AdminPaymentsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v13H3z M3 10h18"></path></svg>Payments</a>
+    <a href="AdminSettingsPhone.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #5E6573; font-size: 11px; font-weight: 600; padding: 6px 0; min-height: 52px"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M12 2v3 M12 19v3 M4.2 4.2l2.1 2.1 M17.7 17.7l2.1 2.1 M2 12h3 M19 12h3 M4.2 19.8l2.1-2.1 M17.7 6.3l2.1-2.1"></path></svg>Settings</a>
   </nav>
 </div>
 </x-dc>
@@ -81,20 +81,20 @@ class Component extends DCLogic {
   renderVals() {
     var self = this, st = this.state || {};
     var s = [62, 48, 71, 55, 80, 66, 59, 74, 88, 92, 79, 104, 118, 131], p = [14, 11, 17, 13, 19, 16, 15, 18, 22, 24, 21, 28, 33, 39];
-    var ok = { status: 'Paid', bg: '#D1FAE5', ink: '#065F46' };
+    var ok = { status: 'Paid', bg: '#E3F4E8', ink: '#1E6B3C' };
     return {
       bars: s.map(function (v, i) { return { s: Math.round(v / 131 * 100) + '%', p: Math.round(p[i] / 131 * 100) + '%' }; }),
       kpis: [
-        { label: 'Registered users', value: '4,218', delta: '+131 today', ink: '#065F46' },
-        { label: 'Full Access active', value: '612', delta: '39 new today', ink: '#065F46' },
-        { label: 'Revenue this month', value: 'RWF 78,000', delta: '39 payments', ink: '#52525B' },
-        { label: 'Tests taken today', value: '1,386', delta: '82% completed', ink: '#52525B' }
+        { label: 'Registered users', value: '4,218', delta: '+131 today', ink: '#1E6B3C' },
+        { label: 'Full Access active', value: '612', delta: '39 new today', ink: '#1E6B3C' },
+        { label: 'Revenue this month', value: 'RWF 78,000', delta: '39 payments', ink: '#5E6573' },
+        { label: 'Tests taken today', value: '1,386', delta: '82% completed', ink: '#5E6573' }
       ],
       alerts: [
-        { title: '3 payments pending over 10 min', meta: 'Oldest 24 min ago', href: 'AdminPaymentsPhone.dc.html', dot: '#D97706' },
-        { title: '4 questions reported', meta: 'Sec. Mathematics Mock 1 · Q31 twice', href: 'AdminExamsPhone.dc.html', dot: '#D97706' },
-        { title: '“Veterinary officer” requested 7×', meta: 'No mock test yet', href: 'AdminExamsPhone.dc.html', dot: '#6D28D9' },
-        { title: '2 access support requests', meta: 'Paid but no access', href: 'AdminUsersPhone.dc.html', dot: '#6D28D9' }
+        { title: '3 payments pending over 10 min', meta: 'Oldest 24 min ago', href: 'AdminPaymentsPhone.dc.html', dot: '#8A5300' },
+        { title: '4 questions reported', meta: 'Sec. Mathematics Mock 1 · Q31 twice', href: 'AdminExamsPhone.dc.html', dot: '#8A5300' },
+        { title: '“Veterinary officer” requested 7×', meta: 'No mock test yet', href: 'AdminExamsPhone.dc.html', dot: '#164A7A' },
+        { title: '2 access support requests', meta: 'Paid but no access', href: 'AdminUsersPhone.dc.html', dot: '#164A7A' }
       ],
       top: [
         { name: 'Sec. Mathematics — Mock 1', n: '1,204', avg: '61%', tag: 'Free' },
@@ -104,9 +104,9 @@ class Component extends DCLogic {
       ],
       pays: [
         Object.assign({ who: 'Aline Uwase', meta: 'MTN MoMo · 21:12' }, ok),
-        { who: 'Eric Habimana', meta: 'Airtel Money · 21:05', status: 'Pending', bg: '#FEF3C7', ink: '#92400E' },
+        { who: 'Eric Habimana', meta: 'Airtel Money · 21:05', status: 'Pending', bg: '#FDF1DD', ink: '#8A5300' },
         Object.assign({ who: 'Diane Mukamana', meta: 'MTN MoMo · 20:58' }, ok),
-        { who: 'Patrick Nshimiye', meta: 'MTN MoMo · 20:41', status: 'Failed', bg: '#FEE2E2', ink: '#991B1B' }
+        { who: 'Patrick Nshimiye', meta: 'MTN MoMo · 20:41', status: 'Failed', bg: '#FBE7E4', ink: '#A1281B' }
       ]
     };
   }
