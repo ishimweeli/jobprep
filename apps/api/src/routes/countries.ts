@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { badRequest, notFound } from '../http/errors';
-import { normalizePhone } from '../domain/phone';
+import { emailInput } from '../domain/email';
 import type { PrismaClient } from '@prisma/client';
 import { formatMoney, isSellable } from '../domain/pricing';
 
@@ -53,12 +53,10 @@ export function countriesRouter(prisma: PrismaClient) {
     const country = await prisma.country.findUnique({ where: { code } });
     if (!country) throw notFound('country_not_found');
     if (country.status === 'LIVE') throw badRequest('country_already_live');
-    const { phone } = z.object({ phone: z.string().min(6).max(24) }).parse(req.body);
-    const e164 = normalizePhone(phone, country.dialCode);
-    if (!e164) throw badRequest('invalid_phone');
+    const { email } = z.object({ email: emailInput }).parse(req.body);
     await prisma.waitingListEntry.upsert({
-      where: { countryCode_phone: { countryCode: code, phone: e164 } },
-      create: { countryCode: code, phone: e164 },
+      where: { countryCode_email: { countryCode: code, email } },
+      create: { countryCode: code, email },
       update: {},
     });
     res.status(201).json({ ok: true });

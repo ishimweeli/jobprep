@@ -7,7 +7,7 @@ import { mockFetch, renderWithProviders } from '../../test/utils';
 import { CheckoutPage } from './CheckoutPage';
 
 const me = {
-  user: { id: 'u1', name: 'Aline Uwase', phone: '+250788123456', countryCode: 'RW', goalCategoryId: null, language: 'en' },
+  user: { id: 'u1', name: 'Aline Uwase', email: 'aline@example.test', countryCode: 'RW', goalCategoryId: null, language: 'en' },
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en'] },
   access: { current: null, expired: null, otherCountries: [] },
 };
@@ -48,11 +48,11 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function server(sequence: PaymentView[]) {
+function server(sequence: PaymentView[], summary: typeof checkout | (Omit<typeof checkout, 'prefillPhone'> & { prefillPhone: null }) = checkout) {
   const polls = [...sequence];
   return mockFetch((url, init) => {
     if (url === '/api/me') return { body: me };
-    if (url === '/api/me/checkout') return { body: checkout };
+    if (url === '/api/me/checkout') return { body: summary };
     if (url === '/api/payments' && init?.method === 'POST') return { status: 201, body: view('PENDING') };
     if (url === '/api/payments/p1') return { body: polls.length > 1 ? polls.shift()! : polls[0]! };
     return undefined;
@@ -66,7 +66,7 @@ describe('checkout screen: poll until the payment settles', () => {
     renderCheckout();
 
     expect(await screen.findByRole('button', { name: 'Pay RWF 2,000' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Mobile Money number')).toHaveValue('078 812 3456'); // prefilled from the account
+    expect(screen.getByLabelText('Mobile Money number')).toHaveValue('078 812 3456'); // prefilled from the payer's last payment
     expect(screen.getByText('You will approve on this phone with your PIN. We never ask for your PIN.')).toBeInTheDocument();
     expect(screen.queryByText(/PIN is/i)).not.toBeInTheDocument();
 
@@ -90,7 +90,13 @@ describe('checkout screen: poll until the payment settles', () => {
     });
     expect(await screen.findByRole('heading', { name: 'Payment confirmed' })).toBeInTheDocument();
     expect(screen.getByText('JP-26110-48213')).toBeInTheDocument();
-    expect(screen.getByText('A receipt was sent by SMS to 078 812 3456.')).toBeInTheDocument();
+    expect(screen.getByText('A receipt was sent to aline@example.test.')).toBeInTheDocument();
+  });
+
+  it('starts with an empty Mobile Money number when there is no earlier payment', async () => {
+    server([view('PENDING')], { ...checkout, prefillPhone: null });
+    renderCheckout();
+    expect(await screen.findByLabelText('Mobile Money number')).toHaveValue('');
   });
 
   it('declined: "You were not charged" and "Try again" returns to the form', async () => {

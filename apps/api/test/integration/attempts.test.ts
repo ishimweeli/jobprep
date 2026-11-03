@@ -3,13 +3,13 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
 import type { QuestionPayload } from '../../src/domain/scoring';
 import { LATE_SYNC_WINDOW_SECONDS, sweepExpiredAttempts } from '../../src/services/attempts';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 let clock = new Date('2026-11-02T10:00:00Z');
-const app = createApp({ prisma, config: testConfig(), sms, now: () => clock });
+const app = createApp({ prisma, config: testConfig(), email: mail, now: () => clock });
 const at = (secs: number) => new Date(clock.getTime() + secs * 1000);
 const advance = (secs: number) => { clock = at(secs); };
 
@@ -17,11 +17,11 @@ const MATHS = 'secondary-mathematics-teacher-s1-s3-mock-1'; // free, 20 question
 const ACCOUNTANT = 'accountant-public-institution-mock-1'; // paid, 12 questions incl. 5 case-based, 45 min
 const startPath = (slug: string) => `/api/countries/RW/mock-tests/${slug}/attempts`;
 
-let phoneSeq = 300000;
-const nextPhone = () => `+250788${phoneSeq++}`;
+let emailSeq = 300000;
+const nextEmail = () => `user${emailSeq++}@example.com`;
 
 beforeAll(() => resetAndSeed(prisma));
-beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); sms.clear(); });
+beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); mail.clear(); });
 afterAll(() => prisma.$disconnect());
 
 async function guestStart(slug = MATHS, token?: string) {
@@ -78,7 +78,7 @@ describe('starting an attempt', () => {
 
   it('paid tests: guest must sign up (401), no grant → 402, active same-country grant → ok', async () => {
     expect((await guestStart(ACCOUNTANT)).res.body.error).toBe('sign_in_required');
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     const denied = await agent.post(startPath(ACCOUNTANT)).send({});
     expect(denied.status).toBe(402);
     expect(denied.body.error).toBe('full_access_required');
@@ -94,7 +94,7 @@ describe('starting an attempt', () => {
   });
 
   it('an expired or suspended grant does not unlock a paid test', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
     await prisma.accessGrant.createMany({
       data: [
@@ -118,7 +118,7 @@ describe('starting an attempt', () => {
   });
 
   it('a signed-in user cannot start a test from another country', async () => {
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     await prisma.country.update({ where: { code: 'KE' }, data: { status: 'LIVE' } });
     try {
       const res = await agent.post('/api/countries/KE/mock-tests/secondary-mathematics-teacher-sample/attempts').send({});
@@ -148,14 +148,14 @@ describe('who can see an attempt', () => {
     expect((await state(a.id, other.token)).status).toBe(404);
     expect((await save(a.id, other.token, [{ questionId: 'x', flagged: true }])).status).toBe(404);
     expect((await submit(a.id, other.token)).status).toBe(404);
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     expect((await agent.get(`/api/attempts/${a.id}`)).status).toBe(404);
     expect((await state(a.id, a.token)).status).toBe(200);
   });
 
   it('a signed-in user resumes on another device (new session, same account)', async () => {
-    const phone = nextPhone();
-    const { agent, userId } = await signedInAgent(app, sms, phone);
+    const email = nextEmail();
+    const { agent, userId } = await signedInAgent(app, mail, email);
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: at(-10), endsAt: at(86400 * 9), source: 'MANUAL', reason: 't' } });
     const start = await agent.post(startPath(ACCOUNTANT)).send({});
@@ -164,8 +164,8 @@ describe('who can see an attempt', () => {
 
     advance(120);
     const device2 = request.agent(app);
-    await device2.post('/api/auth/otp/request').send({ purpose: 'sign_in', phone });
-    await device2.post('/api/auth/sign-in').send({ phone, code: sms.lastCode(phone) });
+    await device2.post('/api/auth/otp/request').send({ purpose: 'sign_in', email });
+    await device2.post('/api/auth/sign-in').send({ email, code: mail.lastCode(email) });
     const res = await device2.get(`/api/attempts/${start.body.attemptId}`);
     expect(res.status).toBe(200);
     expect(res.body.answers[q.id]).toEqual({ selected: q.correct, flagged: true });
@@ -477,7 +477,7 @@ describe('submitting', () => {
 
 describe('case-based exams', () => {
   it('the state carries the case passage and tables, with the question numbers that belong to it', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: at(-10), endsAt: at(86400 * 9), source: 'MANUAL', reason: 't' } });
     const start = await agent.post(startPath(ACCOUNTANT)).send({});
@@ -539,10 +539,10 @@ describe('guest → account', () => {
     await save(a.id, a.token, [{ questionId: key[0]!.id, selected: key[0]!.correct }]);
     await submit(a.id, a.token);
 
-    const phone = nextPhone();
+    const email = nextEmail();
     const agent = request.agent(app);
-    await agent.post('/api/auth/otp/request').send({ purpose: 'sign_up', phone, countryCode: 'RW' });
-    const signUp = await agent.post('/api/auth/sign-up').send({ countryCode: 'RW', phone, name: 'Saved Result', code: sms.lastCode(phone), guestTokens: [a.token] });
+    await agent.post('/api/auth/otp/request').send({ purpose: 'sign_up', email, countryCode: 'RW' });
+    const signUp = await agent.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Saved Result', code: mail.lastCode(email), guestTokens: [a.token] });
     expect(signUp.body.claimedAttempts).toBe(1);
     expect((await agent.get(`/api/attempts/${a.id}`)).status).toBe(200); // by session now, no header
   });

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { API, isPhone, signUpViaApi } from './web-helpers';
+import { API, isPhone, randomEmail, randomMsisdn, signUpViaApi } from './web-helpers';
 import { ACCOUNTANT_SLUG, buyAccessViaApi, completeViaApi, FREE_SLUG, startFreeExam } from './web-exam-helpers';
 import { cleanUser, me, openAccount, requestSignInCode } from './web-p3-helpers';
 
@@ -14,7 +14,7 @@ test.describe('Web: accessibility of the Batch 1 screens', () => {
   test('axe: sign-in (both steps), 404, country gate, guest dialog', async ({ page }, info) => {
     await page.goto('/sign-in');
     await expectNoViolations(page);
-    await requestSignInCode(page, `789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`);
+    await requestSignInCode(page, randomEmail('a11y'));
     await expectNoViolations(page);
     await page.goto('/rw/nothing-here');
     await expect(page.getByText('Error 404')).toBeVisible();
@@ -39,7 +39,7 @@ test.describe('Web: accessibility of the Batch 1 screens', () => {
     if (!isPhone(info)) await page.keyboard.press('Escape');
 
     const u = await me(page);
-    await buyAccessViaApi(page.request, u.phone);
+    await buyAccessViaApi(page.request, randomMsisdn());
     await page.goto(`/rw/tests/${ACCOUNTANT_SLUG}`);
     await expect(page.getByText('Unlocked with Full Access')).toBeVisible();
     await expectNoViolations(page);

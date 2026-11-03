@@ -3,22 +3,22 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
 import type { QuestionPayload } from '../../src/domain/scoring';
 import { createPracticeAttempt } from '../../src/services/results';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 let clock = new Date('2026-11-02T10:00:00Z');
-const app = createApp({ prisma, config: testConfig(), sms, now: () => clock });
+const app = createApp({ prisma, config: testConfig(), email: mail, now: () => clock });
 const advance = (secs: number) => { clock = new Date(clock.getTime() + secs * 1000); };
 
 const MATHS = 'secondary-mathematics-teacher-s1-s3-mock-1'; // 20 questions, 21 marks
 const startPath = (slug: string) => `/api/countries/RW/mock-tests/${slug}/attempts`;
-let phoneSeq = 400000;
-const nextPhone = () => `+250788${phoneSeq++}`;
+let emailSeq = 400000;
+const nextEmail = () => `user${emailSeq++}@example.com`;
 
 beforeAll(() => resetAndSeed(prisma));
-beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); sms.clear(); });
+beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); mail.clear(); });
 afterAll(() => prisma.$disconnect());
 
 /** A client that is either a guest (token header) or a signed-in agent. */
@@ -249,7 +249,7 @@ describe('answer review', () => {
   });
 
   it('case-based reviews carry the case passage and tables', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: clock, endsAt: new Date(clock.getTime() + 864e5 * 9), source: 'MANUAL', reason: 't' } });
     const start = await agent.post(startPath('accountant-public-institution-mock-1')).send({});
@@ -344,7 +344,7 @@ describe('practice weak areas', () => {
   });
 
   it('with Full Access the pool includes paid tests as well', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: clock, endsAt: new Date(clock.getTime() + 864e5 * 9), source: 'MANUAL', reason: 't' } });
     const ped = await prisma.topic.findFirstOrThrow({ where: { slug: 'pedagogy-and-cbc', category: { countryCode: 'RW' } } });
@@ -385,7 +385,7 @@ describe('dashboard', () => {
   });
 
   it('a brand-new user gets an empty but valid dashboard', async () => {
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     const b = (await agent.get('/api/me/dashboard')).body;
     expect(b).toMatchObject({
       hasActivity: false, resume: null, recommended: null, scoreHistory: [], recentlyCompleted: [],
@@ -395,7 +395,7 @@ describe('dashboard', () => {
   });
 
   it('shows progress after two attempts: history, strong / needs-work topics, recent attempts, resume, recommendation, access', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     const c = agentClient(agent);
     const teaching = await prisma.category.findFirstOrThrow({ where: { countryCode: 'RW', slug: 'teaching-positions' } });
     await agent.patch('/api/me').send({ goalCategoryId: teaching.id });
@@ -447,8 +447,8 @@ describe('dashboard', () => {
   });
 
   it('counts practice attempts toward strengths, and never mixes in another user’s results', async () => {
-    const x = await signedInAgent(app, sms, nextPhone());
-    const y = await signedInAgent(app, sms, nextPhone());
+    const x = await signedInAgent(app, mail, nextEmail());
+    const y = await signedInAgent(app, mail, nextEmail());
     const a = (await x.agent.post(startPath(MATHS)).send({})).body.attemptId;
     await play(agentClient(x.agent), a, MATHS, range(0, 19, 'right'));
     await agentClient(x.agent).post(`/api/attempts/${a}/submit`);

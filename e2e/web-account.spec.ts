@@ -7,13 +7,13 @@ test.describe('Web: account and change country (phone)', () => {
     test.skip(!isPhone(info), 'account is a phone-only artboard');
   });
 
-  test('shows name, phone and exam country; the country row opens the picker', async ({ page }) => {
+  test('shows name, email and exam country; the country row opens the picker', async ({ page }) => {
     const w = watchErrors(page);
     const u = await signUpViaApi(page, 'Aline Uwase');
     await page.goto('/account/settings');
     await expect(page.getByRole('heading', { name: 'Account' }).or(page.getByText('Account', { exact: true })).first()).toBeVisible();
     await expect(page.getByText('Aline Uwase')).toBeVisible();
-    await expect(page.getByText(`+250 ${u.national.slice(0, 3)} ${u.national.slice(3, 6)} ${u.national.slice(6)}`)).toBeVisible();
+    await expect(page.getByText(u.email)).toBeVisible();
     await page.getByRole('link', { name: /Exam country: Rwanda/ }).click();
     await expect(page).toHaveURL(/\/choose-country$/);
     // A signed-in user's country is locked: a country that is not live only offers the (inert) notify button.

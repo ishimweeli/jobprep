@@ -11,6 +11,7 @@ Mock exam platform for recruitment exams (jobprep.nexvecta.com). Find a mock tes
 | Path | What |
 |---|---|
 | `apps/api` | Node + Express + TypeScript API, Prisma schema, seed, tests |
+| `apps/web` | React web app: the candidate screens, and the admin area at `/admin` (`src/admin`, loaded on demand) |
 | `packages/shared` | Design tokens, Tailwind preset, i18n catalogues |
 | `e2e` | Playwright specs (run at 1440×900 and 390×844) |
 | `docs` | Spec, decisions, progress, acceptance screenshots |
@@ -28,4 +29,4 @@ npm run dev          # http://localhost:4000/api/health
 
 Checks: `npm run typecheck`, `npm run lint`, `npm test`, `npx playwright test`.
 
-Dev admins (OTP codes print to the server log): `+250788000001` system admin, `+250788000002` content editor (RW), `+250788000003` support.
+Dev admins (sign in at `/sign-in` like any candidate; the code is emailed, or printed in the server log in dev, and `GET /api/test/otp?email=…` returns it when test endpoints are on): `system.admin@jobprep.test` (system admin), `content.editor@jobprep.test` (content editor, Rwanda), `support@jobprep.test` (support), `multi.role@jobprep.test` (content editor Rwanda + support). Their screens are at `/admin`.

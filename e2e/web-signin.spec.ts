@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { ACCOUNTANT_SLUG, buyAccessViaApi } from './web-exam-helpers';
-import { isPhone, signUpViaApi, watchErrors, expectNoHorizontalScroll } from './web-helpers';
+import { isPhone, randomEmail, signUpViaApi, watchErrors, expectNoHorizontalScroll } from './web-helpers';
 import { cleanUser, me, openAccount, requestSignInCode, signInWithCode, signOutControl, startRunningAttempt, typeCode } from './web-p3-helpers';
 
 /** Errors the browser logs by itself for an expected 4xx answer are not app errors. */
@@ -19,10 +19,10 @@ test.describe('Web: sign in (C12) and sign out (C13)', () => {
     await page.getByRole('link', { name: 'Sign in again' }).click();
     await expect(page).toHaveURL(/\/sign-in$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
-    await expect(page.getByText('Enter the phone number you signed up with. We’ll text you a 6-digit code — there is no password.')).toBeVisible();
+    await expect(page.getByText('Enter the email address you signed up with. We’ll email you a 6-digit code — there is no password.')).toBeVisible();
     await expectNoHorizontalScroll(page);
 
-    await signInWithCode(page, u.national);
+    await signInWithCode(page, u.email);
     await expect(page).toHaveURL(/\/rw\/progress$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Welcome, Aline' })).toBeVisible();
     // the header is the signed-in one
@@ -35,7 +35,7 @@ test.describe('Web: sign in (C12) and sign out (C13)', () => {
     await page.context().clearCookies();
     await page.addInitScript(() => localStorage.removeItem('jobprep.session'));
     await page.goto('/sign-in');
-    await requestSignInCode(page, u.national);
+    await requestSignInCode(page, u.email);
     await expect(page.getByText(/It works for 5 minutes\./)).toBeVisible();
     await expect(page.getByRole('button', { name: /^Resend code in 0:/ })).toBeDisabled();
 
@@ -43,7 +43,7 @@ test.describe('Web: sign in (C12) and sign out (C13)', () => {
     await page.getByRole('button', { name: 'Verify and sign in' }).click();
     const alert = page.getByRole('alert');
     await expect(alert).toContainText('That code is not right');
-    await expect(alert).toContainText('Check the SMS and try again. 4 tries left.');
+    await expect(alert).toContainText('Check your email and try again. 4 tries left.');
     await typeCode(page, '000000');
     await page.getByRole('button', { name: 'Verify and sign in' }).click();
     await expect(alert).toContainText('3 tries left.');
@@ -54,7 +54,7 @@ test.describe('Web: sign in (C12) and sign out (C13)', () => {
     await page.context().clearCookies();
     await page.addInitScript(() => localStorage.removeItem('jobprep.session'));
     await page.goto('/sign-in');
-    await requestSignInCode(page, u.national);
+    await requestSignInCode(page, u.email);
     for (let i = 0; i < 5; i++) {
       await typeCode(page, '000000');
       await page.getByRole('button', { name: 'Verify and sign in' }).click();
@@ -67,21 +67,21 @@ test.describe('Web: sign in (C12) and sign out (C13)', () => {
     await expect(page.getByRole('button', { name: /^Resend code in 0:/ })).toBeVisible(); // the normal resend countdown
   });
 
-  test('an invalid number is an inline message', async ({ page }) => {
+  test('an invalid email is an inline message', async ({ page }) => {
     await page.goto('/sign-in');
-    await page.getByLabel('Phone number').fill('78812');
+    await page.getByLabel('Email address').fill('aline@');
     await page.getByRole('button', { name: 'Send code' }).click();
-    await expect(page.getByText('Enter a 9-digit Rwanda number, like 788 123 456.')).toBeVisible();
+    await expect(page.getByText('Enter a valid email address, like name@example.com.')).toBeVisible();
   });
 
-  test('an unknown number gets the same screen as a known one (no account discovery) and never a "no account" message', async ({ page }) => {
+  test('an unknown email gets the same screen as a known one (no account discovery) and never a "no account" message', async ({ page }) => {
     await page.goto('/sign-in');
-    await requestSignInCode(page, `789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`);
-    await expect(page.getByText(/has a JobPrep account, a code is on its way by SMS/)).toBeVisible();
+    await requestSignInCode(page, randomEmail('nobody'));
+    await expect(page.getByText(/has a JobPrep account, a code is on its way to your email/)).toBeVisible();
     await expect(page.getByText(/no account|not registered/i)).toHaveCount(0);
     await typeCode(page, '123456');
     await page.getByRole('button', { name: 'Verify and sign in' }).click();
-    await expect(page.getByRole('alert')).toBeVisible(); // invalid or expired, but never "this number has no account"
+    await expect(page.getByRole('alert')).toBeVisible(); // invalid or expired, but never "this email has no account"
     await expect(page.getByRole('alert')).not.toContainText(/no account/i);
   });
 
@@ -90,7 +90,7 @@ test.describe('Web: sign in (C12) and sign out (C13)', () => {
     await page.context().clearCookies();
     await page.addInitScript(() => localStorage.removeItem('jobprep.session'));
     await page.goto('/sign-in?next=%2Frw%2Fpricing');
-    await signInWithCode(page, u.national);
+    await signInWithCode(page, u.email);
     await expect(page).toHaveURL(/\/rw\/pricing$/);
   });
 

@@ -28,5 +28,5 @@ export const listMockTests = (country: string, query: CatalogQuery) =>
 export const getMockTest = (country: string, slug: string) =>
   api<ExamDetail>(`${base(country)}/mock-tests/${encodeURIComponent(slug)}`);
 export const getPricing = (country: string) => api<PricingResponse>(`${base(country)}/pricing`);
-export const requestExam = (country: string, input: { query: string; phone?: string }) =>
+export const requestExam = (country: string, input: { query: string; email?: string }) =>
   api<{ ok: true }>(`${base(country)}/exam-requests`, { method: 'POST', body: input });

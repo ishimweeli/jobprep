@@ -7,7 +7,7 @@ test.describe('Countries', () => {
   test('list with status chips and summaries; Kenya (preparing) opens with its go-live checklist', async ({ page, playwright }, info) => {
     const w = watchErrors(page);
     await signInAs(page, playwright, 'system');
-    await page.goto('/countries');
+    await page.goto('/admin/countries');
     await expect(page.getByRole('heading', { level: 1, name: 'Countries' })).toBeVisible();
     const list = page.getByRole('region', { name: 'Country list' });
     await expect(list.getByRole('button', { name: /Rwanda/ })).toContainText('Live');
@@ -32,7 +32,7 @@ test.describe('Countries', () => {
 
     // Rwanda is live: no checklist
     await list.getByRole('button', { name: /Rwanda/ }).click();
-    await expect(page).toHaveURL(`${BASE}/countries?country=RW`);
+    await expect(page).toHaveURL(`${BASE}/admin/countries?country=RW`);
     await expect(page.getByText('Before this country can go live')).toHaveCount(0);
     if (!isPhone(info)) {
       await expect(page.getByRole('heading', { level: 2, name: 'Rwanda' })).toBeVisible();
@@ -52,7 +52,7 @@ test.describe('Countries', () => {
 
   test('Save, Preview as candidate, + Add country, + Language and the editable-looking fields are drawn and change nothing', async ({ page, playwright }, info) => {
     await signInAs(page, playwright, 'system');
-    await page.goto('/countries?country=KE');
+    await page.goto('/admin/countries?country=KE');
     const inert = isPhone(info) ? ['Save Kenya', 'Preview as candidate', '+ Add country'] : ['Save country', 'Preview as candidate', '+ Add country', '+ Language'];
     for (const name of inert) {
       const b = page.getByRole('button', { name });
@@ -60,7 +60,7 @@ test.describe('Countries', () => {
       await b.dispatchEvent('click');
     }
     await expect(page.getByRole('dialog')).toHaveCount(0);
-    await expect(page).toHaveURL(`${BASE}/countries?country=KE`);
+    await expect(page).toHaveURL(`${BASE}/admin/countries?country=KE`);
     if (!isPhone(info)) {
       await expect(page.getByLabel('Currency')).toHaveAttribute('readonly', '');
       await expect(page.getByLabel('Full Access price')).toHaveAttribute('readonly', '');
@@ -70,8 +70,8 @@ test.describe('Countries', () => {
   test('Support and the editor cannot open Countries', async ({ page, playwright }) => {
     for (const role of ['support', 'editor'] as const) {
       await signInAs(page, playwright, role);
-      await page.goto('/countries');
-      await expect(page).toHaveURL(`${BASE}/`);
+      await page.goto('/admin/countries');
+      await expect(page).toHaveURL(`${BASE}/admin`);
     }
   });
 });

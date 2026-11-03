@@ -1,12 +1,12 @@
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
-const app = createApp({ prisma, config: testConfig(), sms });
+const mail = new ConsoleEmailProvider(() => {});
+const app = createApp({ prisma, config: testConfig(), email: mail });
 
 beforeAll(() => resetAndSeed(prisma));
 afterAll(() => prisma.$disconnect());
@@ -45,7 +45,7 @@ describe('country gating', () => {
   });
 
   it('a signed-in user can only browse their own country', async () => {
-    const { agent } = await signedInAgent(app, sms, '+250788200001');
+    const { agent } = await signedInAgent(app, mail, 'cat.one@example.com');
     expect((await agent.get('/api/countries/RW/mock-tests')).status).toBe(200);
     await prisma.country.update({ where: { code: 'KE' }, data: { status: 'LIVE' } });
     try {
@@ -250,23 +250,23 @@ describe('catalog search and filters', () => {
 });
 
 describe('request this exam', () => {
-  it('records the request and normalises the phone', async () => {
-    const res = await request(app).post('/api/countries/RW/exam-requests').send({ query: 'Veterinary officer', phone: '078 811 0000' });
+  it('records the request and normalises the email', async () => {
+    const res = await request(app).post('/api/countries/RW/exam-requests').send({ query: 'Veterinary officer', email: ' Vet.Seeker@Example.com ' });
     expect(res.status).toBe(201);
     const row = await prisma.examRequest.findFirstOrThrow({ where: { query: 'Veterinary officer' } });
-    expect(row).toMatchObject({ countryCode: 'RW', phone: '+250788110000' });
+    expect(row).toMatchObject({ countryCode: 'RW', email: 'vet.seeker@example.com' });
   });
 
   it('validates input and is not available for hidden countries', async () => {
     expect((await request(app).post('/api/countries/RW/exam-requests').send({ query: 'x' })).status).toBe(400);
-    expect((await request(app).post('/api/countries/RW/exam-requests').send({ query: 'Nurse', phone: '+254712345678' })).body.error).toBe('invalid_phone');
+    expect((await request(app).post('/api/countries/RW/exam-requests').send({ query: 'Nurse', email: 'not-an-email' })).status).toBe(400);
     expect((await request(app).post('/api/countries/KE/exam-requests').send({ query: 'Nurse' })).status).toBe(404);
   });
 
-  it('attaches the signed-in user’s phone when none is given', async () => {
-    const { agent } = await signedInAgent(app, sms, '+250788200002');
+  it('attaches the signed-in user’s email when none is given', async () => {
+    const { agent } = await signedInAgent(app, mail, 'cat.two@example.com');
     await agent.post('/api/countries/RW/exam-requests').send({ query: 'Radiographer' });
-    expect((await prisma.examRequest.findFirstOrThrow({ where: { query: 'Radiographer' } })).phone).toBe('+250788200002');
+    expect((await prisma.examRequest.findFirstOrThrow({ where: { query: 'Radiographer' } })).email).toBe('cat.two@example.com');
   });
 });
 
@@ -322,7 +322,7 @@ describe('exam details', () => {
   });
 
   it('a signed-in user without a grant is locked; with an active Rwanda grant the paid test unlocks', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, '+250788200003');
+    const { agent, userId } = await signedInAgent(app, mail, 'cat.three@example.com');
     expect((await get('accountant-public-institution-mock-1', agent)).body.access.state).toBe('LOCKED');
 
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
@@ -335,7 +335,7 @@ describe('exam details', () => {
   });
 
   it('an expired or suspended grant does not unlock', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, '+250788200004');
+    const { agent, userId } = await signedInAgent(app, mail, 'cat.four@example.com');
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
     await prisma.accessGrant.create({
       data: { userId, countryCode: 'RW', planId: plan.id, startsAt: new Date(Date.now() - 40 * 86_400_000), endsAt: new Date(Date.now() - 86_400_000), source: 'MANUAL', reason: 'old' },
@@ -347,7 +347,7 @@ describe('exam details', () => {
   });
 
   it('lists a signed-in user’s previous attempts with score and time used', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, '+250788200005');
+    const { agent, userId } = await signedInAgent(app, mail, 'cat.five@example.com');
     const test = await prisma.mockTest.findFirstOrThrow({ where: { slug: 'secondary-mathematics-teacher-s1-s3-mock-1' } });
     const started = new Date(Date.now() - 3 * 86_400_000);
     await prisma.attempt.create({

@@ -158,10 +158,12 @@ export interface PricingResponse {
 export interface PublicUser {
   id: string;
   name: string;
-  phone: string;
+  email: string;
   countryCode: string;
   goalCategoryId: string | null;
   language: string;
+  /** Active admin role codes (`SYSTEM_ADMIN`, `CONTENT_EDITOR`, `SUPPORT`); `[]` for a plain candidate. One account can hold several. */
+  roles?: string[];
 }
 
 export interface AccessSummary {
@@ -452,7 +454,8 @@ export interface CheckoutSummary {
     checkoutAvailable: boolean;
   };
   paymentMethods: { provider: string; label: string; hint: string | null }[];
-  prefillPhone: string;
+  /** The payer number of the user's last payment, or null (accounts have no phone number). */
+  prefillPhone: string | null;
 }
 
 export interface PaymentView {

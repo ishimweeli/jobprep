@@ -17,13 +17,13 @@ import { meRouter } from './routes/me';
 import { paymentsRouter } from './routes/payments';
 import { testSupportRouter } from './routes/test-support';
 import { createProviderRegistry, type ProviderRegistry } from './payments/registry';
-import { ConsoleSmsProvider, type SmsProvider } from './services/sms';
+import { ConsoleEmailProvider, type EmailProvider } from './services/email';
 import { serveWeb } from './http/static-web';
 
 export interface AppDeps {
   prisma: PrismaClient;
   config: Config;
-  sms?: SmsProvider;
+  email?: EmailProvider;
   providers?: ProviderRegistry;
   now?: () => Date;
 }
@@ -31,7 +31,7 @@ export interface AppDeps {
 export function createApp(deps: AppDeps) {
   const { prisma, config } = deps;
   const ctx: Ctx = {
-    prisma, config, sms: deps.sms ?? new ConsoleSmsProvider(),
+    prisma, config, email: deps.email ?? new ConsoleEmailProvider(),
     providers: deps.providers ?? createProviderRegistry(config),
     now: deps.now ?? (() => new Date()),
   };
@@ -51,13 +51,11 @@ export function createApp(deps: AppDeps) {
   app.use(express.json({ limit: '100kb', verify: (req, _res, buf) => { (req as express.Request).rawBody = buf.toString('utf8'); } }));
   app.use(attachUser(ctx));
 
-  // Per-IP limits (on in production). Keyed by IP behind the proxy (trust proxy is set). The per-phone OTP limits
+  // Per-IP limits (on in production). Keyed by IP behind the proxy (trust proxy is set). The per-email OTP limits
   // live in the database and always apply.
   const limit = createLimiter(config.RATE_LIMIT_ENABLED === true);
   app.use('/api', limit({ name: 'api-all', windowSeconds: 60, max: 1200 }));
   app.post('/api/auth/otp/request', limit({ name: 'otp-request', windowSeconds: 60, max: 10 }));
-  app.post('/api/admin/auth/otp/request', limit({ name: 'admin-otp-request', windowSeconds: 60, max: 5 }));
-  app.post('/api/admin/auth/sign-in', limit({ name: 'admin-sign-in', windowSeconds: 60, max: 10 }));
   app.post('/api/attempts/:id/reports', limit({ name: 'question-report', windowSeconds: 3600, max: 20 }));
   app.post(['/api/auth/sign-up', '/api/auth/sign-in'], limit({ name: 'otp-verify', windowSeconds: 60, max: 20 }));
   app.post(['/api/payments', '/api/payments/:id/resend'], limit({ name: 'payment-create', windowSeconds: 60, max: 10 }));

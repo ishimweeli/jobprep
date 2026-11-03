@@ -2,12 +2,14 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 
 const API = process.env.API_URL ?? 'http://localhost:4000';
 const RW = `${API}/api/countries/RW`;
-const randomRwPhone = () => `+250789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`;
+const randomEmail = () => `e2e.payer.${Date.now()}.${Math.floor(Math.random() * 1_000_000)}@example.com`;
+/** The mobile-money number the payer approves on: a random valid Rwanda mobile. */
+const randomRwMsisdn = () => `+250789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`;
 
-async function signUp(request: APIRequestContext, phone: string) {
-  await request.post(`${API}/api/auth/otp/request`, { data: { purpose: 'sign_up', countryCode: 'RW', phone } });
-  const { code } = await (await request.get(`${API}/api/test/otp`, { params: { phone } })).json();
-  const res = await request.post(`${API}/api/auth/sign-up`, { data: { countryCode: 'RW', phone, name: 'E2E Payer', code } });
+async function signUp(request: APIRequestContext, email: string) {
+  await request.post(`${API}/api/auth/otp/request`, { data: { purpose: 'sign_up', countryCode: 'RW', email } });
+  const { code } = await (await request.get(`${API}/api/test/otp`, { params: { email } })).json();
+  const res = await request.post(`${API}/api/auth/sign-up`, { data: { countryCode: 'RW', email, name: 'E2E Payer', code } });
   expect(res.status()).toBe(201);
 }
 const simulate = (request: APIRequestContext, id: string, outcome: string) =>
@@ -16,8 +18,9 @@ const simulate = (request: APIRequestContext, id: string, outcome: string) =>
 test.describe('Payments (real server, fake provider)', () => {
   test('Flow B (API level): search Accountant → paid test → MoMo → Full Access → case-based exam → results', async ({ playwright }) => {
     const request = await playwright.request.newContext();
-    const phone = randomRwPhone();
-    await signUp(request, phone);
+    const email = randomEmail();
+    const msisdn = randomRwMsisdn();
+    await signUp(request, email);
 
     const list = await (await request.get(`${RW}/mock-tests`, { params: { q: 'Accountant' } })).json();
     const paid = list.results.find((r: { isFree: boolean }) => !r.isFree);
@@ -26,7 +29,8 @@ test.describe('Payments (real server, fake provider)', () => {
 
     const summary = await (await request.get(`${API}/api/me/checkout`)).json();
     expect(summary.plan.priceLabel).toBe('RWF 2,000');
-    const created = await request.post(`${API}/api/payments`, { data: { provider: 'MTN_MOMO', msisdn: phone } });
+    expect(summary.prefillPhone).toBeNull(); // accounts are email-based; the payer number is learnt from the first payment
+    const created = await request.post(`${API}/api/payments`, { data: { provider: 'MTN_MOMO', msisdn } });
     expect(created.status()).toBe(201);
     const payment = await created.json();
     expect(payment).toMatchObject({ status: 'PENDING', priceLabel: 'RWF 2,000' });
@@ -35,6 +39,7 @@ test.describe('Payments (real server, fake provider)', () => {
     const done = await (await request.get(`${API}/api/payments/${payment.id}`)).json();
     expect(done).toMatchObject({ status: 'SUCCESSFUL', access: { daysLeft: 30, countryCode: 'RW' } });
     expect(done.transactionId).toBeTruthy();
+    expect((await (await request.get(`${API}/api/me/checkout`)).json()).prefillPhone).toBe(msisdn);
 
     const start = await (await request.post(`${RW}/mock-tests/${paid.slug}/attempts`, { data: {} })).json();
     const state = await (await request.get(`${API}/api/attempts/${start.attemptId}`)).json();
@@ -52,10 +57,11 @@ test.describe('Payments (real server, fake provider)', () => {
 
   test('declined and expired payments say "You were not charged" and give no access', async ({ playwright }) => {
     const request = await playwright.request.newContext();
-    const phone = randomRwPhone();
-    await signUp(request, phone);
+    const email = randomEmail();
+    const msisdn = randomRwMsisdn();
+    await signUp(request, email);
 
-    const a = await (await request.post(`${API}/api/payments`, { data: { provider: 'AIRTEL_MONEY', msisdn: phone } })).json();
+    const a = await (await request.post(`${API}/api/payments`, { data: { provider: 'AIRTEL_MONEY', msisdn } })).json();
     await simulate(request, a.id, 'decline');
     const declined = await (await request.get(`${API}/api/payments/${a.id}`)).json();
     expect(declined).toMatchObject({ status: 'DECLINED', notCharged: true });

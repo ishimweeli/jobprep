@@ -79,8 +79,8 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
           <div className="order-4 flex flex-col gap-2.5 rounded-[14px] border border-[#DDD6FE] bg-brand-softer p-3.5 md:order-1 md:flex-row md:flex-wrap md:items-center md:gap-x-5 md:gap-y-3 md:rounded-card md:px-5 md:py-4">
             <p className="m-0 text-[15px] text-ink-2 md:flex-[1_1_360px]">
               <strong className="text-ink">Keep this result.</strong>{' '}
-              <span className="md:hidden">Create a free account with your phone number to track progress.</span>
-              <span className="hidden md:inline">Create a free account with your phone number to track your progress across attempts.</span>
+              <span className="md:hidden">Create a free account with your email address to track progress.</span>
+              <span className="hidden md:inline">Create a free account with your email address to track your progress across attempts.</span>
             </p>
             <Link
               to={savePath}

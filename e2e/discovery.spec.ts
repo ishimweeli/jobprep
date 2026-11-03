@@ -38,7 +38,7 @@ test.describe('Discovery (real server, seeded dev DB)', () => {
   test('unknown search → empty state → request this exam', async ({ request }) => {
     const none = await (await request.get(`${RW}/mock-tests`, { params: { q: 'Veterinary officer' } })).json();
     expect(none).toMatchObject({ total: 0, empty: true, canRequestExam: true });
-    const req = await request.post(`${RW}/exam-requests`, { data: { query: 'Veterinary officer', phone: '078 811 0000' } });
+    const req = await request.post(`${RW}/exam-requests`, { data: { query: 'Veterinary officer', email: 'vet.seeker@example.com' } });
     expect(req.status()).toBe(201);
   });
 

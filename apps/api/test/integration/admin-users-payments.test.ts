@@ -2,16 +2,16 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
 import { createProviderRegistry } from '../../src/payments/registry';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { ADMINS, adminAgent, resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 const config = testConfig();
 const providers = createProviderRegistry(config);
 // A real-time clock: users get their createdAt from the database, so "today" must be today.
 let clock = new Date();
-const app = createApp({ prisma, config, sms, providers, now: () => clock });
+const app = createApp({ prisma, config, email: mail, providers, now: () => clock });
 const advance = (secs: number) => { clock = new Date(clock.getTime() + secs * 1000); };
 const DAY = 86_400_000;
 const ACCOUNTANT = 'accountant-public-institution-mock-1';
@@ -20,20 +20,22 @@ const MATHS = 'secondary-mathematics-teacher-s1-s3-mock-1';
 type Agent = ReturnType<typeof request.agent>;
 let system: Agent; let support: Agent;
 let seq = 900000;
-const nextPhone = () => `+250788${seq++}`;
+const nextId = () => seq++;
 
 beforeAll(async () => {
   await resetAndSeed(prisma);
-  system = await adminAgent(app, sms, ADMINS.SYSTEM);
-  support = await adminAgent(app, sms, ADMINS.SUPPORT);
+  system = await adminAgent(app, mail, ADMINS.SYSTEM);
+  support = await adminAgent(app, mail, ADMINS.SUPPORT);
 });
 afterAll(() => prisma.$disconnect());
 
 async function candidate(name = 'Test Candidate') {
-  const phone = nextPhone();
-  const c = await signedInAgent(app, sms, phone);
+  const n = nextId();
+  const email = `cand${n}@example.com`;
+  const msisdn = `+250788${n}`;
+  const c = await signedInAgent(app, mail, email);
   await prisma.user.update({ where: { id: c.userId }, data: { name } });
-  return { ...c, phone, name };
+  return { ...c, email, msisdn, name };
 }
 async function grant(userId: string, startDays: number, endDays: number) {
   const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
@@ -42,7 +44,7 @@ async function grant(userId: string, startDays: number, endDays: number) {
   });
 }
 async function pay(c: Awaited<ReturnType<typeof candidate>>, provider = 'MTN_MOMO') {
-  const res = await c.agent.post('/api/payments').send({ provider, msisdn: c.phone });
+  const res = await c.agent.post('/api/payments').send({ provider, msisdn: c.msisdn });
   expect(res.status).toBe(201);
   return res.body.id as string;
 }
@@ -81,11 +83,11 @@ describe('users: list, filters and detail', () => {
     expect(by('Suspended').access.state).toBe('suspended');
   });
 
-  it('searches by name and by phone digits (spaces and +250 ignored), and paginates', async () => {
+  it('searches by name and by email (case-insensitive), and paginates', async () => {
     expect((await system.get(`/api/admin/users?q=${tag}%20free`)).body.total).toBe(1);
-    const phone = made.Free!.phone.slice(-6);
-    expect((await system.get(`/api/admin/users?q=${phone}`)).body.results[0].id).toBe(made.Free!.userId);
-    expect((await system.get('/api/admin/users?q=%2B250%20788')).body.total).toBeGreaterThan(0);
+    const email = made.Free!.email.toUpperCase();
+    expect((await system.get(`/api/admin/users?q=${encodeURIComponent(email)}`)).body.results[0].id).toBe(made.Free!.userId);
+    expect((await system.get('/api/admin/users?q=%40example.com')).body.total).toBeGreaterThan(0);
     const p2 = (await system.get(`/api/admin/users?q=${tag}&pageSize=3&page=2`)).body;
     expect([p2.total, p2.results.length, p2.page]).toEqual([4, 1, 2]);
     expect((await system.get('/api/admin/users?filter=bogus')).status).toBe(400);
@@ -182,17 +184,17 @@ describe('users: grant, suspend, login code (reason required, audited)', () => {
     expect(await prisma.auditLog.count({ where: { action: 'user.unsuspend', entityId: c.userId } })).toBe(1);
   });
 
-  it('support can text a candidate a login code (audited, rate-limited, never for a suspended user)', async () => {
+  it('support can email a candidate a login code (audited, rate-limited, never for a suspended user)', async () => {
     const c = await candidate('Aline Uwase');
     advance(120);
-    sms.clear();
+    mail.clear();
     const res = await support.post(`/api/admin/users/${c.userId}/send-login-code`).send({});
     expect(res.status).toBe(200);
-    expect(sms.lastCode(c.phone)).toMatch(/^\d{6}$/);
-    expect(JSON.stringify(res.body)).not.toContain(sms.lastCode(c.phone)!); // the admin never sees the code
+    expect(mail.lastCode(c.email)).toMatch(/^\d{6}$/);
+    expect(JSON.stringify(res.body)).not.toContain(mail.lastCode(c.email)!); // the admin never sees the code
     const log = await prisma.auditLog.findFirstOrThrow({ where: { action: 'otp.resend', entityId: c.userId }, include: { actor: true } });
     expect(log.actor?.name).toBe('Support Agent');
-    expect(log.metadata).toMatchObject({ targetPhone: c.phone, targetName: 'Aline Uwase' });
+    expect(log.metadata).toMatchObject({ targetEmail: c.email, targetName: 'Aline Uwase' });
     const again = await support.post(`/api/admin/users/${c.userId}/send-login-code`).send({});
     expect(again.status).toBe(429);
     expect(again.body.error).toBe('otp_cooldown');
@@ -254,11 +256,12 @@ describe('payments', () => {
     expect((await rows()).results.find((r: { id: string }) => r.id === declined).failureReason).toBe('provider_declined');
   });
 
-  it('filters by provider and searches by candidate, phone digits and reference', async () => {
+  it('filters by provider and searches by candidate, email, phone digits and reference', async () => {
     expect(ids(await rows('provider=AIRTEL_MONEY'))).toEqual(expect.arrayContaining([declined, fresh]));
     expect(ids(await rows('provider=AIRTEL_MONEY'))).not.toContain(paid);
     expect(ids(await rows('q=olivier'))).toEqual([stuck]);
-    expect(ids(await rows(`q=${cPaid.phone.slice(-6)}`))).toContain(paid);
+    expect(ids(await rows(`q=${cPaid.msisdn.slice(-6)}`))).toContain(paid);
+    expect(ids(await rows(`q=${encodeURIComponent(cPaid.email.toUpperCase())}`))).toContain(paid);
     expect(ids(await rows('q=FAKE-TXN'))).toContain(paid);
     expect((await system.get('/api/admin/payments?status=bogus')).status).toBe(400);
   });
@@ -304,8 +307,8 @@ describe('payments', () => {
     expect(await grantsOf(cStuck.userId)).toHaveLength(0);
   });
 
-  it('manual grant on a stuck payment: paid, MANUAL grant with who/why/transaction, receipt SMS, audit, and the tests unlock', async () => {
-    sms.clear();
+  it('manual grant on a stuck payment: paid, MANUAL grant with who/why/transaction, receipt email, audit, and the tests unlock', async () => {
+    mail.clear();
     const res = await system.post(`/api/admin/payments/${stuck}/manual-grant`).send({ transactionId: 'MP261101.2047.F02', reason: 'MoMo SMS confirmed, callback missing' });
     expect(res.status).toBe(201);
     expect(res.body.status).toBe('SUCCESSFUL');
@@ -315,7 +318,7 @@ describe('payments', () => {
     expect(g).toMatchObject({ source: 'MANUAL', paymentId: stuck, reason: 'MoMo SMS confirmed, callback missing', externalTransactionId: 'MP261101.2047.F02' });
     expect(g!.grantedById).not.toBeNull();
     expect(g!.endsAt.getTime() - g!.startsAt.getTime()).toBe(30 * DAY);
-    expect(sms.lastTo(cStuck.phone)!.body).toContain('Full Access is active');
+    expect(mail.lastTo(cStuck.email)!.text).toContain('Full Access is active');
     expect((await cStuck.agent.post(`/api/countries/RW/mock-tests/${ACCOUNTANT}/attempts`).send({})).status).toBe(201);
 
     const log = await prisma.auditLog.findFirstOrThrow({ where: { action: 'payment.manual_grant', entityId: stuck }, include: { actor: true } });
@@ -331,7 +334,7 @@ describe('payments', () => {
     expect((await system.post(`/api/admin/payments/${stuck}/manual-grant`).send({ transactionId: 'MP261101.2047.F02', reason: 'second attempt' })).body.error).toBe('already_paid');
     await simulate(stuck, 'success'); // the operator callback finally arrives
     expect(await grantsOf(cStuck.userId)).toHaveLength(1);
-    expect(sms.sent.filter((m) => m.to === cStuck.phone && /received/.test(m.body)).length).toBeLessThanOrEqual(1);
+    expect(mail.sent.filter((m) => m.to === cStuck.email && /received/.test(m.text)).length).toBeLessThanOrEqual(1);
   });
 
   it('never for a declined payment, and one operator transaction can only pay once', async () => {

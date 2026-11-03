@@ -159,8 +159,14 @@ describe('seed data invariants (business rules)', () => {
     expect(by.CONTENT_EDITOR).not.toContain('users:manage');
     expect(by.SUPPORT).not.toContain('exams:write');
     expect(by.SUPPORT).toContain('otp:resend');
-    const editor = await prisma.adminUser.findFirstOrThrow({ where: { role: { name: 'CONTENT_EDITOR' } } });
-    expect(editor.countryScope).toEqual(['RW']);
+    // admins are ordinary accounts (Rwanda) holding role assignments; one account may hold several
+    const holders = await prisma.user.findMany({ where: { roles: { some: {} } }, include: { roles: { include: { role: true } } }, orderBy: { email: 'asc' } });
+    expect(holders.map((u) => [u.email, u.countryCode, u.roles.map((r) => [r.role.name, r.countryScope, r.active]).sort()])).toEqual([
+      ['content.editor@jobprep.test', 'RW', [['CONTENT_EDITOR', ['RW'], true]]],
+      ['multi.role@jobprep.test', 'RW', [['CONTENT_EDITOR', ['RW'], true], ['SUPPORT', [], true]]],
+      ['support@jobprep.test', 'RW', [['SUPPORT', [], true]]],
+      ['system.admin@jobprep.test', 'RW', [['SYSTEM_ADMIN', [], true]]],
+    ]);
   });
 
   it('seeding twice is refused instead of duplicating data', async () => {
@@ -176,10 +182,10 @@ async function resetAndSeedAgainWithoutTruncate() {
 describe('database constraints that protect money and access', () => {
   it('a payment can have at most one access grant (duplicate callbacks cannot double-grant)', async () => {
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
-    const user = await prisma.user.create({ data: { countryCode: 'RW', phone: '+250788111222', name: 'T' } });
+    const user = await prisma.user.create({ data: { countryCode: 'RW', email: 'constraint.user@example.com', name: 'T' } });
     const payment = await prisma.payment.create({
       data: {
-        userId: user.id, countryCode: 'RW', planId: plan.id, provider: 'MTN_MOMO', msisdn: user.phone,
+        userId: user.id, countryCode: 'RW', planId: plan.id, provider: 'MTN_MOMO', msisdn: '+250788111222',
         amountMinor: 2000, currencyCode: 'RWF', idempotencyKey: 'k-1', expiresAt: new Date(Date.now() + 180_000),
       },
     });

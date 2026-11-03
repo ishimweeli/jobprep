@@ -4,7 +4,6 @@ import type { MeResponse } from '../../api/types';
 import { StrokeIcon } from '../../components/StrokeIcon';
 import { cx } from '../../lib/cx';
 import { initials } from '../../lib/format';
-import { formatPhone } from '../../lib/phone';
 import { accountMenuItems, type AccountMenuItem } from './accountMenuModel';
 import { useSignOut } from './useSignOut';
 
@@ -48,7 +47,7 @@ export function MenuRow({ item, role, onNavigate }: { item: AccountMenuItem; rol
 }
 
 export function useMenuItems(session: MeResponse, slug: string) {
-  return accountMenuItems({ slug, countryName: session.country.name, access: session.access, languages: session.country.languages });
+  return accountMenuItems({ slug, countryName: session.country.name, access: session.access, languages: session.country.languages, roles: session.user.roles });
 }
 
 /** Desktop header avatar + account menu (AccountMenu.dc). */
@@ -121,7 +120,7 @@ export function AccountMenu({ session, slug }: { session: MeResponse; slug: stri
             <Avatar name={user.name} size={44} />
             <span className="flex min-w-0 flex-col">
               <strong className="truncate text-base">{user.name}</strong>
-              <span className="text-[13px] text-muted">{formatPhone(user.phone)}</span>
+              <span className="truncate text-[13px] text-muted">{user.email}</span>
             </span>
           </div>
           <div className="my-1 h-px bg-border" />

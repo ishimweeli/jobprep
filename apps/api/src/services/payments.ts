@@ -98,12 +98,12 @@ export async function applySignal(ctx: Ctx, paymentId: string, signal: PaymentSi
     return { payment: updated, changed: true, grant };
   }, { timeout: 15_000 });
 
-  // The receipt goes out after the commit, and a failing SMS gateway never undoes a payment.
+  // The receipt goes out after the commit, and a failing mail server never undoes a payment.
   if (outcome.grant) {
     try {
       await sendReceipt(ctx, outcome.payment, outcome.grant.endsAt);
     } catch (e) {
-      console.error('receipt SMS failed for payment', paymentId, e);
+      console.error('receipt email failed for payment', paymentId, e);
     }
   }
   return outcome;
@@ -118,7 +118,16 @@ async function sendReceipt(ctx: Ctx, payment: Payment, endsAt: Date) {
   const amount = formatMoney(payment.amountMinor, payment.currencyCode, country.currencyExponent);
   const until = endsAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
   const ref = payment.transactionId ?? payment.providerReference ?? payment.id;
-  await ctx.sms.send(user.phone, `JobPrep: we received ${amount} via ${method?.label ?? 'mobile money'}. Full Access is active until ${until}. Ref ${ref}.`);
+  await ctx.email.send({
+    to: user.email,
+    subject: `JobPrep receipt: ${amount}`,
+    text: `We received ${amount} via ${method?.label ?? 'mobile money'}.
+
+Full Access is active until ${until}.
+Reference: ${ref}
+
+Thank you for using JobPrep.`,
+  });
 }
 
 // ───────────────────────── Creating a payment
@@ -284,13 +293,23 @@ export async function handleCallback(ctx: Ctx, provider: PaymentProvider, req: C
   });
   // Unknown reference: acknowledge so the operator stops retrying, but do nothing.
   if (!payment) return { matched: false as const };
-  if (provider.code !== 'FAKE' && payment.provider !== provider.code) return { matched: false as const };
+  if (provider.code !== 'FAKE' && !provider.aggregator && payment.provider !== provider.code) return { matched: false as const };
 
-  const signal = signalFor(parsed.status, parsed.reason);
+  const { status, reason } = parsed;
+  let transactionId = parsed.transactionId;
+  if (status === 'SUCCESSFUL' && provider.confirmSuccessByStatus) {
+    // The callback only carries a shared secret. Confirm with the provider before granting access. If that call fails
+    // it throws (HTTP 5xx), so the provider retries the callback; if it disagrees, the poller/sweeper settles it later.
+    const confirmed = await provider.getStatus(parsed.providerReference ?? payment.providerReference ?? '');
+    if (confirmed.status !== 'SUCCESSFUL') return { matched: true as const, changed: false, status: payment.status };
+    transactionId = confirmed.transactionId ?? transactionId;
+  }
+
+  const signal = signalFor(status, reason);
   if (!signal) return { matched: true as const, changed: false, status: payment.status };
   const out = await applySignal(ctx, payment.id, signal, {
-    source: 'webhook', eventId: parsed.eventId, transactionId: parsed.transactionId,
-    payload: { status: parsed.status, reason: parsed.reason ?? null },
+    source: 'webhook', eventId: parsed.eventId, transactionId,
+    payload: { status, reason: reason ?? null },
   });
   return { matched: true as const, changed: out.changed, status: out.payment.status };
 }

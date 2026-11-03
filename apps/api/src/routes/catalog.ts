@@ -2,9 +2,9 @@ import { Router, type Request } from 'express';
 import type { Country, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { canStartMockTest, coveredUntil, daysLeft, type GrantLike } from '../domain/access';
-import { normalizePhone } from '../domain/phone';
+import { emailInput } from '../domain/email';
 import { formatMoney, isSellable } from '../domain/pricing';
-import { badRequest, forbidden, notFound } from '../http/errors';
+import { forbidden, notFound } from '../http/errors';
 import type { Ctx } from '../http/context';
 
 /**
@@ -32,7 +32,7 @@ const listQuery = z.object({
 
 const examRequestSchema = z.object({
   query: z.string().trim().min(2).max(120),
-  phone: z.string().min(6).max(24).optional(),
+  email: emailInput.optional(),
 });
 
 const mockTestInclude = {
@@ -223,13 +223,8 @@ export function catalogRouter(ctx: Ctx) {
   router.post('/exam-requests', async (req, res) => {
     const country = await liveCountry(req);
     const body = examRequestSchema.parse(req.body);
-    let phone: string | null = null;
-    if (body.phone) {
-      phone = normalizePhone(body.phone, country.dialCode);
-      if (!phone) throw badRequest('invalid_phone');
-    }
     await prisma.examRequest.create({
-      data: { countryCode: country.code, query: body.query, phone: phone ?? req.user?.phone ?? null },
+      data: { countryCode: country.code, query: body.query, email: body.email ?? req.user?.email ?? null },
     });
     res.status(201).json({ ok: true });
   });

@@ -1,22 +1,23 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { isConsoleSms, type Ctx } from '../http/context';
+import { isConsoleEmail, type Ctx } from '../http/context';
 import { badRequest, notFound } from '../http/errors';
+import { emailInput } from '../domain/email';
 import { handleCallback } from '../services/payments';
 
 /**
- * Test-only: lets e2e tests read the OTP the console SMS provider "sent".
+ * Test-only: lets e2e tests read the OTP the console email provider "sent".
  * Mounted only when ENABLE_TEST_ENDPOINTS is true, and config forces that off in production.
  */
 export function testSupportRouter(ctx: Ctx) {
   const router = Router();
 
   router.get('/otp', (req, res) => {
-    if (!isConsoleSms(ctx.sms)) throw notFound();
-    const { phone } = z.object({ phone: z.string().min(6) }).parse(req.query);
-    const code = ctx.sms.lastCode(phone);
+    if (!isConsoleEmail(ctx.email)) throw notFound();
+    const { email } = z.object({ email: emailInput }).parse(req.query);
+    const code = ctx.email.lastCode(email);
     if (!code) throw notFound('no_code_sent');
-    res.json({ phone, code });
+    res.json({ email, code });
   });
 
   /**

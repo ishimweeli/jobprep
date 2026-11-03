@@ -58,7 +58,7 @@ export function GuestPaidDialog({
             1
           </span>
           <span className="text-[15px] leading-normal">
-            <strong>Create a free account</strong> with your phone number, so your access belongs to you on any device.
+            <strong>Create a free account</strong> with your email address, so your access belongs to you on any device.
           </span>
         </li>
         <li className="flex items-start gap-3">

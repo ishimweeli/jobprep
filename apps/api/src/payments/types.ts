@@ -1,6 +1,11 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 export type ProviderCode = 'MTN_MOMO' | 'AIRTEL_MONEY' | 'MPESA' | 'FAKE';
+/**
+ * What an adapter calls itself. PAWAPAY is an aggregator: it serves the payment methods above (the stored
+ * `Payment.provider` stays MTN_MOMO / AIRTEL_MONEY / MPESA, so no database enum change), picking the operator by phone number.
+ */
+export type AdapterCode = ProviderCode | 'PAWAPAY';
 
 /** What a provider reports. EXPIRED = the payer never approved in time. */
 export type ProviderStatus = 'PENDING' | 'SUCCESSFUL' | 'DECLINED' | 'FAILED' | 'EXPIRED';
@@ -42,7 +47,14 @@ export interface ParsedCallback extends StatusResult {
  *  - callbacks must be authenticated; if no secret is configured, every callback is rejected (fail closed)
  */
 export interface PaymentProvider {
-  readonly code: ProviderCode;
+  readonly code: AdapterCode;
+  /** Serves every payment method, so a callback is matched by the provider reference alone (not by `Payment.provider`). */
+  readonly aggregator?: boolean;
+  /**
+   * The callback is only authenticated by a shared secret, so before settling a SUCCESS from one, ask the provider
+   * (`getStatus`) and settle only if it agrees. A callback can then at worst prompt a check; it can never grant access.
+   */
+  readonly confirmSuccessByStatus?: boolean;
   /** Ask the operator to prompt the payer. Returns the reference used to poll and to match callbacks. */
   requestToPay(input: RequestToPayInput): Promise<{ providerReference: string }>;
   getStatus(providerReference: string): Promise<StatusResult>;

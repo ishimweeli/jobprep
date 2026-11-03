@@ -4,7 +4,7 @@ import { tooMany } from './errors';
 /**
  * Fixed-window rate limiter held in memory.
  * Good for one API instance; behind several instances the limits are per instance (put a shared store such as
- * Redis behind `RateStore` if that matters). Complements, not replaces, the per-phone OTP limits kept in the database.
+ * Redis behind `RateStore` if that matters). Complements, not replaces, the per-email OTP limits kept in the database.
  */
 export interface RateStore {
   /** Count one hit for `key`; returns the hits in the current window and seconds until it resets. */

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { API, expectNoHorizontalScroll, isPhone, signUpViaApi, watchErrors } from './web-helpers';
+import { API, expectNoHorizontalScroll, isPhone, randomEmail, signUpViaApi, watchErrors } from './web-helpers';
 import { cleanUser, me } from './web-p3-helpers';
 
 const expectedHttp = (e: string) => /status of [45]\d\d/.test(e);
@@ -24,33 +24,33 @@ test.describe('Web: country gate (C23)', () => {
     });
     await page.goto('/ug');
     await expect(page.getByRole('heading', { level: 1, name: 'JobPrep isn’t open in Uganda yet' })).toBeVisible();
-    await expect(page.getByText('+256')).toBeVisible();
-    await expect(page.getByText(/Leave your number and we’ll send one SMS when they’re ready — nothing else\./)).toBeVisible();
+    await expect(page.getByText('+256')).toHaveCount(0);
+    await expect(page.getByText(/Leave your email address and we’ll send one email when they’re ready — nothing else\./)).toBeVisible();
     await expectNoHorizontalScroll(page);
 
-    await page.getByLabel('Phone number').fill('7123');
+    await page.getByLabel('Email address').fill('aline@');
     await page.getByRole('button', { name: 'Notify me' }).click();
-    await expect(page.getByText(/Enter a 9-digit Uganda number/)).toBeVisible();
+    await expect(page.getByText('Enter a valid email address, like name@example.com.')).toBeVisible();
     expect(posts).toHaveLength(0);
 
-    await page.getByLabel('Phone number').fill('712345678');
+    await page.getByLabel('Email address').fill('  Aline.Waiting@Example.test ');
     await page.getByRole('button', { name: 'Notify me' }).click();
     await expect(page.getByRole('status')).toContainText('You’re on the list');
-    await expect(page.getByText(/We’ll send one SMS to \+256 712 345 678 when Uganda opens\. You can ask us to remove your number at any time\./)).toBeVisible();
-    expect(posts).toEqual([{ phone: '+256712345678' }]);
+    await expect(page.getByText('We’ll send one email to aline.waiting@example.test when Uganda opens. You can ask us to remove your address at any time.')).toBeVisible();
+    expect(posts).toEqual([{ email: 'aline.waiting@example.test' }]);
     await page.getByRole('link', { name: 'Choose a different country' }).click();
     await expect(page).toHaveURL(/\/choose-country$/);
     w.expectClean();
   });
 
-  test('the real waiting-list endpoint accepts the number (201)', async ({ page, request }) => {
-    const national = `7${String(Math.floor(Math.random() * 100_000_000)).padStart(8, '0')}`;
+  test('the real waiting-list endpoint accepts the email address (201)', async ({ page, request }) => {
+    const email = randomEmail('waiting');
     await page.goto('/tz');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('isn’t open in Tanzania yet');
-    await page.getByLabel('Phone number').fill(national);
+    await page.getByLabel('Email address').fill(email);
     await page.getByRole('button', { name: 'Notify me' }).click();
     await expect(page.getByRole('status')).toContainText('You’re on the list');
-    expect((await request.post(`${API}/api/countries/tz/waiting-list`, { data: { phone: `+255${national}` } })).status()).toBe(201); // idempotent
+    expect((await request.post(`${API}/api/countries/tz/waiting-list`, { data: { email } })).status()).toBe(201); // idempotent
   });
 
   test('the picker’s "Notify me when X opens" leads to that page', async ({ page }) => {

@@ -2,7 +2,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../src/app';
 import type { QuestionPayload } from '../../src/domain/scoring';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 /**
@@ -10,17 +10,18 @@ import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers'
  * access states, checkout summary, details with an unfinished attempt, and the error reference.
  */
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 let clock = new Date('2026-11-02T10:00:00Z');
-const app = createApp({ prisma, config: testConfig(), sms, now: () => clock });
+const app = createApp({ prisma, config: testConfig(), email: mail, now: () => clock });
 const DAY = 86_400_000;
 const advance = (secs: number) => { clock = new Date(clock.getTime() + secs * 1000); };
 let seq = 800000;
-const nextPhone = () => `+250788${seq++}`;
+const nextEmail = () => `user${seq++}@example.com`;
+const nextMsisdn = () => `+250788${seq++}`;
 const MATHS = 'secondary-mathematics-teacher-s1-s3-mock-1';
 
 beforeAll(() => resetAndSeed(prisma));
-beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); sms.clear(); });
+beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); mail.clear(); });
 afterAll(() => prisma.$disconnect());
 
 async function grant(userId: string, startOffsetDays: number, endOffsetDays: number, status: 'ACTIVE' | 'SUSPENDED' = 'ACTIVE') {
@@ -35,49 +36,49 @@ async function grant(userId: string, startOffsetDays: number, endOffsetDays: num
 
 describe('sign-in codes: tries left and expiry', () => {
   it('counts down the tries on each wrong code, then the code is dead', async () => {
-    const phone = nextPhone();
+    const email = nextEmail();
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', phone });
-    const good = sms.lastCode(phone)!;
+    await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', email });
+    const good = mail.lastCode(email)!;
     const wrong = good === '000000' ? '111111' : '000000';
     const left: unknown[] = [];
     for (let i = 0; i < 5; i++) {
-      const r = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', phone, name: 'Tries Test', code: wrong });
+      const r = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: wrong });
       expect(r.body.error).toBe('invalid_code');
       left.push(r.body.triesLeft);
     }
     expect(left).toEqual([4, 3, 2, 1, 0]);
-    const dead = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', phone, name: 'Tries Test', code: good });
+    const dead = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: good });
     expect(dead.body).toMatchObject({ error: 'too_many_attempts', triesLeft: 0 });
   });
 
   it('a new code after the old one is dead works, and the request answer carries the real lifetime and resend wait', async () => {
-    const phone = nextPhone();
+    const email = nextEmail();
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', phone });
-    for (let i = 0; i < 5; i++) await a.post('/api/auth/sign-up').send({ countryCode: 'RW', phone, name: 'Tries Test', code: '999999' });
+    await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', email });
+    for (let i = 0; i < 5; i++) await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: '999999' });
     advance(46);
-    const again = await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', phone });
+    const again = await a.post('/api/auth/otp/request').send({ purpose: 'sign_up', countryCode: 'RW', email });
     expect(again.body).toEqual({ cooldownSeconds: 45, expiresInSeconds: 300 }); // the screen shows these, not hard-coded numbers
-    const ok = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', phone, name: 'Tries Test', code: sms.lastCode(phone) });
+    const ok = await a.post('/api/auth/sign-up').send({ countryCode: 'RW', email, name: 'Tries Test', code: mail.lastCode(email) });
     expect(ok.status).toBe(201);
   });
 
-  it('"expired" looks the same for a number with an account and one without (still no account discovery)', async () => {
-    const known = nextPhone();
-    await signedInAgent(app, sms, known);
-    const unknown = nextPhone();
+  it('"expired" looks the same for an address with an account and one without (still no account discovery)', async () => {
+    const known = nextEmail();
+    await signedInAgent(app, mail, known);
+    const unknown = nextEmail();
     advance(60);
     const a = request.agent(app);
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', phone: known });
-    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', phone: unknown });
+    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: known });
+    await a.post('/api/auth/otp/request').send({ purpose: 'sign_in', email: unknown });
     advance(301);
-    const k = await a.post('/api/auth/sign-in').send({ phone: known, code: '123456' });
-    const u = await a.post('/api/auth/sign-in').send({ phone: unknown, code: '123456' });
+    const k = await a.post('/api/auth/sign-in').send({ email: known, code: '123456' });
+    const u = await a.post('/api/auth/sign-in').send({ email: unknown, code: '123456' });
     expect(k.body.error).toBe('code_expired');
     expect(u.body.error).toBe('code_expired');
-    // and a number that never asked for a code just gets "invalid"
-    expect((await a.post('/api/auth/sign-in').send({ phone: nextPhone(), code: '123456' })).body.error).toBe('invalid_code');
+    // and an address that never asked for a code just gets "invalid"
+    expect((await a.post('/api/auth/sign-in').send({ email: nextEmail(), code: '123456' })).body.error).toBe('invalid_code');
   });
 });
 
@@ -158,7 +159,7 @@ describe('untimed practice', () => {
 
 describe('dashboard for a new user', () => {
   it('suggests a free test to start with and more tests for the goal; nothing to resume or recommend', async () => {
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     const teaching = await prisma.category.findFirstOrThrow({ where: { countryCode: 'RW', slug: 'teaching-positions' } });
     await agent.patch('/api/me').send({ goalCategoryId: teaching.id });
     const b = (await agent.get('/api/me/dashboard')).body;
@@ -175,7 +176,7 @@ describe('dashboard for a new user', () => {
   });
 
   it('without a goal it falls back to the featured category; once they have taken a test, "start here" goes away', async () => {
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     const b = (await agent.get('/api/me/dashboard')).body;
     expect(b.goal).toBeNull();
     expect(b.startHere).not.toBeNull();
@@ -189,25 +190,25 @@ describe('dashboard for a new user', () => {
 
 describe('My access states', () => {
   it('no access: current and expired are both null', async () => {
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     expect((await agent.get('/api/me/dashboard')).body.access).toEqual({ current: null, expired: null, otherCountries: [] });
   });
 
   it('active, and "ending soon" at 3 days or fewer', async () => {
-    const a = await signedInAgent(app, sms, nextPhone());
+    const a = await signedInAgent(app, mail, nextEmail());
     await grant(a.userId, -20, 10);
     expect((await a.agent.get('/api/me/dashboard')).body.access.current).toMatchObject({ daysLeft: 10, endingSoon: false });
 
-    const b = await signedInAgent(app, sms, nextPhone());
+    const b = await signedInAgent(app, mail, nextEmail());
     await grant(b.userId, -28, 2);
     expect((await b.agent.get('/api/me/dashboard')).body.access.current).toMatchObject({ daysLeft: 2, endingSoon: true });
-    const edge = await signedInAgent(app, sms, nextPhone());
+    const edge = await signedInAgent(app, mail, nextEmail());
     await grant(edge.userId, -27, 3);
     expect((await edge.agent.get('/api/me')).body.access.current).toMatchObject({ daysLeft: 3, endingSoon: true });
   });
 
   it('expired: no current access, and when it ended', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     const g = await grant(userId, -40, -5);
     const access = (await agent.get('/api/me/dashboard')).body.access;
     expect(access.current).toBeNull();
@@ -215,22 +216,22 @@ describe('My access states', () => {
   });
 
   it('a suspended grant does not count as expired access either', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     await grant(userId, -40, -5, 'SUSPENDED');
     expect((await agent.get('/api/me')).body.access).toEqual({ current: null, expired: null, otherCountries: [] });
   });
 
   it('renewed while active: one continuous "until" date that includes the days still left', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     await grant(userId, -20, 10);
     await grant(userId, 10, 40); // the renewal starts where the first ends
     expect((await agent.get('/api/me')).body.access.current).toMatchObject({ daysLeft: 40, endingSoon: false });
   });
 
   it('shows a payment that is waiting for approval, and clears it once approved', async () => {
-    const phone = nextPhone();
-    const { agent } = await signedInAgent(app, sms, phone);
-    const created = await agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn: phone });
+    const msisdn = nextMsisdn();
+    const { agent } = await signedInAgent(app, mail, nextEmail());
+    const created = await agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn });
     const pending = (await agent.get('/api/me/dashboard')).body.pendingPayment;
     expect(pending).toMatchObject({ id: created.body.id, providerLabel: 'MTN MoMo', priceLabel: 'RWF 2,000' });
     await request(app).post(`/api/test/payments/${created.body.id}/simulate`).send({ outcome: 'success' });
@@ -240,9 +241,9 @@ describe('My access states', () => {
   });
 
   it('a payment that ran out of time is no longer "pending"', async () => {
-    const phone = nextPhone();
-    const { agent } = await signedInAgent(app, sms, phone);
-    await agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn: phone });
+    const msisdn = nextMsisdn();
+    const { agent } = await signedInAgent(app, mail, nextEmail());
+    await agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn });
     advance(200);
     expect((await agent.get('/api/me/dashboard')).body.pendingPayment).toBeNull();
   });
@@ -250,14 +251,14 @@ describe('My access states', () => {
 
 describe('checkout summary for someone who already has access', () => {
   it('without access the new days start now', async () => {
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     const b = (await agent.get('/api/me/checkout')).body;
     expect(b.currentAccess).toBeNull();
     expect(new Date(b.newAccessEndsAt).getTime()).toBe(clock.getTime() + 30 * DAY);
   });
 
   it('with access the new days start when the current ones end', async () => {
-    const { agent, userId } = await signedInAgent(app, sms, nextPhone());
+    const { agent, userId } = await signedInAgent(app, mail, nextEmail());
     await grant(userId, -20, 10);
     const b = (await agent.get('/api/me/checkout')).body;
     expect(b.currentAccess).toMatchObject({ daysLeft: 10 });
@@ -267,7 +268,7 @@ describe('checkout summary for someone who already has access', () => {
 
 describe('exam details with an unfinished attempt', () => {
   it('gives a signed-in user what they need to show "Resume"', async () => {
-    const { agent } = await signedInAgent(app, sms, nextPhone());
+    const { agent } = await signedInAgent(app, mail, nextEmail());
     const none = (await agent.get(`/api/countries/RW/mock-tests/${MATHS}`)).body;
     expect(none.inProgress).toBeNull();
     const start = await agent.post(`/api/countries/RW/mock-tests/${MATHS}/attempts`).send({});
@@ -309,7 +310,7 @@ describe('error reference for the "something went wrong" page', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const broken = createApp({
       prisma: { country: { findMany: async () => { throw new Error('secret database detail'); } } } as unknown as typeof prisma,
-      config: testConfig(), sms, now: () => clock,
+      config: testConfig(), email: mail, now: () => clock,
     });
     const res = await request(broken).get('/api/countries');
     expect(res.status).toBe(500);

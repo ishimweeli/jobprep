@@ -1,20 +1,19 @@
 import { expect, test, type Page } from '@playwright/test';
-import { API, isPhone, randomNational, readOtp, signUpViaApi, watchErrors } from './web-helpers';
+import { API, fillPayerNumber, isPhone, randomEmail, randomNational, readOtp, signUpViaApi, watchErrors } from './web-helpers';
 import {
   ACCOUNTANT_SLUG, choose, expectSaved, nextButton, questionHeading, simulatePayment, submitButton,
 } from './web-exam-helpers';
 
-/** Sign up through the real screens (country, phone, code, goal). Returns the account's phone. */
+/** Sign up through the real screens (country, email, code, goal). Returns the account's email. */
 async function signUpThroughUi(page: Page, name = 'Aline Uwase') {
-  const national = randomNational();
-  const phone = `+250${national}`;
+  const email = randomEmail('flowb');
   await page.goto('/sign-up');
   await page.getByRole('button', { name: 'Continue with Rwanda' }).click();
   await page.getByLabel('Full name').fill(name);
-  await page.getByLabel('Phone number').fill(national);
+  await page.getByLabel('Email address').fill(email);
   await page.getByRole('button', { name: 'Send code' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Enter the code' })).toBeVisible();
-  const code = await readOtp(page.request, phone);
+  const code = await readOtp(page.request, email);
   await page.getByLabel('Digit 1').click();
   await page.keyboard.type(code);
   await page.getByRole('button', { name: 'Verify' }).click();
@@ -22,7 +21,7 @@ async function signUpThroughUi(page: Page, name = 'Aline Uwase') {
   await page.getByText('Accounting & finance', { exact: true }).click();
   await page.getByRole('button', { name: 'Finish and see my Rwanda tests' }).click();
   await expect(page).toHaveURL(/\/rw\/tests\?category=accounting-finance$/);
-  return { phone, national, name };
+  return { email, name };
 }
 
 const payButton = (page: Page) => page.getByRole('button', { name: 'Pay RWF 2,000' });
@@ -40,7 +39,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
   test('sign up -> search Accountant -> paid details -> Get Full Access -> MTN MoMo -> pending -> confirmed -> Start -> case exam -> results', async ({ page }, info) => {
     test.setTimeout(120_000);
     const w = watchErrors(page);
-    await signUpThroughUi(page);
+    const account = await signUpThroughUi(page);
 
     // search "Accountant" in the catalog, open the paid test
     await page.getByRole('searchbox').filter({ visible: true }).fill('Accountant');
@@ -65,7 +64,8 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     await expect(providers.getByRole('button', { name: /MTN MoMo/ })).toHaveAttribute('aria-pressed', 'true');
     await providers.getByRole('button', { name: /MTN MoMo/ }).click();
     const number = page.getByLabel('Mobile Money number');
-    await expect(number).toHaveValue(/^07\d \d{3} \d{4}$/); // prefilled from the account, in the drawn format
+    await expect(number).toHaveValue(''); // an account has no phone number: nothing to prefill on a first payment
+    await fillPayerNumber(page, randomNational()); // the payer types the Mobile Money number
     await expect(page.getByText('We never ask for your PIN.')).toBeVisible();
     await expect(page.locator('input[type=password], input[name*=pin i]')).toHaveCount(0);
 
@@ -87,7 +87,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     await expect(rows.filter({ hasText: 'Paid with' })).toContainText('MTN MoMo');
     await expect(rows.filter({ hasText: 'Access until' })).toContainText(/\d{1,2} \w{3} 20\d\d/);
     await expect(rows.filter({ hasText: 'Transaction ID' })).not.toContainText('undefined');
-    await expect(page.getByText(/^A receipt was sent by SMS to 07\d \d{3} \d{4}\.$/)).toBeVisible();
+    await expect(page.getByText(`A receipt was sent to ${account.email}.`)).toBeVisible();
 
     // Start the test: the case-based Accountant mock
     await page.getByRole('link', { name: 'Start Mock 1 now' }).click();
@@ -146,6 +146,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
       await signUpViaApi(page);
       await page.goto('/rw/checkout');
       await expect(payButton(page)).toBeVisible();
+      await fillPayerNumber(page);
       const id = await pay(page);
       await expect(page.getByRole('heading', { level: 1, name: 'Approve on your phone' })).toBeVisible();
       expect((await simulatePayment(page.request, id, outcome)).ok()).toBeTruthy();
@@ -163,6 +164,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     test.setTimeout(60_000);
     await signUpViaApi(page);
     await page.goto('/rw/checkout');
+    await fillPayerNumber(page);
     const first = await pay(page);
 
     // Send again: a new request for the same number
@@ -227,7 +229,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
       await route.fulfill({ response: res, json: { countries: body.countries.map((c) => (c.code === 'KE' ? { ...c, status: 'LIVE', selectable: true } : c)) } });
     });
     await page.route('**/api/me', (route) => route.fulfill({ json: {
-      user: { id: 'u', name: 'Wanjiru Kamau', phone: '+254712345678', countryCode: 'KE', goalCategoryId: null, language: 'en' },
+      user: { id: 'u', name: 'Wanjiru Kamau', email: 'wanjiru@example.test', countryCode: 'KE', goalCategoryId: null, language: 'en' },
       country: { code: 'KE', name: 'Kenya', currencyCode: 'KES', languages: ['en'] }, access: { current: null, expired: null, otherCountries: [] },
     } }));
     await page.route('**/api/me/checkout', (route) => route.fulfill({ json: {

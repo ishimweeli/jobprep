@@ -10,7 +10,10 @@ users ─► Netcup gateway (nginx, TLS) ─┬─► Netcup   jobprep-1        
 ```
 
 - **One image, one container per replica.** The API also serves the built web app (`WEB_DIST_DIR`), so web and
-  API are always the same version and the session cookie stays same-origin.
+  API are always the same version and the session cookie stays same-origin. **The admin area ships in this same image**: it is
+  part of the web app, served at `https://jobprep.nexvecta.com/admin` (the static fallback hands `index.html` to every
+  extension-less path, `/admin/*` included, and `/api/admin/*` is the API). There is no separate admin app, hosting, domain
+  or cookie to set up.
 - **Stateless replicas.** Sessions and OTP codes are in Postgres; nothing is kept on a container's disk. (The
   per-IP rate limiter is in memory, so each replica counts separately.)
 - **Traffic reaches Contabo** through the gateway's weights. During a deploy the gateway drains one box at a time.
@@ -47,10 +50,12 @@ Names only; the values come from the providers or are generated.
 | `DATABASE_URL` | Through the box's PgBouncer (`host.docker.internal:6432`), with `?pgbouncer=true&connection_limit=10`. |
 | `SESSION_SECRET` | Random, at least 32 characters. **Identical on every replica on both boxes**, or a user logged in on one is logged out on the next. |
 | `PAYMENT_PROVIDER_MODE` | `sandbox` or `live`. `fake` is refused in production. |
-| `SMS_PROVIDER` | `live`. `console` is refused in production. **See "Before it can go live".** |
-| `MTN_MOMO_*`, `AIRTEL_*`, `MPESA_*` | Provider keys, plus the three `*_CALLBACK_SECRET` values (16+ characters each; the app refuses to start without them). |
+| `EMAIL_PROVIDER` | `smtp`. `console` is refused in production. One-time codes (sign-in) and payment receipts are emailed. |
+| `PAWAPAY_API_TOKEN`, `PAWAPAY_CALLBACK_SECRET` | pawaPay, the live payment provider. Both are required in production (the secret at least 16 characters); the app refuses to start without them. |
+| `PAWAPAY_BASE_URL` | Optional. Defaults to `https://api.pawapay.io`; the sandbox is `https://api.sandbox.pawapay.io`. |
+| `MTN_MOMO_*`, `AIRTEL_*`, `MPESA_*` | Optional. The direct operator adapters, used only if `PAWAPAY_API_TOKEN` is left empty. Not required in production. |
 
-| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_STARTTLS`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | The same Alibaba DirectMail SMTP account lessonplan sends from. **The API has no email code yet**: the settings are in place, but nothing reads them until a mailer is added. |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_STARTTLS`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | The same Alibaba DirectMail SMTP account lessonplan sends from. Port 465 uses TLS from the start; other ports use STARTTLS when `MAIL_STARTTLS=true`. `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` are required when `EMAIL_PROVIDER=smtp`. |
 
 `NODE_ENV`, `WEB_ORIGIN`, `PUBLIC_API_URL` and the port are set in the compose files.
 
@@ -78,11 +83,13 @@ The routing scripts assume Contabo already has the app, so the first time is don
 
 ## Before it can go live
 
-- **No real SMS sender exists yet.** `apps/api/src/server.ts` always creates `ConsoleSmsProvider`, which only
-  prints OTP codes to the log, and production refuses `SMS_PROVIDER=console`. Sign-in is phone + OTP, so nobody can
-  log in until a real provider is written and chosen (e.g. Africa's Talking, Twilio).
-- **Payment keys.** MTN MoMo, Airtel Money and M-Pesa need real merchant keys, and each operator must be given
-  `https://jobprep.nexvecta.com/api/payments/webhooks/<slug>` as its callback URL.
+- **Sign-in is by emailed code.** Accounts are identified by email; there is no SMS. Set `EMAIL_PROVIDER=smtp` and the `MAIL_*` values, and check that the sender address is verified in DirectMail, or codes will not arrive.
+- **First admin.** Do not run the dev seed in production (it creates fake admins). After the migrations and the reference data are loaded, create the first real admin with
+  `npm run admin:create -w @jobprep/api -- you@example.com "Your Name"` (needs `DATABASE_URL`). Admins are not a separate account type (DECISIONS 88): this finds or creates the normal account for that email (Rwanda, English) and gives it an active, all-countries System admin role; an existing candidate keeps their history and other roles. The person signs in at the normal sign-in page with that address (emailed code) and must have signed in within the last 12 hours to use the admin area. Further admins are added from Settings, Admin team (that sends no email: they just sign in). `WEB_ORIGIN` must be exactly the origin the browser shows, because state-changing `/api/admin` requests with a different `Origin` header are refused (`bad_origin`).
+- **Payment keys.** pawaPay needs an API token, and its dashboard must be given the deposit callback URL
+  `https://jobprep.nexvecta.com/api/payments/webhooks/pawapay?token=<PAWAPAY_CALLBACK_SECRET>` (the `?token=` part is
+  the only authentication, because pawaPay callbacks are not signed). The pawaPay adapter has never been run against
+  pawaPay, so test it in the pawaPay sandbox first, and enable the countries and operators in the dashboard.
 - **Backups.** The `jobprep` database must be added to the Postgres backup job on Netcup.
 
 ## Rolling back

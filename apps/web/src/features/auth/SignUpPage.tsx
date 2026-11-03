@@ -14,19 +14,19 @@ import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
 import { readGuestTokens } from '../../lib/guestTokens';
 import { safeNext, signInPath } from '../../lib/next';
-import { formatPhone, isValidNational, toE164 } from '../../lib/phone';
+import { isValidEmail, normalizeEmail } from '../../lib/email';
 import { plural } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { CountryPickerBody } from '../country/CountryPicker';
-import { countryPath, useCountries, useCountryDetail } from '../country/hooks';
+import { countryPath, useCountries } from '../country/hooks';
 import { useSession } from './session';
 import { AuthShell, StepBar } from './AuthShell';
 import { OtpStep } from './OtpStep';
-import { PhoneField } from './PhoneField';
+import { EmailField } from './EmailField';
 
 type Step = 1 | 2 | 3 | 4;
 
-/** Sign-up wizard: country -> name + phone -> 6-digit code -> job goal (SignUp.dc / SignUpPhone.dc). */
+/** Sign-up wizard: country -> name + email -> 6-digit code -> job goal (SignUp.dc / SignUpPhone.dc). */
 export function SignUpPage() {
   useDocumentTitle('Create your account');
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export function SignUpPage() {
   const [step, setStep] = useState<Step>(1);
   const [country, setCountry] = useState<CountrySummary | null>(null);
   const [name, setName] = useState('');
-  const [national, setNational] = useState('');
+  const [emailInput, setEmailInput] = useState('');
   const [cooldown, setCooldown] = useState(45);
   const [registered, setRegistered] = useState(false);
   const home = countryPath(getStoredCountry() ?? 'rw');
@@ -47,7 +47,7 @@ export function SignUpPage() {
   if (user && !registered) return <Navigate to={next ?? countryPath(user.countryCode.toLowerCase())} replace />;
   if (sessionLoading) return null;
 
-  const phoneE164 = country ? toE164(national, country.dialCode) : '';
+  const email = normalizeEmail(emailInput);
 
   return (
     <AuthShell homeTo={home}>
@@ -81,8 +81,8 @@ export function SignUpPage() {
           country={country}
           name={name}
           setName={setName}
-          national={national}
-          setNational={setNational}
+          email={emailInput}
+          setEmail={setEmailInput}
           onSent={(seconds) => {
             setCooldown(seconds);
             setStep(3);
@@ -92,11 +92,11 @@ export function SignUpPage() {
 
       {step === 3 && country && (
         <OtpStep
-          phoneLabel={formatPhone(phoneE164, country.dialCode)}
+          emailLabel={email}
           initialCooldown={cooldown}
-          onResend={() => requestOtp({ purpose: 'sign_up', phone: phoneE164, countryCode: country.code })}
+          onResend={() => requestOtp({ purpose: 'sign_up', email, countryCode: country.code })}
           onSubmit={async (code) => {
-            await signUp({ countryCode: country.code, phone: phoneE164, name: name.trim(), code, guestTokens: readGuestTokens() });
+            await signUp({ countryCode: country.code, email, name: name.trim(), code, guestTokens: readGuestTokens() });
             // Keep the session cache untouched until the wizard ends, so this page is not redirected away mid-way.
             setRegistered(true);
             setStep(4);
@@ -122,24 +122,24 @@ function DetailsStep({
   country,
   name,
   setName,
-  national,
-  setNational,
+  email,
+  setEmail,
   onSent,
 }: {
   signInTo: string;
   country: CountrySummary;
   name: string;
   setName: (v: string) => void;
-  national: string;
-  setNational: (v: string) => void;
+  email: string;
+  setEmail: (v: string) => void;
   onSent: (cooldownSeconds: number) => void;
 }) {
   const [nameError, setNameError] = useState<string | null>(null);
-  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [formError, setFormError] = useState<ApiError | null>(null);
 
   const send = useMutation({
-    mutationFn: () => requestOtp({ purpose: 'sign_up', phone: toE164(national, country.dialCode), countryCode: country.code }),
+    mutationFn: () => requestOtp({ purpose: 'sign_up', email: normalizeEmail(email), countryCode: country.code }),
     onSuccess: (r) => onSent(r.cooldownSeconds),
     onError: (e) => setFormError(e instanceof ApiError ? e : new ApiError(0, 'network_error')),
   });
@@ -148,19 +148,17 @@ function DetailsStep({
     e.preventDefault();
     setFormError(null);
     const nOk = name.trim().length >= 2;
-    const pOk = isValidNational(national);
+    const eOk = isValidEmail(email);
     setNameError(nOk ? null : 'Enter your full name (at least 2 letters).');
-    setPhoneError(pOk ? null : authErrorMessage(new ApiError(400, 'invalid_phone')));
-    if (nOk && pOk) send.mutate();
+    setEmailError(eOk ? null : authErrorMessage(new ApiError(400, 'invalid_email')));
+    if (nOk && eOk) send.mutate();
   };
 
-  const methods = useCountryDetail(country.slug).data?.paymentMethods.map((m) => m.label) ?? [];
-  const pay = methods.length > 0 ? methods.join(' or ') : 'Mobile Money';
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-[18px]">
       <div className="flex flex-col gap-1.5">
-        <h1 className="m-0 text-2xl font-bold tracking-tight md:text-[26px]">Your phone number</h1>
-        <p className="m-0 text-[15px] text-ink-2">We’ll text you a 6-digit code. Use the number you pay with by {pay}.</p>
+        <h1 className="m-0 text-2xl font-bold tracking-tight md:text-[26px]">Your email address</h1>
+        <p className="m-0 text-[15px] text-ink-2">We’ll email you a 6-digit code to confirm it — there is no password.</p>
       </div>
       <Field
         label="Full name"
@@ -170,7 +168,7 @@ function DetailsStep({
         error={nameError}
         maxLength={80}
       />
-      <PhoneField country={country} national={national} onChange={setNational} error={phoneError} />
+      <EmailField value={email} onChange={setEmail} error={emailError} />
       {formError && (
         <div role="alert" className="flex flex-col gap-2 rounded-control border border-red-300 bg-red-50 p-3.5 text-sm font-semibold text-red-900">
           <span>{authErrorMessage(formError)}</span>

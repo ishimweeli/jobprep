@@ -30,7 +30,7 @@ const restore = async (api: APIRequestContext, t: Target) =>
   api.patch(`/api/admin/questions/${t.questionId}`, { data: { stem: t.stem, explanation: t.explanation, status: 'PUBLISHED', resolveReports: true } });
 
 async function openQuestion(page: Page, t: Target) {
-  await page.goto(`/exams/${t.testId}/q/${t.questionId}`);
+  await page.goto(`/admin/exams/${t.testId}/q/${t.questionId}`);
   await expect(page.getByLabel('Question', { exact: true })).toBeVisible();
 }
 
@@ -38,7 +38,7 @@ test.describe('Exams & questions', () => {
   test('list: header totals, search, category, status badges; opening a test opens its first question', async ({ page, playwright }, info) => {
     const w = watchErrors(page);
     await signInAs(page, playwright, 'system');
-    await page.goto('/exams');
+    await page.goto('/admin/exams');
     await expect(page.getByRole('region', { name: 'Mock tests' })).toBeVisible();
     await expect(page.getByRole('link', { name: new RegExp(TEST_TITLE) })).toContainText('Published');
     if (!isPhone(info)) {
@@ -48,10 +48,10 @@ test.describe('Exams & questions', () => {
     }
 
     await page.getByRole('searchbox', { name: 'Search mock tests' }).fill('Procurement');
-    await expect(page).toHaveURL(`${BASE}/exams?q=Procurement`);
+    await expect(page).toHaveURL(`${BASE}/admin/exams?q=Procurement`);
     await expect(page.getByRole('link', { name: /Accountant/ })).toHaveCount(0);
     await page.getByRole('combobox', { name: 'Category' }).selectOption({ label: 'Procurement' });
-    await expect(page).toHaveURL(`${BASE}/exams?q=Procurement&category=procurement`);
+    await expect(page).toHaveURL(`${BASE}/admin/exams?q=Procurement&category=procurement`);
 
     await page.getByRole('link', { name: new RegExp(TEST_TITLE) }).click();
     await expect(page).toHaveURL(new RegExp(`/exams/[^/]+$`));
@@ -182,15 +182,15 @@ test.describe('Exams & questions', () => {
     expect(multi, 'seed has a multiple-select question').toBeTruthy();
     await signInAs(page, playwright, 'system');
 
-    await page.goto(`/exams/${maths.id}/q/${detail.questions[0].id}`);
+    await page.goto(`/admin/exams/${maths.id}/q/${detail.questions[0].id}`);
     await expect(page.getByLabel('Question', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Previous question' })).toBeDisabled();
     await page.getByRole('link', { name: 'Next question' }).click();
-    await expect(page).toHaveURL(`${BASE}/exams/${maths.id}/q/${detail.questions[1].id}`);
+    await expect(page).toHaveURL(`${BASE}/admin/exams/${maths.id}/q/${detail.questions[1].id}`);
     await page.getByRole('link', { name: 'Previous question' }).click();
-    await expect(page).toHaveURL(`${BASE}/exams/${maths.id}/q/${detail.questions[0].id}`);
+    await expect(page).toHaveURL(`${BASE}/admin/exams/${maths.id}/q/${detail.questions[0].id}`);
 
-    await page.goto(`/exams/${maths.id}/q/${multi.id}`);
+    await page.goto(`/admin/exams/${maths.id}/q/${multi.id}`);
     await expect(page.getByLabel('Question', { exact: true })).toHaveAttribute('readonly', '');
     await expect(page.getByRole('button', { name: 'Save draft' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /Publish/ })).toHaveCount(0);
@@ -200,11 +200,11 @@ test.describe('Exams & questions', () => {
 
   test('a content editor (Rwanda) can edit; support cannot open Exams', async ({ page, playwright }) => {
     await signInAs(page, playwright, 'editor');
-    await page.goto('/exams');
+    await page.goto('/admin/exams');
     await expect(page.getByRole('region', { name: 'Mock tests' })).toBeVisible();
     await signInAs(page, playwright, 'support');
-    await page.goto('/exams');
-    await expect(page).toHaveURL(`${BASE}/`);
+    await page.goto('/admin/exams');
+    await expect(page).toHaveURL(`${BASE}/admin`);
   });
 });
 

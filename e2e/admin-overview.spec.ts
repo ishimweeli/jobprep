@@ -16,14 +16,14 @@ test.describe('Overview', () => {
     const api = await adminApi(playwright);
     const o = await (await api.get('/api/admin/overview')).json();
     await signInAs(page, playwright, 'system');
-    await page.goto('/');
+    await page.goto('/admin');
     await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
 
     const kpi = (label: string) => page.locator('dt', { hasText: label }).locator('xpath=..');
     await expectAtLeast(page, 'Registered users', o.kpis.registeredUsers);
     await expect(kpi('Registered users')).toContainText(/\+[\d,]+ today/);
     await expectAtLeast(page, isPhone(info) ? 'Full Access active' : 'Full Access active now', o.kpis.fullAccessActive);
-    await expect(kpi('Revenue this month')).toContainText(/RWF [\d,]+/);
+    await expect(kpi('Revenue this month')).toContainText(/RWF [\d,]+|\d+ payments? · /); // a freshly seeded database has no revenue yet
     await expectAtLeast(page, isPhone(info) ? 'Tests taken today' : 'Mock tests taken today', o.kpis.testsStartedToday);
 
     await expect(page.getByRole('heading', { name: 'Needs attention' })).toBeVisible();
@@ -37,7 +37,7 @@ test.describe('Overview', () => {
 
     if (o.topMockTests[0]) await expect(page.getByText(o.topMockTests[0].title).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Latest payments' })).toBeVisible();
-    await expect(page.getByRole('link', { name: isPhone(info) ? 'All' : 'All payments' })).toHaveAttribute('href', '/payments');
+    await expect(page.getByRole('link', { name: isPhone(info) ? 'All' : 'All payments' })).toHaveAttribute('href', '/admin/payments');
     await expectNoHorizontalScroll(page);
     w.expectClean();
     await api.dispose();
@@ -46,31 +46,31 @@ test.describe('Overview', () => {
   test('desktop: the country select drives ?country=, the search opens Users, "+ New mock test" does nothing', async ({ page, playwright }, info) => {
     test.skip(isPhone(info), 'the phone Overview has no country select, search or new-test button');
     await signInAs(page, playwright, 'system');
-    await page.goto('/');
+    await page.goto('/admin');
     const select = page.getByRole('combobox', { name: 'Country' });
     await expect(select).toBeVisible();
     await expect(select.locator('option')).toContainText(['All countries', 'Rwanda', 'Kenya (preparing)']);
     await select.selectOption('RW');
-    await expect(page).toHaveURL(`${BASE}/?country=RW`);
+    await expect(page).toHaveURL(`${BASE}/admin?country=RW`);
     const rw = await (await page.request.get(`${BASE}/api/admin/overview?country=RW`)).json();
     await expectAtLeast(page, 'Registered users', rw.kpis.registeredUsers);
     await select.selectOption('');
-    await expect(page).toHaveURL(`${BASE}/`);
+    await expect(page).toHaveURL(`${BASE}/admin`);
 
     const newTest = page.getByRole('button', { name: '+ New mock test' });
     await expect(newTest).toHaveAttribute('aria-disabled', 'true');
     await newTest.dispatchEvent('click');
-    await expect(page).toHaveURL(`${BASE}/`);
+    await expect(page).toHaveURL(`${BASE}/admin`);
 
-    await page.getByRole('searchbox', { name: 'Search users, phone numbers or exams' }).fill('Aline');
+    await page.getByRole('searchbox', { name: 'Search users, emails or exams' }).fill('Aline');
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(`${BASE}/users?q=Aline`);
+    await expect(page).toHaveURL(`${BASE}/admin/users?q=Aline`);
   });
 
   test('a content editor (Rwanda only) gets only Rwanda in the country select', async ({ page, playwright }, info) => {
     test.skip(isPhone(info), 'desktop only');
     await signInAs(page, playwright, 'editor');
-    await page.goto('/');
+    await page.goto('/admin');
     const select = page.getByRole('combobox', { name: 'Country' });
     await expect(select.locator('option')).toHaveText(['Rwanda']);
     await expect(page.getByRole('heading', { name: 'Needs attention' })).toBeVisible();

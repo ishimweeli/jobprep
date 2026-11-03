@@ -43,7 +43,8 @@ export function adminPaymentsRouter(ctx: Ctx) {
       ...(f.q && {
         OR: [
           { user: { name: { contains: f.q, mode: 'insensitive' } } },
-          ...(digits.length >= 3 ? [{ msisdn: { contains: digits } }, { user: { phone: { contains: digits } } }] : []),
+          { user: { email: { contains: f.q, mode: 'insensitive' } } },
+          ...(digits.length >= 3 ? [{ msisdn: { contains: digits } }] : []),
           { providerReference: { contains: f.q, mode: 'insensitive' } },
           { transactionId: { contains: f.q, mode: 'insensitive' } },
         ],
@@ -54,7 +55,7 @@ export function adminPaymentsRouter(ctx: Ctx) {
       prisma.payment.count({ where }),
       prisma.payment.findMany({
         where, orderBy: { createdAt: 'desc' }, skip: (f.page - 1) * f.pageSize, take: f.pageSize,
-        include: { user: { select: { id: true, name: true, phone: true } }, accessGrant: { select: { endsAt: true } } },
+        include: { user: { select: { id: true, name: true, email: true } }, accessGrant: { select: { endsAt: true } } },
       }),
       prisma.country.findMany(),
       prisma.paymentMethodConfig.findMany(),
@@ -111,7 +112,7 @@ export function adminPaymentsRouter(ctx: Ctx) {
         priceLabel: formatMoney(p.amountMinor, p.currencyCode, country.currencyExponent), reference: p.providerReference, transactionId: p.transactionId,
         failureReason: p.failureReason, countryCode: p.countryCode,
       },
-      user: { id: p.user.id, name: p.user.name, phone: p.user.phone },
+      user: { id: p.user.id, name: p.user.name, email: p.user.email },
       // The timeline: request sent, callbacks, polls, manual action, grant
       events: events.map((e) => ({ id: e.id, source: e.source, status: e.status, at: e.createdAt })),
       grant: grant && { id: grant.id, source: grant.source, startsAt: grant.startsAt, endsAt: grant.endsAt, grantedBy: grant.grantedBy?.name ?? null, reason: grant.reason },

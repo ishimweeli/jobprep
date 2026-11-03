@@ -1,13 +1,13 @@
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { ADMINS, adminAgent, resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 const clock = new Date('2026-11-02T10:00:00Z');
-const app = createApp({ prisma, config: testConfig(), sms, now: () => clock });
+const app = createApp({ prisma, config: testConfig(), email: mail, now: () => clock });
 
 type Agent = ReturnType<typeof request.agent>;
 let system: Agent; let editor: Agent; let support: Agent;
@@ -16,9 +16,9 @@ type Role = 'SYSTEM' | 'EDITOR' | 'SUPPORT';
 
 beforeAll(async () => {
   await resetAndSeed(prisma);
-  system = await adminAgent(app, sms, ADMINS.SYSTEM);
-  editor = await adminAgent(app, sms, ADMINS.EDITOR);
-  support = await adminAgent(app, sms, ADMINS.SUPPORT);
+  system = await adminAgent(app, mail, ADMINS.SYSTEM);
+  editor = await adminAgent(app, mail, ADMINS.EDITOR);
+  support = await adminAgent(app, mail, ADMINS.SUPPORT);
 });
 afterAll(() => prisma.$disconnect());
 
@@ -115,7 +115,7 @@ describe('role permissions (every route, every role)', () => {
 
 describe('forbidden actions are blocked AND change nothing', () => {
   it('support cannot suspend, grant or manually confirm payments', async () => {
-    const { userId } = await signedInAgent(app, sms, '+250788610001');
+    const { userId } = await signedInAgent(app, mail, 'perm.one@example.com');
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
     const payment = await prisma.payment.create({
       data: { userId, countryCode: 'RW', planId: plan.id, provider: 'MTN_MOMO', msisdn: '+250788610001', amountMinor: 2000, currencyCode: 'RWF', idempotencyKey: 'perm-1', expiresAt: new Date(clock.getTime() - 60_000), status: 'EXPIRED' },
@@ -130,18 +130,18 @@ describe('forbidden actions are blocked AND change nothing', () => {
   });
 
   it('a content editor cannot touch users, payments, countries, prices, settings or the team', async () => {
-    const { userId } = await signedInAgent(app, sms, '+250788610002');
+    const { userId } = await signedInAgent(app, mail, 'perm.two@example.com');
     const beforePlan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
-    const beforeAdmins = await prisma.adminUser.count();
+    const beforeRoles = await prisma.userRole.count();
     expect((await editor.post(`/api/admin/users/${userId}/access`).send({ reason: 'sneaky free access' })).status).toBe(403);
     expect((await editor.post(`/api/admin/users/${userId}/suspend`).send({ reason: 'sneaky suspension' })).status).toBe(403);
     expect((await editor.patch('/api/admin/countries/RW/plan').send({ priceMinor: 1, reason: 'sneaky price cut' })).status).toBe(403);
     expect((await editor.patch('/api/admin/countries/KE').send({ status: 'LIVE', force: true, reason: 'sneaky launch' })).status).toBe(403);
     expect((await editor.put('/api/admin/settings').send({ stuckAfterMinutes: 1 })).status).toBe(403);
-    expect((await editor.post('/api/admin/team').send({ phone: '+250788610099', name: 'Sneaky Admin', role: 'SYSTEM_ADMIN', reason: 'sneaky promotion' })).status).toBe(403);
+    expect((await editor.post('/api/admin/team').send({ email: 'sneaky.admin@jobprep.test', name: 'Sneaky Admin', role: 'SYSTEM_ADMIN', reason: 'sneaky promotion' })).status).toBe(403);
     expect((await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } })).priceMinor).toBe(beforePlan.priceMinor);
     expect((await prisma.country.findUniqueOrThrow({ where: { code: 'KE' } })).status).toBe('PREPARING');
-    expect(await prisma.adminUser.count()).toBe(beforeAdmins);
+    expect(await prisma.userRole.count()).toBe(beforeRoles);
     expect((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).status).toBe('ACTIVE');
   });
 
@@ -161,7 +161,7 @@ describe('forbidden actions are blocked AND change nothing', () => {
   });
 
   it('support can still do exactly their job: view users, check payments, send a login code', async () => {
-    const { userId } = await signedInAgent(app, sms, '+250788610003');
+    const { userId } = await signedInAgent(app, mail, 'perm.three@example.com');
     expect((await support.get('/api/admin/users')).status).toBe(200);
     expect((await support.get(`/api/admin/users/${userId}`)).status).toBe(200);
     expect((await support.get('/api/admin/payments')).status).toBe(200);
@@ -230,14 +230,12 @@ describe('country restriction', () => {
 
   it('a Kenya-only support agent sees Kenya users and payments only', async () => {
     const role = await prisma.role.findUniqueOrThrow({ where: { name: 'SUPPORT' } });
-    const phone = '+254700000001';
-    await prisma.adminUser.create({ data: { phone, name: 'Kenya Support', roleId: role.id, countryScope: ['KE'] } });
-    const rw = await signedInAgent(app, sms, '+250788610010');
-    const ke = await prisma.user.create({ data: { countryCode: 'KE', phone: '+254712000001', name: 'Kenyan Candidate' } });
-    // sign in the Kenya support agent (the number is Kenyan, so the admin phone detection uses the +254 prefix)
-    const a = request.agent(app);
-    expect((await a.post('/api/admin/auth/otp/request').send({ phone })).status).toBe(200);
-    expect((await a.post('/api/admin/auth/sign-in').send({ phone, code: sms.lastCode(phone) })).status).toBe(200);
+    const email = 'kenya.support@jobprep.test';
+    await prisma.user.create({ data: { email, name: 'Kenya Support', countryCode: 'RW', roles: { create: { roleId: role.id, countryScope: ['KE'] } } } });
+    const rw = await signedInAgent(app, mail, 'perm.rw@example.com');
+    const ke = await prisma.user.create({ data: { countryCode: 'KE', email: 'kenyan.candidate@example.com', name: 'Kenyan Candidate' } });
+    // sign in the Kenya-scoped support agent
+    const a = await adminAgent(app, mail, email);
 
     const users = (await a.get('/api/admin/users?pageSize=100')).body;
     expect(users.results.every((u: { countryCode: string }) => u.countryCode === 'KE')).toBe(true);

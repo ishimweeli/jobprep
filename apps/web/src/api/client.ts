@@ -113,14 +113,15 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
 /**
  * Two failures replace the page instead of showing an inline error (SystemPages.dc): the service is down (503 or a
  * bare gateway error) and a 401 on a call that needs a session while this browser believes it is signed in.
- * `/auth/*` and the `/me` session probe are expected to answer 401 and never trigger it.
+ * `/auth/*`, the `/me` session probe and `/admin/*` (which has its own sign-in-again flow) never trigger it.
  */
 function reportSystemCondition(path: string, err: ApiError, hadJsonBody: boolean): void {
   if (isMaintenanceResponse(err.status, hadJsonBody && err.code !== `http_${err.status}`)) {
     setSystemState('maintenance');
     return;
   }
-  if (err.status === 401 && !path.startsWith('/auth/') && path !== '/me' && hasSessionHint()) {
+  // `/admin/*` answers its own 401s (sign in again, with a return to the admin page): see admin/api/client.ts.
+  if (err.status === 401 && !path.startsWith('/auth/') && !path.startsWith('/admin/') && path !== '/me' && hasSessionHint()) {
     clearSessionHint();
     setSystemState('session_expired');
   }

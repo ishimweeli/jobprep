@@ -1,14 +1,17 @@
 import { expect, test, type Page } from '@playwright/test';
-import { ADMINS, BASE, expectAccessible, expectNoHorizontalScroll, mainNav, readOtp, rememberSession, watchErrors, type Role } from './admin-helpers';
+import { ADMINS, BASE, expectAccessible, expectNoHorizontalScroll, isPhone, mainNav, readOtp, rememberSession, signInAs, signUpAsCandidate, watchErrors } from './admin-helpers';
 
 test.use({ baseURL: BASE });
 
-const national = (role: Role) => ADMINS[role].replace('+250', '');
+/**
+ * There is no admin sign-in screen: people with a role use the normal candidate sign-in (email + emailed code) and
+ * land back on the admin page they were going to. Visits to /admin without a session, or without a role, are handled here.
+ */
 
-/** Asks for a code. A code was probably asked for a moment ago (45 s wait per phone): wait it out, as a person would. */
-async function askForCode(page: Page, phone: string) {
-  if (!page.url().endsWith('/sign-in')) await page.goto('/sign-in');
-  await page.getByLabel('Phone number').fill(phone);
+/** Asks for a code. A code was probably asked for a moment ago (a wait per email): wait it out, as a person would. */
+async function askForCode(page: Page, email: string) {
+  if (!page.url().includes('/sign-in')) await page.goto('/sign-in');
+  await page.getByLabel('Email address').fill(email);
   for (let i = 0; i < 3; i++) {
     await page.getByRole('button', { name: 'Send code' }).click();
     const code = page.getByRole('heading', { level: 1, name: 'Enter your code' });
@@ -23,75 +26,123 @@ async function askForCode(page: Page, phone: string) {
 
 const typeCode = (page: Page, code: string) => page.getByLabel('Digit 1').fill(code);
 
-test.describe('Admin sign-in (the candidate sign-in, admin endpoints)', () => {
-  test('system admin: phone, then the 6-digit code, then the Overview; the code lifetime comes from the API', async ({ page, request }) => {
+async function signInThroughTheScreen(page: Page, request: Parameters<typeof readOtp>[0], email: string) {
+  await askForCode(page, email);
+  await typeCode(page, await readOtp(request, email));
+  await page.getByRole('button', { name: 'Verify and sign in' }).click();
+}
+
+/** Opens the candidate's account menu (desktop) or Account tab (phone) and returns the locator that holds its entries. */
+async function openAccountEntries(page: Page, phone: boolean) {
+  if (phone) {
+    await page.goto('/account');
+    return page.getByRole('navigation', { name: 'Account', exact: true });
+  }
+  await page.goto('/rw/progress');
+  await page.getByRole('button', { name: /account menu for/ }).click();
+  return page.getByRole('menu', { name: 'Account' });
+}
+
+test.describe('Admin area and the normal sign-in', () => {
+  test('signed out: /admin goes to the normal sign-in and comes back to the Overview after the code (system admin)', async ({ page, request }) => {
     const w = watchErrors(page);
     await page.context().clearCookies();
-    await page.goto('/sign-in');
+    await page.goto('/admin');
+    await expect(page).toHaveURL(`${BASE}/sign-in?next=${encodeURIComponent('/admin')}`);
     await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
-    await expect(page.getByText('Enter the phone number you signed up with. We’ll text you a 6-digit code — there is no password.')).toBeVisible();
-    await expect(page.getByText('ADMIN', { exact: true })).toBeVisible();
+    // the candidate sign-in as it is: no admin sign-in screen, no admin chrome
+    await expect(page.getByText('Enter the email address you signed up with. We’ll email you a 6-digit code — there is no password.')).toBeVisible();
+    await expect(page.getByText('ADMIN', { exact: true })).toHaveCount(0);
+    await expect(mainNav(page)).toHaveCount(0);
     await expectNoHorizontalScroll(page);
-    await expectAccessible(page, 'admin sign-in, phone step');
+    await expectAccessible(page, 'sign-in reached from /admin');
 
-    await askForCode(page, national('system'));
-    // "It works for N minutes" is the API's expiresInSeconds (300 s here), never the artboard's 10.
-    await expect(page.getByText(/It works for 5 minutes\./)).toBeVisible();
-    await expect(page.getByText('+250 788 000 001')).toBeVisible();
-    await expect(page.getByRole('button', { name: /^Resend code in 0:/ })).toBeDisabled();
-    await expectAccessible(page, 'admin sign-in, code step');
-
-    await typeCode(page, await readOtp(request, ADMINS.system));
-    await page.getByRole('button', { name: 'Verify and sign in' }).click();
-    await expect(page).toHaveURL(`${BASE}/`);
+    await signInThroughTheScreen(page, request, ADMINS.system);
+    await expect(page).toHaveURL(`${BASE}/admin`);
     await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
     await rememberSession(page, 'system');
     w.expectClean();
   });
 
-  test('content editor signs in and lands on the Overview with the editor navigation', async ({ page, request }) => {
+  test('signed out on a deep link: sign-in, then straight back to that admin page (support, with the query kept)', async ({ page, request }) => {
     await page.context().clearCookies();
-    await askForCode(page, national('editor'));
+    await page.goto('/admin/users?filter=expired');
+    await expect(page).toHaveURL(`${BASE}/sign-in?next=${encodeURIComponent('/admin/users?filter=expired')}`);
+    await signInThroughTheScreen(page, request, ADMINS.support);
+    await expect(page).toHaveURL(`${BASE}/admin/users?filter=expired`);
+    await expect(page.getByRole('heading', { level: 1, name: 'Users' })).toBeVisible();
+    await rememberSession(page, 'support');
+  });
+
+  test('content editor types the address in capitals, signs in, and gets the editor navigation', async ({ page, request }) => {
+    await page.context().clearCookies();
+    await page.goto('/admin');
+    await expect(page).toHaveURL(`${BASE}/sign-in?next=${encodeURIComponent('/admin')}`);
+    await askForCode(page, ADMINS.editor.toUpperCase());
+    await expect(page.getByText(ADMINS.editor, { exact: true })).toBeVisible(); // lower-cased before use
     await typeCode(page, await readOtp(request, ADMINS.editor));
     await page.getByRole('button', { name: 'Verify and sign in' }).click();
-    await expect(page).toHaveURL(`${BASE}/`);
+    await expect(page).toHaveURL(`${BASE}/admin`);
     await expect(mainNav(page).getByRole('link')).toHaveCount(2);
     await rememberSession(page, 'editor');
   });
 
-  test('support: a wrong code says how many tries are left, the right one still works', async ({ page, request }) => {
-    await page.context().clearCookies();
-    await askForCode(page, national('support'));
-    await typeCode(page, '000000');
-    await page.getByRole('button', { name: 'Verify and sign in' }).click();
-    const alert = page.getByRole('alert');
-    await expect(alert).toContainText('That code is not right');
-    await expect(alert).toContainText('Check the SMS and try again. 4 tries left.');
-    await typeCode(page, '000000');
-    await page.getByRole('button', { name: 'Verify and sign in' }).click();
-    await expect(alert).toContainText('3 tries left.');
-    await typeCode(page, await readOtp(request, ADMINS.support));
-    await page.getByRole('button', { name: 'Verify and sign in' }).click();
-    await expect(page).toHaveURL(`${BASE}/`);
+  test('a signed-in candidate with no role: no Admin entry in the account menu, and /admin says there is no access', async ({ page }, info) => {
+    const w = watchErrors(page);
+    await signUpAsCandidate(page);
+    const entries = await openAccountEntries(page, isPhone(info));
+    await expect(entries.getByText('Account settings')).toBeVisible();
+    await expect(entries.getByText('Admin', { exact: true })).toHaveCount(0);
+
+    await page.goto('/admin');
+    await expect(page).toHaveURL(`${BASE}/admin`);
+    await expect(page.getByRole('heading', { level: 1, name: 'You don’t have access to the admin area' })).toBeVisible();
+    await expect(mainNav(page)).toHaveCount(0); // no admin chrome
+    await expect(page.getByRole('link', { name: 'Go to the home page' })).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    await expectAccessible(page, 'admin no-access page');
+    // a deep link behaves the same, and nothing was sent anywhere else
+    await page.goto('/admin/payments');
+    await expect(page.getByRole('heading', { level: 1, name: 'You don’t have access to the admin area' })).toBeVisible();
+    w.expectClean();
+  });
+
+  test('a person with a role gets an Admin entry in the account menu that opens /admin (multi-role account)', async ({ page, playwright }, info) => {
+    await signInAs(page, playwright, 'multi');
+    const entries = await openAccountEntries(page, isPhone(info));
+    const admin = entries.getByRole(isPhone(info) ? 'link' : 'menuitem', { name: 'Admin', exact: true });
+    await expect(admin).toBeVisible();
+    await admin.click();
+    await expect(page).toHaveURL(`${BASE}/admin`);
+    await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
+    // the admin chrome replaces the candidate chrome
+    await expect(mainNav(page)).toBeVisible();
+    await expect(page.getByRole('button', { name: /account menu for/ })).toHaveCount(0);
+  });
+
+  test('a session more than 12 hours old (the API says admin_session_stale): sign in again, with the notice, and return to the page', async ({ page, playwright, request }) => {
+    await signInAs(page, playwright, 'support');
+    // The 12-hour clock is awkward in e2e: the API's answer is stubbed for the admin principal only.
+    await page.route('**/api/admin/me', (r) => r.fulfill({ status: 401, json: { error: 'admin_session_stale' } }));
+    await page.goto('/admin/users');
+    await expect(page).toHaveURL(`${BASE}/sign-in?next=${encodeURIComponent('/admin/users')}&reason=admin_stale`);
+    // still signed in as far as the browser knows, yet the sign-in screen stays and explains why
+    await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Please sign in again to use the admin area' })).toBeVisible();
+    await expectAccessible(page, 'sign-in again notice');
+
+    await page.unroute('**/api/admin/me');
+    await signInThroughTheScreen(page, request, ADMINS.support);
+    await expect(page).toHaveURL(`${BASE}/admin/users`);
+    await expect(page.getByRole('heading', { level: 1, name: 'Users' })).toBeVisible();
     await rememberSession(page, 'support');
   });
 
-  test('a number that is not an admin gets the same answer and no code exists for it', async ({ page, request }) => {
-    await page.context().clearCookies();
-    const stranger = String(788000000 + 100000 + Math.floor(Math.random() * 800000)); // not an admin
-    await askForCode(page, stranger);
-    await expect(page.getByText(/has a JobPrep account, a code is on its way by SMS/)).toBeVisible();
-    const probe = await request.get(`${BASE}/api/test/otp`, { params: { phone: `+250${stranger}` } });
-    expect(probe.status()).toBe(404);
-  });
-
-  test('an invalid number is an inline message; a signed-out visit to a page goes to sign-in and keeps where it was going', async ({ page }) => {
+  test('an invalid address is an inline message on the normal sign-in', async ({ page }) => {
     await page.context().clearCookies();
     await page.goto('/sign-in');
-    await page.getByLabel('Phone number').fill('78812');
+    await page.getByLabel('Email address').fill('not-an-email');
     await page.getByRole('button', { name: 'Send code' }).click();
-    await expect(page.getByRole('alert')).toHaveText('Enter a 9-digit Rwanda number, like 788 123 456.');
-    await page.goto('/users?filter=expired');
-    await expect(page).toHaveURL(`${BASE}/sign-in?next=${encodeURIComponent('/users?filter=expired')}`);
+    await expect(page.getByRole('alert')).toHaveText('Enter a valid email address, like name@example.com.');
   });
 });

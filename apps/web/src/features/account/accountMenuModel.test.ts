@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { InProgressAttempt } from '../../api/types';
-import { accessLine, accountMenuItems, languageLine, signOutPrompt } from './accountMenuModel';
+import { accessLine, accountMenuItems, hasAdminRole, languageLine, signOutPrompt } from './accountMenuModel';
 
 const attempt = (kind: 'FULL' | 'PRACTICE', remainingSeconds = 1265): InProgressAttempt => ({
   id: 'a1', kind, startedAt: '', mockTest: { slug: 's', title: 'Teaching Profession & CBC Pedagogy', countryCode: 'RW' }, total: 40, answered: 3, remainingSeconds,
@@ -21,7 +21,7 @@ describe('account menu items', () => {
   });
   it('Exam country opens the switch-country flow, settings opens the account page', () => {
     expect(items.find((i) => i.id === 'country')).toMatchObject({ secondary: 'Rwanda · change', to: '/choose-country' });
-    expect(items.find((i) => i.id === 'settings')).toMatchObject({ secondary: 'Name, phone number', to: '/account/settings' });
+    expect(items.find((i) => i.id === 'settings')).toMatchObject({ secondary: 'Name, email', to: '/account/settings' });
     expect(items.find((i) => i.id === 'progress')?.to).toBe('/rw/progress');
   });
   it('Language has no picker design: drawn, with no destination', () => {
@@ -33,6 +33,21 @@ describe('account menu items', () => {
     expect(help.secondary).toBeNull();
     expect(help.to).toBeNull();
     expect(JSON.stringify(items)).not.toContain('[SUPPORT');
+  });
+});
+
+describe('Admin entry (one account, several roles)', () => {
+  const base = { slug: 'rw', countryName: 'Rwanda', languages: ['en'], access: undefined };
+  it('a plain candidate (roles empty or missing) has no Admin entry', () => {
+    expect(accountMenuItems({ ...base, roles: [] }).map((i) => i.id)).not.toContain('admin');
+    expect(accountMenuItems(base).map((i) => i.id)).not.toContain('admin');
+    expect(hasAdminRole({ roles: [] })).toBe(false);
+    expect(hasAdminRole(null)).toBe(false);
+  });
+  it('any role adds an Admin link to /admin, after Account settings', () => {
+    const items = accountMenuItems({ ...base, roles: ['CONTENT_EDITOR', 'SUPPORT'] });
+    expect(items.at(-1)).toMatchObject({ id: 'admin', label: 'Admin', to: '/admin', secondary: null });
+    expect(hasAdminRole({ roles: ['SUPPORT'] })).toBe(true);
   });
 });
 

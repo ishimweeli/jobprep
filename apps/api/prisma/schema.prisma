@@ -69,7 +69,6 @@ enum UserStatus {
 enum OtpPurpose {
   SIGN_UP
   SIGN_IN
-  ADMIN_SIGN_IN
 }
 
 enum AccessSource {
@@ -337,8 +336,8 @@ model User {
   id            String     @id @default(cuid())
   countryCode   String
   country       Country    @relation(fields: [countryCode], references: [code])
-  /// E.164, e.g. +250788123456
-  phone         String     @unique
+  /// Lower-cased. The account identity; one-time codes are emailed here.
+  email         String     @unique
   name          String
   status        UserStatus @default(ACTIVE)
   suspendedReason String?
@@ -353,13 +352,18 @@ model User {
   accessGrants AccessGrant[]
   payments     Payment[]
   reports      QuestionReport[]
+  /// Admin access: one account can hold many roles (see UserRole). Empty for plain candidates.
+  roles        UserRole[]
+  grantsGiven  AccessGrant[]    @relation("GrantedBy")
+  reportsResolved QuestionReport[] @relation("ResolvedBy")
+  auditLogs    AuditLog[]
 
   @@index([countryCode])
 }
 
 model OtpCode {
   id         String     @id @default(cuid())
-  phone      String
+  email      String
   purpose    OtpPurpose
   codeHash   String
   expiresAt  DateTime
@@ -367,16 +371,14 @@ model OtpCode {
   consumedAt DateTime?
   createdAt  DateTime   @default(now())
 
-  @@index([phone, purpose, createdAt])
+  @@index([email, purpose, createdAt])
 }
 
 model Session {
   id          String     @id @default(cuid())
   tokenHash   String     @unique
-  userId      String?
-  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  adminUserId String?
-  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt   DateTime
   createdAt   DateTime   @default(now())
   userAgent   String?
@@ -540,7 +542,7 @@ model AccessGrant {
   payment     Payment?          @relation(fields: [paymentId], references: [id])
   /// For MANUAL grants: who granted it, why, and the provider transaction id that justified it.
   grantedById String?
-  grantedBy   AdminUser?        @relation(fields: [grantedById], references: [id])
+  grantedBy   User?             @relation("GrantedBy", fields: [grantedById], references: [id])
   reason      String?
   externalTransactionId String?
   createdAt   DateTime          @default(now())
@@ -556,10 +558,10 @@ model WaitingListEntry {
   id          String   @id @default(cuid())
   countryCode String
   country     Country  @relation(fields: [countryCode], references: [code])
-  phone       String
+  email       String
   createdAt   DateTime @default(now())
 
-  @@unique([countryCode, phone])
+  @@unique([countryCode, email])
 }
 
 /// "Request this exam" from the catalog empty state.
@@ -568,7 +570,7 @@ model ExamRequest {
   countryCode String
   country     Country  @relation(fields: [countryCode], references: [code])
   query       String
-  phone       String?
+  email       String?
   createdAt   DateTime @default(now())
 }
 
@@ -583,7 +585,7 @@ model QuestionReport {
   message    String
   status     ReportStatus @default(OPEN)
   resolvedById String?
-  resolvedBy   AdminUser?  @relation(fields: [resolvedById], references: [id])
+  resolvedBy   User?       @relation("ResolvedBy", fields: [resolvedById], references: [id])
   resolvedAt DateTime?
   createdAt  DateTime     @default(now())
 
@@ -599,30 +601,30 @@ model Role {
   /// Permission strings, e.g. "exams:write", "payments:grant". Enforced in the API.
   permissions String[]
 
-  admins AdminUser[]
+  users UserRole[]
 }
 
-model AdminUser {
-  id       String   @id @default(cuid())
-  phone    String   @unique
-  name     String
-  roleId   String
-  role     Role     @relation(fields: [roleId], references: [id])
+/// One role held by one account. An account may hold several (permissions are the union); the country
+/// scope belongs to the assignment, not to the account or the role.
+model UserRole {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId       String
+  role         Role     @relation(fields: [roleId], references: [id])
   /// Empty = all countries. Content editors may be restricted to specific countries.
   countryScope String[]
-  active   Boolean  @default(true)
-  createdAt DateTime @default(now())
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
 
-  sessions       Session[]
-  auditLogs      AuditLog[]
-  grants         AccessGrant[]
-  resolvedReports QuestionReport[]
+  @@unique([userId, roleId])
+  @@index([roleId, active])
 }
 
 model AuditLog {
   id          String     @id @default(cuid())
   actorId     String?
-  actor       AdminUser? @relation(fields: [actorId], references: [id])
+  actor       User?      @relation(fields: [actorId], references: [id])
   action      String // e.g. "access.grant", "country.price.set"
   entityType  String
   entityId    String?

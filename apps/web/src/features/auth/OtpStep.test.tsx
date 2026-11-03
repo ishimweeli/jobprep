@@ -42,7 +42,7 @@ describe('OtpStep resend countdown', () => {
 
   it('disables resend until the API cooldown elapses, then restarts it from cooldownSeconds', async () => {
     const onResend = vi.fn().mockResolvedValue({ cooldownSeconds: 45, expiresInSeconds: 300 });
-    render(<OtpStep phoneLabel="+250 788 123 456" initialCooldown={45} onSubmit={vi.fn()} onResend={onResend} />);
+    render(<OtpStep emailLabel="aline@example.test" initialCooldown={45} onSubmit={vi.fn()} onResend={onResend} />);
     const btn = screen.getByRole('button', { name: /Resend in 0:45/ });
     expect(btn).toBeDisabled();
     act(() => void vi.advanceTimersByTime(46_000));
@@ -57,7 +57,7 @@ describe('OtpStep resend countdown', () => {
 
   it('honours a 429 Retry-After on resend', async () => {
     const onResend = vi.fn().mockRejectedValue(new ApiError(429, 'otp_cooldown', {}, 31));
-    render(<OtpStep phoneLabel="+250 788 123 456" initialCooldown={0} onSubmit={vi.fn()} onResend={onResend} />);
+    render(<OtpStep emailLabel="aline@example.test" initialCooldown={0} onSubmit={vi.fn()} onResend={onResend} />);
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Resend code' }));
     });
@@ -67,7 +67,7 @@ describe('OtpStep resend countdown', () => {
 
   it('shows friendly copy for a wrong code and clears the boxes', async () => {
     const onSubmit = vi.fn().mockRejectedValue(new ApiError(400, 'invalid_code'));
-    render(<OtpStep phoneLabel="+250 788 123 456" initialCooldown={0} onSubmit={onSubmit} onResend={vi.fn()} />);
+    render(<OtpStep emailLabel="aline@example.test" initialCooldown={0} onSubmit={onSubmit} onResend={vi.fn()} />);
     fireEvent.paste(screen.getByLabelText('Digit 1'), { clipboardData: { getData: () => '123456' } });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
@@ -79,7 +79,7 @@ describe('OtpStep resend countdown', () => {
 
   it('requires all six digits before calling the API', async () => {
     const onSubmit = vi.fn();
-    render(<OtpStep phoneLabel="+250 788 123 456" initialCooldown={0} onSubmit={onSubmit} onResend={vi.fn()} />);
+    render(<OtpStep emailLabel="aline@example.test" initialCooldown={0} onSubmit={onSubmit} onResend={vi.fn()} />);
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Verify' }));
     });

@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import type { AdminRoleName, PaymentProviderCode, PrismaClient } from '@prisma/client';
+import type { AdminRoleName, PaymentProviderCode, PrismaClient, Role, User, UserRole } from '@prisma/client';
 import { z } from 'zod';
 import { assertCountry, requirePermission } from '../../admin/auth';
 import { describeAudit, writeAudit } from '../../admin/audit';
+import { emailInput } from '../../domain/email';
 import { ROLE_LABELS, type AdminRoleCode } from '../../domain/permissions';
 import { formatMoney } from '../../domain/pricing';
 import type { Ctx } from '../../http/context';
 import { badRequest, conflict, HttpError, notFound } from '../../http/errors';
-import { countryCodes, inCodes, normalizeAdminPhone, pageSchema, settingBool, settingNumber } from './util';
+import { countryCodes, inCodes, pageSchema, settingBool, settingNumber } from './util';
 
 const reasonField = z.string().trim().min(5, 'reason_too_short').max(300);
 const ROLES = ['SYSTEM_ADMIN', 'CONTENT_EDITOR', 'SUPPORT'] as const;
@@ -202,74 +203,105 @@ export function adminCountriesRouter(ctx: Ctx) {
   });
 
   // ───────────────────────── Admin team
+  // The team is the accounts that hold (or once held) a role. Roles are assignments on normal accounts: one person can
+  // hold several, each with its own country scope. Nothing is emailed on invite: the person signs in with that address.
 
   const roleRow = async (name: AdminRoleName) => prisma.role.findUniqueOrThrow({ where: { name } });
-  const teamRow = (a: { id: string; name: string; phone: string; active: boolean; countryScope: string[]; createdAt: Date; role: { name: string } }) => ({
-    id: a.id, name: a.name, phone: a.phone, active: a.active, countryScope: a.countryScope, role: a.role.name, roleLabel: ROLE_LABELS[a.role.name as AdminRoleCode], createdAt: a.createdAt,
-  });
+  type TeamUser = User & { roles: (UserRole & { role: Role })[] };
+  const roleView = (r: UserRole & { role: Role }) => ({ code: r.role.name, label: ROLE_LABELS[r.role.name as AdminRoleCode], countryScope: r.countryScope, active: r.active });
+  const teamRow = (u: TeamUser) => {
+    const roles = [...u.roles].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    // The legacy single-valued fields describe the first active role (else the first one held).
+    const first = roles.find((r) => r.active) ?? roles[0]!;
+    return {
+      id: u.id, name: u.name, email: u.email, active: roles.some((r) => r.active), status: u.status,
+      roles: roles.map(roleView),
+      role: first.role.name, roleLabel: ROLE_LABELS[first.role.name as AdminRoleCode], countryScope: first.countryScope,
+      createdAt: u.createdAt,
+    };
+  };
+  const loadTeamUser = (id: string) => prisma.user.findUnique({ where: { id }, include: { roles: { include: { role: true } } } });
   const scopeSchema = z.array(z.string().length(2)).max(10).transform((l) => [...new Set(l.map((x) => x.toUpperCase()))]);
 
   router.get('/team', requirePermission('admins:manage'), async (_req, res) => {
-    const admins = await prisma.adminUser.findMany({ include: { role: true }, orderBy: [{ active: 'desc' }, { createdAt: 'asc' }] });
-    res.json({ team: admins.map(teamRow) });
+    const people = await prisma.user.findMany({ where: { roles: { some: {} } }, include: { roles: { include: { role: true } } }, orderBy: { createdAt: 'asc' } });
+    const rows = people.map(teamRow);
+    res.json({ team: [...rows.filter((r) => r.active), ...rows.filter((r) => !r.active)] });
   });
 
+  /** Give someone a role. An existing account gets the role added (or reactivated); a new address gets a new account. */
   router.post('/team', requirePermission('admins:manage'), async (req, res) => {
-    const b = z.object({ phone: z.string().min(6).max(24), name: z.string().trim().min(2).max(80), role: z.enum(ROLES), countryScope: scopeSchema.default([]), reason: reasonField }).parse(req.body);
-    const phone = await normalizeAdminPhone(prisma, b.phone);
-    if (!phone) throw badRequest('invalid_phone');
-    if (await prisma.adminUser.findUnique({ where: { phone } })) throw conflict('admin_exists');
+    const b = z.object({ email: emailInput, name: z.string().trim().min(2).max(80), role: z.enum(ROLES), countryScope: scopeSchema.default([]), reason: reasonField }).parse(req.body);
     if (b.countryScope.length > 0 && b.role === 'SYSTEM_ADMIN') throw badRequest('system_admin_has_all_countries');
     const role = await roleRow(b.role);
-    const a = await prisma.$transaction(async (tx) => {
-      const created = await tx.adminUser.create({ data: { phone, name: b.name, roleId: role.id, countryScope: b.countryScope }, include: { role: true } });
-      await writeAudit(tx, req.admin!, { action: 'admin.invite', entityType: 'admin', entityId: created.id, reason: b.reason, metadata: { name: b.name, role: ROLE_LABELS[b.role] } });
-      return created;
+    const out = await prisma.$transaction(async (tx) => {
+      let user = await tx.user.findUnique({ where: { email: b.email }, include: { roles: true } });
+      const held = user?.roles.find((r) => r.roleId === role.id);
+      if (held?.active) throw conflict('already_has_role');
+      const addedToExisting = !!user;
+      if (!user) user = { ...(await tx.user.create({ data: { email: b.email, name: b.name, countryCode: 'RW', language: 'en' } })), roles: [] };
+      if (held) await tx.userRole.update({ where: { id: held.id }, data: { active: true, countryScope: b.countryScope } });
+      else await tx.userRole.create({ data: { userId: user.id, roleId: role.id, countryScope: b.countryScope } });
+      await writeAudit(tx, req.admin!, {
+        action: 'admin.invite', entityType: 'admin', entityId: user.id, reason: b.reason,
+        metadata: { name: user.name, role: ROLE_LABELS[b.role], addedToExistingAccount: addedToExisting, reactivated: !!held },
+      });
+      return { id: user.id, addedToExisting };
     });
-    res.status(201).json({ admin: teamRow(a) });
+    const created = await loadTeamUser(out.id);
+    res.status(201).json({ admin: teamRow(created!), addedToExistingAccount: out.addedToExisting });
   });
 
+  /**
+   * Change one role assignment of a person. `role` says which assignment (default: their first active one);
+   * `newRole` moves it to another role; `active:false` removes it (access stops on their next request, and
+   * `active:true` brings it back). `name` renames the account.
+   */
   router.patch('/team/:id', requirePermission('admins:manage'), async (req, res) => {
     const b = z.object({
-      name: z.string().trim().min(2).max(80).optional(), role: z.enum(ROLES).optional(), countryScope: scopeSchema.optional(), active: z.boolean().optional(), reason: reasonField,
+      name: z.string().trim().min(2).max(80).optional(), role: z.enum(ROLES).optional(), newRole: z.enum(ROLES).optional(),
+      countryScope: scopeSchema.optional(), active: z.boolean().optional(), reason: reasonField,
     }).parse(req.body);
-    const a = await prisma.adminUser.findUnique({ where: { id: String(req.params.id) }, include: { role: true } });
-    if (!a) throw notFound('admin_not_found');
-    const self = a.id === req.admin!.id;
-    const nextRole = b.role ?? (a.role.name as AdminRoleCode);
+    const u = await loadTeamUser(String(req.params.id));
+    if (!u || u.roles.length === 0) throw notFound('admin_not_found');
+    const roles = [...u.roles].sort((a, c) => a.createdAt.getTime() - c.createdAt.getTime());
+    const a = b.role ? roles.find((r) => r.role.name === b.role) : (roles.find((r) => r.active) ?? roles[0]);
+    if (!a) throw notFound('role_not_assigned');
+    const code = a.role.name as AdminRoleCode;
+    const self = u.id === req.admin!.id;
+    const nextRole = b.newRole ?? code;
     const nextActive = b.active ?? a.active;
     // Nobody locks themselves out, and the platform always keeps one active system admin.
-    if (self && (b.role && b.role !== 'SYSTEM_ADMIN')) throw conflict('cannot_change_own_role');
-    if (self && b.active === false) throw conflict('cannot_deactivate_self');
-    if (a.role.name === 'SYSTEM_ADMIN' && a.active && (nextRole !== 'SYSTEM_ADMIN' || !nextActive)) {
-      const others = await prisma.adminUser.count({ where: { id: { not: a.id }, active: true, role: { name: 'SYSTEM_ADMIN' } } });
+    if (self && code === 'SYSTEM_ADMIN' && b.newRole && b.newRole !== 'SYSTEM_ADMIN') throw conflict('cannot_change_own_role');
+    if (self && code === 'SYSTEM_ADMIN' && b.active === false) throw conflict('cannot_deactivate_self');
+    if (b.newRole && b.newRole !== code && roles.some((r) => r.role.name === b.newRole)) throw conflict('already_has_role');
+    if (code === 'SYSTEM_ADMIN' && a.active && (nextRole !== 'SYSTEM_ADMIN' || !nextActive)) {
+      const others = await prisma.userRole.count({ where: { id: { not: a.id }, active: true, role: { name: 'SYSTEM_ADMIN' }, user: { status: 'ACTIVE' } } });
       if (others === 0) throw conflict('last_system_admin');
     }
     if ((b.countryScope ?? a.countryScope).length > 0 && nextRole === 'SYSTEM_ADMIN') throw badRequest('system_admin_has_all_countries');
 
     const changes: string[] = [];
-    if (b.role && b.role !== a.role.name) changes.push(`role ${ROLE_LABELS[a.role.name as AdminRoleCode]} → ${ROLE_LABELS[b.role]}`);
-    if (b.countryScope) changes.push(`countries ${a.countryScope.join(',') || 'all'} → ${b.countryScope.join(',') || 'all'}`);
-    if (b.active !== undefined && b.active !== a.active) changes.push(b.active ? 'reactivated' : 'deactivated');
-    if (b.name && b.name !== a.name) changes.push('name');
+    if (b.newRole && b.newRole !== code) changes.push(`role ${ROLE_LABELS[code]} → ${ROLE_LABELS[b.newRole]}`);
+    if (b.countryScope && b.countryScope.join(',') !== a.countryScope.join(',')) changes.push(`${ROLE_LABELS[code]} countries ${a.countryScope.join(',') || 'all'} → ${b.countryScope.join(',') || 'all'}`);
+    if (b.active !== undefined && b.active !== a.active) changes.push(`${ROLE_LABELS[code]} ${b.active ? 'reactivated' : 'removed'}`);
+    if (b.name && b.name !== u.name) changes.push('name');
     if (changes.length === 0) throw badRequest('nothing_to_change');
 
-    const role = b.role ? await roleRow(b.role) : null;
-    const updated = await prisma.$transaction(async (tx) => {
-      const u = await tx.adminUser.update({
+    const newRole = b.newRole && b.newRole !== code ? await roleRow(b.newRole) : null;
+    await prisma.$transaction(async (tx) => {
+      if (b.name && b.name !== u.name) await tx.user.update({ where: { id: u.id }, data: { name: b.name } });
+      await tx.userRole.update({
         where: { id: a.id },
-        data: { ...(b.name && { name: b.name }), ...(role && { roleId: role.id }), ...(b.countryScope && { countryScope: b.countryScope }), ...(b.active !== undefined && { active: b.active }) },
-        include: { role: true },
+        data: { ...(newRole && { roleId: newRole.id }), ...(b.countryScope && { countryScope: b.countryScope }), ...(b.active !== undefined && { active: b.active }) },
       });
-      // A changed role or a deactivation takes effect now, not at the next sign-in.
-      if (b.active === false || role) await tx.session.deleteMany({ where: { adminUserId: a.id } });
+      // No session surgery needed: roles are read on every request, so the change applies at once.
       await writeAudit(tx, req.admin!, {
-        action: b.active === false ? 'admin.deactivate' : 'admin.update', entityType: 'admin', entityId: a.id, reason: b.reason,
-        metadata: { name: u.name, change: changes.join('; ') },
+        action: b.active === false && a.active ? 'admin.deactivate' : 'admin.update', entityType: 'admin', entityId: u.id, reason: b.reason,
+        metadata: { name: b.name ?? u.name, change: changes.join('; ') },
       });
-      return u;
     });
-    res.json({ admin: teamRow(updated) });
+    res.json({ admin: teamRow((await loadTeamUser(u.id))!) });
   });
 
   // ───────────────────────── Audit log

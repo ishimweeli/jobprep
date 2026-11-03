@@ -13,6 +13,7 @@ describe('system pages', () => {
     expect(SYSTEM_COPY.not_found).toMatchObject({ code: 'Error 404', title: 'We can’t find that page', cta: 'Find mock tests', alt: 'Go to the home page' });
     expect(SYSTEM_COPY.error).toMatchObject({ title: 'Something went wrong on our side', note: 'If you were taking a test, your answers are saved.', cta: 'Try again' });
     expect(SYSTEM_COPY.session_expired).toMatchObject({ title: 'Please sign in again', cta: 'Sign in' });
+    expect(SYSTEM_COPY.no_access).toMatchObject({ title: 'You don’t have access to the admin area', cta: 'Go to the home page' });
     expect(SYSTEM_COPY.maintenance.title).toBe('JobPrep is being updated');
     for (const c of Object.values(SYSTEM_COPY)) expect(c.body).not.toContain('[');
   });

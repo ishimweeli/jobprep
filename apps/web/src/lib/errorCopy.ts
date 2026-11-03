@@ -1,4 +1,5 @@
 import { ApiError } from '../api/client';
+import { INVALID_EMAIL_MESSAGE } from './email';
 import { mmss } from './format';
 
 /** Friendly copy for API error codes. Never expose raw codes to the user. */
@@ -6,7 +7,7 @@ export function authErrorMessage(e: unknown): string {
   if (!(e instanceof ApiError)) return 'Something went wrong. Please try again.';
   switch (e.code) {
     case 'invalid_code':
-      return 'That code is not right or has expired. Check the SMS and try again, or ask for a new code.';
+      return 'That code is not right or has expired. Check your email and try again, or ask for a new code.';
     case 'code_expired':
       return 'This code has expired. Ask for a new code.';
     case 'too_many_attempts':
@@ -18,9 +19,12 @@ export function authErrorMessage(e: unknown): string {
     case 'otp_hourly_limit':
       return 'You have asked for too many codes. Please try again in about an hour.';
     case 'account_exists':
-      return 'This phone number already has an account.';
-    case 'invalid_phone':
-      return 'That phone number does not look right. Enter a 9-digit mobile number for the selected country.';
+      return 'This email address already has an account.';
+    case 'invalid_email':
+      return INVALID_EMAIL_MESSAGE;
+    case 'country_required':
+    case 'invalid_country':
+      return 'Please choose your country and try again.';
     case 'account_suspended':
       return 'This account is suspended. Please contact support.';
     case 'country_not_available':

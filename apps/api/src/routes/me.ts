@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request } from 'express';
 import { z } from 'zod';
 import { badRequest, notFound } from '../http/errors';
 import { requireUser, type Ctx } from '../http/context';
@@ -18,6 +18,8 @@ const switchSchema = z.object({
 });
 const claimSchema = z.object({ guestTokens: z.array(z.string().min(8).max(100)).min(1).max(20) });
 
+const roleCodes = (req: Request) => (req.userRoles ?? []).map((r) => r.role.name);
+
 export function meRouter(ctx: Ctx) {
   const router = Router();
   router.use(requireUser);
@@ -28,7 +30,7 @@ export function meRouter(ctx: Ctx) {
     const user = req.user!;
     const country = await ctx.prisma.country.findUniqueOrThrow({ where: { code: user.countryCode } });
     res.json({
-      user: publicUser(user),
+      user: publicUser(user, roleCodes(req)),
       country: { code: country.code, name: country.name, currencyCode: country.currencyCode, languages: country.languages },
       access: await accessFor(user.id, user.countryCode),
     });
@@ -60,7 +62,7 @@ export function meRouter(ctx: Ctx) {
         ...(body.language !== undefined && { language: body.language }),
       },
     });
-    res.json({ user: publicUser(updated) });
+    res.json({ user: publicUser(updated, roleCodes(req)) });
   });
 
   /** Data for the "Switch to Kenya?" confirmation sheet. */
@@ -100,7 +102,7 @@ export function meRouter(ctx: Ctx) {
       where: { id: user.id },
       data: { countryCode: target.code, goalCategoryId: null, language: target.languages[0] ?? 'en' },
     });
-    res.json({ user: publicUser(updated), access: await accessFor(user.id, target.code) });
+    res.json({ user: publicUser(updated, roleCodes(req)), access: await accessFor(user.id, target.code) });
   });
 
   router.post('/claim-attempts', async (req, res) => {

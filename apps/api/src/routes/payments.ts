@@ -48,6 +48,8 @@ export function paymentsRouter(ctx: Ctx) {
   router.get('/me/checkout', async (req, res) => {
     const user = req.user!;
     const country = await prisma.country.findUniqueOrThrow({ where: { code: user.countryCode } });
+    // Accounts have no phone number any more: offer the number this person paid with last time.
+    const lastPayer = await prisma.payment.findFirst({ where: { userId: user.id }, orderBy: { createdAt: 'desc' }, select: { msisdn: true } });
     const [plan, methods] = await Promise.all([
       prisma.planConfig.findFirst({ where: { countryCode: country.code, code: 'FULL_ACCESS', active: true } }),
       prisma.paymentMethodConfig.findMany({ where: { countryCode: country.code, mode: { not: 'DISABLED' } }, orderBy: { sortOrder: 'asc' } }),
@@ -68,7 +70,7 @@ export function paymentsRouter(ctx: Ctx) {
         checkoutAvailable: country.status === 'LIVE' && isSellable(plan),
       },
       paymentMethods: methods.map((m) => ({ provider: m.provider, label: m.label, hint: m.hint })),
-      prefillPhone: user.phone,
+      prefillPhone: lastPayer?.msisdn ?? null,
     });
   });
 

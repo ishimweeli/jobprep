@@ -1,28 +1,29 @@
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../../src/app';
 import { FakeProvider } from '../../src/payments/fake';
 import { createProviderRegistry } from '../../src/payments/registry';
 import { sweepPayments } from '../../src/services/payments';
-import { ConsoleSmsProvider, type SmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider, type EmailProvider } from '../../src/services/email';
 import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 const config = testConfig();
 const providers = createProviderRegistry(config);
 let clock = new Date('2026-11-02T10:00:00Z');
-const app = createApp({ prisma, config, sms, providers, now: () => clock });
+const app = createApp({ prisma, config, email: mail, providers, now: () => clock });
 const fake = providers.fake!;
 const advance = (secs: number) => { clock = new Date(clock.getTime() + secs * 1000); };
 const DAY = 86_400_000;
 
 let seq = 500000;
-const nextPhone = () => `+250788${seq++}`;
+const nextEmail = () => `payer${seq++}@example.com`;
+const nextMsisdn = () => `+250788${seq++}`;
 const ACCOUNTANT = 'accountant-public-institution-mock-1';
 
 beforeAll(() => resetAndSeed(prisma));
-beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); sms.clear(); });
+beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); mail.clear(); });
 afterAll(() => prisma.$disconnect());
 
 type Agent = ReturnType<typeof request.agent>;
@@ -33,9 +34,9 @@ const simulate = (id: string, outcome: string, deliver = true) =>
 const grantsFor = (userId: string) => prisma.accessGrant.findMany({ where: { userId }, orderBy: { startsAt: 'asc' } });
 
 async function newUser() {
-  const phone = nextPhone();
-  const { agent, userId } = await signedInAgent(app, sms, phone);
-  return { agent, userId, phone };
+  const email = nextEmail();
+  const { agent, userId } = await signedInAgent(app, mail, email);
+  return { agent, userId, email };
 }
 async function pending(over: object = {}) {
   const u = await newUser();
@@ -45,13 +46,23 @@ async function pending(over: object = {}) {
 }
 
 describe('checkout summary', () => {
-  it('order summary comes from the database: price, 30 days, paid once, the country’s methods, prefilled phone', async () => {
-    const { agent, phone } = await newUser();
+  it('order summary comes from the database: price, 30 days, paid once, the country’s methods, prefilled payer number', async () => {
+    const { agent } = await newUser();
     const b = (await agent.get('/api/me/checkout')).body;
     expect(b.plan).toMatchObject({ priceLabel: 'RWF 2,000', priceMinor: 2000, durationDays: 30, paidOnce: true, checkoutAvailable: true });
     expect(b.paymentMethods.map((m: { label: string }) => m.label)).toEqual(['MTN MoMo', 'Airtel Money']);
-    expect(b.prefillPhone).toBe(phone);
+    expect(b.prefillPhone).toBeNull(); // accounts have no phone number; it is learnt from the first payment
     expect(b.country).toMatchObject({ code: 'RW', dialCode: '+250', currencyCode: 'RWF' });
+  });
+
+  it('prefills the number of the most recent payment, and nothing for someone who never paid', async () => {
+    const { agent } = await newUser();
+    expect((await agent.get('/api/me/checkout')).body.prefillPhone).toBeNull();
+    await pay(agent, { msisdn: '078 811 4444' });
+    expect((await agent.get('/api/me/checkout')).body.prefillPhone).toBe('+250788114444');
+    advance(1);
+    await pay(agent, { provider: 'AIRTEL_MONEY', msisdn: '073 811 5555' });
+    expect((await agent.get('/api/me/checkout')).body.prefillPhone).toBe('+250738115555');
   });
 
   it('needs a session', async () => {
@@ -102,7 +113,7 @@ describe('creating a payment', () => {
       await simulate(u.id, 'success');
       const view = (await u.agent.get(`/api/payments/${u.id}`)).body;
       expect(view).toMatchObject({ status: 'SUCCESSFUL', amountMinor: 2000, priceLabel: 'RWF 2,000' });
-      expect(sms.lastTo(u.phone)!.body).toContain('RWF 2,000');
+      expect(mail.lastTo(u.email)!.text).toContain('RWF 2,000');
     } finally {
       await prisma.planConfig.updateMany({ where: { countryCode: 'RW' }, data: { priceMinor: 2000 } });
     }
@@ -153,10 +164,9 @@ describe('creating a payment', () => {
     }
     const down = new Down('x');
     const reg = { ...providers, get: () => down, fake: null } as typeof providers;
-    const app2 = createApp({ prisma, config, sms, providers: reg, now: () => clock });
-    const phone = nextPhone();
-    const { agent, userId } = await signedInAgent(app2, sms, phone);
-    const res = await agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn: phone });
+    const app2 = createApp({ prisma, config, email: mail, providers: reg, now: () => clock });
+    const { agent, userId } = await signedInAgent(app2, mail, nextEmail());
+    const res = await agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn: nextMsisdn() });
     expect(res.status).toBe(502);
     expect(res.body.error).toBe('provider_unavailable');
     const row = await prisma.payment.findFirstOrThrow({ where: { userId } });
@@ -169,7 +179,7 @@ describe('creating a payment', () => {
 });
 
 describe('success', () => {
-  it('payer approves → webhook → Full Access for 30 days in their country, SMS receipt, paid tests unlock', async () => {
+  it('payer approves → webhook → Full Access for 30 days in their country, email receipt, paid tests unlock', async () => {
     const u = await pending();
     expect((await simulate(u.id, 'success')).status).toBe(200);
 
@@ -183,11 +193,14 @@ describe('success', () => {
     expect(grant!.endsAt.getTime() - grant!.startsAt.getTime()).toBe(30 * DAY);
     expect(grant!.startsAt).toEqual(clock);
 
-    const receipt = sms.lastTo(u.phone)!;
-    expect(receipt.body).toContain('RWF 2,000');
-    expect(receipt.body).toContain('MTN MoMo');
-    expect(receipt.body).toContain('2 Dec 2026');
-    expect(receipt.body).toContain(view.transactionId);
+    const receipt = mail.lastTo(u.email)!;
+    expect(receipt.subject).toBe('JobPrep receipt: RWF 2,000');
+    expect(receipt.text).toContain('RWF 2,000');
+    expect(receipt.text).toContain('MTN MoMo');
+    expect(receipt.text).toContain('2 Dec 2026');
+    expect(receipt.text).toContain(view.transactionId);
+    // the payer's phone number is only ever the mobile-money number: the receipt goes to the account's email
+    expect(mail.sent.filter((m) => /receipt/i.test(m.subject))).toHaveLength(1);
 
     // Flow B: the paid, case-based test is now playable, and /me shows the access.
     const start = await u.agent.post(`/api/countries/RW/mock-tests/${ACCOUNTANT}/attempts`).send({});
@@ -217,7 +230,7 @@ describe('success', () => {
     const view = (await u.agent.get(`/api/payments/${u.id}`)).body;
     expect(view.status).toBe('SUCCESSFUL');
     expect(await grantsFor(u.userId)).toHaveLength(1);
-    expect(sms.lastTo(u.phone)).toBeDefined();
+    expect(mail.sent.some((m) => m.to === u.email && /receipt/i.test(m.subject))).toBe(true);
   });
 
   it('"Check payment" asks the operator right away, ignoring the polling throttle', async () => {
@@ -228,16 +241,26 @@ describe('success', () => {
     expect(checked.body.status).toBe('SUCCESSFUL');
   });
 
-  it('keeps the payment and the access even if the SMS gateway is down', async () => {
-    const failing: SmsProvider = { send: async () => { throw new Error('gateway down'); } };
-    const flaky = new ConsoleSmsProvider(() => {});
-    const app2 = createApp({ prisma, config, sms: { send: (to, body) => (/receipt|received/i.test(body) ? failing.send(to, body) : flaky.send(to, body)) }, providers, now: () => clock });
-    const phone = nextPhone();
-    const { agent, userId } = await signedInAgent(app2, flaky, phone);
-    const created = await agent.post('/api/payments').send({ provider: 'AIRTEL_MONEY', msisdn: phone });
+  it('keeps the payment and the access even if the mail server is down', async () => {
+    const flaky = new ConsoleEmailProvider(() => {});
+    let receiptAttempts = 0;
+    // codes get through, but the receipt blows up
+    const email: EmailProvider = {
+      send: async (m) => {
+        if (/receipt/i.test(m.subject)) { receiptAttempts++; throw new Error('mail server down'); }
+        return flaky.send(m);
+      },
+    };
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const app2 = createApp({ prisma, config, email, providers, now: () => clock });
+    const { agent, userId } = await signedInAgent(app2, flaky, nextEmail());
+    const created = await agent.post('/api/payments').send({ provider: 'AIRTEL_MONEY', msisdn: nextMsisdn() });
     await request(app2).post(`/api/test/payments/${created.body.id}/simulate`).send({ outcome: 'success' });
     expect((await agent.get(`/api/payments/${created.body.id}`)).body.status).toBe('SUCCESSFUL');
     expect(await grantsFor(userId)).toHaveLength(1);
+    expect(receiptAttempts).toBe(1);
+    expect(errors.mock.calls.some((c) => String(c[0]).includes('receipt email failed'))).toBe(true);
+    errors.mockRestore();
   });
 });
 
@@ -249,7 +272,7 @@ describe('declined, failed and expired — "You were not charged"', () => {
     expect(v).toMatchObject({ status: 'DECLINED', notCharged: true, canRetry: true, canSendAgain: false, terminal: true });
     expect(v.message).toContain('You were not charged');
     expect(await grantsFor(u.userId)).toHaveLength(0);
-    expect(sms.sent.some((m) => m.to === u.phone && /received/.test(m.body))).toBe(false); // no receipt
+    expect(mail.sent.some((m) => m.to === u.email && /receipt/i.test(m.subject))).toBe(false); // no receipt
     expect((await u.agent.post(`/api/countries/RW/mock-tests/${ACCOUNTANT}/attempts`).send({})).status).toBe(402);
   });
 
@@ -289,7 +312,7 @@ describe('declined, failed and expired — "You were not charged"', () => {
     const v = (await u.agent.get(`/api/payments/${u.id}`)).body;
     expect(v).toMatchObject({ status: 'SUCCESSFUL', notCharged: false });
     expect(await grantsFor(u.userId)).toHaveLength(1);
-    expect(sms.lastTo(u.phone)!.body).toContain('Full Access is active');
+    expect(mail.lastTo(u.email)!.text).toContain('Full Access is active');
   });
 
   it('the timeout simulator makes a request due without waiting three minutes', async () => {
@@ -314,7 +337,7 @@ describe('duplicate and replayed callbacks', () => {
     const u = await pending();
     await simulate(u.id, 'duplicate');
     expect(await grantsFor(u.userId)).toHaveLength(1);
-    expect(sms.sent.filter((m) => m.to === u.phone && /received/.test(m.body))).toHaveLength(1);
+    expect(mail.sent.filter((m) => m.to === u.email && /receipt/i.test(m.subject))).toHaveLength(1);
     expect(await prisma.paymentEvent.count({ where: { paymentId: u.id, source: 'webhook' } })).toBe(1);
   });
 
@@ -383,7 +406,7 @@ describe('webhook security', () => {
   });
 
   it('the simulator only exists when test endpoints are on', async () => {
-    const off = createApp({ prisma, config: testConfig({ ENABLE_TEST_ENDPOINTS: 'false' }), sms, providers, now: () => clock });
+    const off = createApp({ prisma, config: testConfig({ ENABLE_TEST_ENDPOINTS: 'false' }), email: mail, providers, now: () => clock });
     expect((await request(off).post('/api/test/payments/x/simulate').send({ outcome: 'success' })).status).toBe(404);
   });
 });
@@ -429,7 +452,7 @@ describe('the background sweep', () => {
     const overdue = await pending();
     await simulate(lost.id, 'success', false);
     advance(200);
-    const n = await sweepPayments({ prisma, config, sms, providers, now: () => clock });
+    const n = await sweepPayments({ prisma, config, email: mail, providers, now: () => clock });
     expect(n).toBeGreaterThanOrEqual(2);
     expect((await prisma.payment.findUniqueOrThrow({ where: { id: lost.id } })).status).toBe('SUCCESSFUL');
     expect((await prisma.payment.findUniqueOrThrow({ where: { id: overdue.id } })).status).toBe('EXPIRED');
@@ -461,7 +484,7 @@ describe('access is country-scoped', () => {
 
   it('Kenya: a KES price, M-Pesa checkout and a Kenya-only grant', async () => {
     await prisma.country.update({ where: { code: 'KE' }, data: { status: 'LIVE' } });
-    const noPrice = await signedInAgent(app, sms, '+254712000111', 'KE');
+    const noPrice = await signedInAgent(app, mail, 'kenya.payer@example.com', 'KE');
     expect((await noPrice.agent.get('/api/me/checkout')).body.plan).toMatchObject({ priceLabel: null, checkoutAvailable: false });
     expect((await noPrice.agent.post('/api/payments').send({ provider: 'MPESA', msisdn: '0712000111' })).body.error).toBe('checkout_unavailable');
 
@@ -478,7 +501,7 @@ describe('access is country-scoped', () => {
       const grant = await prisma.accessGrant.findFirstOrThrow({ where: { userId: noPrice.userId } });
       expect(grant.countryCode).toBe('KE');
       expect((await noPrice.agent.post('/api/countries/KE/mock-tests/accountant-mock-1/attempts').send({})).status).toBe(201);
-      expect(sms.lastTo('+254712000111')!.body).toContain('KES 1,500.00');
+      expect(mail.lastTo('kenya.payer@example.com')!.text).toContain('KES 1,500.00');
     } finally {
       await prisma.planConfig.updateMany({ where: { countryCode: 'KE' }, data: { priceMinor: null } });
       await prisma.country.update({ where: { code: 'KE' }, data: { status: 'PREPARING' } });

@@ -4,12 +4,12 @@ import type { Config } from '../config';
 import { unauthorized } from './errors';
 import { findSessionUser, parseCookies, SESSION_COOKIE } from '../services/session';
 import type { ProviderRegistry } from '../payments/registry';
-import type { ConsoleSmsProvider, SmsProvider } from '../services/sms';
+import type { ConsoleEmailProvider, EmailProvider } from '../services/email';
 
 export interface Ctx {
   prisma: PrismaClient;
   config: Config;
-  sms: SmsProvider;
+  email: EmailProvider;
   providers: ProviderRegistry;
   now: () => Date;
 }
@@ -22,13 +22,17 @@ declare module 'express-serve-static-core' {
     rawBody?: string;
     /** Short id echoed in X-Request-Id and in error bodies, so support can find the log line. */
     id?: string;
-    /** The signed-in admin (cookie `jp_admin`), if any. */
+    /** The signed-in person's ACTIVE role assignments (empty for a plain candidate). */
+    userRoles?: import('../admin/auth').RoleAssignment[];
+    /** When the current session was created (sign-in time): the admin freshness rule is measured from it. */
+    sessionCreatedAt?: Date;
+    /** Set by requireAdmin on /api/admin routes: the signed-in person as an admin principal. */
     admin?: import('../admin/auth').AdminPrincipal;
   }
 }
 
-export function isConsoleSms(sms: SmsProvider): sms is ConsoleSmsProvider {
-  return typeof (sms as ConsoleSmsProvider).lastCode === 'function';
+export function isConsoleEmail(email: EmailProvider): email is ConsoleEmailProvider {
+  return typeof (email as ConsoleEmailProvider).lastCode === 'function';
 }
 
 /** Resolves the session cookie (if any) onto `req.user`. Never rejects; use requireUser for that. */
@@ -39,6 +43,8 @@ export function attachUser(ctx: Ctx): RequestHandler {
       const found = await findSessionUser(ctx.prisma, ctx.config.SESSION_SECRET, token, ctx.now());
       if (found) {
         req.user = found.user;
+        req.userRoles = found.roles;
+        req.sessionCreatedAt = found.session.createdAt;
         req.sessionToken = token;
       }
     }

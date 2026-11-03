@@ -1,13 +1,12 @@
 import { ChevronRight } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PhoneBackHeader } from '../../components/layout/Header';
-import { formatPhone } from '../../lib/phone';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { ChangeCountrySheet } from './ChangeCountrySheet';
 
 /**
- * Account settings (ChangeCountryPhone.dc): name, phone, exam country. Only the phone artboard exists; on desktop
+ * Account settings (ChangeCountryPhone.dc): name, email, exam country. Only the phone artboard exists; on desktop
  * the same layout sits in a centred column (the account menu links here). No profile editing is drawn.
  * Tapping the exam country row opens the country picker; choosing a live country opens "Switch to X?" here.
  */
@@ -29,8 +28,8 @@ export function AccountPage() {
             <dd className="m-0 font-bold">{user.name}</dd>
           </div>
           <div className={row}>
-            <dt className="text-muted">Phone</dt>
-            <dd className="m-0 font-bold tabular">{formatPhone(user.phone)}</dd>
+            <dt className="text-muted">Email</dt>
+            <dd className="m-0 min-w-0 break-all pl-3 text-right font-bold">{user.email}</dd>
           </div>
           <div className="flex items-center justify-between py-1.5">
             <dt className="text-muted">Exam country</dt>

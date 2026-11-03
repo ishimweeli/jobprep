@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../../api/client';
 import {
-  codeErrorBox, expiresMinutes, initialSignInState, phoneRequestError, resendLabel, signInReducer, type SignInState,
+  codeErrorBox, expiresMinutes, initialSignInState, emailRequestError, resendLabel, signInReducer, type SignInState,
 } from './signInModel';
 
 describe('sign-in error mapping (numbers come from the API, not the artboard)', () => {
   it('a wrong code says how many tries are left, from triesLeft', () => {
     const box = codeErrorBox(new ApiError(400, 'invalid_code', { triesLeft: 3 }), 300);
-    expect(box).toMatchObject({ title: 'That code is not right', body: 'Check the SMS and try again. 3 tries left.', tone: 'red', clearCode: true, invalidBoxes: true, locksVerify: false });
-    expect(codeErrorBox(new ApiError(400, 'invalid_code', { triesLeft: 1 }), 300).body).toBe('Check the SMS and try again. 1 try left.');
+    expect(box).toMatchObject({ title: 'That code is not right', body: 'Check your email and try again. 3 tries left.', tone: 'red', clearCode: true, invalidBoxes: true, locksVerify: false });
+    expect(codeErrorBox(new ApiError(400, 'invalid_code', { triesLeft: 1 }), 300).body).toBe('Check your email and try again. 1 try left.');
   });
   it('a wrong code without triesLeft does not invent a number', () => {
-    expect(codeErrorBox(new ApiError(400, 'invalid_code'), 300).body).toBe('Check the SMS and try again.');
+    expect(codeErrorBox(new ApiError(400, 'invalid_code'), 300).body).toBe('Check your email and try again.');
   });
   it('the last wrong try (triesLeft 0) kills the code, like too_many_attempts', () => {
     const last = codeErrorBox(new ApiError(400, 'invalid_code', { triesLeft: 0 }), 300);
@@ -46,12 +46,12 @@ describe('sign-in error mapping (numbers come from the API, not the artboard)', 
   });
 });
 
-describe('sign-in phone step', () => {
-  it('an invalid number is an inline message that names the country', () => {
-    expect(phoneRequestError(new ApiError(400, 'invalid_phone'), 'Rwanda')).toEqual({ kind: 'phone', message: 'Enter a 9-digit Rwanda number, like 788 123 456.' });
+describe('sign-in email step', () => {
+  it('an invalid email is an inline message', () => {
+    expect(emailRequestError(new ApiError(400, 'invalid_email'))).toEqual({ kind: 'email', message: 'Enter a valid email address, like name@example.com.' });
   });
-  it('a rate limit on the phone step is the amber box', () => {
-    const f = phoneRequestError(new ApiError(429, 'otp_cooldown', {}, 20), 'Rwanda');
+  it('a rate limit on the email step is the amber box', () => {
+    const f = emailRequestError(new ApiError(429, 'otp_cooldown', {}, 20));
     expect(f.kind).toBe('box');
   });
 });
@@ -92,12 +92,12 @@ describe('sign-in reducer', () => {
     const exp = signInReducer(step2, { type: 'verifyFailed', box: codeErrorBox(new ApiError(400, 'code_expired'), 300) });
     expect(exp).toMatchObject({ locked: false, needsNewCode: true });
   });
-  it('a failed request stays on the phone step', () => {
-    const s = signInReducer(initialSignInState, { type: 'requestFailed', error: phoneRequestError(new ApiError(400, 'invalid_phone'), 'Rwanda') });
-    expect(s).toMatchObject({ step: 'phone', phoneError: 'Enter a 9-digit Rwanda number, like 788 123 456.' });
+  it('a failed request stays on the email step', () => {
+    const s = signInReducer(initialSignInState, { type: 'requestFailed', error: emailRequestError(new ApiError(400, 'validation_error')) });
+    expect(s).toMatchObject({ step: 'email', emailError: 'Enter a valid email address, like name@example.com.' });
   });
-  it('"Use a different number" goes back to the phone step and clears everything', () => {
+  it('"Use a different email" goes back to the email step and clears everything', () => {
     const dead = signInReducer(step2, { type: 'verifyFailed', box: codeErrorBox(new ApiError(400, 'too_many_attempts'), 300) });
-    expect(signInReducer(dead, { type: 'useDifferentNumber' })).toMatchObject({ step: 'phone', locked: false, box: null, needsNewCode: false });
+    expect(signInReducer(dead, { type: 'useDifferentEmail' })).toMatchObject({ step: 'email', locked: false, box: null, needsNewCode: false });
   });
 });

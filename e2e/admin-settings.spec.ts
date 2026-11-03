@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { BASE, adminApi, expectNoHorizontalScroll, isPhone, signInAs, watchErrors } from './admin-helpers';
+import { ADMINS, BASE, adminApi, expectNoHorizontalScroll, isPhone, signInAs, watchErrors } from './admin-helpers';
 
 test.use({ baseURL: BASE });
 
@@ -10,7 +10,7 @@ test.describe('Settings', () => {
     const before = await (await api.get('/api/admin/settings')).json();
     try {
       await signInAs(page, playwright, 'system');
-      await page.goto('/settings');
+      await page.goto('/admin/settings');
       await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
 
       const stuck = page.getByLabel('Mark a pending payment as stuck after (minutes)');
@@ -51,7 +51,7 @@ test.describe('Settings', () => {
 
   test('"free samples without an account" is shown on and cannot be changed', async ({ page, playwright }, info) => {
     await signInAs(page, playwright, 'system');
-    await page.goto('/settings');
+    await page.goto('/admin/settings');
     const box = page.getByLabel(isPhone(info) ? 'Free samples without an account' : 'Free sample tests open without an account');
     await expect(box).toBeChecked();
     await expect(box).toHaveAttribute('aria-disabled', 'true');
@@ -61,7 +61,7 @@ test.describe('Settings', () => {
 
   test('plan card shows the live price and days; Save plan, Invite and the role selects are drawn and do nothing', async ({ page, playwright }, info) => {
     await signInAs(page, playwright, 'system');
-    await page.goto('/settings');
+    await page.goto('/admin/settings');
     await expect(page.getByRole('heading', { name: 'Full Access plan · Rwanda' })).toBeVisible();
     await expect(page.getByLabel('Price (RWF)')).toHaveValue('2000');
     await expect(page.getByLabel(isPhone(info) ? 'Days' : 'Access length (days)')).toHaveValue('30');
@@ -80,6 +80,8 @@ test.describe('Settings', () => {
     const invite = page.getByRole('button', { name: isPhone(info) ? 'Invite admin' : 'Invite' });
     await expect(invite).toHaveAttribute('aria-disabled', 'true');
     if (!isPhone(info)) {
+      // each team row carries the admin's email address
+      for (const email of Object.values(ADMINS)) await expect(page.getByText(email, { exact: true })).toBeVisible();
       const role = page.getByRole('combobox', { name: 'Role for Marie C.' });
       await expect(role).toHaveValue('CONTENT_EDITOR');
       await expect(role).toHaveAttribute('aria-disabled', 'true');
@@ -98,10 +100,10 @@ test.describe('Settings', () => {
     await api.put('/api/admin/settings', { data: { stuckAfterMinutes: before.stuckAfterMinutes } });
     try {
       await signInAs(page, playwright, 'system');
-      await page.goto('/settings');
+      await page.goto('/admin/settings');
       if (isPhone(info)) {
         await page.getByRole('link', { name: 'Audit log' }).click();
-        await expect(page).toHaveURL(`${BASE}/settings/audit`);
+        await expect(page).toHaveURL(`${BASE}/admin/settings/audit`);
       }
       await expect(page.getByRole('heading', { name: 'Audit log' }).first()).toBeVisible();
       await expect(page.getByText(`changed the setting stuckAfterMinutes from ${stamp} to ${before.stuckAfterMinutes}`).first()).toBeVisible();
@@ -115,13 +117,13 @@ test.describe('Settings', () => {
 
   test('"Countries" leads to the Countries screen; Support and the editor cannot open Settings', async ({ page, playwright }, info) => {
     await signInAs(page, playwright, 'system');
-    await page.goto('/settings');
+    await page.goto('/admin/settings');
     await page.getByRole('link', { name: /^Countries/ }).first().click();
-    await expect(page).toHaveURL(`${BASE}/countries`);
+    await expect(page).toHaveURL(`${BASE}/admin/countries`);
     for (const role of ['support', 'editor'] as const) {
       await signInAs(page, playwright, role);
-      await page.goto('/settings');
-      await expect(page).toHaveURL(`${BASE}/`);
+      await page.goto('/admin/settings');
+      await expect(page).toHaveURL(`${BASE}/admin`);
     }
     void info;
   });

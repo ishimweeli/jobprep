@@ -41,8 +41,63 @@ Change goal, Request this exam, and "Number on another network".
 - **"Review last attempt" / best score** need the API to separate practice sets from mock tests (API gap, not a design gap).
 
 Backend facts the design must match (sign-in): a login code lasts **5 minutes**, allows **5 wrong tries** and is then
-dead (request a new one, resend wait **45 s**); at most **5 codes per phone per hour**, then "try again later". There is
+dead (request a new one, resend wait **45 s**); at most **5 codes per email address per hour**, then "try again later". There is
 **no timed lockout** and the API does **not** return a tries-left number.
+
+### E1 — Email sign-in (replaces phone/SMS)
+
+Owner-approved swap, 2026-11-03: an account is now identified by an **email address** and the login code is **emailed**. The
+screens below were built in their existing layouts (same screens, states and spacing) with the phone field replaced by an
+email field and the SMS wording replaced by email wording. Nothing new was invented; the designer should redraw these.
+The Mobile Money payer number at checkout is **not** an identity and stays a phone field.
+
+- **Sign-up, step 2** (`SignUp` / `SignUpPhone`): title "Your phone number" is now "Your email address"; the "Phone number" field with the
+  country dial chip ("RW +250 | 788 123 456") is now an "Email address" field with no chip; helper "We'll text you a 6-digit code…" is now
+  "We'll email you a 6-digit code to confirm it — there is no password."; inline error is "Enter a valid email address, like name@example.com."
+- **Sign-up, step 3 code** (`SignUp` / `SignUpPhone`): "Sent by SMS to +250 …" is now "Check your email. We sent a code to {email}."
+- **Sign-up and sign-in side panel** (desktop `AuthShell`): "Sign in with your phone number" is now "Sign in with your email address".
+- **Sign-in, step 1** (`SignIn` / `SignInPhone`): helper is "Enter the email address you signed up with. We'll email you a 6-digit code — there is no password."; the
+  phone field and its tappable country chip ("RW +250 ▾", which opened the country picker) are now one "Email address" field, so that chip is gone from this screen.
+- **Sign-in, step 2 code** (`SignIn` / `SignInPhone`): "…a code is on its way by SMS" is now "If {email} has a JobPrep account, a code is on its way to your email."; the wrong-code box
+  reads "Check your email and try again. N tries left."; "Use a different number" is now "Use a different email"; the desktop hint "Check the number…" is now "Check the address…".
+- **Error catalogue** (`C28`): "invalid phone" is now "invalid email"; "account exists" reads "This email address already has an account."
+- **Country not open** (`CountryGate` / `CountryGatePhone`): the dial-code phone field is now an "Email address" field; body "Leave your number and we'll send one SMS…"
+  is now "Leave your email address and we'll send one email when they're ready — nothing else."; the "You're on the list" body is now "We'll send one email to {email} when {country} opens. You can ask us to remove your address at any time."
+- **Guest wants a paid test** (`GuestPaid` / `GuestPaidPhone`) and the guest **"Keep this result"** banner on results (`Results` / `ResultsPhone`): "with your phone number" is now "with your email address".
+- **Signed-in header menu, phone Account tab, Account settings** (`AccountMenu`, `NavPhone`, `ChangeCountryPhone`): the phone number under the name is now the email address; the settings row "Phone" is now "Email";
+  the menu row hint "Name, phone number" is now "Name, email". Long addresses truncate (menu, tab) or wrap (settings).
+- **Payment confirmed** (`PayDone`): "A receipt was sent by SMS to {number}" is now "A receipt was sent to {email}."
+- **Checkout** (`Checkout`, `CheckoutKenyaPhone`): layout unchanged, but the Mobile Money number is no longer prefilled from the account. It is empty on a first payment and prefilled
+  only from the payer number of the user's last payment. Please draw the empty-field state if the current one is not enough.
+- **Copy only** (`C27`): the login-code message and the payment receipt are now emails, not SMS. Subject lines and body text are still to be written.
+
+### E2 — Admin email sign-in and email columns (admin sign-in itself superseded by E3)
+
+Owner-approved swap, 2026-11-03 (same rule as E1): admins are identified by **email address** and their login code is emailed.
+Built in the existing admin layouts; no new screen, nothing new invented. The designer should redraw these. **Note (E3):** there is no
+separate admin sign-in any more: admin people use the normal candidate sign-in, so the two "Admin sign-in" bullets below are simply the
+candidate sign-in of E1 (the admin layouts for them no longer exist).
+
+- **Admin sign-in, step 1** (desktop + phone): helper "Enter the email address you signed up with. We'll email you a 6-digit code — there is no password."; the "Phone number" field with its RW +250 chip is one "Email address" field.
+- **Admin sign-in, step 2 code** (desktop + phone): "If {email} has a JobPrep account, we sent a code to your email. It works for N minutes."; wrong-code box "Check your email and try again. N tries left."; "Use a different number" is now "Use a different email"; inline error "Enter a valid email address, like name@example.com."
+- **Users** (`AdminUsers`, `AdminUsersPhone`): the phone number under each name (table row and phone card) is the email; search label and placeholder "Search name or email" (matches name or email, any case).
+- **User detail** (`AdminUsers` side panel, `AdminUserPhone`): the phone number next to "joined {date}" is the email.
+- **Payments** (`AdminPayments`, `AdminPaymentsPhone`): under the candidate's name is the email. The payer's Mobile Money number stays a phone number: desktop shows it as a small second line under the Provider cell, phone shows it in the card's detail line ("RWF 2,000 · 078 912 3456 · 14:02 · …"). **Please draw where the payer number should sit**; these two places are the build's choice.
+- **Settings, Admin team** (`AdminSettings`): the phone number under each team member's name is the email. (The invite button is still drawn but inert, A13.)
+- **Overview search** (`AdminOverview`): "Search users, phone numbers or exams" is now "Search users, emails or exams".
+- **Unchanged on purpose:** the country "Phone prefix" field (a dial code, not an identity), and the payer number everywhere a payment is shown. The "Send login code" support button is still drawn but inert (A5); the API now emails the code.
+
+### E3 — One app, roles
+
+Owner decision, 2026-11-03: there is one backend and one frontend. The admin screens are part of the web app under `/admin`, for
+signed-in people who hold a role (one account can hold several). Nothing below is drawn in the designs; each is built the plainest way
+with existing styling. The designer should draw them.
+
+- **"Admin" entry in the candidate account menu** (desktop avatar menu and the phone Account tab; only when the account holds a role): a plain row, same style as the other rows ("Admin", no second line, a shield icon), after "Account settings". It opens `/admin`.
+- **"Please sign in again to use the admin area" notice:** the admin API asks for a sign-in within the last 12 hours. When it is older, the person is sent to the normal sign-in screen (with a return to the admin page they were on) and sees this sentence as a plain amber status box above the email field.
+- **No-access page** (signed in, no admin role, at `/admin`): "You don't have access to the admin area" / "Your account has no admin role. If you should have one, ask a system administrator to add it." / button "Go to the home page". Built with the existing system-page layout (lock icon), without any header. Also appears for an account whose roles open no page. (The restricted-role states of A17, for a role that lacks one page, are still undesigned: such a URL still redirects to the first allowed page.)
+- **Several roles on one account:** Settings → Admin team shows each person's roles as comma-separated labels in the existing role slot (phone: the grey text; desktop: the one closed select shows "Content editor, Support"); the admin sidebar's role line under the name does the same. Navigation is the union of the roles' pages. Nothing to change, add or remove a single role exists yet (A13).
+- **Admin sign-in screens (previously gap A1) no longer exist:** admin uses the normal candidate sign-in (C12 / E1). There is nothing to design for them. The E2 notes on "Admin sign-in" refer to that same screen.
 
 ---
 
@@ -242,9 +297,8 @@ Friendly text for each situation the API reports (sign-in/sign-up, checkout, exa
 
 ## A — Admin (System admin, Content editor, Support)
 
-**Status:** the designed admin screens are built (`apps/admin`); every API below is built and tested. What is still
-blocked on a design, and shown inert in the app: **A1** (admin sign-in: the candidate sign-in is reused; no sign-out control,
-no session-expired state), **A2** grant/extend dialog, **A3** suspend dialog, **A4** manual grant dialog, **A5** send login code
+**Status:** the designed admin screens are built (`apps/web/src/admin`, served at `/admin` by the web app); every API below is built and tested. What is still
+blocked on a design, and shown inert in the app: **A1** (gone: admin uses the normal candidate sign-in, see E3; the admin chrome has no sign-out control), **A2** grant/extend dialog, **A3** suspend dialog, **A4** manual grant dialog, **A5** send login code
 result and "View as candidate", **A6** CSV import, **A7/A8** category, topic and case editors, **A9** new mock test form,
 **A10** multiple-select / case-based question editor and translations, **A11** reports queue, **A12** audit log screen
 (only the short list in Settings exists), **A13** invite and role change, **A14** price change reason, country save and
@@ -256,8 +310,8 @@ short audit list), countries with go-live checklist — desktop and phone. **Rol
 Content editor (exams and questions only; optional country restriction), Support (view users, resend login codes,
 check payments). Every sensitive action needs a reason and is written to the audit log.
 
-### A1 · Admin sign-in — **P0** · desktop + phone
-- Phone number → 6-digit code → in; "not an admin" outcome that does not reveal which numbers are admins; session expired state. Match the candidate sign-in (C12) but with the **ADMIN** mark used in the admin chrome.
+### A1 · Admin sign-in — **no longer needed** (see E3)
+- Admin people sign in through the normal candidate sign-in (C12, email + emailed code) and are sent back to the admin page. No admin sign-in screens, no "not an admin" outcome and no ADMIN-marked sign-in exist any more. Still open from the old A1: a sign-out control in the admin chrome (today: the candidate account menu).
 
 ### A2 · Grant or extend access dialog — **P0** · desktop + phone
 - From user detail ("Grant / extend 30 days"). Fields: country (defaults to the user's), days or "30 days", **reason (required, free text)**; summary of what will happen ("Access will run until …"); confirm / cancel; success toast; error. Shows that it will be recorded in the audit log.

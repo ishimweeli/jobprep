@@ -20,6 +20,10 @@ React 18 + Vite 8 + TypeScript (strict) + Tailwind 3 (`@jobprep/shared/tailwind-
 
 Country is in the URL and remembered in localStorage (`jobprep.country`, try/catch). A signed-in user opening another country's URL is redirected to their own (API `country_mismatch`).
 
+## Admin area inside the web app (2026-11-03, owner: one backend, one frontend)
+
+The admin screens live in `apps/web/src/admin/**` and are served at `/admin/*`. `routes.tsx` mounts them as a lazily loaded subtree (`React.lazy` + `Suspense`, route `/admin/*`; static segments outrank `/:country`, covered by `routes.test.tsx`), so candidates never download admin code (the main chunk has none of it). It reuses the web client (`api/client.ts`: same origin, `jp_session`, one `ApiError`; `/admin/*` 401s are left to the admin guard instead of the "session expired" page), the query client, `lib/cx` and `lib/useDocumentTitle`, Tailwind and the shared tokens. Admin-only base CSS is `admin/styles/admin.css`, scoped to `html.admin-area` (set while the admin area is mounted) so it never changes a candidate page. Its sign-in is `/sign-in` (with `?next=`, and `&reason=admin_stale` for "Please sign in again to use the admin area"); the account menu and Account tab show an "Admin" row when `user.roles` is not empty; a person with no role gets the `no_access` system page. Details and file list: [ADMIN_PROGRESS.md](ADMIN_PROGRESS.md); undesigned parts: MISSING_DESIGNS **E3**.
+
 ## Removed after the owner's "no invented screens" rule
 Placeholder pages (exam start, checkout, my progress), 404/generic error pages (unknown paths redirect to `/` or the picker), sign-in screen, "Request this exam" form, "Notify me" waiting-list form and the "not open yet" sheet, account/sign-out menu (desktop and phone menu), phone hamburger menu, mobile tab bar, desktop account page, account extras (job goal, access, sign out), catalog pagination, phone-sheet Subject/Language controls, copy that is not in an artboard (e.g. the free-sample caption, the "job goal is cleared" bullet).
 

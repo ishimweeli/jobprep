@@ -1,6 +1,6 @@
 /** Copy and rules of the system pages (SystemPages.dc, SystemPagesPhone.dc). Pure, unit-tested. */
 
-export type SystemPageKind = 'not_found' | 'error' | 'maintenance' | 'session_expired';
+export type SystemPageKind = 'not_found' | 'error' | 'maintenance' | 'session_expired' | 'no_access';
 
 export interface SystemPageCopy {
   /** SVG path of the icon (24 x 24 stroke icon). */
@@ -51,6 +51,13 @@ export const SYSTEM_COPY: Record<SystemPageKind, SystemPageCopy> = {
     note: 'Your answers and results are saved.',
     cta: 'Sign in',
     alt: 'Go to the home page',
+  },
+  // Signed in without an admin role, at /admin (no artboard: docs/MISSING_DESIGNS.md E3).
+  no_access: {
+    icon: ICONS.lock,
+    title: 'You don’t have access to the admin area',
+    body: 'Your account has no admin role. If you should have one, ask a system administrator to add it.',
+    cta: 'Go to the home page',
   },
 };
 

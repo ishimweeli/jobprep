@@ -1,7 +1,6 @@
 import type { MeResponse } from '../../api/types';
 import { PhoneBackHeader } from '../../components/layout/Header';
 import { StrokeIcon } from '../../components/StrokeIcon';
-import { formatPhone } from '../../lib/phone';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
@@ -33,7 +32,7 @@ function AccountTab({ session }: { session: MeResponse }) {
           <Avatar name={user.name} size={48} />
           <span className="flex min-w-0 flex-col">
             <strong className="truncate text-[17px]">{user.name}</strong>
-            <span className="text-[13px] text-muted">{formatPhone(user.phone)}</span>
+            <span className="truncate text-[13px] text-muted">{user.email}</span>
           </span>
         </div>
         <nav aria-label="Account" className="rounded-card border border-border bg-surface p-1">

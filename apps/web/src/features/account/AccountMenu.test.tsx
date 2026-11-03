@@ -11,7 +11,7 @@ import { AccountMenu } from './AccountMenu';
 import { AccountTabPage } from './AccountTabPage';
 
 const session: MeResponse = {
-  user: { id: 'u1', name: 'Aline Uwase', phone: '+250788123456', countryCode: 'RW', goalCategoryId: null, language: 'en' },
+  user: { id: 'u1', name: 'Aline Uwase', email: 'aline@example.test', countryCode: 'RW', goalCategoryId: null, language: 'en' },
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en', 'rw'] },
   access: { current: { endsAt: '2026-11-25T00:00:00Z', daysLeft: 23, endingSoon: false }, expired: null, otherCountries: [] },
 };
@@ -57,13 +57,30 @@ describe('account menu (AccountMenu.dc)', () => {
     await user.click(avatar);
     expect(avatar).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('menu', { name: 'Account' })).toBeInTheDocument();
-    expect(screen.getByText('+250 788 123 456')).toBeInTheDocument();
+    expect(screen.getByText('aline@example.test')).toBeInTheDocument();
     expect(screen.getAllByRole('menuitem').map((e) => e.textContent)).toEqual([
-      'My progress', 'My accessFull Access · 23 days left', 'Exam countryRwanda · change', 'LanguageEnglish · Ikinyarwanda', 'Help and support', 'Account settingsName, phone number', 'Sign out',
+      'My progress', 'My accessFull Access · 23 days left', 'Exam countryRwanda · change', 'LanguageEnglish · Ikinyarwanda', 'Help and support', 'Account settingsName, email', 'Sign out',
     ]);
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(avatar).toHaveFocus();
+  });
+
+  it('a person who holds a role gets an Admin entry that opens /admin; a plain candidate does not', async () => {
+    server([]);
+    const user = userEvent.setup();
+    const withRole: MeResponse = { ...session, user: { ...session.user, roles: ['CONTENT_EDITOR', 'SUPPORT'] } };
+    renderWithProviders(
+      <>
+        <AccountMenu session={withRole} slug="rw" />
+        <Where />
+      </>,
+      { route: '/rw/progress' },
+    );
+    await user.click(screen.getByRole('button', { name: 'AU account menu for Aline Uwase' }));
+    const admin = screen.getByRole('menuitem', { name: 'Admin' });
+    expect(admin).toHaveAttribute('href', '/admin');
+    expect(screen.getAllByRole('menuitem').map((e) => e.textContent).at(-2)).toBe('Admin');
   });
 
   it('Language and Help are drawn but inert (no designs for their follow-ups)', async () => {

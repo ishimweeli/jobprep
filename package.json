@@ -23,9 +23,7 @@
     "test": "npm run test --workspaces --if-present",
     "e2e": "playwright test",
     "dev:web": "npm run dev -w @jobprep/web",
-    "build:web": "npm run build -w @jobprep/web",
-    "dev:admin": "npm run dev -w @jobprep/admin",
-    "build:admin": "npm run build -w @jobprep/admin"
+    "build:web": "npm run build -w @jobprep/web"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

@@ -17,7 +17,7 @@ export const DAY = 86_400_000;
 export interface MeInfo {
   id: string;
   name: string;
-  phone: string;
+  email: string;
 }
 
 /** The signed-in user of this page's cookie jar. */
@@ -59,9 +59,9 @@ export async function openAccount(page: Page, info: TestInfo) {
 export const signOutControl = (page: Page, info: TestInfo) =>
   isPhone(info) ? page.getByRole('button', { name: 'Sign out' }) : page.getByRole('menuitem', { name: 'Sign out' });
 
-/** Fill the phone step of /sign-in and move to the code step. */
-export async function requestSignInCode(page: Page, national: string) {
-  await page.getByLabel('Phone number').fill(national);
+/** Fill the email step of /sign-in and move to the code step. */
+export async function requestSignInCode(page: Page, email: string) {
+  await page.getByLabel('Email address').fill(email);
   await page.getByRole('button', { name: 'Send code' }).click();
   await expect(page.getByRole('heading', { name: 'Enter your code' })).toBeVisible();
 }
@@ -71,9 +71,9 @@ export async function typeCode(page: Page, code: string) {
   await page.keyboard.type(code);
 }
 
-export async function signInWithCode(page: Page, national: string) {
-  await requestSignInCode(page, national);
-  const code = await readOtp(page.request, `+250${national}`);
+export async function signInWithCode(page: Page, email: string) {
+  await requestSignInCode(page, email);
+  const code = await readOtp(page.request, email);
   await typeCode(page, code);
   await page.getByRole('button', { name: 'Verify and sign in' }).click();
 }

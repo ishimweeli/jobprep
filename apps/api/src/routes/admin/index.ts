@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { attachAdmin, requireAdmin } from '../../admin/auth';
+import { principalBody, requireAdmin, requireSameOrigin } from '../../admin/auth';
 import type { Ctx } from '../../http/context';
-import { adminAuthRouter } from './auth';
 import { adminCatalogRouter } from './catalog';
 import { adminCountriesRouter } from './countries';
 import { adminExamsRouter } from './exams';
@@ -10,15 +9,18 @@ import { adminPaymentsRouter } from './payments';
 import { adminUsersRouter } from './users';
 
 /**
- * Everything under /api/admin. The admin session is a separate cookie from the candidate session, so being
- * signed in as one never signs you in as the other. Every route below the auth router needs an admin, and each
- * route names the permission it needs; the permissions come from the admin's role.
+ * Everything under /api/admin. There is no separate admin login or cookie: the person signs in like anyone else
+ * (emailed code, normal session cookie) and must hold at least one active role, and have signed in within the
+ * last ADMIN_SESSION_HOURS. Each route below names the permission it needs; permissions are the union over the
+ * person's active roles. Requests that change data must come from the web app's own origin (CSRF).
  */
 export function adminRouter(ctx: Ctx) {
   const router = Router();
-  router.use(attachAdmin(ctx));
-  router.use('/auth', adminAuthRouter(ctx));
-  router.use(requireAdmin);
+  router.use(requireSameOrigin(ctx));
+  router.use(requireAdmin(ctx));
+  router.get('/me', (req, res) => {
+    res.json(principalBody(req.admin!));
+  });
   router.use(adminOverviewRouter(ctx));
   router.use(adminUsersRouter(ctx));
   router.use(adminPaymentsRouter(ctx));

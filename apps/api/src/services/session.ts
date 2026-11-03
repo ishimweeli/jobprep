@@ -18,7 +18,8 @@ export async function createSession(
   const token = randomBytes(32).toString('base64url');
   const expiresAt = new Date(now.getTime() + SESSION_TTL_DAYS * 86_400_000);
   await prisma.session.create({
-    data: { tokenHash: hashToken(secret, token), userId, expiresAt, userAgent: userAgent?.slice(0, 200) },
+    // createdAt is the caller's clock: the admin 12-hour freshness rule is measured from it.
+    data: { tokenHash: hashToken(secret, token), userId, expiresAt, createdAt: now, userAgent: userAgent?.slice(0, 200) },
   });
   return { token, expiresAt };
 }
@@ -26,11 +27,12 @@ export async function createSession(
 export async function findSessionUser(prisma: PrismaClient, secret: string, token: string, now: Date) {
   const session = await prisma.session.findUnique({
     where: { tokenHash: hashToken(secret, token) },
-    include: { user: true },
+    include: { user: { include: { roles: { where: { active: true }, include: { role: true } } } } },
   });
   if (!session || !session.user || session.expiresAt <= now) return null;
   if (session.user.status !== 'ACTIVE') return null;
-  return { session, user: session.user };
+  const { roles, ...user } = session.user;
+  return { session, user, roles };
 }
 
 export async function destroySession(prisma: PrismaClient, secret: string, token: string) {
@@ -46,4 +48,9 @@ export function parseCookies(header: string | undefined): Record<string, string>
     if (k) out[k] = decodeURIComponent(part.slice(i + 1).trim());
   }
   return out;
+}
+
+/** The person's active role assignments (what makes an account an admin). */
+export function loadActiveRoles(prisma: PrismaClient, userId: string) {
+  return prisma.userRole.findMany({ where: { userId, active: true }, include: { role: true }, orderBy: { createdAt: 'asc' } });
 }

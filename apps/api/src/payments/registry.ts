@@ -3,6 +3,7 @@ import { AirtelMoneyProvider } from './airtel';
 import { FakeProvider } from './fake';
 import { MpesaProvider } from './mpesa';
 import { MtnMomoProvider } from './mtn';
+import { PawaPayProvider } from './pawapay';
 import type { FetchLike, PaymentProvider, ProviderCode } from './types';
 
 /** URL segment each operator's webhook uses: POST /api/payments/webhooks/:slug */
@@ -12,6 +13,8 @@ export const WEBHOOK_SLUGS: Record<ProviderCode, string> = {
   MPESA: 'mpesa',
   FAKE: 'fake',
 };
+/** pawaPay's webhook: POST /api/payments/webhooks/pawapay?token=<PAWAPAY_CALLBACK_SECRET> (set this URL in the pawaPay dashboard). */
+export const PAWAPAY_SLUG = 'pawapay';
 
 export interface ProviderRegistry {
   /** The adapter that handles a payment method. In fake mode every method is served by the fake provider. */
@@ -33,6 +36,24 @@ export function createProviderRegistry(config: Config, fetchFn?: FetchLike): Pro
       fromSlug: (slug) => (slug === 'fake' ? fake : null),
       fake,
       callbackUrl: () => `${base}/api/payments/webhooks/fake`,
+    };
+  }
+
+  // pawaPay is the live provider: when its token is set it serves every payment method (the operator is picked by phone
+  // number) and the direct adapters below are not reachable. Leave PAWAPAY_API_TOKEN empty to select the direct adapters.
+  if (config.PAWAPAY_API_TOKEN) {
+    const pawapay = new PawaPayProvider({
+      baseUrl: config.PAWAPAY_BASE_URL, apiToken: config.PAWAPAY_API_TOKEN, callbackSecret: config.PAWAPAY_CALLBACK_SECRET,
+    }, fetchFn);
+    return {
+      get: (code) => {
+        if (code === 'FAKE') throw new Error('fake provider is not enabled in this mode');
+        return pawapay;
+      },
+      fromSlug: (slug) => (slug === PAWAPAY_SLUG ? pawapay : null),
+      fake: null,
+      callbackUrl: (code) =>
+        code === 'FAKE' ? '' : `${base}/api/payments/webhooks/${PAWAPAY_SLUG}?token=${encodeURIComponent(config.PAWAPAY_CALLBACK_SECRET)}`,
     };
   }
 

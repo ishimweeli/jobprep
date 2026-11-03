@@ -206,7 +206,7 @@ test.describe('Web: guest taps a paid test (C17)', () => {
     const dialog = page.getByRole('dialog', { name: 'This test is part of Full Access' });
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText('Accountant (Public Institution) — Mock 1 is not free. Full Access unlocks every mock test in Rwanda for 30 days for one payment of RWF 2,000.');
-    await expect(dialog).toContainText('Create a free account with your phone number, so your access belongs to you on any device.');
+    await expect(dialog).toContainText('Create a free account with your email address, so your access belongs to you on any device.');
     await expect(dialog).toContainText('Pay with MTN MoMo or Airtel Money. You come straight back to this test.');
     await expect(dialog).not.toContainText('[PRICE]');
     const next = encodeURIComponent(`/rw/checkout?test=${ACCOUNTANT_SLUG}`);
@@ -231,8 +231,8 @@ test.describe('Web: guest taps a paid test (C17)', () => {
     await buy.click();
     await page.getByRole('link', { name: 'I already have an account' }).click();
     await expect(page).toHaveURL(/\/sign-in\?next=/);
-    await requestSignInCode(page, u.national);
-    await typeCode(page, await readOtp(page.request, u.phone));
+    await requestSignInCode(page, u.email);
+    await typeCode(page, await readOtp(page.request, u.email));
     await page.getByRole('button', { name: 'Verify and sign in' }).click();
     await expect(page).toHaveURL(new RegExp(`/rw/checkout\\?test=${ACCOUNTANT_SLUG}$`));
     await expect(page.getByRole('button', { name: /^Pay RWF 2,000$/ })).toBeVisible();

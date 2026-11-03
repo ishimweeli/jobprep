@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-cert
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
-COPY apps/admin/package.json apps/admin/
 COPY packages/shared/package.json packages/shared/
 RUN npm ci
 

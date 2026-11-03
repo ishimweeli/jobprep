@@ -1,7 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { allowedCountries, type AdminPrincipal } from '../../admin/auth';
-import { normalizePhone } from '../../domain/phone';
 import { notFound } from '../../http/errors';
 
 export const pageSchema = z.object({
@@ -22,18 +21,6 @@ export function countryCodes(admin: AdminPrincipal, requested?: string): string[
 }
 
 export const inCodes = (codes: string[] | null) => (codes ? { in: codes } : undefined);
-
-/** Admin phones are stored in E.164. Accept "+250 788 …" anywhere, or a local number (assumed Rwanda, the home country). */
-export async function normalizeAdminPhone(prisma: PrismaClient, input: string): Promise<string | null> {
-  const countries = await prisma.country.findMany({ orderBy: { code: 'asc' } });
-  const trimmed = input.trim();
-  if (trimmed.startsWith('+')) {
-    const c = countries.find((x) => trimmed.startsWith(x.dialCode));
-    return c ? normalizePhone(trimmed, c.dialCode) : null;
-  }
-  const rw = countries.find((x) => x.code === 'RW');
-  return rw ? normalizePhone(trimmed, rw.dialCode) : null;
-}
 
 export const startOfDayUtc = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 export const startOfMonthUtc = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));

@@ -8,8 +8,7 @@ import { Button, buttonClasses } from '../../components/Button';
 import { Field } from '../../components/Field';
 import { PhoneBrandHeader } from '../../components/layout/Header';
 import { authErrorMessage } from '../../lib/errorCopy';
-import { exampleNumber, invalidNumberMessage } from '../checkout/checkoutResults';
-import { formatPhone, groupNational, isValidNational, nationalDigits, toE164 } from '../../lib/phone';
+import { INVALID_EMAIL_MESSAGE, isValidEmail, normalizeEmail } from '../../lib/email';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 
 /** Country badge pill: "[UG] Uganda". */
@@ -37,23 +36,23 @@ function GateFrame({ children }: { children: React.ReactNode }) {
 /** "JobPrep isn’t open in Uganda yet": waiting-list form, then "You’re on the list". */
 export function CountryNotOpen({ country }: { country: CountrySummary }) {
   useDocumentTitle(`JobPrep isn’t open in ${country.name} yet`);
-  const [national, setNational] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [joined, setJoined] = useState<string | null>(null);
   const join = useMutation({
-    mutationFn: (phone: string) => joinWaitingList(country.code, phone),
-    onSuccess: (_r, phone) => setJoined(phone),
+    mutationFn: (address: string) => joinWaitingList(country.code, address),
+    onSuccess: (_r, address) => setJoined(address),
     onError: (e) => setError(authErrorMessage(e instanceof ApiError ? e : new ApiError(0, 'network_error'))),
   });
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!isValidNational(national)) {
-      setError(invalidNumberMessage(country.name, exampleNumber(country.code)));
+    if (!isValidEmail(email)) {
+      setError(INVALID_EMAIL_MESSAGE);
       return;
     }
-    join.mutate(toE164(national, country.dialCode));
+    join.mutate(normalizeEmail(email));
   };
 
   if (joined) {
@@ -68,7 +67,7 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
           You’re on the list
         </h1>
         <p className="m-0 text-base leading-[1.55] text-ink-2">
-          We’ll send one SMS to {formatPhone(joined, country.dialCode)} when {country.name} opens. You can ask us to remove your number at any time.
+          We’ll send one email to <strong className="break-all text-ink">{joined}</strong> when {country.name} opens. You can ask us to remove your address at any time.
         </p>
         <Link to="/choose-country" className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold' })}>
           Choose a different country
@@ -82,22 +81,21 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
       <CountryPill code={country.code}>{country.name}</CountryPill>
       <h1 className="m-0 text-[25px] leading-[1.2] tracking-tight md:text-[28px]">JobPrep isn’t open in {country.name} yet</h1>
       <p className="m-0 text-base leading-[1.55] text-ink-2">
-        We’re preparing mock tests for recruitment exams in {country.name}. Leave your number and we’ll send one SMS when they’re ready — nothing else.
+        We’re preparing mock tests for recruitment exams in {country.name}. Leave your email address and we’ll send one email when they’re ready — nothing else.
       </p>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">
         <Field
-          id="wl-tel"
-          label="Phone number"
-          type="tel"
-          inputMode="numeric"
-          autoComplete="tel-national"
-          placeholder="7XX XXX XXX"
-          value={groupNational(national)}
-          onChange={(e) => setNational(nationalDigits(e.target.value, country.dialCode).slice(0, 9))}
+          id="wl-email"
+          label="Email address"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           error={error}
-          leading={
-            <span className="inline-flex h-[52px] flex-none items-center rounded-control border border-zinc-300 bg-soft px-3 font-bold">{country.dialCode}</span>
-          }
         />
         <Button type="submit" variant="primary" size="lg" loading={join.isPending}>
           Notify me

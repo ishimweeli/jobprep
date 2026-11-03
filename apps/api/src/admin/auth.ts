@@ -1,72 +1,90 @@
-import { createHmac, randomBytes } from 'node:crypto';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
-import type { PrismaClient } from '@prisma/client';
-import type { AdminRoleCode, Permission } from '../domain/permissions';
+import type { Role, UserRole } from '@prisma/client';
+import { ROLE_LABELS, type AdminRoleCode, type Permission } from '../domain/permissions';
 import type { Ctx } from '../http/context';
-import { forbidden, notFound, unauthorized } from '../http/errors';
-import { parseCookies } from '../services/session';
+import { forbidden, HttpError, notFound, unauthorized } from '../http/errors';
 
-export const ADMIN_COOKIE = 'jp_admin';
-/** Admin sessions are short: a forgotten laptop should not stay signed in for a month. */
+/**
+ * Admin access is not a separate account type: it is a normal account (normal session cookie, normal emailed
+ * sign-in code) that holds one or more active role assignments (UserRole). Nothing here creates or reads a
+ * session of its own; `attachUser` has already resolved the person and their active assignments.
+ */
+
+/** How recently the person must have signed in to use /api/admin (the session is created at sign-in). */
 export const ADMIN_SESSION_HOURS = 12;
+
+/** An active role assignment as loaded with the session. */
+export type RoleAssignment = UserRole & { role: Role };
 
 export interface AdminPrincipal {
   id: string;
   name: string;
-  phone: string;
-  role: AdminRoleCode;
+  email: string;
+  roles: { code: AdminRoleCode; label: string }[];
+  /** Union of the permissions of every active role. */
   permissions: Permission[];
   /** Empty = every country. */
   countryScope: string[];
 }
 
-const hash = (secret: string, token: string) => createHmac('sha256', `admin:${secret}`).update(token).digest('hex');
-
-export async function createAdminSession(prisma: PrismaClient, secret: string, adminId: string, now: Date, userAgent?: string) {
-  const token = randomBytes(32).toString('base64url');
-  const expiresAt = new Date(now.getTime() + ADMIN_SESSION_HOURS * 3_600_000);
-  await prisma.session.create({
-    data: { tokenHash: hash(secret, token), adminUserId: adminId, expiresAt, userAgent: userAgent?.slice(0, 200) },
-  });
-  return { token, expiresAt };
+/**
+ * The effective country scope across roles: every country if ANY active role is unscoped, otherwise the union
+ * of the scopes. (Simplification, DECISIONS 88: scope is not tracked per permission.)
+ */
+export function effectiveScope(assignments: Pick<UserRole, 'countryScope'>[]): string[] {
+  if (assignments.some((a) => a.countryScope.length === 0)) return [];
+  return [...new Set(assignments.flatMap((a) => a.countryScope))].sort();
 }
 
-export async function findAdminSession(prisma: PrismaClient, secret: string, token: string, now: Date): Promise<AdminPrincipal | null> {
-  const s = await prisma.session.findUnique({
-    where: { tokenHash: hash(secret, token) },
-    include: { adminUser: { include: { role: true } } },
-  });
-  if (!s || !s.adminUser || s.expiresAt <= now || !s.adminUser.active) return null;
-  const a = s.adminUser;
+export function buildPrincipal(user: { id: string; name: string; email: string }, assignments: RoleAssignment[]): AdminPrincipal {
+  const sorted = [...assignments].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   return {
-    id: a.id, name: a.name, phone: a.phone, role: a.role.name as AdminRoleCode,
-    permissions: a.role.permissions as Permission[], countryScope: a.countryScope,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    roles: sorted.map((a) => ({ code: a.role.name as AdminRoleCode, label: ROLE_LABELS[a.role.name as AdminRoleCode] ?? a.role.label })),
+    permissions: [...new Set(sorted.flatMap((a) => a.role.permissions))] as Permission[],
+    countryScope: effectiveScope(sorted),
   };
 }
 
-export async function destroyAdminSession(prisma: PrismaClient, secret: string, token: string) {
-  await prisma.session.deleteMany({ where: { tokenHash: hash(secret, token) } });
-}
+/** The shape of GET /api/admin/me. */
+export const principalBody = (p: AdminPrincipal) => ({
+  id: p.id, name: p.name, email: p.email, roles: p.roles, permissions: p.permissions, countryScope: p.countryScope,
+});
 
-/** Resolves the admin cookie onto `req.admin`. Never rejects. */
-export function attachAdmin(ctx: Ctx): RequestHandler {
-  return async (req: Request, _res: Response, next: NextFunction) => {
-    const token = parseCookies(req.headers.cookie)[ADMIN_COOKIE];
-    if (token) {
-      const admin = await findAdminSession(ctx.prisma, ctx.config.SESSION_SECRET, token, ctx.now());
-      if (admin) {
-        req.admin = admin;
-        (req as Request & { adminToken?: string }).adminToken = token;
-      }
-    }
+/**
+ * Gate for everything under /api/admin. Needs: a valid normal session (401 admin_sign_in_required), an active
+ * account (a suspended account has no valid session, so it lands here too), at least one active role (403
+ * admin_forbidden), and a sign-in no older than ADMIN_SESSION_HOURS (401 admin_session_stale: the person is signed
+ * in but must sign in again). Roles are read on every request, so removing a role takes effect immediately.
+ */
+export function requireAdmin(ctx: Ctx): RequestHandler {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.user || !req.sessionCreatedAt) return next(unauthorized('admin_sign_in_required'));
+    const assignments = req.userRoles ?? [];
+    if (assignments.length === 0) return next(forbidden('admin_forbidden'));
+    const age = ctx.now().getTime() - req.sessionCreatedAt.getTime();
+    if (age > ADMIN_SESSION_HOURS * 3_600_000) return next(unauthorized('admin_session_stale'));
+    req.admin = buildPrincipal(req.user, assignments);
     next();
   };
 }
 
-export const requireAdmin: RequestHandler = (req, _res, next) => {
-  if (!req.admin) return next(unauthorized('admin_sign_in_required'));
-  next();
-};
+/**
+ * CSRF replacement for the old SameSite=Strict admin cookie. The session cookie is SameSite=Lax, so a state-changing
+ * admin request is only accepted from the web app's own origin. A request with no Origin header (curl, tests, some
+ * same-origin clients) is allowed: browsers always send Origin on cross-site POST/PATCH/PUT/DELETE.
+ */
+export function requireSameOrigin(ctx: Ctx): RequestHandler {
+  const allowed = new URL(ctx.config.WEB_ORIGIN).origin;
+  return (req: Request, _res: Response, next: NextFunction) => {
+    if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+    const origin = req.get('origin');
+    if (origin !== undefined && origin !== allowed) return next(new HttpError(403, 'bad_origin'));
+    next();
+  };
+}
 
 /** Every listed permission is required. Roles are data; the permission map lives in domain/permissions. */
 export function requirePermission(...needed: Permission[]): RequestHandler {

@@ -5,19 +5,31 @@ import os from 'node:os';
 import path from 'node:path';
 
 /**
- * Helpers for the admin app specs. The admin app runs on 5174 and proxies /api to the admin API instance on 4001, so
- * every call (admin and candidate) goes through the same origin as the page.
+ * Helpers for the admin specs. The admin screens are part of the web app (/admin). Their specs run against a second
+ * instance of the web dev server on 5174 whose Vite proxy sends /api to a separate API instance on 4001 (its own
+ * database, reseeded), so they never touch the data the candidate specs use on 4000/5173. Every call (admin and
+ * candidate) goes through the same origin as the page. People sign in through the normal sign-in (email + emailed code).
  */
 export const BASE = process.env.ADMIN_URL ?? 'http://localhost:5174';
-export const ADMINS = { system: '+250788000001', editor: '+250788000002', support: '+250788000003' } as const;
+export const ADMINS = {
+  system: 'system.admin@jobprep.test',
+  editor: 'content.editor@jobprep.test',
+  support: 'support@jobprep.test',
+  /** One account, two roles: content editor (Rwanda) + support. */
+  multi: 'multi.role@jobprep.test',
+} as const;
 export type Role = keyof typeof ADMINS;
 
 export const isPhone = (info: TestInfo) => info.project.name === 'phone-390';
 
-export const randomPhone = () => `+250789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`;
+/** A fresh address for a candidate (accounts are identified by email). */
+export const randomEmail = (tag = 'e2e') => `${tag}.${Date.now().toString(36)}${Math.floor(Math.random() * 1_000_000).toString(36)}@example.com`;
 
-export async function readOtp(request: APIRequestContext, phone: string): Promise<string> {
-  const res = await request.get(`${BASE}/api/test/otp`, { params: { phone } });
+/** A mobile-money payer number (what a payment carries as `msisdn`; it is not the account identity). */
+export const randomMsisdn = () => `+250789${String(Math.floor(Math.random() * 1_000_000)).padStart(6, '0')}`;
+
+export async function readOtp(request: APIRequestContext, email: string): Promise<string> {
+  const res = await request.get(`${BASE}/api/test/otp`, { params: { email } });
   expect(res.ok(), 'GET /api/test/otp (needs ENABLE_TEST_ENDPOINTS=true)').toBeTruthy();
   return ((await res.json()) as { code: string }).code;
 }
@@ -47,34 +59,37 @@ export async function expectAccessible(page: Page, what: string) {
   expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`), `axe on ${what}`).toEqual([]);
 }
 
-// ───────────────────────── Admin sessions
-// An admin gets a sign-in code per phone with a 45 s wait and at most 5 an hour, so the specs share one session per
-// role (12 hours) kept in a temp file, and only sign in again when it is gone or no longer valid.
+// ───────────────────────── Sessions (the normal session cookie, jp_session)
+// Sign-in codes are limited (a wait between codes per email, and a cap an hour), so the specs share one session per role
+// kept in a temp file, and only sign in again when it is gone or no longer valid. An admin session is only good for
+// admin calls for 12 hours after sign-in: a cached one that is older is simply replaced.
 
-const cacheFile = (role: Role) => path.join(os.tmpdir(), `jobprep-admin-e2e-${role}.json`);
+const cacheFile = (role: Role) => path.join(os.tmpdir(), `jobprep-web-admin-e2e-${role}.json`);
+export const SESSION_COOKIE = 'jp_session';
 
 type Cookie = { name: string; value: string; domain: string; path: string; expires: number; httpOnly: boolean; secure: boolean; sameSite: 'Strict' | 'Lax' | 'None' };
 
 async function sessionIsValid(playwright: Playwright, cookies: Cookie[]): Promise<boolean> {
-  const jp = cookies.find((c) => c.name === 'jp_admin');
-  if (!jp || jp.expires * 1000 < Date.now() + 60_000) return false;
-  const ctx = await playwright.request.newContext({ extraHTTPHeaders: { cookie: `jp_admin=${jp.value}` } });
+  const jp = cookies.find((c) => c.name === SESSION_COOKIE);
+  if (!jp || (jp.expires > 0 && jp.expires * 1000 < Date.now() + 60_000)) return false;
+  const ctx = await playwright.request.newContext({ extraHTTPHeaders: { cookie: `${SESSION_COOKIE}=${jp.value}` } });
   try {
-    return (await ctx.get(`${BASE}/api/admin/auth/me`)).ok();
+    return (await ctx.get(`${BASE}/api/admin/me`)).ok();
   } finally {
     await ctx.dispose();
   }
 }
 
-export async function requestCode(request: APIRequestContext, phone: string) {
+/** Asks for a sign-in code through the normal API, waiting out the cooldown when a code was asked for a moment ago. */
+export async function requestCode(request: APIRequestContext, email: string) {
   for (let i = 0; i < 3; i++) {
-    const r = await request.post(`${BASE}/api/admin/auth/otp/request`, { data: { phone } });
+    const r = await request.post(`${BASE}/api/auth/otp/request`, { data: { purpose: 'sign_in', email } });
     if (r.status() === 200) return;
     const body = (await r.json()) as { error: string; retryAfterSeconds?: number };
-    if (body.error !== 'otp_cooldown') throw new Error(`admin code request failed: ${body.error} (${body.retryAfterSeconds ?? '-'}s)`);
+    if (body.error !== 'otp_cooldown') throw new Error(`sign-in code request failed: ${body.error} (${body.retryAfterSeconds ?? '-'}s)`);
     await new Promise((res) => setTimeout(res, ((body.retryAfterSeconds ?? 45) + 1) * 1000));
   }
-  throw new Error('admin code request kept hitting the cooldown');
+  throw new Error('sign-in code request kept hitting the cooldown');
 }
 
 async function signInViaApi(playwright: Playwright, role: Role): Promise<Cookie[]> {
@@ -82,8 +97,8 @@ async function signInViaApi(playwright: Playwright, role: Role): Promise<Cookie[
   try {
     await requestCode(ctx, ADMINS[role]);
     const code = await readOtp(ctx, ADMINS[role]);
-    const r = await ctx.post(`${BASE}/api/admin/auth/sign-in`, { data: { phone: ADMINS[role], code } });
-    expect(r.status(), 'admin sign-in').toBe(200);
+    const r = await ctx.post(`${BASE}/api/auth/sign-in`, { data: { email: ADMINS[role], code, guestTokens: [] } });
+    expect(r.status(), 'sign-in').toBe(200);
     return (await ctx.storageState()).cookies as Cookie[];
   } finally {
     await ctx.dispose();
@@ -92,12 +107,11 @@ async function signInViaApi(playwright: Playwright, role: Role): Promise<Cookie[
 
 /** Remember a session that was just created through the UI, so later specs do not ask for another code. */
 export async function rememberSession(page: Page, role: Role) {
-  const cookies = (await page.context().storageState()).cookies.filter((c) => c.name === 'jp_admin');
+  const cookies = (await page.context().storageState()).cookies.filter((c) => c.name === SESSION_COOKIE);
   if (cookies.length) fs.writeFileSync(cacheFile(role), JSON.stringify(cookies));
 }
 
-/** Signs this page's browser in as the role (no UI). */
-export async function signInAs(page: Page, playwright: Playwright, role: Role) {
+async function cachedSession(playwright: Playwright, role: Role): Promise<Cookie[]> {
   let cookies: Cookie[] | null = null;
   try {
     cookies = JSON.parse(fs.readFileSync(cacheFile(role), 'utf8')) as Cookie[];
@@ -108,23 +122,25 @@ export async function signInAs(page: Page, playwright: Playwright, role: Role) {
     cookies = await signInViaApi(playwright, role);
     fs.writeFileSync(cacheFile(role), JSON.stringify(cookies));
   }
-  await page.context().addCookies(cookies);
+  return cookies;
+}
+
+/**
+ * The web app remembers "this browser signed in" in localStorage (the cookie is httpOnly); without it the candidate
+ * screens do not ask who is signed in. Set before any page script runs.
+ */
+export const rememberSignedIn = (page: Page) => page.addInitScript(() => localStorage.setItem('jobprep.session', '1'));
+
+/** Signs this page's browser in as the role (no UI). */
+export async function signInAs(page: Page, playwright: Playwright, role: Role) {
+  await page.context().addCookies(await cachedSession(playwright, role));
+  await rememberSignedIn(page);
 }
 
 /** A request context that is signed in as the role, for setting data up and putting it back. */
 export async function adminApi(playwright: Playwright, role: Role = 'system') {
-  let cookies: Cookie[] | null = null;
-  try {
-    cookies = JSON.parse(fs.readFileSync(cacheFile(role), 'utf8')) as Cookie[];
-  } catch {
-    cookies = null;
-  }
-  if (!cookies || !(await sessionIsValid(playwright, cookies))) {
-    cookies = await signInViaApi(playwright, role);
-    fs.writeFileSync(cacheFile(role), JSON.stringify(cookies));
-  }
-  const jp = cookies.find((c) => c.name === 'jp_admin')!;
-  return playwright.request.newContext({ baseURL: BASE, extraHTTPHeaders: { cookie: `jp_admin=${jp.value}` } });
+  const jp = (await cachedSession(playwright, role)).find((c) => c.name === SESSION_COOKIE)!;
+  return playwright.request.newContext({ baseURL: BASE, extraHTTPHeaders: { cookie: `${SESSION_COOKIE}=${jp.value}` } });
 }
 
 // ───────────────────────── Candidates (the public API, as a guest or a signed-up user)
@@ -132,13 +148,21 @@ export async function adminApi(playwright: Playwright, role: Role = 'system') {
 export const FREE_SAMPLE = { country: 'RW', slug: 'procurement-officer-free-sample' };
 
 export async function signUpCandidate(request: APIRequestContext, name = 'E2E Admin Subject') {
-  const phone = randomPhone();
-  const r1 = await request.post(`${BASE}/api/auth/otp/request`, { data: { purpose: 'sign_up', countryCode: 'RW', phone } });
+  const email = randomEmail();
+  const r1 = await request.post(`${BASE}/api/auth/otp/request`, { data: { purpose: 'sign_up', countryCode: 'RW', email } });
   expect(r1.status()).toBe(200);
-  const code = await readOtp(request, phone);
-  const r2 = await request.post(`${BASE}/api/auth/sign-up`, { data: { countryCode: 'RW', phone, name, code } });
+  const code = await readOtp(request, email);
+  const r2 = await request.post(`${BASE}/api/auth/sign-up`, { data: { countryCode: 'RW', email, name, code } });
   expect(r2.status()).toBe(201);
-  return { phone, name };
+  // `msisdn` is the mobile-money number this candidate pays with (a payment field, not the account identity).
+  return { email, name, msisdn: randomMsisdn() };
+}
+
+/** Signs a brand-new candidate (no admin role) up in this page's browser, through the normal API, and marks the browser as signed in. */
+export async function signUpAsCandidate(page: Page, name = 'E2E No Role') {
+  const who = await signUpCandidate(page.request, name);
+  await rememberSignedIn(page);
+  return who;
 }
 
 /** Starts a free sample as a guest and returns what the candidate sees. */
@@ -152,8 +176,8 @@ export async function startGuestAttempt(request: APIRequestContext, slug = FREE_
 }
 
 /** A pending MTN payment of a signed-up candidate, settled at the (fake) operator but with no callback delivered. */
-export async function createPendingPayment(request: APIRequestContext, phone: string) {
-  const created = await request.post(`${BASE}/api/payments`, { data: { provider: 'MTN_MOMO', msisdn: phone } });
+export async function createPendingPayment(request: APIRequestContext, msisdn: string) {
+  const created = await request.post(`${BASE}/api/payments`, { data: { provider: 'MTN_MOMO', msisdn } });
   expect(created.status()).toBe(201);
   return (await created.json()) as { id: string };
 }

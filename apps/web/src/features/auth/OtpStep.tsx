@@ -8,8 +8,8 @@ import { useCountdown } from '../../lib/useCountdown';
 import { OTP_LENGTH, OtpInput } from './OtpInput';
 
 interface Props {
-  /** "+250 788 123 456" — shown in the heading text. */
-  phoneLabel: string;
+  /** "aline@example.com" — shown in the heading text. */
+  emailLabel: string;
   /** Seconds before the first resend is allowed (the API's `cooldownSeconds` from the request just made). */
   initialCooldown: number;
   submitLabel?: string;
@@ -24,7 +24,7 @@ interface Props {
  * OTP entry with a resend countdown. The countdown starts from the API's `cooldownSeconds`;
  * if a resend is rejected with 429 the countdown restarts from `Retry-After` / `retryAfterSeconds`.
  */
-export function OtpStep({ phoneLabel, initialCooldown, submitLabel = 'Verify', onSubmit, onResend, heading = 'Enter the code' }: Props) {
+export function OtpStep({ emailLabel, initialCooldown, submitLabel = 'Verify', onSubmit, onResend, heading = 'Enter the code' }: Props) {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -72,7 +72,7 @@ export function OtpStep({ phoneLabel, initialCooldown, submitLabel = 'Verify', o
     <form onSubmit={submit} noValidate className="flex flex-col gap-[18px]">
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-2xl font-bold tracking-tight md:text-[26px]">{heading}</h1>
-        <p className="m-0 text-[15px] text-ink-2">Sent by SMS to {phoneLabel}.</p>
+        <p className="m-0 text-[15px] text-ink-2">Check your email. We sent a code to <strong className="break-all text-ink">{emailLabel}</strong>.</p>
       </div>
       <OtpInput value={code} onChange={setCode} disabled={busy} invalid={!!error} describedBy={error ? 'otp-error' : undefined} />
       {error && (

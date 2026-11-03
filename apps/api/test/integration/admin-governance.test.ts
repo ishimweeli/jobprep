@@ -5,15 +5,15 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { REASON_REQUIRED, describeAudit, writeAudit } from '../../src/admin/audit';
 import { createApp } from '../../src/app';
 import { createProviderRegistry } from '../../src/payments/registry';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { ADMINS, adminAgent, resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 const config = testConfig();
 const providers = createProviderRegistry(config);
 let clock = new Date();
-const app = createApp({ prisma, config, sms, providers, now: () => clock });
+const app = createApp({ prisma, config, email: mail, providers, now: () => clock });
 const advance = (secs: number) => { clock = new Date(clock.getTime() + secs * 1000); };
 
 type Agent = ReturnType<typeof request.agent>;
@@ -22,13 +22,13 @@ const audit = (action: string, entityId?: string) => prisma.auditLog.findMany({ 
 
 beforeAll(async () => {
   await resetAndSeed(prisma);
-  system = await adminAgent(app, sms, ADMINS.SYSTEM);
+  system = await adminAgent(app, mail, ADMINS.SYSTEM);
 });
 afterAll(() => prisma.$disconnect());
 
 describe('countries', () => {
   it('lists every country with status counts, users, tests, waiting list and price', async () => {
-    await prisma.waitingListEntry.createMany({ data: [{ countryCode: 'UG', phone: '+256700000001' }, { countryCode: 'UG', phone: '+256700000002' }] });
+    await prisma.waitingListEntry.createMany({ data: [{ countryCode: 'UG', email: 'wl1@example.com' }, { countryCode: 'UG', email: 'wl2@example.com' }] });
     const b = (await system.get('/api/admin/countries')).body;
     expect(b.counts).toEqual({ live: 1, preparing: 1, planned: 2 });
     const by = Object.fromEntries(b.countries.map((c: { code: string }) => [c.code, c]));
@@ -71,7 +71,7 @@ describe('price (Full Access plan)', () => {
   });
 
   it('changes the price for NEW payments only: open payments keep their price, active access is untouched; it is audited with before and after', async () => {
-    const c = await signedInAgent(app, sms, '+250788620001');
+    const c = await signedInAgent(app, mail, 'gov.price@example.com');
     const open = await c.agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn: '+250788620001' });
     expect(open.body.priceLabel).toBe('RWF 2,000');
     const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
@@ -121,7 +121,7 @@ describe('payment methods', () => {
 
   it('switching a method off removes it from checkout', async () => {
     await system.patch('/api/admin/countries/RW/payment-methods/AIRTEL_MONEY').send({ mode: 'DISABLED', reason: 'Airtel maintenance window' });
-    const c = await signedInAgent(app, sms, '+250788620002');
+    const c = await signedInAgent(app, mail, 'gov.two@example.com');
     expect((await c.agent.get('/api/me/checkout')).body.paymentMethods.map((m: { provider: string }) => m.provider)).toEqual(['MTN_MOMO']);
     await system.patch('/api/admin/countries/RW/payment-methods/AIRTEL_MONEY').send({ mode: 'SANDBOX', reason: 'maintenance finished' });
   });
@@ -154,7 +154,7 @@ describe('going live', () => {
     expect(log).toMatchObject({ reason: 'pilot launch for acceptance testing', countryCode: 'KE' });
     expect(describeAudit(log)).toContain('forced Kenya live despite an incomplete checklist');
     expect((await request(app).get('/api/countries/KE/landing')).status).toBe(200);
-    const ke = await signedInAgent(app, sms, '+254712620001', 'KE');
+    const ke = await signedInAgent(app, mail, 'gov.ke@example.com', 'KE');
     expect((await ke.agent.get('/api/me/checkout')).body.plan).toMatchObject({ priceLabel: 'KES 1,500.00', checkoutAvailable: true });
     await system.patch('/api/admin/countries/KE').send({ status: 'PREPARING', reason: 'pilot finished, back to preparing' });
     expect((await request(app).get('/api/countries/KE/landing')).status).toBe(404);
@@ -222,71 +222,163 @@ describe('settings', () => {
 });
 
 describe('admin team', () => {
-  it('lists the team with roles and country restrictions', async () => {
+  it('lists the team with roles and country restrictions (including the legacy single-role fields)', async () => {
     const b = (await system.get('/api/admin/team')).body.team;
     expect(b.map((a: { name: string; roleLabel: string }) => [a.name, a.roleLabel])).toEqual([
-      ['Jean Bosco N.', 'System admin'], ['Marie C.', 'Content editor'], ['Support Agent', 'Support'],
+      ['Jean Bosco N.', 'System admin'], ['Marie C.', 'Content editor'], ['Support Agent', 'Support'], ['Multi Role', 'Content editor'],
     ]);
     expect(b[1].countryScope).toEqual(['RW']);
+    expect(b[1].roles).toEqual([{ code: 'CONTENT_EDITOR', label: 'Content editor', countryScope: ['RW'], active: true }]);
+    // one account, two roles, each with its own scope
+    expect(b[3].roles).toEqual([
+      { code: 'CONTENT_EDITOR', label: 'Content editor', countryScope: ['RW'], active: true },
+      { code: 'SUPPORT', label: 'Support', countryScope: [], active: true },
+    ]);
+    expect(b[3]).toMatchObject({ role: 'CONTENT_EDITOR', countryScope: ['RW'], active: true });
   });
 
-  it('inviting needs a reason, a valid number, a role; a restricted editor can sign in and is limited', async () => {
-    const body = { phone: '078 800 0099', name: 'Kenya Editor', role: 'CONTENT_EDITOR', countryScope: ['ke'] };
+  it('inviting needs a reason, a valid email address, a role; a restricted editor can sign in and is limited', async () => {
+    const body = { email: ' Kenya.Editor@JobPrep.test ', name: 'Kenya Editor', role: 'CONTENT_EDITOR', countryScope: ['ke'] };
     expect((await system.post('/api/admin/team').send(body)).status).toBe(400); // no reason
-    expect((await system.post('/api/admin/team').send({ ...body, phone: '078', reason: 'new editor for Kenya' })).status).toBe(400);
+    expect((await system.post('/api/admin/team').send({ ...body, email: 'not-an-email', reason: 'new editor for Kenya' })).status).toBe(400);
     expect((await system.post('/api/admin/team').send({ ...body, role: 'OWNER', reason: 'new editor for Kenya' })).status).toBe(400);
     const res = await system.post('/api/admin/team').send({ ...body, reason: 'new editor for Kenya content' });
     expect(res.status).toBe(201);
-    expect(res.body.admin).toMatchObject({ phone: '+250788000099', role: 'CONTENT_EDITOR', roleLabel: 'Content editor', countryScope: ['KE'], active: true });
-    expect((await system.post('/api/admin/team').send({ ...body, reason: 'duplicate invitation' })).body.error).toBe('admin_exists');
-    expect((await system.post('/api/admin/team').send({ phone: '+250788000098', name: 'Bad Admin', role: 'SYSTEM_ADMIN', countryScope: ['RW'], reason: 'scoped system admin' })).body.error).toBe('system_admin_has_all_countries');
+    expect(res.body.admin).toMatchObject({ email: 'kenya.editor@jobprep.test', role: 'CONTENT_EDITOR', roleLabel: 'Content editor', countryScope: ['KE'], active: true });
+    expect(res.body.addedToExistingAccount).toBe(false);
+    // a brand-new account: Rwanda, English, and the invitation itself sends no email
+    expect(await prisma.user.findUnique({ where: { email: 'kenya.editor@jobprep.test' } })).toMatchObject({ countryCode: 'RW', language: 'en', status: 'ACTIVE' });
+    expect(mail.lastTo('kenya.editor@jobprep.test')).toBeUndefined();
+    expect((await system.post('/api/admin/team').send({ ...body, reason: 'duplicate invitation' })).body.error).toBe('already_has_role');
+    expect((await system.post('/api/admin/team').send({ email: 'bad.admin@jobprep.test', name: 'Bad Admin', role: 'SYSTEM_ADMIN', countryScope: ['RW'], reason: 'scoped system admin' })).body.error).toBe('system_admin_has_all_countries');
+    expect(await prisma.user.findUnique({ where: { email: 'bad.admin@jobprep.test' } })).toBeNull(); // nothing half-created
 
     const log = (await audit('admin.invite')).at(-1)!;
     expect(describeAudit(log)).toBe('invited Kenya Editor as Content editor — reason: new editor for Kenya content');
 
     advance(120);
-    const kenya = await adminAgent(app, sms, '+250788000099');
+    const kenya = await adminAgent(app, mail, 'kenya.editor@jobprep.test');
     expect((await kenya.get('/api/admin/exams')).body.results.every((t: { countryCode: string }) => t.countryCode === 'KE')).toBe(true);
     expect((await kenya.get('/api/admin/audit')).status).toBe(403);
   });
 
-  it('changing a role takes effect at once (open sessions end) and is audited', async () => {
-    const admin = await prisma.adminUser.findFirstOrThrow({ where: { phone: '+250788000099' } });
+  it('inviting an existing candidate adds the role to their account instead of making a second one', async () => {
+    const c = await signedInAgent(app, mail, 'candidate.turned.support@example.com');
+    expect((await c.agent.get('/api/admin/me')).body.error).toBe('admin_forbidden'); // a candidate has no admin access…
+    expect((await c.agent.get('/api/me')).body.user.roles).toEqual([]);
+    const res = await system.post('/api/admin/team').send({
+      email: 'Candidate.Turned.Support@example.com', name: 'Ignored Name', role: 'SUPPORT', countryScope: [], reason: 'helping the support desk',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.addedToExistingAccount).toBe(true);
+    expect(res.body.admin).toMatchObject({ id: c.userId, name: 'Test Candidate', role: 'SUPPORT' }); // same account, name kept
+    expect(await prisma.user.count({ where: { email: 'candidate.turned.support@example.com' } })).toBe(1);
+    // …and has it on the very next request, in the same session (roles are read each time)
+    expect((await c.agent.get('/api/admin/me')).body).toMatchObject({ id: c.userId, roles: [{ code: 'SUPPORT', label: 'Support' }] });
+    expect((await c.agent.get('/api/me')).body.user.roles).toEqual(['SUPPORT']);
+    expect((await c.agent.get('/api/admin/users')).status).toBe(200);
+    // their candidate side is untouched
+    expect((await c.agent.get('/api/me/dashboard')).status).toBe(200);
+    expect((await audit('admin.invite')).at(-1)!.metadata).toMatchObject({ addedToExistingAccount: true, reactivated: false });
+  });
+
+  it('a second role is added to someone who already has one; the same role twice is refused; a removed role is reactivated by inviting again', async () => {
+    const support = await prisma.user.findUniqueOrThrow({ where: { email: ADMINS.SUPPORT } });
+    const res = await system.post('/api/admin/team').send({ email: ADMINS.SUPPORT, name: 'Support Agent', role: 'CONTENT_EDITOR', countryScope: ['KE'], reason: 'covering Kenya content' });
+    expect(res.status).toBe(201);
+    expect(res.body.admin.roles.map((r: { code: string; countryScope: string[] }) => [r.code, r.countryScope])).toEqual([['SUPPORT', []], ['CONTENT_EDITOR', ['KE']]]);
+    expect((await system.post('/api/admin/team').send({ email: ADMINS.SUPPORT, name: 'Support Agent', role: 'SUPPORT', reason: 'already has this' })).body.error).toBe('already_has_role');
+
+    // remove the extra role, then invite again: the same assignment comes back with the new scope
+    await system.patch(`/api/admin/team/${support.id}`).send({ role: 'CONTENT_EDITOR', active: false, reason: 'Kenya covered by someone else' });
+    expect(await prisma.userRole.count({ where: { userId: support.id } })).toBe(2);
+    const again = await system.post('/api/admin/team').send({ email: ADMINS.SUPPORT, name: 'Support Agent', role: 'CONTENT_EDITOR', countryScope: ['RW'], reason: 'covering Rwanda content' });
+    expect(again.status).toBe(201);
+    expect(await prisma.userRole.count({ where: { userId: support.id } })).toBe(2); // not a third row
+    expect(again.body.admin.roles.find((r: { code: string }) => r.code === 'CONTENT_EDITOR')).toMatchObject({ active: true, countryScope: ['RW'] });
+    expect((await audit('admin.invite')).at(-1)!.metadata).toMatchObject({ reactivated: true });
+    // put the support account back as it was for the other tests
+    await system.patch(`/api/admin/team/${support.id}`).send({ role: 'CONTENT_EDITOR', active: false, reason: 'restoring seed state' });
+  });
+
+  it('changing an assignment (role, scope) takes effect on the next request and is audited', async () => {
+    const admin = await prisma.user.findUniqueOrThrow({ where: { email: 'kenya.editor@jobprep.test' } });
     advance(120);
-    const s = await adminAgent(app, sms, '+250788000099');
-    expect((await s.get('/api/admin/auth/me')).status).toBe(200);
-    expect((await system.patch(`/api/admin/team/${admin.id}`).send({ role: 'SUPPORT' })).status).toBe(400); // reason required
-    const res = await system.patch(`/api/admin/team/${admin.id}`).send({ role: 'SUPPORT', reason: 'moving to support duties' });
+    const s = await adminAgent(app, mail, 'kenya.editor@jobprep.test');
+    expect((await s.get('/api/admin/me')).body.roles).toEqual([{ code: 'CONTENT_EDITOR', label: 'Content editor' }]);
+    expect((await system.patch(`/api/admin/team/${admin.id}`).send({ newRole: 'SUPPORT' })).status).toBe(400); // reason required
+    const res = await system.patch(`/api/admin/team/${admin.id}`).send({ newRole: 'SUPPORT', reason: 'moving to support duties' });
     expect(res.body.admin).toMatchObject({ role: 'SUPPORT', roleLabel: 'Support' });
-    expect((await s.get('/api/admin/auth/me')).status).toBe(401);
+    expect(res.body.admin.roles).toHaveLength(1);
+    expect((await s.get('/api/admin/me')).body.roles).toEqual([{ code: 'SUPPORT', label: 'Support' }]); // same session, new role
+    expect((await s.get('/api/admin/users')).status).toBe(200);
+    expect((await s.get('/api/admin/exams')).status).toBe(403);
     const log = (await audit('admin.update', admin.id)).at(-1)!;
     expect(log.metadata).toMatchObject({ name: 'Kenya Editor', change: expect.stringContaining('Content editor → Support') });
     expect((await system.patch(`/api/admin/team/${admin.id}`).send({ reason: 'nothing at all to change' })).body.error).toBe('nothing_to_change');
+    expect((await system.patch(`/api/admin/team/${admin.id}`).send({ role: 'CONTENT_EDITOR', countryScope: ['KE'], reason: 'not an assignment they hold' })).body.error).toBe('role_not_assigned');
+    // put it back
+    await system.patch(`/api/admin/team/${admin.id}`).send({ newRole: 'CONTENT_EDITOR', countryScope: ['KE'], reason: 'back to Kenya content' });
   });
 
-  it('deactivating ends sessions and blocks sign-in; reactivating restores it; both need a reason', async () => {
-    const admin = await prisma.adminUser.findFirstOrThrow({ where: { phone: '+250788000099' } });
+  it('with two roles, `role` picks the assignment being changed', async () => {
+    const multi = await prisma.user.findUniqueOrThrow({ where: { email: ADMINS.MULTI } });
+    const res = await system.patch(`/api/admin/team/${multi.id}`).send({ role: 'CONTENT_EDITOR', countryScope: ['RW', 'KE'], reason: 'adding Kenya to the editor role' });
+    expect(res.body.admin.roles).toEqual([
+      { code: 'CONTENT_EDITOR', label: 'Content editor', countryScope: ['RW', 'KE'], active: true },
+      { code: 'SUPPORT', label: 'Support', countryScope: [], active: true },
+    ]);
+    expect((await system.patch(`/api/admin/team/${multi.id}`).send({ role: 'CONTENT_EDITOR', newRole: 'SUPPORT', reason: 'would duplicate a role' })).body.error).toBe('already_has_role');
+    await system.patch(`/api/admin/team/${multi.id}`).send({ role: 'CONTENT_EDITOR', countryScope: ['RW'], reason: 'restoring seed state' });
+  });
+
+  it('removing a role (active:false) blocks that access at once, keeps the account, and reactivating restores it', async () => {
+    const admin = await prisma.user.findUniqueOrThrow({ where: { email: 'kenya.editor@jobprep.test' } });
     advance(120);
-    const s = await adminAgent(app, sms, '+250788000099');
+    const s = await adminAgent(app, mail, 'kenya.editor@jobprep.test');
     expect((await system.patch(`/api/admin/team/${admin.id}`).send({ active: false, reason: 'no' })).status).toBe(400);
     await system.patch(`/api/admin/team/${admin.id}`).send({ active: false, reason: 'left the organisation' });
-    expect((await s.get('/api/admin/auth/me')).status).toBe(401);
+    expect((await s.get('/api/admin/me')).body.error).toBe('admin_forbidden');
+    expect((await s.get('/api/me')).status).toBe(200); // still a normal account, still signed in
     expect(await audit('admin.deactivate', admin.id)).toHaveLength(1);
-    advance(120);
-    sms.clear();
-    await request(app).post('/api/admin/auth/otp/request').send({ phone: '+250788000099' });
-    expect(sms.lastTo('+250788000099')).toBeUndefined();
+    const listed = (await system.get('/api/admin/team')).body.team.find((t: { id: string }) => t.id === admin.id);
+    expect(listed).toMatchObject({ active: false, roles: [{ code: 'CONTENT_EDITOR', active: false }] }); // still listed
     await system.patch(`/api/admin/team/${admin.id}`).send({ active: true, reason: 'returned from leave' });
-    advance(120);
-    expect((await (await adminAgent(app, sms, '+250788000099')).get('/api/admin/auth/me')).status).toBe(200);
+    expect((await s.get('/api/admin/me')).status).toBe(200);
   });
 
-  it('nobody can lock themselves out: no changing your own role, no deactivating yourself', async () => {
-    const me = await prisma.adminUser.findFirstOrThrow({ where: { phone: ADMINS.SYSTEM } });
-    expect((await system.patch(`/api/admin/team/${me.id}`).send({ role: 'SUPPORT', reason: 'demote myself' })).body.error).toBe('cannot_change_own_role');
+  it('nobody can lock themselves out: no changing your own system-admin role, no deactivating or suspending yourself', async () => {
+    const me = await prisma.user.findUniqueOrThrow({ where: { email: ADMINS.SYSTEM } });
+    expect((await system.patch(`/api/admin/team/${me.id}`).send({ newRole: 'SUPPORT', reason: 'demote myself' })).body.error).toBe('cannot_change_own_role');
     expect((await system.patch(`/api/admin/team/${me.id}`).send({ active: false, reason: 'remove myself' })).body.error).toBe('cannot_deactivate_self');
-    expect((await prisma.adminUser.findUniqueOrThrow({ where: { id: me.id } })).active).toBe(true);
+    expect((await prisma.userRole.findFirstOrThrow({ where: { userId: me.id } })).active).toBe(true);
+    expect((await system.post(`/api/admin/users/${me.id}/suspend`).send({ reason: 'suspend myself' })).body.error).toBe('cannot_suspend_self');
     expect((await system.patch('/api/admin/team/nope').send({ name: 'Nobody Here', reason: 'unknown admin' })).status).toBe(404);
+    // a candidate with no role is not "on the team"
+    const c = await signedInAgent(app, mail, 'not.on.team@example.com');
+    expect((await system.patch(`/api/admin/team/${c.userId}`).send({ name: 'Not On Team', reason: 'no role held' })).status).toBe(404);
+  });
+
+  it('the platform always keeps one active system admin, even if another role was given team-management rights', async () => {
+    // Roles are data: if someone gave Support the right to manage the team, they still could not remove the last system admin.
+    const supportRole = await prisma.role.findUniqueOrThrow({ where: { name: 'SUPPORT' } });
+    await prisma.role.update({ where: { id: supportRole.id }, data: { permissions: [...supportRole.permissions, 'admins:manage'] } });
+    try {
+      advance(120);
+      const sup = await adminAgent(app, mail, ADMINS.SUPPORT);
+      const sys = await prisma.user.findUniqueOrThrow({ where: { email: ADMINS.SYSTEM } });
+      expect((await sup.patch(`/api/admin/team/${sys.id}`).send({ active: false, reason: 'remove the only system admin' })).body.error).toBe('last_system_admin');
+      expect((await sup.patch(`/api/admin/team/${sys.id}`).send({ newRole: 'SUPPORT', reason: 'demote the only system admin' })).body.error).toBe('last_system_admin');
+      expect((await sup.post(`/api/admin/users/${sys.id}/suspend`).send({ reason: 'suspend the only system admin' })).status).toBe(403); // support cannot suspend
+      expect((await prisma.userRole.findFirstOrThrow({ where: { userId: sys.id } })).active).toBe(true);
+      // with a second active system admin, removing one is fine
+      await system.post('/api/admin/team').send({ email: 'second.sysadmin@example.com', name: 'Second Sysadmin', role: 'SYSTEM_ADMIN', reason: 'second system admin' });
+      expect((await sup.patch(`/api/admin/team/${sys.id}`).send({ active: false, reason: 'handover complete' })).status).toBe(200);
+      await prisma.userRole.updateMany({ where: { userId: sys.id }, data: { active: true } }); // back as seeded
+      await prisma.userRole.deleteMany({ where: { user: { email: 'second.sysadmin@example.com' } } });
+    } finally {
+      await prisma.role.update({ where: { id: supportRole.id }, data: { permissions: supportRole.permissions } });
+    }
   });
 });
 
@@ -301,7 +393,7 @@ describe('audit log', () => {
   });
 
   it('filters by actor, action, entity, country and date, and paginates', async () => {
-    const sys = await prisma.adminUser.findFirstOrThrow({ where: { phone: ADMINS.SYSTEM } });
+    const sys = await prisma.user.findUniqueOrThrow({ where: { email: ADMINS.SYSTEM } });
     const all = (await system.get('/api/admin/audit?pageSize=100')).body;
     expect((await system.get(`/api/admin/audit?actorId=${sys.id}&pageSize=100`)).body.results.every((r: { actor: { id: string } }) => r.actor.id === sys.id)).toBe(true);
     expect((await system.get('/api/admin/audit?action=country.&pageSize=100')).body.results.every((r: { action: string }) => r.action.startsWith('country.'))).toBe(true);
@@ -315,7 +407,7 @@ describe('audit log', () => {
   });
 
   it('the actions that move money or access cannot be written without a reason', async () => {
-    const admin = await prisma.adminUser.findFirstOrThrow({ where: { phone: ADMINS.SYSTEM } });
+    const admin = await prisma.user.findUniqueOrThrow({ where: { email: ADMINS.SYSTEM } });
     for (const action of REASON_REQUIRED) {
       await expect(writeAudit(prisma, admin, { action, entityType: 'x' }), action).rejects.toMatchObject({ code: 'reason_required' });
       await expect(writeAudit(prisma, admin, { action, entityType: 'x', reason: '   ' }), action).rejects.toMatchObject({ code: 'reason_required' });
@@ -324,7 +416,7 @@ describe('audit log', () => {
   });
 
   it('a failed action does not leave an audit entry behind (the log is written in the same transaction)', async () => {
-    const c = await signedInAgent(app, sms, '+250788620077');
+    const c = await signedInAgent(app, mail, 'gov.audit@example.com');
     const before = await prisma.auditLog.count({ where: { action: 'user.suspend' } });
     await system.post(`/api/admin/users/${c.userId}/suspend`).send({ reason: 'x' }); // too short → rejected
     expect(await prisma.auditLog.count({ where: { action: 'user.suspend' } })).toBe(before);

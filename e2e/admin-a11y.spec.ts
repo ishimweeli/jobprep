@@ -5,12 +5,12 @@ test.use({ baseURL: BASE });
 
 /** axe (WCAG 2 A/AA) on every admin screen, at both sizes, plus focus visibility and touch targets. */
 const SCREENS: { name: string; url: string; heading: RegExp | string; level?: 1 | 2 }[] = [
-  { name: 'Overview', url: '/', heading: 'Overview' },
-  { name: 'Users', url: '/users', heading: 'Users' },
-  { name: 'Exams & questions', url: '/exams', heading: 'Exams & questions' },
-  { name: 'Payments', url: '/payments', heading: 'Payments' },
-  { name: 'Settings', url: '/settings', heading: 'Settings' },
-  { name: 'Countries', url: '/countries', heading: 'Countries' },
+  { name: 'Overview', url: '/admin', heading: 'Overview' },
+  { name: 'Users', url: '/admin/users', heading: 'Users' },
+  { name: 'Exams & questions', url: '/admin/exams', heading: 'Exams & questions' },
+  { name: 'Payments', url: '/admin/payments', heading: 'Payments' },
+  { name: 'Settings', url: '/admin/settings', heading: 'Settings' },
+  { name: 'Countries', url: '/admin/countries', heading: 'Countries' },
 ];
 
 for (const s of SCREENS) {
@@ -35,20 +35,20 @@ test('axe: the user detail, the question editor (editable and read-only), the ph
   const multi = detail.questions.find((q: { type: string }) => q.type === 'MULTIPLE_SELECT');
   await signInAs(page, playwright, 'system');
 
-  await page.goto(`/users/${users.results[0].id}`);
+  await page.goto(`/admin/users/${users.results[0].id}`);
   await expect(page.getByText('ACCESS', { exact: true })).toBeVisible();
   await expectAccessible(page, 'user detail');
 
-  await page.goto(`/exams/${maths.id}/q/${detail.questions[0].id}`);
+  await page.goto(`/admin/exams/${maths.id}/q/${detail.questions[0].id}`);
   await expect(page.getByLabel('Question', { exact: true })).toBeVisible();
   await expectAccessible(page, 'question editor');
 
-  await page.goto(`/exams/${maths.id}/q/${multi.id}`);
+  await page.goto(`/admin/exams/${maths.id}/q/${multi.id}`);
   await expect(page.getByLabel('Question', { exact: true })).toBeVisible();
   await expectAccessible(page, 'question editor, read-only');
 
   if (isPhone(info)) {
-    await page.goto('/settings/audit');
+    await page.goto('/admin/settings/audit');
     await expect(page.getByRole('heading', { level: 2, name: 'Audit log' })).toBeVisible();
     await expectAccessible(page, 'audit log (phone)');
   }
@@ -57,9 +57,9 @@ test('axe: the user detail, the question editor (editable and read-only), the ph
 
 test('focus is visible (3px #A78BFA ring) and the main controls are at least 44px', async ({ page, playwright }, info) => {
   await signInAs(page, playwright, 'system');
-  await page.goto('/users');
+  await page.goto('/admin/users');
   await expect(page.getByRole('heading', { level: 1, name: 'Users' })).toBeVisible();
-  const search = page.getByRole('searchbox', { name: /Search (by )?name or phone/ });
+  const search = page.getByRole('searchbox', { name: /Search (by )?name or email/ });
   await search.focus();
   const outline = await search.evaluate((el) => {
     const c = getComputedStyle(el);
@@ -80,7 +80,7 @@ test('360px wide: no page scrolls sideways (wide tables scroll inside their own 
   test.skip(!isPhone(info), 'phone widths only');
   await page.setViewportSize({ width: 360, height: 800 });
   await signInAs(page, playwright, 'system');
-  for (const url of ['/', '/users', '/exams', '/payments', '/settings', '/settings/audit', '/countries']) {
+  for (const url of ['/', '/admin/users', '/admin/exams', '/admin/payments', '/admin/settings', '/admin/settings/audit', '/admin/countries']) {
     await page.goto(url);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.getByText(/^Loading/)).toHaveCount(0);

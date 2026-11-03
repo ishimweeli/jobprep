@@ -8,7 +8,7 @@ import { SignInPage } from './SignInPage';
 const countries = {
   countries: [{ code: 'RW', slug: 'rw', name: 'Rwanda', status: 'LIVE', dialCode: '+250', currencyCode: 'RWF', languages: ['en', 'rw'], selectable: true }],
 };
-const user = { id: 'u1', name: 'Aline Uwase', phone: '+250788123456', countryCode: 'RW', goalCategoryId: null, language: 'en' };
+const user = { id: 'u1', name: 'Aline Uwase', email: 'aline@example.test', countryCode: 'RW', goalCategoryId: null, language: 'en' };
 
 function Where() {
   const l = useLocation();
@@ -48,7 +48,7 @@ afterEach(() => {
 });
 
 async function toCodeStep(u: ReturnType<typeof userEvent.setup>) {
-  await u.type(await screen.findByLabelText('Phone number'), '788123456');
+  await u.type(await screen.findByLabelText('Email address'), '  Aline@Example.test ');
   await u.click(screen.getByRole('button', { name: 'Send code' }));
   await screen.findByRole('heading', { name: 'Enter your code' });
 }
@@ -56,13 +56,13 @@ const type = (code: string) => fireEvent.paste(screen.getByLabelText('Digit 1'),
 const verifyBtn = () => screen.getByRole('button', { name: 'Verify and sign in' });
 
 describe('sign-in screen (SignIn.dc)', () => {
-  it('rejects a short number inline without calling the API', async () => {
+  it('rejects a malformed email inline without calling the API', async () => {
     const { calls } = server({});
     const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderSignIn();
-    await u.type(await screen.findByLabelText('Phone number'), '78812');
+    await u.type(await screen.findByLabelText('Email address'), 'aline@');
     await u.click(screen.getByRole('button', { name: 'Send code' }));
-    expect(await screen.findByText('Enter a 9-digit Rwanda number, like 788 123 456.')).toBeInTheDocument();
+    expect(await screen.findByText('Enter a valid email address, like name@example.com.')).toBeInTheDocument();
     expect(calls.some((c) => c.url === '/api/auth/otp/request')).toBe(false);
   });
 
@@ -72,8 +72,8 @@ describe('sign-in screen (SignIn.dc)', () => {
     renderSignIn();
     await toCodeStep(u);
     const req = calls.find((c) => c.url === '/api/auth/otp/request');
-    expect(JSON.parse(String(req?.init?.body))).toEqual({ purpose: 'sign_in', phone: '+250788123456', countryCode: 'RW' });
-    expect(screen.getByText(/has a JobPrep account, a code is on its way by SMS\. It works for 5 minutes\./)).toBeInTheDocument();
+    expect(JSON.parse(String(req?.init?.body))).toEqual({ purpose: 'sign_in', email: 'aline@example.test' });
+    expect(screen.getByText(/has a JobPrep account, a code is on its way to your email/)).toHaveTextContent('If aline@example.test has a JobPrep account, a code is on its way to your email. It works for 5 minutes.');
     expect(screen.getByRole('button', { name: 'Resend code in 0:45' })).toBeDisabled();
     act(() => void vi.advanceTimersByTime(46_000));
     expect(screen.getByRole('button', { name: 'Resend code' })).toBeEnabled();
@@ -87,7 +87,7 @@ describe('sign-in screen (SignIn.dc)', () => {
     type('123456');
     await u.click(verifyBtn());
     expect(await screen.findByText('That code is not right')).toBeInTheDocument();
-    expect(screen.getByText('Check the SMS and try again. 3 tries left.')).toBeInTheDocument();
+    expect(screen.getByText('Check your email and try again. 3 tries left.')).toBeInTheDocument();
     expect((screen.getByLabelText('Digit 1') as HTMLInputElement).value).toBe('');
   });
 
@@ -143,7 +143,7 @@ describe('sign-in screen (SignIn.dc)', () => {
     server({ request: [{ status: 429, body: { error: 'otp_hourly_limit', retryAfterSeconds: 2400 } }] });
     const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderSignIn();
-    await u.type(await screen.findByLabelText('Phone number'), '788123456');
+    await u.type(await screen.findByLabelText('Email address'), '  Aline@Example.test ');
     await u.click(screen.getByRole('button', { name: 'Send code' }));
     expect(await screen.findByText('You have asked for too many codes. Try again in about 40 minutes.')).toBeInTheDocument();
   });
@@ -186,13 +186,33 @@ describe('sign-in screen (SignIn.dc)', () => {
     await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/progress'));
   });
 
-  it('"Use a different number" goes back, and the page links to sign-up', async () => {
+  it('the admin area asks for a fresh sign-in: a signed-in person stays on the screen, sees the notice, and returns to the admin page', async () => {
+    localStorage.setItem('jobprep.session', '1');
+    server({ verify: [{ body: { user: { ...user, roles: ['SYSTEM_ADMIN'] }, claimedAttempts: 0 } }] });
+    const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    renderSignIn('/sign-in?next=%2Fadmin%2Fusers&reason=admin_stale');
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Please sign in again to use the admin area');
+    await toCodeStep(u);
+    type('123456');
+    await u.click(verifyBtn());
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/admin/users'));
+  });
+
+  it('a signed-in person without that reason is sent on to ?next= at once', async () => {
+    localStorage.setItem('jobprep.session', '1');
+    server({});
+    renderSignIn('/sign-in?next=%2Frw%2Fcheckout');
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/checkout'));
+  });
+
+  it('"Use a different email" goes back, and the page links to sign-up', async () => {
     server({});
     const u = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderSignIn();
     expect(await screen.findByRole('link', { name: 'Create a free account' })).toHaveAttribute('href', '/sign-up');
     await toCodeStep(u);
-    await u.click(screen.getByRole('button', { name: 'Use a different number' }));
+    await u.click(screen.getByRole('button', { name: 'Use a different email' }));
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
   });
 });

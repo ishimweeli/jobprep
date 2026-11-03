@@ -29,18 +29,21 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 60_000,
     },
-    // Admin app (e2e/admin-*.spec.ts): its own API instance on 4001 and Vite on 5174 (proxying /api to 4001).
+    // Admin specs (e2e/admin-*.spec.ts) test /admin inside the web app, with data isolation kept: their own API instance
+    // on 4001 (set ADMIN_E2E_DATABASE_URL to point it at its own reseeded database, e.g. `jobprep_admin_test`) and a second instance of
+    // the web dev server on 5174 whose Vite proxy targets 4001 (apps/web/vite.config.ts: API_URL, WEB_PORT).
     {
       command: 'npm run start -w @jobprep/api',
       url: 'http://localhost:4001/api/health',
-      env: { PORT: '4001' },
+      // The same few admin emails sign in many times per run, so the per-email code cooldown and hourly cap are relaxed on this test API only.
+      env: { PORT: '4001', WEB_ORIGIN: 'http://localhost:5174', OTP_RESEND_COOLDOWN_SECONDS: '0', OTP_MAX_PER_HOUR: '1000', ...(process.env.ADMIN_E2E_DATABASE_URL ? { DATABASE_URL: process.env.ADMIN_E2E_DATABASE_URL } : {}) },
       reuseExistingServer: true,
       timeout: 60_000,
     },
     {
-      command: 'npm run dev -w @jobprep/admin',
+      command: 'npm run dev -w @jobprep/web',
       url: 'http://localhost:5174',
-      env: { ADMIN_API_URL: 'http://localhost:4001' },
+      env: { WEB_PORT: '5174', API_URL: 'http://localhost:4001' },
       reuseExistingServer: true,
       timeout: 60_000,
     },

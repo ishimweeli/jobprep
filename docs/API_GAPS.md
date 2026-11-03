@@ -89,10 +89,10 @@ Appended by the frontend engineer (`apps/web`). Each entry: what is needed, endp
 ### 21. "Practise N more" can only use one topic
 - A set built from three weak topics can be repeated for one topic only (`POST /api/countries/:code/practice {topicId}`), because there is no endpoint that takes several topic ids. The web app uses the topic with most questions in the set.
 
-## Admin (apps/admin)
+## Admin (apps/web/src/admin)
 Found while building the admin screens against `/api/admin/*`. Each has a workaround in the app; nothing here changes the API.
 
-### A-1. The audit sentence for a sign-in reads "admin sign_in"
+### A-1. The audit sentence for a sign-in reads "admin sign_in" (moot since DECISIONS 88: admin sign-in is the normal sign-in and is no longer written to the audit log)
 - **Need:** `describeAudit` case for `admin.sign_in` (for instance "signed in") and for any other action without a case: the default turns `admin.sign_in` into "admin sign_in".
 - **Why:** the Settings audit list prints the server's `summary` after the actor's name: "Jean Bosco N. admin sign_in".
 - **Workaround:** none (the server's sentence is shown as it is, as designed).
@@ -122,7 +122,7 @@ Found while building the admin screens against `/api/admin/*`. Each has a workar
 - **Why:** harmless today (only System admin has it) but the screen cannot show the stuck-after value to Support, who sees "Stuck" payments.
 - **Workaround:** none needed now; Settings is System admin only.
 
-### A-7. Admin sign-in codes: five an hour per phone, 45 s apart
+### A-7. Admin sign-in codes: five an hour per email, 45 s apart (since DECISIONS 88 these are the normal sign-in codes, purpose `SIGN_IN`)
 - Not a defect: it makes automated sign-in tests share one session per role (`e2e/admin-helpers.ts` keeps it in the temp directory) and wait out the cooldown.
 
 ### A-8. The checklist labels carry no currency

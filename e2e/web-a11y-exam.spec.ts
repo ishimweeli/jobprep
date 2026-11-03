@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { isPhone, signUpViaApi } from './web-helpers';
+import { fillPayerNumber, isPhone, signUpViaApi } from './web-helpers';
 import {
   ACCOUNTANT_SLUG, choose, simulatePayment, completeViaApi, FREE_SLUG, nextButton, questionHeading, startFreeExam, submitButton,
 } from './web-exam-helpers';
@@ -47,6 +47,7 @@ test.describe('Web: accessibility of the exam, results, review, dashboard and ch
     await page.goto('/rw/checkout');
     await expect(page.getByRole('button', { name: 'Pay RWF 2,000' })).toBeVisible();
     await expectNoViolations(page); // checkout form
+    await fillPayerNumber(page);
     const created = page.waitForResponse((r) => r.url().endsWith('/api/payments') && r.request().method() === 'POST');
     await page.getByRole('button', { name: 'Pay RWF 2,000' }).click();
     const payment = (await (await created).json()) as { id: string };
@@ -74,6 +75,7 @@ test.describe('Web: accessibility of the exam, results, review, dashboard and ch
   test('axe: Time is up, payment confirmed and payment not completed', async ({ page }) => {
     await signUpViaApi(page);
     await page.goto('/rw/checkout');
+    await fillPayerNumber(page);
     const created = page.waitForResponse((r) => r.url().endsWith('/api/payments') && r.request().method() === 'POST');
     await page.getByRole('button', { name: 'Pay RWF 2,000' }).click();
     const { id } = (await (await created).json()) as { id: string };

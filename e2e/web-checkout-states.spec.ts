@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { API, expectNoHorizontalScroll, signUpViaApi, watchErrors } from './web-helpers';
+import { API, expectNoHorizontalScroll, fillPayerNumber, signUpViaApi, watchErrors } from './web-helpers';
 import { simulatePayment } from './web-exam-helpers';
 import { addGrant, cleanUser, me } from './web-p3-helpers';
 
@@ -7,6 +7,7 @@ const expected4xx5xx = (e: string) => /status of [45]\d\d/.test(e);
 
 async function toPending(page: Page) {
   await page.goto('/rw/checkout');
+  await fillPayerNumber(page, '789123456');
   await page.getByRole('button', { name: /^Pay RWF 2,000$/ }).click();
   await expect(page.getByRole('heading', { name: 'Approve on your phone' })).toBeVisible();
 }
@@ -88,6 +89,7 @@ test.describe('Web: checkout edge states (C20)', () => {
       route.request().method() === 'POST' ? route.fulfill({ status: 502, json: { error: 'provider_unavailable', paymentId: 'x', requestId: 'ABCD1234' } }) : route.continue(),
     );
     await page.goto('/rw/checkout');
+    await fillPayerNumber(page);
     await page.getByRole('button', { name: /^Pay RWF 2,000$/ }).click();
     const card = page.getByRole('status').filter({ hasText: 'MTN MoMo is not responding' });
     await expect(card).toBeVisible();

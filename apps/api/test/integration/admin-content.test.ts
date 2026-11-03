@@ -2,13 +2,13 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
 import type { QuestionPayload } from '../../src/domain/scoring';
-import { ConsoleSmsProvider } from '../../src/services/sms';
+import { ConsoleEmailProvider } from '../../src/services/email';
 import { ADMINS, adminAgent, resetAndSeed, testConfig, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
-const sms = new ConsoleSmsProvider(() => {});
+const mail = new ConsoleEmailProvider(() => {});
 const clock = new Date('2026-11-02T10:00:00Z');
-const app = createApp({ prisma, config: testConfig(), sms, now: () => clock });
+const app = createApp({ prisma, config: testConfig(), email: mail, now: () => clock });
 
 type Agent = ReturnType<typeof request.agent>;
 let system: Agent; let editor: Agent;
@@ -18,8 +18,8 @@ const ACCOUNTANT = 'accountant-public-institution-mock-1';
 
 beforeAll(async () => {
   await resetAndSeed(prisma);
-  system = await adminAgent(app, sms, ADMINS.SYSTEM);
-  editor = await adminAgent(app, sms, ADMINS.EDITOR);
+  system = await adminAgent(app, mail, ADMINS.SYSTEM);
+  editor = await adminAgent(app, mail, ADMINS.EDITOR);
 });
 afterAll(() => prisma.$disconnect());
 

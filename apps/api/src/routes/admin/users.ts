@@ -38,10 +38,9 @@ export function adminUsersRouter(ctx: Ctx) {
     const codes = countryCodes(req.admin!, f.country);
     const activeGrant: Prisma.AccessGrantWhereInput = { status: 'ACTIVE', startsAt: { lte: at }, endsAt: { gt: at } };
 
-    const digits = (f.q ?? '').replace(/\D/g, '');
     const where: Prisma.UserWhereInput = {
       countryCode: inCodes(codes),
-      ...(f.q && { OR: [{ name: { contains: f.q, mode: 'insensitive' } }, ...(digits.length >= 3 ? [{ phone: { contains: digits } }] : [])] }),
+      ...(f.q && { OR: [{ name: { contains: f.q, mode: 'insensitive' } }, { email: { contains: f.q, mode: 'insensitive' } }] }),
       ...(f.filter === 'suspended' && { status: 'SUSPENDED' }),
       ...(f.filter === 'active' && { status: 'ACTIVE', accessGrants: { some: activeGrant } }),
       ...(f.filter === 'free' && { status: 'ACTIVE', accessGrants: { none: {} } }),
@@ -52,12 +51,16 @@ export function adminUsersRouter(ctx: Ctx) {
       prisma.user.findMany({
         where, orderBy: [{ lastSeenAt: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
         skip: (f.page - 1) * f.pageSize, take: f.pageSize,
-        include: { goalCategory: { select: { name: true } }, _count: { select: { attempts: { where: { status: { not: 'IN_PROGRESS' } } } } } },
+        include: {
+          goalCategory: { select: { name: true } }, _count: { select: { attempts: { where: { status: { not: 'IN_PROGRESS' } } } } },
+          roles: { where: { active: true }, select: { role: { select: { name: true } } } },
+        },
       }),
     ]);
     const rows = await Promise.all(users.map(async (u) => ({
-      id: u.id, name: u.name, phone: u.phone, countryCode: u.countryCode, goal: u.goalCategory?.name ?? null,
+      id: u.id, name: u.name, email: u.email, countryCode: u.countryCode, goal: u.goalCategory?.name ?? null,
       testsTaken: u._count.attempts, lastActiveAt: u.lastSeenAt, joinedAt: u.createdAt, status: u.status,
+      roles: u.roles.map((r) => r.role.name),
       access: await accessStateFor(u),
     })));
     res.json({ total, page: f.page, pageSize: f.pageSize, filter: f.filter, results: rows });
@@ -66,7 +69,7 @@ export function adminUsersRouter(ctx: Ctx) {
   router.get('/users/:id', requirePermission('users:read'), async (req, res) => {
     const u = await prisma.user.findUnique({
       where: { id: String(req.params.id) },
-      include: { goalCategory: { select: { name: true } }, country: true },
+      include: { goalCategory: { select: { name: true } }, country: true, roles: { where: { active: true }, include: { role: true } } },
     });
     if (!u) throw notFound('user_not_found');
     assertCountry(req.admin!, u.countryCode, 'user_not_found');
@@ -95,8 +98,9 @@ export function adminUsersRouter(ctx: Ctx) {
 
     res.json({
       user: {
-        id: u.id, name: u.name, phone: u.phone, countryCode: u.countryCode, joinedAt: u.createdAt, lastSeenAt: u.lastSeenAt,
+        id: u.id, name: u.name, email: u.email, countryCode: u.countryCode, joinedAt: u.createdAt, lastSeenAt: u.lastSeenAt,
         status: u.status, suspendedReason: u.suspendedReason, goal: u.goalCategory?.name ?? null, language: u.language,
+        roles: u.roles.map((r) => r.role.name),
       },
       access: { ...access, pendingPaymentSince: pendingSince, lastPaymentFailed: lastPayment ? ['FAILED', 'DECLINED', 'EXPIRED'].includes(lastPayment.status) : false },
       attempts: attempts.map((a) => ({
@@ -155,6 +159,13 @@ export function adminUsersRouter(ctx: Ctx) {
     const { reason } = z.object({ reason: reasonField }).parse(req.body);
     const u = await loadUser(req);
     if (u.status === 'SUSPENDED') throw conflict('already_suspended');
+    // Nobody suspends themselves, and the platform always keeps one active system admin.
+    if (u.id === req.admin!.id) throw conflict('cannot_suspend_self');
+    const holdsSystemAdmin = await prisma.userRole.count({ where: { userId: u.id, active: true, role: { name: 'SYSTEM_ADMIN' } } });
+    if (holdsSystemAdmin > 0) {
+      const others = await prisma.userRole.count({ where: { userId: { not: u.id }, active: true, role: { name: 'SYSTEM_ADMIN' }, user: { status: 'ACTIVE' } } });
+      if (others === 0) throw conflict('last_system_admin');
+    }
     await prisma.$transaction(async (tx) => {
       await tx.user.update({ where: { id: u.id }, data: { status: 'SUSPENDED', suspendedReason: reason } });
       await tx.session.deleteMany({ where: { userId: u.id } }); // signed out everywhere, immediately
@@ -174,12 +185,12 @@ export function adminUsersRouter(ctx: Ctx) {
     res.json({ ok: true });
   });
 
-  /** Support: text the candidate a new sign-in code (the usual resend limits still apply). */
+  /** Support: email the candidate a new sign-in code (the usual resend limits still apply). */
   router.post('/users/:id/send-login-code', requirePermission('otp:resend'), async (req, res) => {
     const u = await loadUser(req);
     if (u.status === 'SUSPENDED') throw badRequest('user_suspended');
-    const out = await requestOtp({ prisma, config: ctx.config, sms: ctx.sms, now }, { phone: u.phone, purpose: 'SIGN_IN' });
-    await writeAudit(prisma, req.admin!, { action: 'otp.resend', entityType: 'user', entityId: u.id, countryCode: u.countryCode, metadata: { targetPhone: u.phone, targetName: u.name } });
+    const out = await requestOtp({ prisma, config: ctx.config, email: ctx.email, now }, { email: u.email, purpose: 'SIGN_IN' });
+    await writeAudit(prisma, req.admin!, { action: 'otp.resend', entityType: 'user', entityId: u.id, countryCode: u.countryCode, metadata: { targetEmail: u.email, targetName: u.name } });
     res.json(out);
   });
 

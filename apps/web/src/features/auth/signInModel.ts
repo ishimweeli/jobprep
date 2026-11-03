@@ -1,5 +1,6 @@
 import { ApiError } from '../../api/client';
 import type { OtpRequestResponse } from '../../api/types';
+import { INVALID_EMAIL_MESSAGE } from '../../lib/email';
 import { mmss } from '../../lib/format';
 
 /**
@@ -55,7 +56,7 @@ export function codeErrorBox(e: unknown, expiresInSeconds: number): ErrorBox {
       return {
         ...base,
         title: 'That code is not right',
-        body: left === null ? 'Check the SMS and try again.' : `Check the SMS and try again. ${left} ${left === 1 ? 'try' : 'tries'} left.`,
+        body: left === null ? 'Check your email and try again.' : `Check your email and try again. ${left} ${left === 1 ? 'try' : 'tries'} left.`,
         tone: 'red',
         clearCode: true,
         invalidBoxes: true,
@@ -99,12 +100,12 @@ function tooManyTries(): ErrorBox {
   };
 }
 
-/** What a failed "Send code" shows: the inline phone message, or the box for rate limits and connection problems. */
-export type PhoneError = { kind: 'phone'; message: string } | { kind: 'box'; box: ErrorBox };
+/** What a failed "Send code" shows: the inline email message, or the box for rate limits and connection problems. */
+export type EmailError = { kind: 'email'; message: string } | { kind: 'box'; box: ErrorBox };
 
-export function phoneRequestError(e: unknown, countryName: string, expiresInSeconds = 300): PhoneError {
-  if (e instanceof ApiError && (e.code === 'invalid_phone' || e.code === 'validation_error')) {
-    return { kind: 'phone', message: `Enter a 9-digit ${countryName} number, like 788 123 456.` };
+export function emailRequestError(e: unknown, expiresInSeconds = 300): EmailError {
+  if (e instanceof ApiError && (e.code === 'invalid_email' || e.code === 'validation_error')) {
+    return { kind: 'email', message: INVALID_EMAIL_MESSAGE };
   }
   return { kind: 'box', box: codeErrorBox(e, expiresInSeconds) };
 }
@@ -118,10 +119,10 @@ export function resendLabel(remainingSeconds: number, needsNewCode: boolean): st
 // ───────────────────────── The state machine
 
 export interface SignInState {
-  step: 'phone' | 'code';
-  /** What is shown in the box under the digits (or under the phone number for rate limits). */
+  step: 'email' | 'code';
+  /** What is shown in the box under the digits (or under the email address for rate limits). */
   box: ErrorBox | null;
-  phoneError: string | null;
+  emailError: string | null;
   expiresInSeconds: number;
   /** The code has been killed (too many tries): Verify stays locked until a new code is requested. */
   locked: boolean;
@@ -130,9 +131,9 @@ export interface SignInState {
 }
 
 export const initialSignInState: SignInState = {
-  step: 'phone',
+  step: 'email',
   box: null,
-  phoneError: null,
+  emailError: null,
   expiresInSeconds: 300,
   locked: false,
   needsNewCode: false,
@@ -140,20 +141,20 @@ export const initialSignInState: SignInState = {
 
 export type SignInAction =
   | { type: 'codeSent'; response: OtpRequestResponse }
-  | { type: 'requestFailed'; error: PhoneError }
+  | { type: 'requestFailed'; error: EmailError }
   | { type: 'verifyFailed'; box: ErrorBox }
   | { type: 'resendFailed'; box: ErrorBox }
   | { type: 'typing' }
-  | { type: 'useDifferentNumber' };
+  | { type: 'useDifferentEmail' };
 
 export function signInReducer(state: SignInState, action: SignInAction): SignInState {
   switch (action.type) {
     case 'codeSent':
-      return { step: 'code', box: null, phoneError: null, expiresInSeconds: action.response.expiresInSeconds, locked: false, needsNewCode: false };
+      return { step: 'code', box: null, emailError: null, expiresInSeconds: action.response.expiresInSeconds, locked: false, needsNewCode: false };
     case 'requestFailed':
-      return action.error.kind === 'phone'
-        ? { ...state, step: 'phone', phoneError: action.error.message, box: null }
-        : { ...state, step: 'phone', phoneError: null, box: action.error.box };
+      return action.error.kind === 'email'
+        ? { ...state, step: 'email', emailError: action.error.message, box: null }
+        : { ...state, step: 'email', emailError: null, box: action.error.box };
     case 'verifyFailed':
       return { ...state, box: action.box, locked: action.box.locksVerify, needsNewCode: action.box.needsNewCode };
     case 'resendFailed':
@@ -161,7 +162,7 @@ export function signInReducer(state: SignInState, action: SignInAction): SignInS
     case 'typing':
       // Typing after a wrong code takes the red state away; a dead code stays dead.
       return state.locked || state.needsNewCode ? state : { ...state, box: null };
-    case 'useDifferentNumber':
+    case 'useDifferentEmail':
       return { ...initialSignInState, expiresInSeconds: state.expiresInSeconds };
   }
 }

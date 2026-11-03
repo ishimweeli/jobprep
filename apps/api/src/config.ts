@@ -18,7 +18,15 @@ const schema = z.object({
   OTP_RESEND_COOLDOWN_SECONDS: z.coerce.number().int().nonnegative().default(45),
   OTP_MAX_PER_HOUR: z.coerce.number().int().positive().default(5),
   PAYMENT_PROVIDER_MODE: z.enum(['fake', 'sandbox', 'live']).default('fake'),
-  SMS_PROVIDER: z.enum(['console', 'live']).default('console'),
+  /** Where one-time codes and receipts go. `console` only prints (dev/test); production needs `smtp` and the MAIL_* settings. */
+  EMAIL_PROVIDER: z.enum(['console', 'smtp']).default('console'),
+  MAIL_HOST: z.string().default(''),
+  MAIL_PORT: z.coerce.number().int().positive().default(465),
+  MAIL_USERNAME: z.string().default(''),
+  MAIL_PASSWORD: z.string().default(''),
+  MAIL_STARTTLS: bool,
+  MAIL_FROM_ADDRESS: z.string().default(''),
+  MAIL_FROM_NAME: z.string().default('JobPrep'),
   ENABLE_TEST_ENDPOINTS: bool,
   /** Per-IP rate limits. Default: on in production, off elsewhere (the e2e suites make many sign-ups from one IP). */
   RATE_LIMIT_ENABLED: z.enum(['true', 'false']).optional().transform((v) => (v === undefined ? undefined : v === 'true')),
@@ -41,6 +49,10 @@ const schema = z.object({
   MPESA_SHORTCODE: z.string().default(''),
   MPESA_PASSKEY: z.string().default(''),
   MPESA_CALLBACK_SECRET: z.string().default(''),
+  /** pawaPay (the live mobile-money aggregator). Sandbox base URL: https://api.sandbox.pawapay.io */
+  PAWAPAY_API_TOKEN: z.string().default(''),
+  PAWAPAY_BASE_URL: z.string().default('https://api.pawapay.io'),
+  PAWAPAY_CALLBACK_SECRET: z.string().default(''),
 });
 
 export type Config = z.infer<typeof schema>;
@@ -58,14 +70,19 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     cfg.ENABLE_TEST_ENDPOINTS = false;
     const problems: string[] = [];
     if (cfg.PAYMENT_PROVIDER_MODE === 'fake') problems.push('PAYMENT_PROVIDER_MODE=fake is not allowed in production');
-    if (cfg.SMS_PROVIDER === 'console') problems.push('SMS_PROVIDER=console is not allowed in production');
+    if (cfg.EMAIL_PROVIDER === 'console') problems.push('EMAIL_PROVIDER=console is not allowed in production');
+    if (cfg.EMAIL_PROVIDER === 'smtp') {
+      for (const k of ['MAIL_HOST', 'MAIL_USERNAME', 'MAIL_PASSWORD', 'MAIL_FROM_ADDRESS'] as const) {
+        if (!cfg[k]) problems.push(k + ' must be set when EMAIL_PROVIDER=smtp');
+      }
+    }
     if (cfg.SESSION_SECRET.length < 32 || /change-?me/i.test(cfg.SESSION_SECRET)) problems.push('SESSION_SECRET must be a random string of at least 32 characters');
     if (!cfg.PUBLIC_API_URL.startsWith('https://')) problems.push('PUBLIC_API_URL must be https in production');
     if (!cfg.WEB_ORIGIN.startsWith('https://')) problems.push('WEB_ORIGIN must be https in production');
-    // Operators authenticate their callbacks with these; an empty secret would reject every real payment.
-    for (const k of ['MTN_MOMO_CALLBACK_SECRET', 'AIRTEL_CALLBACK_SECRET', 'MPESA_CALLBACK_SECRET'] as const) {
-      if (cfg[k].length < 16) problems.push(`${k} must be set (at least 16 characters)`);
-    }
+    // pawaPay is the live provider. It cannot sign callbacks, so the secret in the callback URL is the only authentication;
+    // an empty secret would reject every real payment. (The direct MTN/Airtel/M-Pesa adapters are not required here.)
+    if (cfg.PAWAPAY_CALLBACK_SECRET.length < 16) problems.push('PAWAPAY_CALLBACK_SECRET must be set (at least 16 characters)');
+    if (cfg.PAWAPAY_API_TOKEN.length === 0) problems.push('PAWAPAY_API_TOKEN must be set');
     if (problems.length > 0) throw new Error(`Unsafe production configuration: ${problems.join('; ')}`);
   }
   return cfg;

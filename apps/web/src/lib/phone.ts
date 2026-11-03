@@ -1,3 +1,8 @@
+/**
+ * Mobile-money payer numbers only (checkout and the "approve on your phone" screens). Sign-in is by email;
+ * nothing here is used to identify an account.
+ */
+
 /** National part of a mobile number: digits only, no leading 0 or country code. */
 export function nationalDigits(input: string, dialCode: string): string {
   const dial = dialCode.replace(/\D/g, '');
@@ -8,16 +13,6 @@ export function nationalDigits(input: string, dialCode: string): string {
   }
   if (d.startsWith('0')) d = d.slice(1);
   return d;
-}
-
-/** Mobile numbers in RW/KE/UG/TZ have 9 national digits (same rule as the API). */
-export function isValidNational(national: string): boolean {
-  return /^\d{9}$/.test(national);
-}
-
-/** "+250" + "788123456" -> "+250788123456" (what we send to the API). */
-export function toE164(national: string, dialCode: string): string {
-  return `${dialCode}${national}`;
 }
 
 /** "+250788123456" -> "+250 788 123 456" for display. */

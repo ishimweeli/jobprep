@@ -4,7 +4,8 @@ import { ApiError } from '../api/client';
 import { authErrorMessage } from './errorCopy';
 import { attemptScore, initials, languageList, mmss, passMarkDisplay, plural } from './format';
 import { readGuestTokens } from './guestTokens';
-import { formatPhone, groupNational, isValidNational, nationalDigits, toE164 } from './phone';
+import { isValidEmail, normalizeEmail } from './email';
+import { formatPhone, groupNational, nationalDigits } from './phone';
 
 describe('pass mark display rule', () => {
   it('shows an official pass mark only with percent AND source', () => {
@@ -39,18 +40,28 @@ describe('phone helpers', () => {
     expect(nationalDigits('+250 788 123 456', '+250')).toBe('788123456');
     expect(nationalDigits('788-123-456', '+250')).toBe('788123456');
   });
-  it('validates 9 digits and builds E.164', () => {
-    expect(isValidNational('788123456')).toBe(true);
-    expect(isValidNational('78812345')).toBe(false);
-    expect(toE164('788123456', '+250')).toBe('+250788123456');
+  it('formats a payer number for display', () => {
     expect(formatPhone('+250788123456', '+250')).toBe('+250 788 123 456');
     expect(groupNational('788123')).toBe('788 123');
   });
 });
 
+describe('email helpers', () => {
+  it('trims and lower-cases', () => {
+    expect(normalizeEmail('  Aline.Uwase@Example.COM ')).toBe('aline.uwase@example.com');
+  });
+  it('accepts plain addresses and rejects obvious mistakes', () => {
+    expect(isValidEmail('aline@example.com')).toBe(true);
+    expect(isValidEmail('  a.b+tag@mail.example.co.rw ')).toBe(true);
+    for (const bad of ['', 'aline', 'aline@', '@example.com', 'aline@example', 'ali ne@example.com', 'a@b@example.com', 'aline@example.c']) {
+      expect(isValidEmail(bad), bad).toBe(false);
+    }
+  });
+});
+
 describe('auth error copy', () => {
   it('has friendly text for every auth error code', () => {
-    for (const code of ['invalid_code', 'too_many_attempts', 'otp_cooldown', 'otp_hourly_limit', 'account_exists', 'invalid_phone', 'account_suspended']) {
+    for (const code of ['invalid_code', 'too_many_attempts', 'otp_cooldown', 'otp_hourly_limit', 'account_exists', 'invalid_email', 'country_required', 'account_suspended']) {
       const msg = authErrorMessage(new ApiError(400, code));
       expect(msg).not.toContain('_');
       expect(msg.length).toBeGreaterThan(10);

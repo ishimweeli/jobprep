@@ -3,13 +3,15 @@ import type { CheckoutSummary, PaymentView } from '../../api/types';
 import { formatDate } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath } from '../country/hooks';
-import { receiptNumber, startLabel, type CheckoutCopy } from './checkoutModel';
+import { useSession } from '../auth/session';
+import { startLabel } from './checkoutModel';
 
 /** Payment confirmed (PayDone.dc). Phone layout; on desktop the same column is centred (C19). */
 export function PayDone({
-  payment, summary, copy, slug, testSlug, testTitle,
-}: { payment: PaymentView; summary: CheckoutSummary; copy: CheckoutCopy; slug: string; testSlug: string | null; testTitle: string | undefined }) {
+  payment, summary, slug, testSlug, testTitle,
+}: { payment: PaymentView; summary: CheckoutSummary; slug: string; testSlug: string | null; testTitle: string | undefined }) {
   useDocumentTitle('Payment confirmed');
+  const { user } = useSession();
   const days = summary.plan?.durationDays ?? payment.access?.daysLeft ?? 30;
   const rows: [string, string][] = [
     ['Package', `${summary.plan?.name ?? 'Full Access'} · ${days} days`],
@@ -40,7 +42,7 @@ export function PayDone({
               </div>
             ))}
           </dl>
-          <p className="m-0 text-center text-[13px] text-muted">A receipt was sent by SMS to {receiptNumber(payment.msisdn, summary.country.dialCode, copy.variant)}.</p>
+          <p className="m-0 text-center text-[13px] text-muted">A receipt was sent to {user?.email ?? 'your email'}.</p>
         </main>
         <footer className="flex flex-col gap-2 border-t border-border bg-surface px-4 pb-4 pt-3">
           <Link to={startTo} className="rounded-[14px] bg-brand p-4 text-center text-[17px] font-bold text-white no-underline hover:bg-brand-hover hover:text-white">

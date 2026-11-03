@@ -107,7 +107,8 @@ export async function seedDatabase(prisma: PrismaClient) {
     throw new Error('Database already seeded. Run `npm run db:reset` for a fresh start.');
   }
 
-  // ── Roles & admins (dev admins sign in by OTP; codes are printed by the console SMS provider)
+  // ── Roles & dev admins. An admin is a normal account (Rwanda) holding one or more role assignments; they sign in
+  // with the usual emailed code (printed by the console email provider).
   const roleIds = {} as Record<AdminRoleCode, string>;
   for (const name of Object.keys(ROLE_PERMISSIONS) as AdminRoleCode[]) {
     const role = await prisma.role.create({
@@ -115,13 +116,13 @@ export async function seedDatabase(prisma: PrismaClient) {
     });
     roleIds[name] = role.id;
   }
-  await prisma.adminUser.createMany({
-    data: [
-      { phone: '+250788000001', name: 'Jean Bosco N.', roleId: roleIds.SYSTEM_ADMIN, countryScope: [] },
-      { phone: '+250788000002', name: 'Marie C.', roleId: roleIds.CONTENT_EDITOR, countryScope: ['RW'] },
-      { phone: '+250788000003', name: 'Support Agent', roleId: roleIds.SUPPORT, countryScope: [] },
-    ],
-  });
+  const devAdmins: { email: string; name: string; roles: { role: AdminRoleCode; countryScope: string[] }[] }[] = [
+    { email: 'system.admin@jobprep.test', name: 'Jean Bosco N.', roles: [{ role: 'SYSTEM_ADMIN', countryScope: [] }] },
+    { email: 'content.editor@jobprep.test', name: 'Marie C.', roles: [{ role: 'CONTENT_EDITOR', countryScope: ['RW'] }] },
+    { email: 'support@jobprep.test', name: 'Support Agent', roles: [{ role: 'SUPPORT', countryScope: [] }] },
+    // One account, two roles: edits Rwanda content AND does support everywhere (used by the multi-role tests).
+    { email: 'multi.role@jobprep.test', name: 'Multi Role', roles: [{ role: 'CONTENT_EDITOR', countryScope: ['RW'] }, { role: 'SUPPORT', countryScope: [] }] },
+  ];
 
   // ── Countries, plans, payment methods, authorities
   for (const c of COUNTRIES) {
@@ -131,6 +132,14 @@ export async function seedDatabase(prisma: PrismaClient) {
         countryCode: c.code, code: 'FULL_ACCESS', name: 'Full Access',
         priceMinor: PLAN_PRICE_MINOR[c.code] ?? null, currencyCode: c.currencyCode,
         durationDays: 30, autoRenew: false, active: true,
+      },
+    });
+  }
+  for (const a of devAdmins) {
+    await prisma.user.create({
+      data: {
+        email: a.email, name: a.name, countryCode: 'RW', language: 'en',
+        roles: { create: a.roles.map((r) => ({ roleId: roleIds[r.role], countryScope: r.countryScope })) },
       },
     });
   }

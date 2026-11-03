@@ -12,7 +12,7 @@ export function AuthShell({ children, homeTo }: { children: ReactNode; homeTo: s
         <ul className="m-0 flex max-w-[26em] list-none flex-col gap-3.5 p-0 text-base text-zinc-300">
           {[
             'Choose your country — you only see that country’s exams, prices and payment methods.',
-            'Sign in with your phone number. No password to remember.',
+            'Sign in with your email address. No password to remember.',
             'Pick the job you are preparing for and get a recommended first test.',
           ].map((t, i) => (
             <li key={t} className="flex gap-3">

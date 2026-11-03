@@ -119,7 +119,7 @@ function CheckoutFlow({
   const copy = checkoutCopy(summary, until);
 
   const [provider, setProvider] = useState(summary.paymentMethods[0]?.provider ?? '');
-  const [number, setNumber] = useState(() => displayNumber(summary.prefillPhone, dial, copy.variant));
+  const [number, setNumber] = useState(() => (summary.prefillPhone ? displayNumber(summary.prefillPhone, dial, copy.variant) : ''));
   const [numberError, setNumberError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [paymentId, setPaymentId] = useState<string | null>(initialPaymentId);
@@ -205,7 +205,7 @@ function CheckoutFlow({
   };
 
   if (phase === 'done' && payment) {
-    return <PayDone payment={payment} summary={summary} copy={copy} slug={slug} testSlug={testSlug} testTitle={testTitle} />;
+    return <PayDone payment={payment} summary={summary} slug={slug} testSlug={testSlug} testTitle={testTitle} />;
   }
 
   const price = priceText(summary);

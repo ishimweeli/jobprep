@@ -1,0 +1,24 @@
+/*
+ * Admin-only base rules. The admin area shares Tailwind, the tokens and the base styles of the web app; these few
+ * rules differ from the candidate pages, so they apply only while the admin area is mounted (`html.admin-area`,
+ * set by AdminApp) and with `:where()` so they keep the specificity of the plain element rules they replace.
+ * Imported by the lazily loaded admin chunk, so candidates never download it.
+ */
+
+/* the phone bottom bar is sticky: a focused control must not end up behind it */
+:where(html.admin-area) {
+  scroll-padding-bottom: 88px;
+}
+
+/* The artboards: links are violet and underlined unless a link says otherwise. */
+:where(html.admin-area) a {
+  color: theme('colors.brand.DEFAULT');
+  text-decoration-line: underline;
+}
+:where(html.admin-area) a:hover {
+  color: theme('colors.brand.hover');
+}
+
+:where(html.admin-area) :is(button, input, select, textarea) {
+  font: inherit;
+}

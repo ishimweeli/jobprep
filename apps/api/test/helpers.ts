@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
-import type { ConsoleSmsProvider } from '../src/services/sms';
+import type { ConsoleEmailProvider } from '../src/services/email';
 import type { Config } from '../src/config';
 import { loadConfig } from '../src/config';
 import { seedDatabase, truncateAll } from '../prisma/seed-lib';
@@ -29,37 +29,41 @@ export async function resetAndSeed(prisma: PrismaClient) {
   await seedDatabase(prisma);
 }
 
-/** Sign a fresh Rwanda user up through the real endpoints; returns a cookie-keeping agent. */
+/** Sign a fresh user up (Rwanda unless told otherwise) through the real endpoints; returns a cookie-keeping agent. */
 export async function signedInAgent(
   app: Parameters<typeof request>[0],
-  sms: ConsoleSmsProvider,
-  phone: string,
+  mail: ConsoleEmailProvider,
+  email: string,
   countryCode = 'RW',
 ) {
   const agent = request.agent(app);
-  const r = await agent.post('/api/auth/otp/request').send({ purpose: 'sign_up', phone, countryCode });
+  const r = await agent.post('/api/auth/otp/request').send({ purpose: 'sign_up', email, countryCode });
   if (r.status !== 200) throw new Error(`otp request failed: ${r.status} ${JSON.stringify(r.body)}`);
-  const res = await agent.post('/api/auth/sign-up').send({ countryCode, phone, name: 'Test Candidate', code: sms.lastCode(phone) });
+  const res = await agent.post('/api/auth/sign-up').send({ countryCode, email, name: 'Test Candidate', code: mail.lastCode(email) });
   if (res.status !== 201) throw new Error(`sign-up failed: ${res.status} ${JSON.stringify(res.body)}`);
   return { agent, userId: res.body.user.id as string };
 }
 
 export const ADMINS = {
-  SYSTEM: '+250788000001',
-  EDITOR: '+250788000002', // content editor, restricted to Rwanda
-  SUPPORT: '+250788000003',
+  SYSTEM: 'system.admin@jobprep.test',
+  EDITOR: 'content.editor@jobprep.test', // content editor, restricted to Rwanda
+  SUPPORT: 'support@jobprep.test',
+  MULTI: 'multi.role@jobprep.test', // content editor (Rwanda only) AND support (all countries)
 } as const;
 
-/** Sign a seeded admin in through the real endpoints; returns a cookie-keeping agent. */
+/**
+ * Sign a seeded admin in through the NORMAL sign-in endpoints (an admin is an ordinary account that holds roles);
+ * returns a cookie-keeping agent.
+ */
 export async function adminAgent(
   app: Parameters<typeof request>[0],
-  sms: ConsoleSmsProvider,
-  phone: string,
+  mail: ConsoleEmailProvider,
+  email: string,
 ) {
   const agent = request.agent(app);
-  const r = await agent.post('/api/admin/auth/otp/request').send({ phone });
+  const r = await agent.post('/api/auth/otp/request').send({ purpose: 'sign_in', email });
   if (r.status !== 200) throw new Error(`admin otp request failed: ${r.status} ${JSON.stringify(r.body)}`);
-  const res = await agent.post('/api/admin/auth/sign-in').send({ phone, code: sms.lastCode(phone) });
+  const res = await agent.post('/api/auth/sign-in').send({ email, code: mail.lastCode(email) });
   if (res.status !== 200) throw new Error(`admin sign-in failed: ${res.status} ${JSON.stringify(res.body)}`);
   return agent;
 }

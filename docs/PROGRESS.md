@@ -3,9 +3,11 @@
 > **Design rule (owner, 2026-11-02): nothing is built without a design.** Everything with no artboard is
 > listed in [MISSING_DESIGNS.md](MISSING_DESIGNS.md). Phase 7 (admin) is blocked on items 18–32 there.
 
-## Admin app (`apps/admin`) ✅ for every designed screen (2026-11-02)
+## Admin screens ✅ for every designed screen (2026-11-02); now part of the web app (2026-11-03)
 
-Sign-in, Overview, Users, Exams & questions (with the question editor), Payments, Settings and Countries, desktop and
+> **One app (owner decision, 2026-11-03):** `apps/admin` no longer exists. The admin screens live in `apps/web/src/admin` and are served at `/admin` by the web app (and therefore by the one production image), signing in through the normal sign-in with a role on a normal account. Details: [ADMIN_PROGRESS.md](ADMIN_PROGRESS.md). Merge checks: `typecheck`, `lint`, `npm run test -w @jobprep/web` (373) and the web build pass; Playwright not yet run for the merge.
+
+Overview, Users, Exams & questions (with the question editor), Payments, Settings and Countries, desktop and
 phone, built from the artboards and wired to the admin API. Navigation follows the role's permissions; a country-restricted
 admin only gets their countries. Details, inert controls and deviations: [ADMIN_PROGRESS.md](ADMIN_PROGRESS.md).
 Checked independently: typecheck and lint clean; `npm test` = 119 admin + 639 API + 255 web + 2 shared; admin and web builds succeed.
@@ -23,7 +25,7 @@ The APIs for all of these are built and tested; they need a dialog (reason, tran
 **Test results** (2026-11-02), API only: `npm test -w @jobprep/api` = **639 pass**, run twice (new: 29 sign-in, 168 permissions and country scope, 26 users/payments/overview, 40 content, 64 governance, 9 CSV). Typecheck and lint clean.
 Highlights: all 51 admin routes are called as every role; blocked actions change nothing; a Rwanda-only editor cannot see or change Kenya; every state-changing route is proven to write an audit entry.
 
-**Not built yet: the admin screens.** The designs exist for overview, users, exams and the question editor, payments, settings and countries (desktop and phone); none exists for admin sign-in or the dialogs (grant, suspend, manual grant, CSV import, category/test/case editors, invite) — see MISSING_DESIGNS A1–A18. A separate `apps/admin` app builds the designed screens only.
+**Not built yet: the admin screens.** The designs exist for overview, users, exams and the question editor, payments, settings and countries (desktop and phone); none exists for admin sign-in or the dialogs (grant, suspend, manual grant, CSV import, category/test/case editors, invite) — see MISSING_DESIGNS A1–A18. The designed screens are built in `apps/web/src/admin` (formerly the separate `apps/admin` app).
 
 ## Batch 1 designs — backend support ✅ (2026-11-02)
 API changes for the new screens (DECISIONS 67–73): `triesLeft`, `code_expired`, "Choose N", untimed practice,
