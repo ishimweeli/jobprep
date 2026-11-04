@@ -1,7 +1,7 @@
 import { clearSessionHint, hasSessionHint, SESSION_HINT_KEY } from '../lib/sessionHint';
 import { setSystemState } from '../lib/systemState';
 import { ApiError, api } from './client';
-import type { MeResponse, PublicUser } from './types';
+import type { ClaimOutcome, MeResponse, PatchMeInput, PaymentDetail, PaymentHistory, PublicUser } from './types';
 
 export { SESSION_HINT_KEY };
 
@@ -25,8 +25,16 @@ export async function getSession(): Promise<MeResponse | null> {
   }
 }
 
-export const patchMe = (input: { name?: string; goalCategoryId?: string | null; language?: string }) =>
-  api<{ user: PublicUser }>('/me', { method: 'PATCH', body: input });
+export const patchMe = (input: PatchMeInput) => api<{ user: PublicUser }>('/me', { method: 'PATCH', body: input });
+
+export const paymentsKeys = { list: ['me', 'payments'] as const, detail: (id: string) => ['me', 'payments', id] as const };
+
+/** Payment history (C21), newest first. */
+export const listMyPayments = (page = 1, pageSize = 20) => api<PaymentHistory>('/me/payments', { query: { page, pageSize } });
+export const getMyPayment = (id: string) => api<PaymentDetail>(`/me/payments/${encodeURIComponent(id)}`);
+
+/** "Save my result" after a Google sign-in: moves the guest attempts onto the account and says what happened. */
+export const claimAttempts = (guestTokens: string[]) => api<ClaimOutcome>('/me/claim-attempts', { method: 'POST', body: { guestTokens } });
 
 /** What each setup step saves. Changing the country clears the job goal (and level and subject) on the server. */
 export interface OnboardingInput {

@@ -81,11 +81,12 @@ describe('the admin session guard (normal session + an admin role)', () => {
     await waitFor(() => expect(screen.getByText('users page')).toBeInTheDocument());
   });
 
-  it('a page the role has no permission for goes to the first allowed page', async () => {
-    mockFetch(() => ({ body: meBody(EDITOR_PERMS) }));
+  it('a page the role has no permission for says so (no silent redirect) and offers the first allowed page', async () => {
+    mockFetch((url) => (url.startsWith('/api/admin/me') ? { body: meBody(EDITOR_PERMS) } : { body: { summary: { pendingNow: 0 }, results: [] } }));
     const router = renderApp('/admin/users');
-    expect(await screen.findByText('overview page')).toBeInTheDocument();
-    expect(router.state.location.pathname).toBe('/admin');
+    expect(await screen.findByRole('heading', { level: 1, name: 'You do not have access to this' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/admin/users');
+    expect(screen.getByRole('link', { name: 'Go to Overview' })).toHaveAttribute('href', '/admin');
   });
 
   it('a server error shows a retry, not a sign-in', async () => {

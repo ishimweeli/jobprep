@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { requirePermission } from '../../admin/auth';
 import { formatMoney } from '../../domain/pricing';
+import { normalizeQuery } from '../../services/demand';
 import type { Ctx } from '../../http/context';
 import { addDays, countryCodes, inCodes, settingNumber, startOfDayUtc, startOfMonthUtc } from './util';
 
@@ -60,11 +61,11 @@ export function adminOverviewRouter(ctx: Ctx) {
 
     // "Request this exam" demand: same search, any capitalisation, last 30 days
     const requests = await prisma.examRequest.findMany({
-      where: { countryCode: cc, createdAt: { gte: addDays(now, -30) } }, select: { query: true },
+      where: { countryCode: cc, status: 'OPEN', createdAt: { gte: addDays(now, -30) } }, select: { query: true },
     });
     const demand = new Map<string, { label: string; n: number }>();
     for (const r of requests) {
-      const key = r.query.trim().toLowerCase();
+      const key = normalizeQuery(r.query);
       const cur = demand.get(key) ?? { label: r.query.trim(), n: 0 };
       cur.n++;
       demand.set(key, cur);

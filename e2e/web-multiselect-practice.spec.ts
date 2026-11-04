@@ -146,6 +146,7 @@ test.describe('Web: practice runner (C1)', () => {
     await page.getByRole('button', { name: 'Next question' }).click();
     await expect(page.getByRole('heading', { level: 1, name: /^Question 2 of \d+$/ })).toBeVisible();
     await page.getByRole('button', { name: 'End practice' }).click();
+    await page.getByRole('dialog', { name: 'Finish practice?' }).getByRole('button', { name: 'Finish now' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Practice finished' })).toBeVisible();
     await expect(page.getByText(/You answered 1 question on .* and got [01] right\. Practice answers don’t change your mock test scores\./)).toBeVisible();
     await expect(page.getByRole('button', { name: /^Practise \d+ more$/ })).toBeVisible();
@@ -172,12 +173,19 @@ test.describe('Web: practice runner (C1)', () => {
       if (multi) await page.getByRole('checkbox').first().click();
       else await page.getByRole('group', { name: /Answer options/ }).getByRole('button').first().click();
       await page.getByRole('button', { name: 'Check answer' }).click();
-      await page.getByRole('button', { name: 'Next question' }).click();
+      if (i < practice.questionCount) await page.getByRole('button', { name: 'Next question' }).click();
+      else {
+        // the last question offers Finish practice, which asks first
+        await page.getByRole('button', { name: 'Finish practice' }).click();
+        await page.getByRole('dialog', { name: 'Finish practice?' }).getByRole('button', { name: 'Finish now' }).click();
+      }
     }
     await expect(page.getByRole('heading', { level: 1, name: 'Practice finished' })).toBeVisible();
     await expect(page.getByText(new RegExp(`You answered ${practice.questionCount} questions`))).toBeVisible();
-    // reopening a finished set goes to its results (no comparison, no history for practice)
+    // reopening a finished set says it has ended and offers the results (no comparison, no history for practice)
     await page.goto(`/rw/exam/${practice.attemptId}`);
+    await expect(page.getByRole('heading', { level: 1, name: 'This attempt has ended' })).toBeVisible();
+    await page.getByRole('link', { name: 'See results' }).click();
     await expect(page).toHaveURL(new RegExp(`/rw/results/${practice.attemptId}$`));
     await expect(page.getByRole('heading', { name: 'Compared with earlier attempts' })).toHaveCount(0);
   });

@@ -43,6 +43,7 @@ export function paymentsRouter(ctx: Ctx) {
   // ───────────────────────── Candidate checkout
   router.use('/me/checkout', requireUser);
   router.use('/payments', requireUser);
+  router.use('/me/payments', requireUser);
 
   /** Order summary for the checkout screen: price, duration and the country's payment methods. */
   router.get('/me/checkout', async (req, res) => {
@@ -72,6 +73,58 @@ export function paymentsRouter(ctx: Ctx) {
       paymentMethods: methods.map((m) => ({ provider: m.provider, label: m.label, hint: m.hint })),
       prefillPhone: lastPayer?.msisdn ?? null,
     });
+  });
+
+  /** Payment history: the signed-in person's own payments, newest first. */
+  router.get('/me/payments', async (req, res) => {
+    const { page, pageSize } = z.object({
+      page: z.coerce.number().int().min(1).max(1000).default(1), pageSize: z.coerce.number().int().min(1).max(50).default(20),
+    }).parse(req.query);
+    const where = { userId: req.user!.id };
+    const [total, rows, countries, methods] = await Promise.all([
+      prisma.payment.count({ where }),
+      prisma.payment.findMany({
+        where, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], skip: (page - 1) * pageSize, take: pageSize,
+        include: { accessGrant: { select: { endsAt: true } } },
+      }),
+      prisma.country.findMany({ select: { code: true, currencyExponent: true } }),
+      prisma.paymentMethodConfig.findMany({ select: { countryCode: true, provider: true, label: true } }),
+    ]);
+    const at = ctx.now().getTime();
+    res.json({
+      total, page, pageSize, hasMore: page * pageSize < total,
+      payments: rows.map((p) => ({
+        id: p.id, createdAt: p.createdAt, status: p.status,
+        providerLabel: methods.find((m) => m.countryCode === p.countryCode && m.provider === p.provider)?.label ?? p.provider,
+        amountMinor: p.amountMinor, currencyCode: p.currencyCode, countryCode: p.countryCode,
+        priceLabel: formatMoney(p.amountMinor, p.currencyCode, countries.find((c) => c.code === p.countryCode)?.currencyExponent ?? 0),
+        transactionId: p.status === 'SUCCESSFUL' ? (p.transactionId ?? p.providerReference) : null,
+        accessUntil: p.accessGrant?.endsAt ?? null,
+        // "Check payment": a pending payment, or one that expired in the last hour (a late approval is still honoured).
+        canCheck: p.status === 'PENDING' || (p.status === 'EXPIRED' && p.expiresAt.getTime() > at - 3_600_000),
+      })),
+    });
+  });
+
+  /** One payment as a receipt. Does not ask the operator (use POST /payments/:id/check for that). */
+  router.get('/me/payments/:id', async (req, res) => {
+    const p = await getOwnedPayment(ctx, String(req.params.id), req.user!);
+    const view = await paymentView(ctx, p);
+    let receipt = null;
+    if (p.status === 'SUCCESSFUL') {
+      const [country, plan, grant] = await Promise.all([
+        prisma.country.findUniqueOrThrow({ where: { code: p.countryCode }, select: { code: true, name: true } }),
+        prisma.planConfig.findUniqueOrThrow({ where: { id: p.planId }, select: { name: true, durationDays: true } }),
+        prisma.accessGrant.findUnique({ where: { paymentId: p.id }, select: { startsAt: true, endsAt: true } }),
+      ]);
+      receipt = {
+        number: p.transactionId ?? p.providerReference ?? `JP-${p.id.slice(-8).toUpperCase()}`,
+        issuedTo: { name: req.user!.name, email: req.user!.email },
+        country, plan,
+        paidAt: p.confirmedAt, accessStartsAt: grant?.startsAt ?? null, accessEndsAt: grant?.endsAt ?? null,
+      };
+    }
+    res.json({ payment: view, receipt });
   });
 
   /** "Pay RWF 2,000": send the request-to-pay. The payer approves on their phone. */

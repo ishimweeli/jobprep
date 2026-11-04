@@ -62,6 +62,11 @@ const schema = z.object({
   PAWAPAY_API_TOKEN: z.string().default(''),
   PAWAPAY_BASE_URL: z.string().default('https://api.pawapay.io'),
   PAWAPAY_CALLBACK_SECRET: z.string().default(''),
+  /** Fallback support contact shown on the Help page when an admin has not set one for the country. Optional. */
+  SUPPORT_PHONE: z.string().default(''),
+  SUPPORT_WHATSAPP: z.string().default(''),
+  SUPPORT_EMAIL: z.string().default(''),
+  SUPPORT_HOURS: z.string().default(''),
 });
 
 export type Config = z.infer<typeof schema>;

@@ -1,68 +1,57 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { checkPayment, getCountries, getCountry, getPayments, keys } from '../../api/admin';
-import type { PaymentRow, PaymentStatus, PaymentTab } from '../../api/types';
+import { getCountries, getCountry, getPayments, keys } from '../../api/admin';
+import type { PaymentRow, PaymentTab } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyLine, ErrorBox, Skeleton } from '../../components/states';
-import { FilterChips, InertButton, Pager, Pill } from '../../components/ui';
+import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { Btn, FilterChips, Pager, Pill } from '../../components/ui';
 import { paymentNote, paymentTone } from '../../lib/badges';
+import { denyHint } from '../../lib/permissions';
 import { cx } from '../../lib/cx';
 import { formatCount, formatDateTime, formatLocalPhone, formatTime, formatTotals } from '../../lib/format';
 import { pageCount, parsePaymentsQuery, paymentsSearch } from '../../lib/queryState';
 import { useAdminCountry } from '../../lib/adminCountry';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { useAdmin } from '../auth/session';
+import { StuckBadge } from './PaymentBits';
+import { ExportDialog, ManualGrantDialog, useCheckPayment } from './PaymentDialogs';
+import { canGrantByHand, type GrantTarget } from './paymentsModel';
 
 const PAGE_SIZE = 25;
 
-/** What "Check status" found, in words (the result of a check is not designed yet, A4). */
-export function checkResultText(before: PaymentStatus, after: PaymentStatus): string {
-  if (after === 'PENDING') return 'Still pending';
-  if (after === 'SUCCESSFUL') return 'Now paid';
-  return before === after ? 'Failed' : 'Now failed';
-}
+export { checkResultText } from './paymentsModel';
 
-function useCheck() {
-  const qc = useQueryClient();
-  const [results, setResults] = useState<Record<string, string>>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const m = useMutation({
-    mutationFn: ({ row }: { row: PaymentRow }) => checkPayment(row.id),
-    onSuccess: async (r, { row }) => {
-      setErrors((e) => ({ ...e, [row.id]: '' }));
-      setResults((s) => ({ ...s, [row.id]: checkResultText(row.status, r.status) }));
-      await qc.invalidateQueries({ queryKey: ['admin', 'payments'] });
-      await qc.invalidateQueries({ queryKey: ['admin', 'overview'] });
-    },
-    onError: (_e, { row }) => setErrors((s) => ({ ...s, [row.id]: 'Could not check this payment. Try again.' })),
-  });
-  return { results, errors, run: (row: PaymentRow) => m.mutate({ row }), busyId: m.isPending ? m.variables?.row.id : undefined };
-}
+/** What the manual-grant dialog shows about a list row. */
+export const grantTargetOf = (p: PaymentRow): GrantTarget => ({
+  id: p.id, candidate: p.user.name, priceLabel: p.priceLabel ?? 'Amount not set', providerLabel: p.providerLabel, msisdn: p.msisdn,
+  ageMinutes: p.waitingMinutes ?? Math.max(0, Math.floor((Date.now() - new Date(p.createdAt).getTime()) / 60_000)),
+});
 
-function Actions({ p, phone, check }: { p: PaymentRow; phone: boolean; check: ReturnType<typeof useCheck> }) {
-  const canCheck = useAdmin().permissions.includes('payments:check');
+function Actions({ p, phone, check, onGrant }: { p: PaymentRow; phone: boolean; check: ReturnType<typeof useCheckPayment>; onGrant: (p: PaymentRow) => void }) {
+  const { permissions } = useAdmin();
+  const canCheck = permissions.includes('payments:check');
   const busy = check.busyId === p.id;
-  const note = check.errors[p.id] || check.results[p.id];
+  const grantHint = denyHint(permissions, 'payments:grant', 'grant access by hand');
   const size = phone ? 'min-h-11 rounded-[10px] text-[15px] font-semibold' : 'min-h-9 rounded-lg px-3 text-[13px] font-semibold whitespace-nowrap';
+  const showGrant = p.actions.includes('grant') || (p.stuck && canGrantByHand(p.status, p.stuck));
   return (
     <div className={cx('flex flex-col gap-1.5', phone ? 'items-stretch' : 'items-end')}>
       {p.actions.includes('check') && canCheck && (
         <button
           type="button"
-          onClick={() => check.run(p)}
+          onClick={() => check.run({ id: p.id, status: p.status })}
           disabled={busy}
           aria-busy={busy || undefined}
           className={cx('inline-flex items-center justify-center border border-brand bg-white text-brand disabled:opacity-60', size)}
         >
-          Check status
+          {busy ? 'Checking…' : 'Check status'}
         </button>
       )}
-      {p.stuck && <InertButton kind="outline-brand" sizeClass={size}>Grant access manually</InertButton>}
-      {note && (
-        <span role="status" className={cx('text-xs', check.errors[p.id] ? 'font-semibold text-incorrect' : 'text-muted')}>
-          {note}
-        </span>
+      {showGrant && (
+        <Btn kind="outline-brand" className={size} onClick={() => onGrant(p)} whyDisabled={grantHint} aria-label={`Grant access manually to ${p.user.name}`}>
+          Grant access manually
+        </Btn>
       )}
     </div>
   );
@@ -73,7 +62,9 @@ export function PaymentsPage() {
   const admin = useAdmin();
   const [sp, setSp] = useSearchParams();
   const query = parsePaymentsQuery(sp);
-  const check = useCheck();
+  const check = useCheckPayment();
+  const [grant, setGrant] = useState<PaymentRow | null>(null);
+  const [exporting, setExporting] = useState(false);
   const { country: filterCountry } = useAdminCountry();
   const canUsers = admin.permissions.includes('users:read');
   const canCountries = admin.permissions.includes('countries:read');
@@ -112,9 +103,25 @@ export function PaymentsPage() {
         { k: 'Failed or expired today', v: formatCount(data.summary.failedOrExpiredToday) },
       ]
     : [];
+  const clearFilters = () => setSp(new URLSearchParams(), { replace: true });
+  const filtered = query.status !== 'all' || query.stuck || !!query.q || !!query.provider;
+  const empty = (
+    <EmptyState
+      title="No payments match."
+      hint={filtered ? 'Try another status, or clear the filters.' : 'Payments appear here as candidates pay.'}
+      action={filtered ? <Btn onClick={clearFilters}>Clear filters</Btn> : undefined}
+    />
+  );
+  const dialogs = (
+    <>
+      {check.dialog}
+      <ManualGrantDialog target={grant ? grantTargetOf(grant) : null} onClose={() => setGrant(null)} />
+      <ExportDialog open={exporting} onClose={() => setExporting(false)} />
+    </>
+  );
   const pick = (v: string) => setQuery({ status: v as PaymentTab, stuck: false });
 
-  const state = list.isPending ? <Skeleton label="Loading payments…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : null;
+  const state = list.isPending ? <TableSkeleton label="Loading payments…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : null;
 
   if (!isDesktop) {
     return (
@@ -130,7 +137,8 @@ export function PaymentsPage() {
             ))}
           </div>
         )}
-        {data && rows.length === 0 && <p className="m-0 rounded-[14px] border border-dashed border-input-border bg-white p-6 text-center text-ink-2">No payments match.</p>}
+        <Btn onClick={() => setExporting(true)} className="w-full">Export for accounting</Btn>
+        {data && rows.length === 0 && <div className="rounded-[14px] border border-dashed border-input-border bg-white">{empty}</div>}
         {rows.map((p) => {
           const t = paymentTone(p.status);
           return (
@@ -140,10 +148,16 @@ export function PaymentsPage() {
                   <span className="text-[15px] font-semibold">{p.user.name}</span>
                   <span className="break-all text-[13px] text-muted">{p.user.email} · {p.providerLabel}</span>
                 </span>
-                <Pill tone={t}>{t.label}</Pill>
+                <span className="flex flex-col items-end gap-1">
+                  <Pill tone={t}>{t.label}</Pill>
+                  {p.stuck && <StuckBadge />}
+                </span>
               </div>
               <span className="text-[13px] text-ink-2">{[p.priceLabel, formatLocalPhone(p.msisdn), formatTime(p.createdAt), paymentNote(p, true)].filter(Boolean).join(' · ')}</span>
-              {p.actions.length > 0 && <Actions p={p} phone check={check} />}
+              {p.actions.length > 0 && <Actions p={p} phone check={check} onGrant={setGrant} />}
+              <Link to={`/admin/payments/${p.id}`} aria-label={`Details of the payment by ${p.user.name}`} className="inline-flex min-h-11 items-center self-start text-[15px] font-semibold">
+                Details
+              </Link>
             </article>
           );
         })}
@@ -153,6 +167,7 @@ export function PaymentsPage() {
             <Pager page={query.page} pages={pages} onPage={(p) => setQuery({ page: p })} />
           </div>
         )}
+        {dialogs}
       </AdminShell>
     );
   }
@@ -164,7 +179,7 @@ export function PaymentsPage() {
           <h1 className="m-0 text-[28px] tracking-[-0.02em]">Payments</h1>
           <span className="text-sm text-muted">{summaryLine}</span>
         </div>
-        <InertButton kind="secondary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">Export for accounting</InertButton>
+        <Btn onClick={() => setExporting(true)}>Export for accounting</Btn>
       </div>
 
       {data && (
@@ -201,7 +216,11 @@ export function PaymentsPage() {
                     const t = paymentTone(p.status);
                     return (
                       <tr key={p.id} className={cx('border-t border-soft align-top', p.stuck ? 'bg-flagged-bg' : 'bg-white')}>
-                        <td className="whitespace-nowrap px-4 py-3 text-ink-2">{formatDateTime(p.createdAt)}</td>
+                        <td className="whitespace-nowrap px-4 py-3 text-ink-2">
+                          <Link to={`/admin/payments/${p.id}`} aria-label={`Payment details, ${formatDateTime(p.createdAt)}`} className="text-ink-2 underline">
+                            {formatDateTime(p.createdAt)}
+                          </Link>
+                        </td>
                         <td className="px-2 py-3">
                           <span className="flex flex-col">
                             {canUsers ? <Link to={`/admin/users/${p.user.id}`} className="font-semibold no-underline">{p.user.name}</Link> : <span className="font-semibold">{p.user.name}</span>}
@@ -212,19 +231,22 @@ export function PaymentsPage() {
                         <td className="px-2 py-3 text-right tabular">{p.priceLabel}</td>
                         <td className="px-2 py-3">
                           <span className="inline-flex flex-col gap-0.5">
-                            <Pill tone={t} className="self-start px-[9px] py-[3px]">{t.label}</Pill>
+                            <span className="flex flex-wrap items-center gap-1">
+                              <Pill tone={t} className="self-start px-[9px] py-[3px]">{t.label}</Pill>
+                              {p.stuck && <StuckBadge />}
+                            </span>
                             <span className="text-xs text-muted">{paymentNote(p)}</span>
                           </span>
                         </td>
                         <td className="px-2 py-3 font-mono text-xs text-ink-2">{p.reference}</td>
-                        <td className="px-4 py-3 text-right">{p.actions.length > 0 && <Actions p={p} phone={false} check={check} />}</td>
+                        <td className="px-4 py-3 text-right">{p.actions.length > 0 && <Actions p={p} phone={false} check={check} onGrant={setGrant} />}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-            {rows.length === 0 && <EmptyLine>No payments match.</EmptyLine>}
+            {rows.length === 0 && empty}
             {pages > 1 && (
               <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3 text-[13px] text-muted">
                 <span>Page {query.page} of {formatCount(pages)}</span>
@@ -234,6 +256,7 @@ export function PaymentsPage() {
           </>
         )}
       </section>
+      {dialogs}
       <p className="m-0 text-[13px] text-muted">
         Access is granted automatically when the provider confirms. “Grant access manually” is for confirmed payments whose callback never arrived, and asks for the provider transaction ID.
       </p>

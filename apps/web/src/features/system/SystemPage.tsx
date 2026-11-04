@@ -3,16 +3,18 @@ import { Link, useLocation, useRouteError } from 'react-router-dom';
 import { isApiError } from '../../api/client';
 import { buttonClasses } from '../../components/Button';
 import { DesktopHeader, PhoneBrandHeader } from '../../components/layout/Header';
-import { setSystemState, useSystemState } from '../../lib/systemState';
+import { setSystemState, useMaintenanceInfo, useSystemState } from '../../lib/systemState';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
-import { formatReference, SYSTEM_COPY, type SystemPageKind } from './systemModel';
+import { formatReference, maintenanceBody, SYSTEM_COPY, type SystemPageKind } from './systemModel';
 
 /** Icon circle, optional code, title, text, optional note, buttons and the reference (the body of every system page). */
 export function SystemPageBody({
-  kind, reference, cta, alt, inline,
+  kind, reference, cta, alt, inline, body,
 }: {
   kind: SystemPageKind;
+  /** Replaces the default text (the maintenance message an admin wrote). */
+  body?: string;
   /** Inside a page that already has its own `<main>`. */
   inline?: boolean;
   reference?: string | null;
@@ -34,7 +36,7 @@ export function SystemPageBody({
         </span>
         {c.code && <span className="text-sm font-semibold text-muted">{c.code}</span>}
         <h1 className="m-0 text-2xl leading-[1.2] tracking-tight md:text-[28px]">{c.title}</h1>
-        <p className="m-0 text-base leading-[1.55] text-ink-2">{c.body}</p>
+        <p className="m-0 text-base leading-[1.55] text-ink-2">{body ?? c.body}</p>
         {c.note && <p className="m-0 rounded-[10px] bg-free-bg px-3.5 py-2.5 text-sm font-semibold text-free">{c.note}</p>}
         <div className="flex w-full flex-col gap-2">
           {cta.to ? (
@@ -114,13 +116,14 @@ export function SystemGate() {
     else if (shownAt.current !== pathname) setSystemState(null);
   }, [kind, pathname]);
   const slug = useActiveCountrySlug();
+  const maintenance = useMaintenanceInfo();
   useDocumentTitle(kind === 'maintenance' ? 'JobPrep is being updated' : kind === 'session_expired' ? 'Please sign in again' : undefined);
   if (!kind) return null;
   const clear = () => setSystemState(null);
   if (kind === 'maintenance') {
     return (
       <SystemShell>
-        <SystemPageBody kind="maintenance" cta={{ onClick: () => window.location.reload() }} />
+        <SystemPageBody kind="maintenance" body={maintenanceBody(maintenance, SYSTEM_COPY.maintenance.body)} cta={{ onClick: () => window.location.reload() }} />
       </SystemShell>
     );
   }

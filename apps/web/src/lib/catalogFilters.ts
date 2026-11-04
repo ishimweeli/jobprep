@@ -8,7 +8,7 @@ export interface CatalogFilters {
   difficulty: '' | 'FOUNDATION' | 'STANDARD' | 'CHALLENGING';
   language: string;
   subject: string;
-  sort: '' | 'recent' | 'title';
+  sort: '' | 'recent' | 'title' | 'free_first';
   page: number;
 }
 
@@ -24,7 +24,7 @@ export const EMPTY_FILTERS: CatalogFilters = {
 };
 
 const DIFFICULTIES = ['FOUNDATION', 'STANDARD', 'CHALLENGING'] as const;
-const SORTS = ['recent', 'title'] as const;
+const SORTS = ['recent', 'title', 'free_first'] as const;
 
 /** Parse URLSearchParams defensively: unknown or malformed values fall back to "no filter". */
 export function parseFilters(params: URLSearchParams): CatalogFilters {
@@ -72,9 +72,9 @@ export function toApiQuery(f: CatalogFilters): CatalogQuery {
   };
 }
 
-/** Number of "sheet" filters currently on (price, difficulty, language, subject) — the phone "Filters (n)" badge. */
+/** Number of "sheet" filters currently on (price, difficulty, language, subject, sort) — the phone "Filters (n)" badge. */
 export function activeSheetFilterCount(f: CatalogFilters): number {
-  return [f.price, f.difficulty, f.language, f.subject].filter(Boolean).length;
+  return [f.price, f.difficulty, f.language, f.subject, f.sort].filter(Boolean).length;
 }
 
 /** Changing any filter (other than page) returns to page 1. */

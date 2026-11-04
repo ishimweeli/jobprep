@@ -5,16 +5,19 @@ import { CountryLayout } from './components/layout/SiteLayout';
 import { SkeletonList } from './components/states';
 import { AccountLayout } from './features/account/AccountLayout';
 import { RootRedirect } from './features/country/RootRedirect';
+import { MaintenanceWatcher } from './features/system/MaintenanceWatcher';
 import { NotFoundPage, RouteErrorPage, SystemGate, SystemPageBody } from './features/system/SystemPage';
 import { countryPath, useActiveCountrySlug } from './features/country/hooks';
 import { PhoneBrandHeader } from './components/layout/Header';
 import { useSystemState } from './lib/systemState';
+import type { LegalSlug } from './api/types';
 
 /** Root: the system pages (maintenance, session expired) replace everything; the signed-out notice floats above. */
 function RootLayout() {
   const system = useSystemState();
   return (
     <>
+      <MaintenanceWatcher />
       <SystemGate />
       {!system && <Outlet />}
       <SignedOutNotice />
@@ -45,6 +48,17 @@ function CountryNotFound() {
   );
 }
 
+/** A legal page route: `/terms`, `/privacy`, `/refund`, `/cookies`. */
+function legalRoute(path: string, slug: LegalSlug): RouteObject {
+  return {
+    path,
+    lazy: async () => {
+      const { LegalPage } = await import('./features/legal/LegalPage');
+      return { Component: () => <LegalPage slug={slug} /> };
+    },
+  };
+}
+
 /**
  * The single route table. Only screens that have an artboard in docs/design/source are routed.
  * The exam and the answer review are distraction-free screens (own header, no site chrome), so they sit outside
@@ -73,6 +87,14 @@ export const routes: RouteObject[] = [
       { path: '/setup/goal', lazy: async () => ({ Component: (await import('./features/setup/SetupPages')).SetupGoalPage }) },
       // ChangeCountry.dc / ChangeCountryPhone.dc (the account menu's "Exam country" row)
       { path: '/account/country', lazy: async () => ({ Component: (await import('./features/account/ChangeCountryPage')).ChangeCountryPage }) },
+      // Change goal / Choose your goal (C15, built without a design; same frame as Change exam country)
+      { path: '/account/goal', lazy: async () => ({ Component: (await import('./features/account/ChangeGoalPage')).ChangeGoalPage }) },
+      // Terms, Privacy, Refund, Cookies and Help (C25 / C36, built without a design; text and contact come from the API)
+      legalRoute('/terms', 'terms'),
+      legalRoute('/privacy', 'privacy'),
+      legalRoute('/refund', 'refund'),
+      legalRoute('/cookies', 'cookies'),
+      { path: '/help', lazy: async () => ({ Component: (await import('./features/legal/HelpPage')).HelpPage }) },
       // The admin screens (apps/web/src/admin): signed-in people who hold a role. No candidate chrome here.
       { path: '/admin/*', element: <Suspense fallback={<RootFallback />}><AdminApp /></Suspense> },
       {
@@ -82,6 +104,9 @@ export const routes: RouteObject[] = [
           { path: '/account', handle: { tabs: true }, lazy: async () => ({ Component: (await import('./features/account/AccountTabPage')).AccountTabPage }) },
           // ChangeCountryPhone.dc: name, email, exam country
           { path: '/account/settings', lazy: async () => ({ Component: (await import('./features/account/AccountPage')).AccountPage }) },
+          // Payment history and receipt (C21, built without a design)
+          { path: '/account/payments', lazy: async () => ({ Component: (await import('./features/account/PaymentHistoryPage')).PaymentHistoryPage }) },
+          { path: '/account/payments/:paymentId', lazy: async () => ({ Component: (await import('./features/account/PaymentReceiptPage')).PaymentReceiptPage }) },
         ],
       },
       // Exam.dc / ExamMobile.dc / CaseExam*.dc / TimeUp*.dc / Practice*.dc

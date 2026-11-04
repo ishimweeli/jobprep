@@ -1,10 +1,11 @@
 import { Router, type Request } from 'express';
-import type { Country, Prisma } from '@prisma/client';
+import type { Country, Difficulty, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { canStartMockTest, coveredUntil, daysLeft, type GrantLike } from '../domain/access';
 import { emailInput } from '../domain/email';
 import { formatMoney, isSellable } from '../domain/pricing';
-import { forbidden, notFound } from '../http/errors';
+import { normalizeQuery } from '../services/demand';
+import { HttpError, notFound } from '../http/errors';
 import type { Ctx } from '../http/context';
 
 /**
@@ -18,14 +19,19 @@ import type { Ctx } from '../http/context';
 
 const PUBLISHED = { status: 'PUBLISHED' } as const;
 
+/** A query value that may be a comma list; each item must pass `item`. */
+const csv = (item: z.ZodType<string, string>) =>
+  z.string().max(200).optional().transform((v) => (v ? v.split(",").map((x) => x.trim()).filter(Boolean).slice(0, 10) : [] as string[])).pipe(z.array(item).max(10));
+
 const listQuery = z.object({
   q: z.string().trim().max(100).optional(),
   category: z.string().max(80).optional(),
   price: z.enum(['free', 'paid']).optional(),
-  difficulty: z.enum(['FOUNDATION', 'STANDARD', 'CHALLENGING']).optional(),
-  language: z.string().min(2).max(5).optional(),
-  subject: z.string().max(80).optional(), // topic slug
-  sort: z.enum(['recommended', 'recent', 'title']).default('recommended'),
+  // difficulty, language and subject take one value or a comma list ("FOUNDATION,STANDARD").
+  difficulty: csv(z.enum(['FOUNDATION', 'STANDARD', 'CHALLENGING'])),
+  language: csv(z.string().min(2).max(5)),
+  subject: csv(z.string().max(80)), // topic slugs
+  sort: z.enum(['recommended', 'recent', 'title', 'free_first']).default('recommended'),
   page: z.coerce.number().int().min(1).max(500).default(1),
   pageSize: z.coerce.number().int().min(1).max(50).default(20),
 });
@@ -72,7 +78,15 @@ export function catalogRouter(ctx: Ctx) {
     if (!country) throw notFound('country_not_found');
     if (country.status !== 'LIVE') throw notFound('country_not_available');
     if (req.user && req.user.countryCode !== country.code) {
-      throw forbidden('country_mismatch');
+      const [own, test] = await Promise.all([
+        prisma.country.findUnique({ where: { code: req.user.countryCode }, select: { code: true, name: true } }),
+        typeof req.params.slug === 'string'
+          ? prisma.mockTest.findFirst({ where: { countryCode: country.code, slug: req.params.slug, status: 'PUBLISHED' }, select: { slug: true, title: true } })
+          : Promise.resolve(null),
+      ]);
+      throw new HttpError(403, 'country_mismatch', {
+        requestedCountry: { code: country.code, name: country.name }, userCountry: own, test: typeof req.params.slug === 'string' ? test : undefined,
+      });
     }
     return country;
   }
@@ -175,15 +189,16 @@ export function catalogRouter(ctx: Ctx) {
       ...PUBLISHED,
       ...(f.category && { category: { slug: f.category } }),
       ...(f.price && { isFree: f.price === 'free' }),
-      ...(f.difficulty && { difficulty: f.difficulty }),
-      ...(f.language && { languages: { has: f.language } }),
-      ...(f.subject && { questions: { some: { ...PUBLISHED, topic: { slug: f.subject } } } }),
+      ...(f.difficulty.length > 0 && { difficulty: { in: f.difficulty as Difficulty[] } }),
+      ...(f.language.length > 0 && { languages: { hasSome: f.language } }),
+      ...(f.subject.length > 0 && { questions: { some: { ...PUBLISHED, topic: { slug: { in: f.subject } } } } }),
       ...(wordFilters.length > 0 && { AND: wordFilters }),
     };
 
     const orderBy: Prisma.MockTestOrderByWithRelationInput[] =
       f.sort === 'recent' ? [{ publishedAt: 'desc' }, { title: 'asc' }]
       : f.sort === 'title' ? [{ title: 'asc' }]
+      : f.sort === 'free_first' ? [{ isFree: 'desc' }, { title: 'asc' }]
       : [{ category: { sortOrder: 'asc' } }, { isFree: 'desc' }, { title: 'asc' }];
 
     const [total, rows, facetCats, facetTopics, facetRows] = await Promise.all([
@@ -206,6 +221,9 @@ export function catalogRouter(ctx: Ctx) {
       total,
       page: f.page,
       pageSize: f.pageSize,
+      totalPages: Math.max(1, Math.ceil(total / f.pageSize)),
+      hasMore: f.page * f.pageSize < total,
+      nextPage: f.page * f.pageSize < total ? f.page + 1 : null,
       results: rows.map(card),
       // Shown in the empty state: "No mock tests for “Veterinary officer” yet — Request this exam".
       empty: total === 0,
@@ -223,10 +241,18 @@ export function catalogRouter(ctx: Ctx) {
   router.post('/exam-requests', async (req, res) => {
     const country = await liveCountry(req);
     const body = examRequestSchema.parse(req.body);
-    await prisma.examRequest.create({
-      data: { countryCode: country.code, query: body.query, email: body.email ?? req.user?.email ?? null },
-    });
-    res.status(201).json({ ok: true });
+    const email = body.email ?? req.user?.email ?? null;
+    const normalizedQuery = normalizeQuery(body.query);
+    // The same address asking for the same search twice counts once. A request with no address is always stored:
+    // each one is a separate person as far as we can tell, and the count is the demand signal.
+    const already = email
+      ? await prisma.examRequest.findFirst({ where: { countryCode: country.code, normalizedQuery, status: 'OPEN', email }, select: { id: true } })
+      : null;
+    if (!already) {
+      await prisma.examRequest.create({ data: { countryCode: country.code, query: body.query, normalizedQuery, email } });
+    }
+    const requestCount = await prisma.examRequest.count({ where: { countryCode: country.code, normalizedQuery, status: 'OPEN' } });
+    res.status(already ? 200 : 201).json({ ok: true, alreadyRequested: !!already, requestCount });
   });
 
   // ───────────────────────── Exam details
@@ -253,11 +279,18 @@ export function catalogRouter(ctx: Ctx) {
         : Promise.resolve([]),
       req.user
         ? prisma.attempt.findMany({
-            where: { userId: req.user.id, mockTestId: test.id, status: { not: 'IN_PROGRESS' } },
-            orderBy: { submittedAt: 'desc' }, take: 5,
+            // Practice sets hang off a test too, but they are not attempts of it (no "last attempt" or "best score").
+            where: { userId: req.user.id, mockTestId: test.id, kind: 'FULL', status: { not: 'IN_PROGRESS' }, submittedAt: { not: null } },
+            orderBy: [{ submittedAt: 'desc' }, { id: 'desc' }], take: 5,
           })
         : Promise.resolve([]),
     ]);
+    const attemptAgg = req.user
+      ? await prisma.attempt.aggregate({
+          where: { userId: req.user.id, mockTestId: test.id, kind: 'FULL', status: { not: 'IN_PROGRESS' }, submittedAt: { not: null } },
+          _count: { _all: true }, _max: { percent: true },
+        })
+      : null;
 
     const running = req.user
       ? await prisma.attempt.findFirst({
@@ -331,8 +364,14 @@ export function catalogRouter(ctx: Ctx) {
         remainingSeconds: Math.max(0, Math.ceil((running.deadlineAt.getTime() - ctx.now().getTime()) / 1000)),
       },
       freeSample: sample && { slug: sample.slug, title: sample.title, questionCount: sample._count.questions },
+      attemptStats: {
+        count: attemptAgg?._count._all ?? 0,
+        bestPercent: attemptAgg?._max.percent == null ? null : Number(attemptAgg._max.percent),
+        last: attempts[0] ? { id: attempts[0].id, percent: attempts[0].percent === null ? null : Number(attempts[0].percent), submittedAt: attempts[0].submittedAt } : null,
+      },
       previousAttempts: attempts.map((a) => ({
         id: a.id,
+        kind: a.kind,
         submittedAt: a.submittedAt,
         scoreMarks: a.scoreMarks === null ? null : Number(a.scoreMarks),
         totalMarks: a.totalMarks === null ? null : Number(a.totalMarks),

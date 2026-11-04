@@ -3,8 +3,8 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getOverview, getUsers, keys } from '../../api/admin';
 import type { UserFilter, UserRow } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyLine, ErrorBox, Skeleton } from '../../components/states';
-import { Avatar, FilterChips, InertButton, Pager, Pill } from '../../components/ui';
+import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { Avatar, Btn, FilterChips, Pager, Pill } from '../../components/ui';
 import { ACCESS_TONE } from '../../lib/badges';
 import { cx } from '../../lib/cx';
 import { formatCount, formatLastActive, initials } from '../../lib/format';
@@ -87,8 +87,16 @@ export function UsersPage() {
       </>
     );
 
+  const filtered = query.filter !== 'all' || !!query.q;
+  const empty = (
+    <EmptyState
+      title={filtered ? 'No users match this search.' : 'No users yet.'}
+      hint={filtered ? 'Check the spelling, or clear the search and the filter.' : 'Candidates appear here after they sign up.'}
+      action={filtered ? <Btn onClick={() => { setText(''); setQuery({ q: '', filter: 'all' }); }}>Clear search and filter</Btn> : undefined}
+    />
+  );
   const body = list.isPending ? (
-    <Skeleton label="Loading users…" />
+    <TableSkeleton label="Loading users…" />
   ) : list.isError ? (
     <ErrorBox error={list.error} onRetry={() => void list.refetch()} />
   ) : null;
@@ -108,7 +116,7 @@ export function UsersPage() {
           {query.filter === 'all' && !query.q ? `${formatCount(total)} users · showing latest` : `${formatCount(total)} matching`}
         </span>
         {body}
-        {!body && rows.length === 0 && <p className="m-0 rounded-[14px] border border-dashed border-input-border bg-white p-6 text-center text-ink-2">No users match.</p>}
+        {!body && rows.length === 0 && <div className="rounded-[14px] border border-dashed border-input-border bg-white">{empty}</div>}
         {rows.map((u) => {
           const t = ACCESS_TONE[u.access.state];
           return (
@@ -140,7 +148,8 @@ export function UsersPage() {
           <h1 className="m-0 text-[28px] tracking-[-0.02em]">Users</h1>
           <span className="text-sm text-muted">{o ? `${formatCount(o.kpis.registeredUsers)} candidates · ${formatCount(o.kpis.fullAccessActive)} with Full Access` : ' '}</span>
         </div>
-        <InertButton kind="secondary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">Export CSV</InertButton>
+        {/* The server has no users export (only payments and the audit log have one): shown, and says why it is off. */}
+        <Btn disabled={false} whyDisabled="Not available yet: the server has no users export.">Export CSV</Btn>
       </div>
 
       <div className="flex flex-wrap items-center gap-2.5">
@@ -188,7 +197,7 @@ export function UsersPage() {
                   </tbody>
                 </table>
               </div>
-              {rows.length === 0 && <EmptyLine>No users match this search.</EmptyLine>}
+              {rows.length === 0 && empty}
               <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3 text-[13px] text-muted">
                 <span>Showing {rows.length} of {formatCount(total)}</span>
                 <span className="flex items-center gap-3">

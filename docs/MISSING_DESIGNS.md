@@ -153,6 +153,27 @@ light country-code chips. Built from the artboards; these are the gaps it leaves
   - **Checkout inputs and Pay button** are 48px in `Checkout.dc` (phone-width column) and 44px in `CheckoutStates.dc` (desktop); built 48px on phone and 44px from the desktop breakpoint. The Rwanda pay button keeps its 14px radius on phone and the Kenya one is 10px, as drawn.
 - **Text links:** "See all N incorrect answers", "← Back to results" and the topic "Practise" are drawn as default links (blue #2D62CF) and built so.
 
+### E6 — Everything else on the C- and A-lists, built without a design (4 Nov 2026)
+
+Owner request: "implement all the missing items". Every item below the designs never drew is now built the plainest way, reusing existing components and
+the palette. **None of it has been drawn: the designer should draw each and the build will follow.** The per-item detail (route, component, assumption) is in:
+
+- `docs/missing-built-candidate.md` — candidate app: practice results and results edge states (C2, C6), finished-attempt reopen (C9), request-this-exam dialog (C10),
+  notify-me and the optional "What are you preparing for?" field (C11), account page editing, change goal and choose-goal prompt (C14, C15), save-my-result outcome (C18),
+  payment history, receipt and Check payment (C21), language switcher and "English only" note (C22, C33), Terms, Privacy, Refund, Cookies and Help pages (C25, C36),
+  maintenance page and error catalogue (C26, C28), catalog pagination and the full filter sheet with sort (C31, C32), case passage in review (C4), Finish practice dialog and
+  Partly correct panel, phone Back-online banner, "Price coming soon" (C24).
+- `docs/missing-built-admin.md` — admin: grant/extend, suspend/un-suspend, manual grant, check-payment result, payment detail with timeline, stuck badge, password-reset
+  result, View as candidate (A2–A5), accounting export (A16), CSV import (A6), category/topic/section editors (A7), case editor (A8), mock-test form and publishing (A9),
+  question editor for multiple-select, case-based and translations (A10), reports queue (A11), full audit log (A12), team invite and roles (A13), country actions (A14),
+  demand views (A15), restricted-role states (A17), loading/empty/error states (A18), sign-out control.
+- `docs/missing-built-backend.md` and `docs/API_ADDITIONS.md` — the API behind them (migration `20261106100000_missing_designs_backend`, decisions 90–104).
+
+Still **not built** (nothing to build it on): admin Overview "support requests" row (no data source), topic reorder (topics have no order), admin "Add country / language / copy
+structure", users CSV export, delete of a mock test (archive and restore only), "Not listed? Tell us your country", IP "Detected from your connection" (never built; remove the line
+from the design), the wrong-country page naming the test (prop ready, not called, see candidate notes). Kinyarwanda and Kiswahili strings added to the shared catalogue, and all
+legal and support-contact text, are **placeholders** until the owner supplies reviewed text.
+
 ---
 
 ## 0. Brief that applies to every screen

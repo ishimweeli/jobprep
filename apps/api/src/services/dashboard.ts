@@ -3,6 +3,7 @@ import { formatMoney } from '../domain/pricing';
 import type { TopicResult } from '../domain/scoring';
 import { accessSummary } from './access-summary';
 import { attemptTitle, listInProgress, type Ctx } from './attempts';
+import { recommendTests } from './recommend';
 import { loadPracticePool, MIN_PRACTICE_QUESTIONS, PRACTICE_SET_SIZE, STRONG_TOPIC_CUTOFF_PERCENT } from './results';
 
 const num = (d: Prisma.Decimal | null) => (d === null ? null : Number(d));
@@ -78,24 +79,13 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
   const inProgress = await listInProgress(ctx, viewer);
   const unfinished = inProgress[0] ?? null;
 
-  // New users: a free test to start with, plus more tests for their goal (falls back to the featured category).
-  const goalCategoryId = goal?.id ?? (await prisma.category.findFirst({ where: { countryCode: user.countryCode, featured: true }, select: { id: true } }))?.id;
-  const cardOf = (t: { slug: string; title: string; isFree: boolean; durationMinutes: number; _count: { questions: number } }) => ({
-    slug: t.slug, title: t.title, isFree: t.isFree, durationMinutes: t.durationMinutes, questionCount: t._count.questions,
+  // A free test to start with, plus more tests for their goal, ranked by their subject and level (see services/recommend).
+  const cardOf = (t: { slug: string; title: string; isFree: boolean; durationMinutes: number; questionCount: number }) => ({
+    slug: t.slug, title: t.title, isFree: t.isFree, durationMinutes: t.durationMinutes, questionCount: t.questionCount,
   });
-  const testInclude = { _count: { select: { questions: { where: { status: 'PUBLISHED' as const } } } } };
-  const startHereRow = goalCategoryId
-    ? await prisma.mockTest.findFirst({
-        where: { countryCode: user.countryCode, status: 'PUBLISHED', isFree: true, categoryId: goalCategoryId },
-        orderBy: { title: 'asc' }, include: testInclude,
-      })
-    : null;
-  const suggestedRows = goalCategoryId
-    ? await prisma.mockTest.findMany({
-        where: { countryCode: user.countryCode, status: 'PUBLISHED', categoryId: goalCategoryId, ...(startHereRow && { id: { not: startHereRow.id } }) },
-        orderBy: [{ isFree: 'desc' }, { title: 'asc' }], take: 3, include: testInclude,
-      })
-    : [];
+  const ranked = (await recommendTests(ctx, user, 50)).tests;
+  const startHereRow = ranked.find((t) => t.isFree) ?? null;
+  const suggestedRows = ranked.filter((t) => t !== startHereRow).slice(0, 3);
 
   // A payment the payer has not approved yet (the "payment pending" state of My access).
   const pendingRow = await prisma.payment.findFirst({
@@ -119,7 +109,7 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
     startHere: finished.length === 0 && startHereRow ? cardOf(startHereRow) : null,
     suggestedTests: suggestedRows.map(cardOf),
     pendingPayment: pendingRow && {
-      id: pendingRow.id, providerLabel: pendingMethod?.label ?? 'mobile money',
+      id: pendingRow.id, providerLabel: pendingMethod?.label ?? 'mobile money', msisdn: pendingRow.msisdn, createdAt: pendingRow.createdAt,
       priceLabel: formatMoney(pendingRow.amountMinor, pendingRow.currencyCode, country.currencyExponent), expiresAt: pendingRow.expiresAt,
     },
     asOf: now(),

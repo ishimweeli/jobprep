@@ -41,6 +41,18 @@ export const en: Messages = {
   'auth.sendCode': 'Send code',
   'auth.verify': 'Verify',
   'error.generic': 'Something went wrong. Please try again.',
+  'nav.mockTests': 'Mock tests',
+  'nav.pricing': 'Pricing',
+  'nav.progress': 'My progress',
+  'nav.signIn': 'Sign in',
+  'nav.getStarted': 'Get started',
+  'footer.terms': 'Terms of use',
+  'footer.privacy': 'Privacy policy',
+  'footer.refund': 'Refund policy',
+  'footer.help': 'Help and support',
+  'language.label': 'Language',
+  'language.englishOnly': 'This test is available in English only',
+  'language.partlyTranslated': 'This test is only partly translated. Untranslated questions stay in English.',
 };
 
 export const rw: Messages = {
@@ -52,6 +64,15 @@ export const rw: Messages = {
   'exam.timeIsUp': 'Igihe kirarangiye',
   'results.reviewAnswers': 'Subiramo ibisubizo',
   'payment.notCharged': 'Nta mafaranga yakwishyujwe.',
+  // Needs review by a native speaker before launch.
+  'nav.mockTests': 'Ibizamini',
+  'nav.pricing': 'Ibiciro',
+  'nav.progress': 'Aho ngeze',
+  'nav.signIn': 'Injira',
+  'nav.getStarted': 'Tangira',
+  'footer.help': 'Ubufasha',
+  'language.label': 'Ururimi',
+  'language.englishOnly': 'Iki kizamini kiboneka mu Cyongereza gusa',
 };
 
 export const sw: Messages = {
@@ -61,6 +82,15 @@ export const sw: Messages = {
   'exam.allSaved': 'Majibu yote yamehifadhiwa',
   'exam.timeIsUp': 'Muda umeisha',
   'payment.notCharged': 'Hukutozwa.',
+  // Needs review by a native speaker before launch.
+  'nav.mockTests': 'Mitihani',
+  'nav.pricing': 'Bei',
+  'nav.progress': 'Maendeleo yangu',
+  'nav.signIn': 'Ingia',
+  'nav.getStarted': 'Anza',
+  'footer.help': 'Msaada',
+  'language.label': 'Lugha',
+  'language.englishOnly': 'Mtihani huu unapatikana kwa Kiingereza pekee',
 };
 
 export const catalogues: Record<Locale, Messages> = { en, rw, sw };

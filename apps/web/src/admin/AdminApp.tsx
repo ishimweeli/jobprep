@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { onSignInRequired } from './api/client';
 import { Skeleton } from './components/states';
+import { ToastProvider } from './components/Toast';
 import { goToSignIn, RequireAdmin, RequirePermission, useAdmin } from './features/auth/session';
 import { firstAllowedPath } from './lib/permissions';
 import './styles/admin.css';
@@ -22,6 +23,15 @@ const PaymentsPage = page(() => import('./features/payments/PaymentsPage'), 'Pay
 const CountriesPage = page(() => import('./features/countries/CountriesPage'), 'CountriesPage');
 const SettingsPage = page(() => import('./features/settings/SettingsPage'), 'SettingsPage');
 const AuditPage = page(() => import('./features/settings/AuditPage'), 'AuditPage');
+const CandidateViewPage = page(() => import('./features/users/CandidateViewPage'), 'CandidateViewPage');
+const PaymentDetailPage = page(() => import('./features/payments/PaymentDetailPage'), 'PaymentDetailPage');
+const MockTestFormPage = page(() => import('./features/exams/MockTestFormPage'), 'MockTestFormPage');
+const ImportPage = page(() => import('./features/exams/ImportPage'), 'ImportPage');
+const CatalogPage = page(() => import('./features/exams/CatalogPage'), 'CatalogPage');
+const CasePage = page(() => import('./features/exams/CasePage'), 'CasePage');
+const ReportsPage = page(() => import('./features/exams/ReportsPage'), 'ReportsPage');
+const RequestsPage = page(() => import('./features/exams/RequestsPage'), 'RequestsPage');
+const WaitingListPage = page(() => import('./features/countries/WaitingListPage'), 'WaitingListPage');
 
 /** An unknown path goes to the first page the role may use (there is no 404 design for the admin yet). */
 function Fallback() {
@@ -68,6 +78,7 @@ export default function AdminApp() {
   useAdminDocument();
   useSignInAgain();
   return (
+    <ToastProvider>
     <Suspense fallback={<Loading />}>
       <Routes>
         <Route element={<RequireAdmin />}>
@@ -77,25 +88,43 @@ export default function AdminApp() {
           <Route element={<RequirePermission permission="users:read" />}>
             <Route path="users" element={<UsersPage />} />
             <Route path="users/:id" element={<UsersPage />} />
+            <Route path="users/:id/view" element={<CandidateViewPage />} />
           </Route>
           <Route element={<RequirePermission permission="exams:read" />}>
             <Route path="exams" element={<ExamsPage />} />
+            {/* Static segments first: React Router ranks them above `exams/:testId`. Writes need exams:write (each screen shows what a read-only role may not do). */}
+            <Route path="exams/new" element={<MockTestFormPage />} />
+            <Route path="exams/import" element={<ImportPage />} />
+            <Route path="exams/catalog" element={<CatalogPage />} />
+            <Route path="exams/reports" element={<ReportsPage />} />
+            <Route path="exams/requests" element={<RequestsPage />} />
             <Route path="exams/:testId" element={<ExamsPage />} />
+            <Route path="exams/:testId/edit" element={<MockTestFormPage />} />
+            <Route path="exams/:testId/import" element={<ImportPage />} />
+            <Route path="exams/:testId/cases" element={<CasePage />} />
+            <Route path="exams/:testId/cases/:caseId" element={<CasePage />} />
+            <Route path="exams/:testId/q/new" element={<ExamsPage />} />
             <Route path="exams/:testId/q/:questionId" element={<ExamsPage />} />
           </Route>
           <Route element={<RequirePermission permission="payments:read" />}>
             <Route path="payments" element={<PaymentsPage />} />
+            <Route path="payments/:id" element={<PaymentDetailPage />} />
           </Route>
           <Route element={<RequirePermission permission="countries:read" />}>
             <Route path="countries" element={<CountriesPage />} />
+            <Route path="countries/waiting-list" element={<WaitingListPage />} />
           </Route>
           <Route element={<RequirePermission permission="settings:write" />}>
             <Route path="settings" element={<SettingsPage />} />
+          </Route>
+          {/* The audit log is for whoever holds audit:read (the System admin), whether or not they can open Settings. */}
+          <Route element={<RequirePermission permission="audit:read" />}>
             <Route path="settings/audit" element={<AuditPage />} />
           </Route>
           <Route path="*" element={<Fallback />} />
         </Route>
       </Routes>
     </Suspense>
+    </ToastProvider>
   );
 }

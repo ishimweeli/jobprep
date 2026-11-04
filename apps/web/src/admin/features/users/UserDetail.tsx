@@ -1,43 +1,75 @@
 import { useQuery } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { getUser, keys } from '../../api/admin';
 import type { UserDetail as UserDetailData } from '../../api/types';
 import { ErrorBox, Skeleton } from '../../components/states';
-import { Avatar, InertButton, Pill } from '../../components/ui';
+import { Avatar, Btn, LinkButton, Pill } from '../../components/ui';
 import { ACCESS_TONE, accessSummary, historySentence, paymentTone } from '../../lib/badges';
 import { formatDateTime, formatDay, formatLastActive, formatDayYear, initials, languageName } from '../../lib/format';
+import { denyHint } from '../../lib/permissions';
+import { useAdmin } from '../auth/session';
+import { GrantAccessDialog, PasswordResetDialog, SuspendDialog, UnsuspendDialog } from './UserActions';
 
 /**
- * One user (AdminUsers.dc side panel, AdminUserPhone.dc page). The four action buttons are drawn as in the
- * artboards and do nothing yet: their dialogs and results are not designed (A2, A3, A5).
+ * One user (AdminUsers.dc side panel, AdminUserPhone.dc page). The four action buttons open their dialogs (A2 grant /
+ * extend access, A3 suspend and un-suspend, A5 password reset) or the read-only candidate view (A5). A role that may not
+ * use one sees it disabled with the reason under it (A17).
  */
 
 const NOTE = 'Access changes ask for a reason and are recorded in the audit log.';
+const VIEW_HINT = 'Opens a read-only view of what this person sees. Nothing can be changed from it, and the view is recorded in the audit log.';
 
-function Actions({ phone }: { phone: boolean }) {
-  if (phone) {
-    return (
-      <div className="flex flex-col gap-2">
-        <InertButton kind="primary" sizeClass="min-h-12 rounded-[10px] text-base font-semibold">Grant / extend 30 days</InertButton>
-        <div className="grid grid-cols-2 gap-2">
-          <InertButton kind="secondary" sizeClass="min-h-12 rounded-[10px] text-[15px] font-semibold">Send password reset</InertButton>
-          <InertButton kind="secondary" sizeClass="min-h-12 rounded-[10px] text-[15px] font-semibold">View as candidate</InertButton>
-        </div>
-        <InertButton kind="danger" sizeClass="min-h-12 rounded-[10px] text-[15px] font-semibold">Suspend account</InertButton>
-        <p className="m-0 text-xs text-muted">{NOTE}</p>
-      </div>
-    );
-  }
+type Dialog = null | 'grant' | 'suspend' | 'unsuspend' | 'reset';
+
+function Actions({ d, phone }: { d: UserDetailData; phone: boolean }) {
+  const { permissions } = useAdmin();
+  const [dialog, setDialog] = useState<Dialog>(null);
+  const suspended = d.user.status === 'SUSPENDED';
+  const manage = denyHint(permissions, 'users:manage', 'change access or suspend accounts');
+  const reset = denyHint(permissions, 'otp:resend', 'send password resets') ?? (suspended ? 'A suspended account cannot get an email. Un-suspend it first.' : undefined);
+  const size = phone ? 'lg' : 'md';
+  const close = () => setDialog(null);
+  const who = d.user;
+
+  const grant = <Btn kind="primary" size={size} className="w-full" whyDisabled={manage} onClick={() => setDialog('grant')}>Grant / extend 30 days</Btn>;
+  const resetBtn = <Btn size={size} className="w-full" whyDisabled={reset} onClick={() => setDialog('reset')}>Send password reset</Btn>;
+  const view = <LinkButton to={`/admin/users/${who.id}/view`} size={size} className="w-full" aria-describedby={`view-hint-${who.id}`}>View as candidate</LinkButton>;
+  const suspend = suspended
+    ? <Btn size={size} className="w-full" whyDisabled={manage} onClick={() => setDialog('unsuspend')}>Un-suspend account</Btn>
+    : <Btn kind="danger" size={size} className="w-full" whyDisabled={manage} onClick={() => setDialog('suspend')}>Suspend account</Btn>;
+
   return (
     <>
-      <div className="grid grid-cols-2 gap-2">
-        <InertButton kind="primary" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">Grant / extend 30 days</InertButton>
-        <InertButton kind="secondary" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">Send password reset</InertButton>
-        <InertButton kind="secondary" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">View as candidate</InertButton>
-        <InertButton kind="danger" sizeClass="min-h-11 rounded-[10px] text-sm font-semibold">Suspend account</InertButton>
-      </div>
+      {phone ? (
+        <div className="flex flex-col gap-2">
+          {grant}
+          <div className="grid grid-cols-2 gap-2">{resetBtn}{view}</div>
+          {suspend}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 items-start gap-2">{grant}{resetBtn}{view}{suspend}</div>
+      )}
+      <p id={`view-hint-${who.id}`} className="m-0 text-xs text-muted">{VIEW_HINT}</p>
       <p className="m-0 text-xs text-muted">{NOTE}</p>
+      <GrantAccessDialog open={dialog === 'grant'} onClose={close} user={who} />
+      <SuspendDialog open={dialog === 'suspend'} onClose={close} user={who} />
+      <UnsuspendDialog open={dialog === 'unsuspend'} onClose={close} user={who} />
+      <PasswordResetDialog open={dialog === 'reset'} onClose={close} user={who} />
     </>
+  );
+}
+
+/** The suspended state (A3): a banner with the reason and the date, in the incorrect tone, with words not only colour. */
+function SuspendedBanner({ d }: { d: UserDetailData }) {
+  if (d.user.status !== 'SUSPENDED') return null;
+  const when = d.adminHistory.find((h) => h.action === 'user.suspend')?.at;
+  return (
+    <div role="status" className="flex flex-col gap-0.5 rounded-[10px] border border-incorrect-line bg-incorrect-bg px-3.5 py-3">
+      <span className="text-sm font-semibold text-incorrect">This account is suspended{when ? ` since ${formatDay(when)}` : ''}</span>
+      <span className="text-sm text-incorrect">
+        {d.user.suspendedReason ? `Reason: ${d.user.suspendedReason}. ` : ''}The person is signed out and cannot sign in until it is un-suspended.
+      </span>
+    </div>
   );
 }
 
@@ -80,7 +112,8 @@ function UserBody({ d, phone }: { d: UserDetailData; phone: boolean }) {
           <span className="text-lg font-semibold">{d.access.state === 'active' ? 'Full Access · active' : sum.line}</span>
           {sum.meta && <span className="text-sm text-ink-2">{sum.meta}</span>}
         </div>
-        <Actions phone />
+        <SuspendedBanner d={d} />
+        <Actions d={d} phone />
         <section aria-labelledby="ud-i" className={card}>
           <h3 id="ud-i" className="m-0 mb-1.5 text-base">Profile</h3>
           {[
@@ -145,7 +178,8 @@ function UserBody({ d, phone }: { d: UserDetailData; phone: boolean }) {
         <span className="text-base font-semibold">{sum.line}</span>
         {sum.meta && <span className="text-[13px] text-ink-2">{sum.meta}</span>}
       </div>
-      <Actions phone={false} />
+      <SuspendedBanner d={d} />
+      <Actions d={d} phone={false} />
       <section aria-labelledby="ud-att" className={sec}>
         <h3 id="ud-att" className="m-0 mb-1 text-[15px]">Recent attempts</h3>
         <Rows empty="No attempts yet.">

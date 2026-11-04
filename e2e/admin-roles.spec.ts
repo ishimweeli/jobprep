@@ -14,7 +14,7 @@ const NAV: Record<Role, { desktop: string[]; phone: string[]; denied: string[] }
 
 for (const role of ['system', 'editor', 'support', 'multi'] as const) {
   test.describe(`Role: ${role}`, () => {
-    test(`sees only its navigation${role === 'system' ? '' : ' and is sent away from a URL it cannot use'}`, async ({ page, playwright }, info) => {
+    test(`sees only its navigation${role === 'system' ? '' : ' and is told so on a URL it cannot use'}`, async ({ page, playwright }, info) => {
       const w = watchErrors(page);
       await signInAs(page, playwright, role);
       await page.goto('/admin');
@@ -25,7 +25,12 @@ for (const role of ['system', 'editor', 'support', 'multi'] as const) {
 
       for (const url of NAV[role].denied) {
         await page.goto(url);
-        await expect(page).toHaveURL(`${BASE}/admin`); // the first page the role may use
+        // no silent redirect any more (A17): the address stays and the page says "You do not have access to this"
+        await expect(page).toHaveURL(`${BASE}${url}`);
+        await expect(page.getByRole('heading', { level: 1, name: 'You do not have access to this' })).toBeVisible();
+        await expect(links).toHaveCount(want.length); // the role keeps its own navigation
+        await page.getByRole('link', { name: 'Go to Overview' }).click();
+        await expect(page).toHaveURL(`${BASE}/admin`);
         await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
       }
       w.expectClean();

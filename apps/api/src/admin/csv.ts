@@ -63,18 +63,56 @@ export interface ImportReport {
   problems: RowProblem[];
   /** Rows that have at least one problem. */
   invalidRows: number;
+  /** The file's own header row (for the column-mapping step). */
+  headers: string[];
+  /** CSV text of the rows that had problems, with a final "problems" column ('' when there are none). */
+  errorCsv: string;
 }
 
-export function validateQuestionCsv(text: string, ctx: ImportContext): ImportReport | { fatal: string } {
+/** Logical column -> the header text used in the uploaded file (anything not mapped keeps its own name). */
+export type ColumnMap = Partial<Record<string, string>>;
+
+/** The columns an import understands, with the help text the CSV-format screen shows. */
+export const IMPORT_COLUMNS: { name: string; required: boolean; help: string }[] = [
+  { name: 'section', required: true, help: 'Name of a section that already exists in this mock test' },
+  { name: 'topic', required: true, help: 'Name of a topic that already exists in the test category (used for weak-area results)' },
+  { name: 'stem', required: true, help: 'The question text' },
+  { name: 'option_a', required: true, help: 'First answer option' },
+  { name: 'option_b', required: true, help: 'Second answer option (option_c to option_f are optional, with no gaps)' },
+  { name: 'option_c', required: false, help: 'Third answer option' },
+  { name: 'option_d', required: false, help: 'Fourth answer option' },
+  { name: 'correct', required: true, help: 'One letter (B) for a single answer, or several separated by ; (A;C) for multiple-select' },
+  { name: 'explanation', required: true, help: 'Why the answer is right (at least 10 characters)' },
+  { name: 'marks', required: false, help: 'Marks for the question (default 1)' },
+  { name: 'difficulty', required: false, help: 'foundation, standard or challenging (default standard)' },
+  { name: 'scoring', required: false, help: 'Multiple-select only: all_or_nothing (default) or partial' },
+  { name: 'choose', required: false, help: 'Multiple-select only: how many options a candidate may pick' },
+];
+
+const csvCell = (v: string) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+export const toCsv = (rows: string[][]) => rows.map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+
+/** The example row of the template download. */
+export function importTemplateCsv(): string {
+  return toCsv([
+    ['section', 'topic', 'stem', 'option_a', 'option_b', 'option_c', 'option_d', 'correct', 'explanation', 'marks', 'difficulty'],
+    ['Algebra', 'Linear equations', 'Solve 2x + 3 = 11.', 'x = 3', 'x = 4', 'x = 5', 'x = 7', 'B', 'Subtract 3 from both sides, then divide by 2.', '1', 'standard'],
+  ]);
+}
+
+export function validateQuestionCsv(
+  text: string, ctx: ImportContext, columnMap: ColumnMap = {},
+): ImportReport | { fatal: string; headers?: string[]; missingColumns?: string[] } {
   if (Buffer.byteLength(text) > CSV_LIMITS.maxBytes) return { fatal: 'file_too_large' };
   const table = parseCsv(text);
   if (table.length < 2) return { fatal: 'no_rows' };
   if (table.length - 1 > CSV_LIMITS.maxRows) return { fatal: 'too_many_rows' };
 
   const header = table[0]!.map((h) => h.trim().toLowerCase());
-  const col = (name: string) => header.indexOf(name);
+  const mapped = (name: string) => (columnMap[name] ?? name).trim().toLowerCase();
+  const col = (name: string) => header.indexOf(mapped(name));
   const missing = ['section', 'topic', 'stem', 'option_a', 'option_b', 'correct', 'explanation'].filter((c) => col(c) < 0);
-  if (missing.length > 0) return { fatal: `missing_columns:${missing.join(',')}` };
+  if (missing.length > 0) return { fatal: `missing_columns:${missing.join(',')}`, headers: table[0]!.map((h) => h.trim()), missingColumns: missing };
 
   const sections = new Map(ctx.sections.map((s) => [s.trim().toLowerCase(), s]));
   const topics = new Map(ctx.topics.map((s) => [s.trim().toLowerCase(), s]));
@@ -134,5 +172,11 @@ export function validateQuestionCsv(text: string, ctx: ImportContext): ImportRep
     }
   });
 
-  return { totalRows: table.length - 1, valid, problems, invalidRows: bad.size };
+  const byRow = new Map<number, string[]>();
+  for (const pr of problems) byRow.set(pr.row, [...(byRow.get(pr.row) ?? []), pr.column ? `${pr.column}: ${pr.problem}` : pr.problem]);
+  const errorCsv = bad.size === 0 ? '' : toCsv([
+    [...table[0]!, 'problems'],
+    ...[...bad].sort((a, b) => a - b).map((row) => [...table[row - 1]!, byRow.get(row)!.join('; ')]),
+  ]);
+  return { totalRows: table.length - 1, valid, problems, invalidRows: bad.size, headers: table[0]!.map((h) => h.trim()), errorCsv };
 }

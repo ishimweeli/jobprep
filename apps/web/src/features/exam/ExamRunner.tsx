@@ -20,6 +20,7 @@ import type { SaveEngine } from './saveEngine';
 import { TimeUpDialog, TimeUpScreen } from './TimeUpScreen';
 import { formatClock, isLow } from './timer';
 import { useExamTimer } from './useExamTimer';
+import { translationNote, useT } from '../../lib/i18n';
 
 const idxKey = (id: string) => `jobprep.exam.index.${id}`;
 
@@ -141,6 +142,8 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
     return () => engine.destroy();
   }, [engine]);
 
+  const t = useT();
+
   // Time is up: phones get the full-screen message (TimeUp.dc); desktops keep the exam in view, dimmed, behind a dialog (TimeUpDesktop.dc).
   if (ended && !desktop) return <TimeUpScreen answered={ended.answered} total={ended.total} resultsTo={resultsTo} />;
   if (!q) return null;
@@ -195,11 +198,17 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
   };
 
   const pos = kase ? casePosition(q, kase) : null;
+  const note = translationNote(state.language);
 
   const page = (
     <div className="flex h-[100dvh] flex-col bg-surface text-ink md:block md:h-auto md:min-h-screen md:bg-page" {...(frozen ? { 'aria-hidden': true } : {})}>
       {offline && <OfflineBanner />}
       {backOnline !== null && !offline && !frozen && <OnlineBanner saved={backOnline} />}
+      {note && (
+        <p role="note" data-testid="translation-note" className="m-0 bg-soft px-4 py-2 text-center text-[13px] font-semibold text-ink-2 md:text-sm">
+          {note === 'english_only' ? t('language.englishOnly') : t('language.partlyTranslated')}
+        </p>
+      )}
 
       <header className="shrink-0 border-b border-border bg-surface">
         <div className="mx-auto flex max-w-[1320px] flex-col gap-2.5 px-4 pb-2.5 pt-3.5 md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-3 md:px-6 md:py-3">

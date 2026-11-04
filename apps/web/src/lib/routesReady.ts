@@ -4,7 +4,7 @@
  *
  * Built (artboards exist): exam start, checkout, progress (dashboard), review, results, resume, try another test,
  * the practice-set runner (C1, Batch 1).
- * Still inert because their screen is NOT designed (docs/MISSING_DESIGNS.md): "Change goal" (C15).
+ * Nothing is inert any more: the screens that had no design were built without one (docs/missing-built-candidate.md).
  */
 export const ROUTES_READY = {
   /** /:country/tests/:slug/start (Exam.dc / ExamMobile.dc) */
@@ -23,6 +23,6 @@ export const ROUTES_READY = {
   tryAnother: true,
   /** Practice-set runner: "Practice Weak Areas", "Start practice", "Practise" (Practice.dc, Batch 1) */
   practice: true,
-  /** "Change goal" (C15, not designed) */
-  changeGoal: false,
+  /** "Change goal" (C15): built without a design at /account/goal */
+  changeGoal: true,
 } as const;

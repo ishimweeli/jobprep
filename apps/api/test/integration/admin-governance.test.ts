@@ -190,7 +190,7 @@ describe('going live', () => {
 describe('settings', () => {
   it('reads the current settings', async () => {
     expect((await system.get('/api/admin/settings')).body).toEqual({
-      stuckAfterMinutes: 10, showExplanationsOnFreeResults: true, showPassMarks: true, freeSamplesOpenWithoutAccount: true,
+      stuckAfterMinutes: 10, showExplanationsOnFreeResults: true, showPassMarks: true, freeSamplesOpenWithoutAccount: true, maintenance: { enabled: false, message: null, backAt: null },
     });
   });
 

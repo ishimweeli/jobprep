@@ -5,7 +5,8 @@ import { getCountries, getOverview, keys } from '../../api/admin';
 import type { Overview } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
 import { ErrorBox, Skeleton } from '../../components/states';
-import { InertButton, Pill } from '../../components/ui';
+import { Btn, LinkButton, Pill } from '../../components/ui';
+import { denyHint } from '../../lib/permissions';
 import { ACCESS_TAG, paymentTone } from '../../lib/badges';
 import { barHeights, chartSummary } from '../../lib/chart';
 import { cx } from '../../lib/cx';
@@ -93,9 +94,11 @@ export function OverviewPage() {
                 className="h-11 w-[300px] max-w-full rounded-[10px] border border-input-border bg-white px-3.5 text-[15px] text-ink"
               />
             </form>
-            <InertButton kind="primary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">
-              + New mock test
-            </InertButton>
+            {admin.permissions.includes('exams:write') ? (
+              <LinkButton to="/admin/exams/new" kind="primary">+ New mock test</LinkButton>
+            ) : (
+              <Btn kind="primary" whyDisabled={denyHint(admin.permissions, 'exams:write', 'create mock tests')}>+ New mock test</Btn>
+            )}
           </div>
         </div>
       )}

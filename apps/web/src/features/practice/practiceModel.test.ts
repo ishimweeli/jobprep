@@ -75,10 +75,10 @@ describe('practice runner state machine', () => {
 
 describe('practice copy', () => {
   it('feedback titles', () => {
-    expect(feedbackFor({ state: 'correct', correct: ['B'] })).toEqual({ title: 'Correct', tone: 'correct' });
-    expect(feedbackFor({ state: 'incorrect', correct: ['B'] })).toEqual({ title: 'Not quite — the answer is B', tone: 'incorrect' });
-    expect(feedbackFor({ state: 'incorrect', correct: ['C', 'A'] }).title).toBe('Not quite — the answer are A, C');
-    expect(feedbackFor({ state: 'partial', correct: ['A', 'C'] })).toEqual({ title: 'Partly correct', tone: 'partial' });
+    expect(feedbackFor({ state: 'correct', correct: ['B'] })).toEqual({ title: 'Correct', tone: 'correct', detail: null });
+    expect(feedbackFor({ state: 'incorrect', correct: ['B'] })).toEqual({ title: 'Not quite — the answer is B', tone: 'incorrect', detail: null });
+    expect(feedbackFor({ state: 'incorrect', correct: ['C', 'A'] }).title).toBe('Not quite — the answers are A, C');
+    expect(feedbackFor({ state: 'partial', correct: ['A', 'C'] })).toMatchObject({ title: 'Partly correct', tone: 'partial' });
   });
   it('option tags after checking: ✓ Correct on a right option, ✕ Your answer on a wrong pick, nothing before', () => {
     const r = result('q1', 'incorrect', ['B'], ['A']);
@@ -94,5 +94,20 @@ describe('practice copy', () => {
     expect(joinNames(['A', 'B', 'A'])).toBe('A and B');
     expect(joinNames(['A', 'B', 'C'])).toBe('A, B and C');
     expect(dominantTopic([q('1'), q('2', { topic: { id: 't2', name: 'Geometry' } }), q('3', { topic: { id: 't2', name: 'Geometry' } })])).toEqual({ id: 't2', name: 'Geometry' });
+  });
+});
+
+import { finishPrompt, partialDetail } from './practiceModel';
+
+describe('finish practice and partly correct (C1, built without an artboard)', () => {
+  it('the finish prompt counts what was checked', () => {
+    expect(finishPrompt({ checked: {} }, 5).body).toBe('You have answered 0 of 5 questions. The 5 you have not answered will be left out. Practice answers don’t change your mock test scores.');
+    const checked = { a: { questionId: 'a', state: 'correct', correct: ['A'], yourAnswer: ['A'], explanation: null } } as never;
+    expect(finishPrompt({ checked }, 1)).toMatchObject({ answered: 1, unanswered: 0 });
+    expect(finishPrompt({ checked }, 1).body.startsWith('You have answered all 1 question.')).toBe(true);
+  });
+  it('the partly correct detail line', () => {
+    expect(partialDetail(['A', 'C'], ['A', 'B'])).toBe('You found 1 of 2 correct answers and chose 1 that is not correct. The correct answers are A, C.');
+    expect(partialDetail(['A', 'C', 'D'], ['A', 'C'])).toBe('You found 2 of 3 correct answers. The correct answers are A, C, D.');
   });
 });

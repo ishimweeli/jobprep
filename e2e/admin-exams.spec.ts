@@ -40,11 +40,11 @@ test.describe('Exams & questions', () => {
     await signInAs(page, playwright, 'system');
     await page.goto('/admin/exams');
     await expect(page.getByRole('region', { name: 'Mock tests' })).toBeVisible();
-    await expect(page.getByRole('link', { name: new RegExp(TEST_TITLE) })).toContainText('Published');
     if (!isPhone(info)) {
       await expect(page.getByText(/^\d[\d,]* mock tests · \d[\d,]* questions · \d+ categories$/)).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Import questions (CSV)' })).toHaveAttribute('aria-disabled', 'true');
-      await expect(page.getByRole('button', { name: '+ New mock test' })).toHaveAttribute('aria-disabled', 'true');
+      // formerly inert: now real links to the import and the new-test form (e2e/admin-missing-content.spec.ts covers them)
+      await expect(page.getByRole('link', { name: 'Import questions (CSV)' })).toHaveAttribute('href', /\/admin\/exams\/(?:[^/]+\/)?import$/);
+      await expect(page.getByRole('link', { name: '+ New mock test' })).toHaveAttribute('href', '/admin/exams/new');
     }
 
     await page.getByRole('searchbox', { name: 'Search mock tests' }).fill('Procurement');
@@ -52,6 +52,8 @@ test.describe('Exams & questions', () => {
     await expect(page.getByRole('link', { name: /Accountant/ })).toHaveCount(0);
     await page.getByRole('combobox', { name: 'Category' }).selectOption({ label: 'Procurement' });
     await expect(page).toHaveURL(`${BASE}/admin/exams?q=Procurement&category=procurement`);
+    // checked after filtering: the specs that create mock tests leave archived ones behind, which fill the unfiltered list
+    await expect(page.getByRole('link', { name: new RegExp(TEST_TITLE) })).toContainText('Published');
 
     await page.getByRole('link', { name: new RegExp(TEST_TITLE) }).click();
     await expect(page).toHaveURL(new RegExp(`/exams/[^/]+$`));
@@ -173,7 +175,7 @@ test.describe('Exams & questions', () => {
     }
   });
 
-  test('previous and next move through the test; a multiple-select question opens read-only with no save buttons', async ({ page, playwright }) => {
+  test('previous and next move through the test; a multiple-select question opens editable with its scoring choice', async ({ page, playwright }) => {
     const api = await adminApi(playwright);
     const list = await (await api.get('/api/admin/exams', { params: { q: 'Secondary Mathematics' } })).json();
     const maths = list.results.find((r: { title: string }) => r.title.includes('S1–S3') && !r.title.includes('Free'));
@@ -191,10 +193,13 @@ test.describe('Exams & questions', () => {
     await expect(page).toHaveURL(`${BASE}/admin/exams/${maths.id}/q/${detail.questions[0].id}`);
 
     await page.goto(`/admin/exams/${maths.id}/q/${multi.id}`);
-    await expect(page.getByLabel('Question', { exact: true })).toHaveAttribute('readonly', '');
-    await expect(page.getByRole('button', { name: 'Save draft' })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /Publish/ })).toHaveCount(0);
-    await expect(page.getByRole('checkbox', { name: /Mark option/ }).first()).toBeDisabled();
+    // multiple-select used to open read-only (A10): it is editable now, with checkboxes and the marking choice
+    await expect(page.getByLabel('Question', { exact: true })).not.toHaveAttribute('readonly', '');
+    await expect(page.getByRole('button', { name: 'Save draft' })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: /Mark option/ }).first()).toBeEnabled();
+    await expect(page.getByText('Marking')).toBeVisible();
+    await expect(page.getByRole('radio', { name: /All or nothing/ })).toBeVisible();
+    await expect(page.getByRole('radio', { name: /Partial credit/ })).toBeVisible();
     await api.dispose();
   });
 
@@ -204,7 +209,8 @@ test.describe('Exams & questions', () => {
     await expect(page.getByRole('region', { name: 'Mock tests' })).toBeVisible();
     await signInAs(page, playwright, 'support');
     await page.goto('/admin/exams');
-    await expect(page).toHaveURL(`${BASE}/admin`);
+    await expect(page).toHaveURL(`${BASE}/admin/exams`); // no redirect: the page says so
+    await expect(page.getByRole('heading', { level: 1, name: 'You do not have access to this' })).toBeVisible();
   });
 });
 

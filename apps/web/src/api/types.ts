@@ -39,6 +39,18 @@ export interface CountryDetail {
     checkoutAvailable: boolean;
   };
   paymentMethods: PaymentMethod[];
+  /** Where to reach support in this country (docs/API_ADDITIONS.md). */
+  supportContact?: SupportContact;
+}
+
+/** `configured` false = nothing set (hide the block); `placeholder` true = development placeholder values. */
+export interface SupportContact {
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  hours: string | null;
+  configured: boolean;
+  placeholder: boolean;
 }
 
 export interface Category {
@@ -93,6 +105,10 @@ export interface CatalogResponse {
   empty: boolean;
   canRequestExam: boolean;
   facets: CatalogFacets;
+  /** Load more: `page` + `hasMore`. */
+  hasMore?: boolean;
+  nextPage?: number | null;
+  totalPages?: number;
 }
 
 export interface ExamSection {
@@ -109,6 +125,13 @@ export interface PreviousAttempt {
   totalMarks: number | null;
   percent: number | null;
   minutesUsed: number | null;
+  kind?: 'FULL';
+}
+
+export interface AttemptStats {
+  count: number;
+  bestPercent: number | null;
+  last: null | { id: string; percent: number | null; submittedAt: string | null };
 }
 
 export interface ExamDetail extends TestCard {
@@ -137,6 +160,8 @@ export interface ExamDetail extends TestCard {
   };
   freeSample: null | { slug: string; title: string; questionCount: number };
   previousAttempts: PreviousAttempt[];
+  /** Finished full attempts of this test by the signed-in user (practice sets are not counted). */
+  attemptStats?: AttemptStats;
 }
 
 export interface PricingResponse {
@@ -287,6 +312,26 @@ export interface AttemptState {
   answers: Record<string, { selected: string[]; flagged: boolean }>;
   counts: AttemptCounts;
   finished: boolean;
+  /** Set once the attempt has ended: what the "This attempt has ended" screen may offer (C9). */
+  reopen?: null | AttemptReopen;
+  language?: LanguageServed;
+}
+
+export interface AttemptReopen {
+  ended: true;
+  autoSubmitted: boolean;
+  canStartNew: boolean;
+  startNewReason: 'needs_full_access' | 'practice' | null;
+  mockTestSlug: string;
+  countryCode: string;
+}
+
+/** Translation coverage of an attempt or review fetched with `?lang=`. */
+export interface LanguageServed {
+  requested: string;
+  served: 'en' | 'rw' | 'sw';
+  translatedQuestions: number;
+  totalQuestions: number;
 }
 
 export interface TimerResponse extends TimerState {
@@ -383,6 +428,7 @@ export interface ResultResponse {
   incorrectCount: number;
   isGuest: boolean;
   canPractice: boolean;
+  edge?: { noneAnswered: boolean; perfect: boolean; noWeakAreas: boolean; allTopicsStrong: boolean };
 }
 
 export type ReviewFilter = 'incorrect' | 'flagged' | 'unanswered' | 'all';
@@ -412,6 +458,9 @@ export interface ReviewResponse {
   counts: { incorrect: number; flagged: number; unanswered: number; all: number };
   items: ReviewItem[];
   grid: { number: number; questionId: string; status: ReviewStatus; flagged: boolean }[];
+  /** Case studies of the case-based questions, with the numbers of the questions that use each (C4). */
+  cases?: ExamCase[];
+  language?: LanguageServed;
 }
 
 // ───────────────────────── Dashboard
@@ -507,4 +556,99 @@ export interface PracticeCheckResponse {
   correct: string[];
   yourAnswer: string[];
   explanation: string | null;
+}
+
+// ───────────────────────── Added by the missing-designs pass (docs/API_ADDITIONS.md)
+
+export interface ExamRequestResponse {
+  ok: true;
+  alreadyRequested: boolean;
+  requestCount?: number;
+}
+
+export interface WaitingListResponse {
+  ok: true;
+  alreadyOnList: boolean;
+}
+
+export type LegalSlug = 'terms' | 'privacy' | 'refund' | 'cookies';
+
+export interface LegalIndexEntry {
+  slug: LegalSlug;
+  title: string;
+  lastUpdated: string | null;
+  placeholder: boolean;
+}
+
+export interface LegalPageDto {
+  slug: LegalSlug;
+  title: string;
+  lastUpdated: string | null;
+  /** True while the text is a placeholder written by engineering, not reviewed legal text. */
+  placeholder: boolean;
+  intro: string;
+  sections: { id: string; heading: string; paragraphs: string[] }[];
+  country: { code: string; name: string; disclaimer: string | null } | null;
+}
+
+export interface StatusResponse {
+  ok: true;
+  maintenance: { enabled: boolean; message: string | null; backAt: string | null };
+}
+
+export interface PaymentRow {
+  id: string;
+  createdAt: string;
+  status: PaymentStatus;
+  providerLabel: string;
+  priceLabel: string;
+  amountMinor: number;
+  currencyCode: string;
+  countryCode: string;
+  transactionId: string | null;
+  accessUntil: string | null;
+  canCheck: boolean;
+}
+
+export interface PaymentHistory {
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+  payments: PaymentRow[];
+}
+
+export interface Receipt {
+  number: string;
+  issuedTo: { name: string; email: string };
+  country: { code: string; name: string };
+  plan: { name: string; durationDays: number };
+  paidAt: string | null;
+  accessStartsAt: string | null;
+  accessEndsAt: string | null;
+}
+
+export interface PaymentDetail {
+  payment: PaymentView;
+  receipt: Receipt | null;
+}
+
+export interface ClaimOutcome {
+  claimed: number;
+  alreadyYours: number;
+  otherCountry: number;
+  belongsToSomeoneElse: number;
+  unknown: number;
+  attemptIds: string[];
+  outcome: 'saved' | 'already_saved' | 'nothing_to_save';
+}
+
+export interface PatchMeInput {
+  name?: string;
+  goalCategoryId?: string | null;
+  language?: string;
+  level?: string | null;
+  subject?: string | null;
+  /** `YYYY-MM-DD` or null. */
+  examDate?: string | null;
 }

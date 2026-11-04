@@ -27,10 +27,10 @@ test.describe('Web: dashboard / My progress', () => {
     await page.goto('/rw/progress');
     await expect(page.getByRole('heading', { level: 1, name: 'Muraho, Aline' })).toBeVisible();
 
-    // goal line; "Change goal" is drawn but inert (no designed screen)
+    // goal line; "Change goal" opens the Change goal screen
     await expect(page.getByText(/Preparing for|Goal:/).filter({ visible: true }).first()).toBeVisible();
-    const change = page.locator('[aria-disabled=true]').filter({ hasText: /Change/ }).filter({ visible: true });
-    await expect(change).toHaveAttribute('aria-disabled', 'true');
+    const change = page.getByRole('link', { name: /^Change( goal)?$/ }).filter({ visible: true });
+    await expect(change).toHaveAttribute('href', '/account/goal');
 
     // resume
     const resume = page.getByRole('region', { name: 'Continue where you stopped' });

@@ -17,6 +17,14 @@ interface Option {
   label: string;
 }
 
+/** Sort choices (C32). "Free first" is the API's `free_first`. The desktop shows them in a select above the results, the phone sheet as chips. */
+export const SORT_OPTIONS: { value: CatalogFilters['sort']; label: string }[] = [
+  { value: '', label: 'Most relevant' },
+  { value: 'free_first', label: 'Free first' },
+  { value: 'recent', label: 'Newest' },
+  { value: 'title', label: 'A to Z' },
+];
+
 /** Radio group (single choice) with the design's two looks. Native radios: arrow keys work for free. */
 function RadioGroup({
   legend,
@@ -118,7 +126,7 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
 
   return (
     <div className={cx('flex flex-col', sheet ? 'gap-4' : 'gap-5')}>
-      {!sheet && subject}
+      {subject}
       <RadioGroup legend="Price" name={`${idPrefix}-price`} value={filters.price} options={priceOptions} variant={variant} onPick={(v) => onChange({ price: v as CatalogFilters['price'] })} />
       <RadioGroup
         legend="Difficulty"
@@ -128,8 +136,18 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
         variant={variant}
         onPick={(v) => onChange({ difficulty: v as CatalogFilters['difficulty'] })}
       />
-      {!sheet && languageOptions.length > 1 && (
+      {languageOptions.length > 1 && (
         <RadioGroup legend="Language" name={`${idPrefix}-language`} value={filters.language} options={languageOptions} variant={variant} onPick={(v) => onChange({ language: v })} />
+      )}
+      {sheet && (
+        <RadioGroup
+          legend="Sort by"
+          name={`${idPrefix}-sort`}
+          value={filters.sort}
+          options={SORT_OPTIONS}
+          variant={variant}
+          onPick={(v) => onChange({ sort: v as CatalogFilters['sort'] })}
+        />
       )}
     </div>
   );

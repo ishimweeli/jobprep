@@ -31,3 +31,21 @@ export function isMaintenanceResponse(status: number, hasApiErrorCode: boolean):
   if (status === 503) return true;
   return (status === 502 || status === 504) && !hasApiErrorCode;
 }
+
+/** What an admin set for the maintenance page (`GET /api/status`): a message and the time the service is expected back. */
+export interface MaintenanceInfo {
+  message: string | null;
+  backAt: string | null;
+}
+
+let info: MaintenanceInfo | null = null;
+export const getMaintenanceInfo = () => info;
+
+export function setMaintenanceInfo(next: MaintenanceInfo | null): void {
+  info = next;
+  listeners.forEach((l) => l());
+}
+
+export function useMaintenanceInfo(): MaintenanceInfo | null {
+  return useSyncExternalStore(subscribeSystemState, getMaintenanceInfo, getMaintenanceInfo);
+}

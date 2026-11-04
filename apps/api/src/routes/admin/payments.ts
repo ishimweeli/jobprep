@@ -5,9 +5,9 @@ import { assertCountry, requirePermission } from '../../admin/auth';
 import { writeAudit } from '../../admin/audit';
 import { formatMoney } from '../../domain/pricing';
 import type { Ctx } from '../../http/context';
-import { conflict, notFound } from '../../http/errors';
+import { badRequest, conflict, notFound } from '../../http/errors';
 import { applySignal, refreshPayment } from '../../services/payments';
-import { countryCodes, inCodes, pageSchema, settingNumber, startOfDayUtc } from './util';
+import { addDays, countryCodes, csvSafe, inCodes, pageSchema, sendCsv, settingNumber, startOfDayUtc } from './util';
 
 const TABS = ['all', 'pending', 'paid', 'failed'] as const;
 const listQuery = pageSchema.extend({
@@ -92,6 +92,52 @@ export function adminPaymentsRouter(ctx: Ctx) {
     });
   });
 
+  /**
+   * "Export for accounting": one row per payment, as CSV. Paid payments are dated by when they were confirmed, the others
+   * by when they were created. The payer's number is masked to its last 4 digits; no secret is ever included.
+   */
+  router.get('/payments/export', requirePermission('payments:read'), async (req, res) => {
+    const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+    const f = z.object({
+      from: ymd.optional(), to: ymd.optional(), country: z.string().length(2).optional(),
+      status: z.enum(TABS).default('paid'), provider: z.enum(['MTN_MOMO', 'AIRTEL_MONEY', 'MPESA']).optional(),
+    }).parse(req.query);
+    const from = f.from ? new Date(`${f.from}T00:00:00Z`) : undefined;
+    const to = f.to ? addDays(new Date(`${f.to}T00:00:00Z`), 1) : undefined; // inclusive of the whole last day
+    if ((f.from && Number.isNaN(from!.getTime())) || (f.to && Number.isNaN(to!.getTime())) || (from && to && to <= from)) throw badRequest('invalid_range');
+    const codes = countryCodes(req.admin!, f.country);
+    const range = { ...(from && { gte: from }), ...(to && { lt: to }) };
+    const dateField = f.status === 'paid' ? 'confirmedAt' : 'createdAt';
+    const where: Prisma.PaymentWhereInput = {
+      countryCode: inCodes(codes),
+      ...(f.status === 'pending' && { status: 'PENDING' }),
+      ...(f.status === 'paid' && { status: 'SUCCESSFUL' }),
+      ...(f.status === 'failed' && { status: { in: ['FAILED', 'DECLINED', 'EXPIRED'] } }),
+      ...(f.provider && { provider: f.provider }),
+      ...((from || to) && { [dateField]: range }),
+    };
+    const [rows, countries] = await Promise.all([
+      prisma.payment.findMany({
+        where, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }], take: 20_000,
+        include: { user: { select: { name: true, email: true } }, accessGrant: { select: { endsAt: true } } },
+      }),
+      prisma.country.findMany({ select: { code: true, currencyExponent: true } }),
+    ]);
+    const exp = (code: string) => countries.find((c) => c.code === code)?.currencyExponent ?? 0;
+    await writeAudit(prisma, req.admin!, {
+      action: 'export.payments', entityType: 'payment', countryCode: f.country?.toUpperCase() ?? null,
+      metadata: { rows: rows.length, from: f.from ?? null, to: f.to ?? null, status: f.status, country: f.country?.toUpperCase() ?? 'all' },
+    });
+    sendCsv(res, `payments-${f.from ?? 'start'}-to-${f.to ?? 'today'}.csv`, [
+      ['date', 'payment_id', 'country', 'currency', 'amount', 'status', 'provider', 'payer_number_masked', 'customer_name', 'customer_email', 'operator_reference', 'transaction_id', 'confirmed_at', 'access_until'],
+      ...rows.map((p) => [
+        p.createdAt.toISOString(), p.id, p.countryCode, p.currencyCode, (p.amountMinor / 10 ** exp(p.countryCode)).toFixed(exp(p.countryCode)), p.status, p.provider,
+        `****${p.msisdn.slice(-4)}`, csvSafe(p.user.name), csvSafe(p.user.email), csvSafe(p.providerReference), csvSafe(p.transactionId),
+        p.confirmedAt?.toISOString() ?? '', p.accessGrant?.endsAt.toISOString() ?? '',
+      ]),
+    ]);
+  });
+
   const loadPayment = async (id: string, admin: NonNullable<import('express').Request['admin']>) => {
     const p = await prisma.payment.findUnique({ where: { id }, include: { user: true } });
     if (!p) throw notFound('payment_not_found');
@@ -101,6 +147,8 @@ export function adminPaymentsRouter(ctx: Ctx) {
 
   router.get('/payments/:id', requirePermission('payments:read'), async (req, res) => {
     const p = await loadPayment(String(req.params.id), req.admin!);
+    const stuckMinutes = await settingNumber(prisma, 'payments.stuckAfterMinutes', 10);
+    const at = now();
     const [events, grant, country] = await Promise.all([
       prisma.paymentEvent.findMany({ where: { paymentId: p.id }, orderBy: { createdAt: 'asc' } }),
       prisma.accessGrant.findUnique({ where: { paymentId: p.id }, include: { grantedBy: { select: { name: true } } } }),
@@ -111,6 +159,12 @@ export function adminPaymentsRouter(ctx: Ctx) {
         id: p.id, status: p.status, provider: p.provider, msisdn: p.msisdn, createdAt: p.createdAt, expiresAt: p.expiresAt, confirmedAt: p.confirmedAt,
         priceLabel: formatMoney(p.amountMinor, p.currencyCode, country.currencyExponent), reference: p.providerReference, transactionId: p.transactionId,
         failureReason: p.failureReason, countryCode: p.countryCode,
+        ageMinutes: Math.floor((at.getTime() - p.createdAt.getTime()) / 60_000),
+        stuck: p.status === 'PENDING' && p.createdAt.getTime() <= at.getTime() - stuckMinutes * 60_000,
+        waitingMinutes: p.status === 'PENDING' ? Math.floor((at.getTime() - p.createdAt.getTime()) / 60_000) : null,
+        // What the buttons may do (the same rules the routes enforce).
+        canCheck: p.status === 'PENDING' || (p.status === 'EXPIRED' && p.expiresAt.getTime() > at.getTime() - 3_600_000),
+        canManualGrant: p.status === 'PENDING' || p.status === 'EXPIRED' || p.status === 'FAILED',
       },
       user: { id: p.user.id, name: p.user.name, email: p.user.email },
       // The timeline: request sent, callbacks, polls, manual action, grant

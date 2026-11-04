@@ -2,9 +2,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../api/client';
-import { meKeys } from '../../api/me';
+import { claimAttempts, meKeys } from '../../api/me';
 import type { MeResponse } from '../../api/types';
 import { getStoredCountry } from '../../lib/country';
+import { readGuestTokens } from '../../lib/guestTokens';
 import { safeNext, signInPathFor } from '../../lib/next';
 import { clearSessionHint, setSessionHint } from '../../lib/sessionHint';
 import { setSystemState } from '../../lib/systemState';
@@ -33,6 +34,9 @@ export function AuthCallbackPage() {
       try {
         // Not getSession(): a 401 here is "Google did not sign you in", not "your session expired".
         const session = await api<MeResponse>('/me');
+        // Google's redirect cannot carry guest tokens: move this device's guest attempts onto the account now ("Save my result").
+        const tokens = readGuestTokens();
+        if (tokens.length > 0) await claimAttempts(tokens).catch(() => undefined);
         setSystemState(null);
         qc.removeQueries({ queryKey: ['admin'] });
         qc.setQueryData(meKeys.session, session);

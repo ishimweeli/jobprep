@@ -50,7 +50,7 @@ test.describe('Web: country gate (C23)', () => {
     await page.getByLabel('Email address').fill(email);
     await page.getByRole('button', { name: 'Notify me' }).click();
     await expect(page.getByRole('status')).toContainText('You’re on the list');
-    expect((await request.post(`${API}/api/countries/tz/waiting-list`, { data: { email } })).status()).toBe(201); // idempotent
+    expect((await request.post(`${API}/api/countries/tz/waiting-list`, { data: { email } })).status()).toBe(200); // a repeat is 200 with alreadyOnList
   });
 
   test('the picker’s "Notify me when X opens" leads to that page', async ({ page }) => {

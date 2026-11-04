@@ -62,13 +62,17 @@ describe('Users: filters live in the query string', () => {
     expect(screen.getAllByRole('button', { pressed: undefined }).map((b) => b.textContent)).toEqual(expect.arrayContaining(['All', 'Full Access', 'Free only', 'Expired', 'Suspended']));
   });
 
-  it('the detail panel shows access, attempts with "attempt 2", payments with the reference, and inert actions', async () => {
+  it('the detail panel shows access, attempts with "attempt 2", payments with the reference, and live actions', async () => {
     setup('/admin/users');
     expect(await screen.findByText('23 days left · until 24 Nov 2026')).toBeInTheDocument();
     expect(screen.getByText('1 Nov · attempt 2')).toBeInTheDocument();
     expect(screen.getByText(/MP261025\.1840\.A10/)).toBeInTheDocument();
     const grant = screen.getByRole('button', { name: 'Grant / extend 30 days' });
-    expect(grant).toHaveAttribute('aria-disabled', 'true');
+    expect(grant).not.toHaveAttribute('aria-disabled');
+    expect(screen.getByRole('link', { name: 'View as candidate' })).toHaveAttribute('href', '/admin/users/u1/view');
+    // the Export CSV button is shown and says why it is off (the server has no users export)
+    expect(screen.getByRole('button', { name: 'Export CSV' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByText('Not available yet: the server has no users export.')).toBeInTheDocument();
     expect(screen.getByText('Access changes ask for a reason and are recorded in the audit log.')).toBeInTheDocument();
   });
 

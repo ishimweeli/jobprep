@@ -53,11 +53,14 @@ export function OfflineBanner() {
   );
 }
 
-/** "Back online. Your 3 waiting answers are saved." (TimeUpDesktop.dc, "Back online"). */
+/**
+ * "Back online. Your 3 waiting answers are saved." (TimeUpDesktop.dc, "Back online"). The phone banner is not drawn: it is the
+ * same green strip, compact, in the place of the offline banner.
+ */
 export function OnlineBanner({ saved }: { saved: number }) {
   return (
-    <div role="status" className="hidden border-b border-correct-line bg-correct-bg md:block">
-      <div className="mx-auto flex max-w-[1320px] items-center gap-3 px-6 py-3 text-[15px] text-free">
+    <div role="status" className="border-b border-correct-line bg-correct-bg">
+      <div className="mx-auto flex max-w-[1320px] items-center gap-2.5 px-4 py-2.5 text-sm text-free md:gap-3 md:px-6 md:py-3 md:text-[15px]">
         <CheckIcon size={20} />
         <span>
           <strong>Back online.</strong> Your {saved} waiting {saved === 1 ? 'answer is' : 'answers are'} saved.

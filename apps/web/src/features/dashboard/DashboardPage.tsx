@@ -10,6 +10,7 @@ import { cx } from '../../lib/cx';
 import { formatDate } from '../../lib/format';
 import { signInPath } from '../../lib/next';
 import { ROUTES_READY } from '../../lib/routesReady';
+import { CHOOSE_GOAL_PROMPT } from '../account/changeGoalModel';
 import { useStartPractice } from '../practice/useStartPractice';
 import { MyAccessCard } from './AccessPanel';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -59,7 +60,17 @@ export function DashboardPage() {
 }
 
 function GoalLine({ d }: { d: DashboardResponse }) {
-  if (!d.goal) return null;
+  // No goal (a country switch clears it): the "Choose your goal" prompt (C15, built without a design).
+  if (!d.goal) {
+    return (
+      <p className="m-0 text-[15px] text-ink-2 md:text-base">
+        {CHOOSE_GOAL_PROMPT.text}{' '}
+        <Link to="/account/goal" className="link font-semibold">
+          {CHOOSE_GOAL_PROMPT.link}
+        </Link>
+      </p>
+    );
+  }
   return (
     <p className="m-0 text-[15px] text-ink-2 md:text-base">
       <span className="md:hidden">{d.hasActivity ? 'Goal: ' : 'Preparing for '}</span>
@@ -70,13 +81,10 @@ function GoalLine({ d }: { d: DashboardResponse }) {
         in <strong className="text-ink">{d.country.name}</strong>
       </span>{' '}
       ·{' '}
-      {/* "Change goal" has no designed screen (C15): drawn as in the artboard, inert. */}
-      {ROUTES_READY.changeGoal ? null : (
-        <span aria-disabled="true" className="link cursor-default">
-          <span className={d.hasActivity ? 'md:hidden' : 'hidden'}>Change</span>
-          <span className={d.hasActivity ? 'hidden md:inline' : 'inline'}>Change goal</span>
-        </span>
-      )}
+      <Link to="/account/goal" className="link">
+        <span className={d.hasActivity ? 'md:hidden' : 'hidden'}>Change</span>
+        <span className={d.hasActivity ? 'hidden md:inline' : 'inline'}>Change goal</span>
+      </Link>
     </p>
   );
 }

@@ -96,6 +96,11 @@ enum ReportStatus {
   DISMISSED
 }
 
+enum ExamRequestStatus {
+  OPEN
+  DONE
+}
+
 enum AdminRoleName {
   SYSTEM_ADMIN
   CONTENT_EDITOR
@@ -587,6 +592,10 @@ model WaitingListEntry {
   countryCode String
   country     Country  @relation(fields: [countryCode], references: [code])
   email       String
+  /// Optional "What are you preparing for?" from the country-gate form.
+  interest    String?
+  /// When the "your country is open" email went out to this address.
+  notifiedAt  DateTime?
   createdAt   DateTime @default(now())
 
   @@unique([countryCode, email])
@@ -598,8 +607,18 @@ model ExamRequest {
   countryCode String
   country     Country  @relation(fields: [countryCode], references: [code])
   query       String
+  /// Lower-cased, whitespace-collapsed query: requests for the same search group on this.
+  normalizedQuery String @default("")
   email       String?
+  /// OPEN until an admin plans/adds the exam (DONE), optionally notifying the requesters.
+  status      ExamRequestStatus @default(OPEN)
+  doneAt      DateTime?
+  doneNote    String?
+  doneById    String?
+  mockTestId  String?
   createdAt   DateTime @default(now())
+
+  @@index([countryCode, normalizedQuery])
 }
 
 model QuestionReport {
@@ -615,6 +634,8 @@ model QuestionReport {
   resolvedById String?
   resolvedBy   User?       @relation("ResolvedBy", fields: [resolvedById], references: [id])
   resolvedAt DateTime?
+  /// Why an admin resolved or dismissed it.
+  resolutionNote String?
   createdAt  DateTime     @default(now())
 
   @@index([questionId, status])

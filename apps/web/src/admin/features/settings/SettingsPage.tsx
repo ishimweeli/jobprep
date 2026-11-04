@@ -1,17 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { getAudit, getCountries, getCountry, getSettings, getTeam, keys, putSettings } from '../../api/admin';
-import type { AdminSettings, AuditEntry, CountryDetail, SettingsPatch, TeamMember } from '../../api/types';
+import { getAudit, getCountries, getCountry, getSettings, keys, putSettings } from '../../api/admin';
+import type { AdminSettings, AuditEntry, CountryDetail, SettingsPatch } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
 import { ErrorBox, Skeleton } from '../../components/states';
-import { InertButton, Pill } from '../../components/ui';
+import { Btn, Pill } from '../../components/ui';
+import type { CountryDetailX } from '../../api/governance';
+import { SetPriceDialog } from '../countries/CountryDialogs';
+import { denyHint } from '../../lib/permissions';
 import { MODE_TONE, PROVIDER_SWATCH } from '../../lib/badges';
 import { cx } from '../../lib/cx';
 import { amountFromLabel, formatDateTime } from '../../lib/format';
-import { hasSeveralRoles, teamRoleLabel } from '../../lib/permissions';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { useAdmin } from '../auth/session';
+import { TeamPanel } from './TeamPanel';
 import { parseStuckMinutes, settingsPatch, STUCK_MAX, STUCK_MIN } from './settingsModel';
 
 const checkbox = (phone: boolean) => cx('flex-none accent-brand', phone ? 'h-[22px] w-[22px]' : 'h-5 w-5');
@@ -33,34 +36,41 @@ function Card({ id, title, phone, aside, children }: { id: string; title: string
   );
 }
 
-/** The three switches and the stuck-minutes box save as soon as they change (the artboards draw no Save button for them). */
+/**
+ * The three switches and the stuck-minutes box save as soon as they change (the artboards draw no Save button for them).
+ * A switch must move in the same event that clicked it (a controlled checkbox snaps back otherwise), so the new value is
+ * kept in local `pending` state first and dropped when the save has settled and the server's own value is read again.
+ */
 function useSettings() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: keys.settings, queryFn: getSettings });
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState('');
+  const [pending, setPending] = useState<Partial<AdminSettings>>({});
+  const drop = (keys_: string[]) => setPending((p) => Object.fromEntries(Object.entries(p).filter(([k]) => !keys_.includes(k))));
   const m = useMutation({
     mutationFn: (patch: SettingsPatch) => putSettings(patch),
-    onMutate: (next) => {
-      setError(null);
-      const prev = qc.getQueryData<AdminSettings>(keys.settings);
-      if (prev) qc.setQueryData(keys.settings, { ...prev, ...next }); // the switch moves at once
-      void qc.cancelQueries({ queryKey: keys.settings });
-      return { prev };
-    },
-    onError: (_e, _n, ctx) => {
-      if (ctx?.prev) qc.setQueryData(keys.settings, ctx.prev);
+    onMutate: () => setError(null),
+    onError: (_e, patch) => {
+      drop(Object.keys(patch)); // put back as it was
       setError('This setting could not be saved. It was put back as it was.');
     },
     onSuccess: () => setSaved('Saved'),
-    onSettled: () => void qc.invalidateQueries({ queryKey: keys.settings }),
+    onSettled: async (_d, _e, patch) => {
+      await qc.invalidateQueries({ queryKey: keys.settings });
+      drop(Object.keys(patch));
+    },
   });
+  const view: AdminSettings | undefined = q.data && { ...q.data, ...pending };
   return {
     q,
-    // Only what changed is sent, worked out here (not inside the mutation, which runs after the switch has moved).
+    view,
+    // Only what changed is sent, worked out here against what is on screen.
     save: (next: Partial<AdminSettings>) => {
-      const patch = q.data ? settingsPatch(q.data, next) : {};
-      if (Object.keys(patch).length > 0) m.mutate(patch);
+      const patch = view ? settingsPatch(view, next) : {};
+      if (Object.keys(patch).length === 0) return;
+      setPending((p) => ({ ...p, ...patch }));
+      m.mutate(patch);
     },
     error,
     saved,
@@ -88,45 +98,6 @@ function ProviderRows({ detail, phone }: { detail: CountryDetail; phone: boolean
   );
 }
 
-/** The role slot of a person with several roles shows their labels, comma-separated (no design for it: E3). */
-const MULTI_ROLE = 'MULTIPLE';
-
-function Team({ team, phone }: { team: TeamMember[]; phone: boolean }) {
-  return (
-    <>
-      {team.map((t) =>
-        phone ? (
-          <div key={t.id} className="flex items-center justify-between gap-2.5">
-            <span className="text-[15px] font-semibold">{t.name}</span>
-            <span className="text-[13px] text-ink-2">{teamRoleLabel(t)}</span>
-          </div>
-        ) : (
-          <div key={t.id} className="flex items-center gap-3 border-t border-soft py-2.5">
-            <span className="flex flex-1 flex-col">
-              <span className="font-semibold">{t.name}</span>
-              <span className="break-all text-[13px] text-muted">{t.email}</span>
-            </span>
-            {/* Changing a role needs a reason and a confirmation, which have no design yet (A13): drawn, does nothing. */}
-            <select
-              aria-label={`Role for ${t.name}`}
-              aria-disabled="true"
-              value={hasSeveralRoles(t) ? MULTI_ROLE : t.role}
-              onChange={() => undefined}
-              onMouseDown={(e) => e.preventDefault()}
-              className="h-10 cursor-default rounded-[10px] border border-input-border bg-white px-2.5 text-sm text-ink"
-            >
-              {hasSeveralRoles(t) && <option value={MULTI_ROLE}>{teamRoleLabel(t)}</option>}
-              <option value="SYSTEM_ADMIN">System admin</option>
-              <option value="CONTENT_EDITOR">Content editor</option>
-              <option value="SUPPORT">Support</option>
-            </select>
-          </div>
-        ),
-      )}
-    </>
-  );
-}
-
 export function AuditList({ items }: { items: AuditEntry[] }) {
   return (
     <>
@@ -148,6 +119,7 @@ export function SettingsPage() {
   const can = (p: (typeof admin.permissions)[number]) => admin.permissions.includes(p);
   const s = useSettings();
   const [stuck, setStuck] = useState('');
+  const [priceOpen, setPriceOpen] = useState(false);
   useEffect(() => {
     if (s.q.data) setStuck(String(s.q.data.stuckAfterMinutes));
   }, [s.q.data?.stuckAfterMinutes]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -155,10 +127,9 @@ export function SettingsPage() {
   const countries = useQuery({ queryKey: keys.countries, queryFn: getCountries, enabled: can('countries:read'), staleTime: 60_000 });
   const live = countries.data?.countries.find((c) => c.status === 'LIVE') ?? countries.data?.countries[0];
   const country = useQuery({ queryKey: keys.country(live?.code ?? ''), queryFn: () => getCountry(live!.code), enabled: !!live, staleTime: 60_000 });
-  const team = useQuery({ queryKey: keys.team, queryFn: getTeam, enabled: can('admins:manage') });
   const audit = useQuery({ queryKey: keys.audit(5), queryFn: () => getAudit(5), enabled: can('audit:read') && isDesktop });
 
-  const settings = s.q.data;
+  const settings = s.view;
   const commitStuck = () => {
     if (!settings) return;
     const n = parseStuckMinutes(stuck);
@@ -197,9 +168,10 @@ export function SettingsPage() {
           Each country has its own price and currency — set them in <Link to="/admin/countries">Countries</Link>. A price change applies to new payments only. Active Full Access is never shortened.
         </p>
       )}
-      <InertButton kind="primary" sizeClass={phone ? 'min-h-12 rounded-[10px] text-base font-semibold' : 'h-11 self-start rounded-[10px] px-4 text-[15px] font-semibold'}>
-        Save plan
-      </InertButton>
+      <Btn kind="primary" size={phone ? 'lg' : 'md'} className={phone ? 'w-full' : 'self-start'} onClick={() => setPriceOpen(true)} whyDisabled={denyHint(admin.permissions, 'countries:write', 'change the price')}>
+        Change price…
+      </Btn>
+      <SetPriceDialog open={priceOpen} onClose={() => setPriceOpen(false)} d={country.data as CountryDetailX} />
     </Card>
   );
 
@@ -248,20 +220,7 @@ export function SettingsPage() {
     </Card>
   );
 
-  const teamCard = can('admins:manage') && (
-    <Card
-      id={phone ? 'sp-team' : 'st-team'}
-      title="Admin team"
-      phone={phone}
-      aside={phone ? undefined : <InertButton kind="outline-brand" sizeClass="h-10 rounded-[10px] px-3.5 text-sm font-semibold">Invite</InertButton>}
-    >
-      {team.isPending ? <Skeleton label="Loading the team…" /> : team.isError ? <ErrorBox error={team.error} onRetry={() => void team.refetch()} /> : <Team team={team.data} phone={phone} />}
-      {phone && <InertButton kind="outline-brand" sizeClass="min-h-11 rounded-[10px] text-[15px] font-semibold">Invite admin</InertButton>}
-      {!phone && (
-        <p className="m-0 text-[13px] text-muted">System admin: everything. Content editor: exams and questions only. Support: view users, send password resets, check payments.</p>
-      )}
-    </Card>
-  );
+  const teamCard = can('admins:manage') && <TeamPanel phone={phone} />;
 
   const status = (
     <p role={s.error ? 'alert' : 'status'} className={cx('m-0 text-sm', s.error ? 'font-semibold text-incorrect' : 'sr-only')}>
@@ -321,7 +280,7 @@ export function SettingsPage() {
         <div className="flex min-w-0 flex-[1_1_440px] flex-col gap-[18px]">
           {teamCard}
           {can('audit:read') && (
-            <Card id="st-log" title="Audit log" phone={false}>
+            <Card id="st-log" title="Audit log" phone={false} aside={<Link to="/admin/settings/audit" className="text-sm font-semibold">View all</Link>}>
               {audit.isPending ? <Skeleton label="Loading the audit log…" /> : audit.isError ? <ErrorBox error={audit.error} onRetry={() => void audit.refetch()} /> : <AuditList items={audit.data.results} />}
             </Card>
           )}

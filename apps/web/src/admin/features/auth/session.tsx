@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
-import { Navigate, Outlet, useLocation, useNavigate, type NavigateFunction } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, type NavigateFunction } from 'react-router-dom';
 import { adminMe, keys } from '../../api/admin';
 import { isApiError, signInReasonOf, type SignInReason } from '../../api/client';
 import type { AdminMe, Permission } from '../../api/types';
@@ -8,6 +8,7 @@ import { meKeys } from '../../../api/me';
 import { clearSessionHint } from '../../../lib/sessionHint';
 import { signInAgainPath, signInPath } from '../../../lib/next';
 import { ErrorBox, Skeleton } from '../../components/states';
+import { AccessDenied } from '../../components/AccessDenied';
 import { firstAllowedPath } from '../../lib/permissions';
 import { NoAccess } from './NoAccess';
 
@@ -82,10 +83,12 @@ export function RequireAdmin() {
   );
 }
 
-/** A page the role cannot use goes to the first page it can (the restricted-role screen is not designed, A17). */
+/**
+ * A page the role cannot use, reached by its address: say so ("You do not have access to this", A17) instead of moving
+ * the person elsewhere. A role that opens no page at all gets the plain no-access page.
+ */
 export function RequirePermission({ permission }: { permission: Permission }) {
   const admin = useAdmin();
   if (admin.permissions.includes(permission)) return <Outlet />;
-  const target = firstAllowedPath(admin.permissions);
-  return target ? <Navigate to={target} replace /> : <NoAccess />;
+  return firstAllowedPath(admin.permissions) ? <AccessDenied /> : <NoAccess />;
 }

@@ -1249,7 +1249,8 @@ describe('waiting list', () => {
   it('records "notify me" for countries that are not live, once per address', async () => {
     const first = await request(app).post('/api/countries/KE/waiting-list').send({ email: 'Waiting.Person@Example.com' });
     const again = await request(app).post('/api/countries/KE/waiting-list').send({ email: ' waiting.person@example.com ' });
-    expect([first.status, again.status]).toEqual([201, 201]);
+    expect([first.status, again.status]).toEqual([201, 200]); // a repeat is "already on the list", not an error
+    expect([first.body.alreadyOnList, again.body.alreadyOnList]).toEqual([false, true]);
     expect(await prisma.waitingListEntry.count({ where: { countryCode: 'KE', email: 'waiting.person@example.com' } })).toBe(1);
   });
 

@@ -76,3 +76,18 @@ export function formatReference(requestId: string | null | undefined): string | 
 export function isServerError(status: number): boolean {
   return status >= 500;
 }
+
+/**
+ * The maintenance text: the admin's message when there is one, then the expected return time when set ("We expect to be back
+ * by 14:30."), else the default. Never invents a time.
+ */
+export function maintenanceBody(info: { message: string | null; backAt: string | null } | null, fallback: string, now: Date = new Date()): string {
+  if (!info) return fallback;
+  const base = info.message?.trim() || fallback;
+  const back = info.backAt ? new Date(info.backAt) : null;
+  if (!back || Number.isNaN(back.getTime()) || back.getTime() <= now.getTime()) return base;
+  const time = back.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const sameDay = back.toDateString() === now.toDateString();
+  const day = sameDay ? '' : ` on ${back.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`;
+  return `${base} We expect to be back by ${time}${day}.`;
+}

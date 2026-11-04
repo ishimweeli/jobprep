@@ -96,7 +96,12 @@ export async function startAttempt(
   const { country, test, viewer } = input;
   const at = now();
 
-  if (viewer.user && viewer.user.countryCode !== country.code) throw forbidden('country_mismatch');
+  if (viewer.user && viewer.user.countryCode !== country.code) {
+    const own = await prisma.country.findUnique({ where: { code: viewer.user.countryCode }, select: { code: true, name: true } });
+    throw new HttpError(403, 'country_mismatch', {
+      requestedCountry: { code: country.code, name: country.name }, userCountry: own, test: { slug: test.slug, title: test.title },
+    });
+  }
 
   const grants: GrantLike[] = viewer.user
     ? (await prisma.accessGrant.findMany({

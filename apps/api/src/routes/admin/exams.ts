@@ -3,12 +3,14 @@ import type { Prisma, QuestionType } from '@prisma/client';
 import { z } from 'zod';
 import { assertCountry, requirePermission, type AdminPrincipal } from '../../admin/auth';
 import { writeAudit } from '../../admin/audit';
-import { validateQuestionCsv, type ImportReport } from '../../admin/csv';
+import { IMPORT_COLUMNS, importTemplateCsv, validateQuestionCsv, type ImportReport } from '../../admin/csv';
+import { translationState } from '../../services/translate';
 import type { QuestionPayload } from '../../domain/scoring';
 import type { Ctx } from '../../http/context';
 import { badRequest, conflict, HttpError, notFound } from '../../http/errors';
 import { countryCodes, inCodes, pageSchema } from './util';
 
+const reasonField = z.string().trim().min(5, 'reason_too_short').max(300);
 const DIFFICULTY = z.enum(['FOUNDATION', 'STANDARD', 'CHALLENGING']);
 const KEY = z.string().regex(/^[A-F]$/);
 
@@ -173,6 +175,10 @@ export function adminExamsRouter(ctx: Ctx) {
 
   router.get('/mock-tests/:id', requirePermission('exams:read'), async (req, res) => {
     const t = await loadTest(String(req.params.id), req.admin!);
+    const [exam, attemptCount] = await Promise.all([
+      prisma.exam.findUnique({ where: { id: t.examId }, include: { profession: { select: { id: true, name: true } }, authority: { select: { id: true, shortName: true, name: true } } } }),
+      prisma.attempt.count({ where: { mockTestId: t.id, kind: 'FULL' } }),
+    ]);
     const [sections, questions, cases, reports] = await Promise.all([
       prisma.section.findMany({ where: { mockTestId: t.id }, orderBy: { sortOrder: 'asc' }, include: { _count: { select: { questions: { where: { status: { not: 'ARCHIVED' } } } } } } }),
       prisma.question.findMany({
@@ -189,6 +195,7 @@ export function adminExamsRouter(ctx: Ctx) {
         durationMinutes: t.durationMinutes, languages: t.languages, instructions: t.instructions, countryCode: t.countryCode,
         negativeMarkPerWrong: Number(t.negativeMarkPerWrong), passMarkPercent: t.passMarkPercent === null ? null : Number(t.passMarkPercent),
         passMarkSource: t.passMarkSource, category: { id: t.category.id, name: t.category.name }, publishedAt: t.publishedAt,
+        exam: exam && { id: exam.id, name: exam.name }, profession: exam?.profession ?? null, authority: exam?.authority ?? null, attemptCount,
       },
       sections: sections.map((s) => ({ id: s.id, name: s.name, questionTypeLabel: s.questionTypeLabel, sortOrder: s.sortOrder, questionCount: s._count.questions })),
       cases,
@@ -251,20 +258,145 @@ export function adminExamsRouter(ctx: Ctx) {
     res.json({ ok: true });
   });
 
-  /** Publishing is checked: a test with nothing to answer cannot go live. */
+  /** What must be true before a test goes live. Blocking items stop the publish; the others are warnings. */
+  async function checklistFor(t: { id: string; title: string; isFree: boolean; categoryId: string; countryCode: string; languages: string[]; instructions: string[] }) {
+    const [published, freeOthers, translated] = await Promise.all([
+      prisma.question.count({ where: { mockTestId: t.id, status: 'PUBLISHED' } }),
+      t.isFree ? Promise.resolve(0) : prisma.mockTest.count({ where: { countryCode: t.countryCode, categoryId: t.categoryId, status: 'PUBLISHED', isFree: true, id: { not: t.id } } }),
+      Promise.all(t.languages.slice(1).map(async (lang) => ({ lang, n: await prisma.questionTranslation.count({ where: { language: lang, question: { mockTestId: t.id, status: 'PUBLISHED' } } }) }))),
+    ]);
+    const missingTr = translated.map((x) => ({ lang: x.lang, missing: Math.max(0, published - x.n) })).filter((x) => x.missing > 0);
+    const items: { key: string; label: string; ok: boolean; blocking: boolean; detail?: string }[] = [
+      { key: 'hasQuestions', label: 'At least one published question', ok: published > 0, blocking: true, detail: `${published} published` },
+      { key: 'title', label: 'A title of at least 5 characters', ok: t.title.trim().length >= 5, blocking: true },
+      {
+        key: 'freeSample', label: 'A free sample test exists in this category', ok: t.isFree || freeOthers > 0, blocking: false,
+        detail: t.isFree ? 'This test is a free sample' : freeOthers > 0 ? `${freeOthers} free test(s) in the category` : 'No free published test in this category yet',
+      },
+      { key: 'instructions', label: 'Instructions for candidates', ok: t.instructions.length > 0, blocking: false },
+      { key: 'translations', label: 'Translations complete', ok: missingTr.length === 0, blocking: false, detail: missingTr.map((x) => `${x.lang}: ${x.missing} of ${published} missing`).join(', ') || undefined },
+    ];
+    return { published, items, canPublish: items.every((i) => !i.blocking || i.ok) };
+  }
+
+  const consequencesFor = async (id: string) => {
+    const [attemptsInProgress, attemptsFinished] = await Promise.all([
+      prisma.attempt.count({ where: { mockTestId: id, status: 'IN_PROGRESS' } }),
+      prisma.attempt.count({ where: { mockTestId: id, status: { not: 'IN_PROGRESS' } } }),
+    ]);
+    return { attemptsInProgress, attemptsFinished };
+  };
+
+  router.get('/mock-tests/:id/checklist', requirePermission('exams:read'), async (req, res) => {
+    const t = await loadTest(String(req.params.id), req.admin!);
+    const c = await checklistFor(t);
+    res.json({ canPublish: c.canPublish, items: c.items });
+  });
+
+  router.get('/mock-tests/:id/consequences', requirePermission('exams:read'), async (req, res) => {
+    const t = await loadTest(String(req.params.id), req.admin!);
+    res.json({ status: t.status, ...(await consequencesFor(t.id)) });
+  });
+
+  router.get('/mock-tests/:id/cases', requirePermission('exams:read'), async (req, res) => {
+    const t = await loadTest(String(req.params.id), req.admin!);
+    const cases = await prisma.case.findMany({
+      where: { mockTestId: t.id }, orderBy: { sortOrder: 'asc' },
+      include: { _count: { select: { questions: { where: { status: { not: 'ARCHIVED' } } } } }, translations: { select: { language: true } } },
+    });
+    res.json({ cases: cases.map((c) => ({ id: c.id, title: c.title, questions: c._count.questions, translations: c.translations.map((x) => x.language) })) });
+  });
+
+  /** Publishing is checked: a test with nothing to answer cannot go live. Non-blocking gaps come back as warnings. */
   router.post('/mock-tests/:id/publish', requirePermission('exams:write'), async (req, res) => {
     const t = await loadTest(String(req.params.id), req.admin!);
-    const published = await prisma.question.count({ where: { mockTestId: t.id, status: 'PUBLISHED' } });
-    const problems: string[] = [];
-    if (published === 0) problems.push('no_published_questions');
-    if (t.title.trim().length < 5) problems.push('title_missing');
-    if (problems.length > 0) throw new HttpError(409, 'publish_blocked', { problems });
+    if (t.status === 'ARCHIVED') throw conflict('archived'); // restore it first
+    const c = await checklistFor(t);
+    if (!c.canPublish) {
+      const problems = c.items.filter((i) => i.blocking && !i.ok).map((i) => (i.key === 'hasQuestions' ? 'no_published_questions' : 'title_missing'));
+      throw new HttpError(409, 'publish_blocked', { problems, checklist: c.items });
+    }
+    const published = c.published;
     await prisma.$transaction(async (tx) => {
       const marks = await tx.question.aggregate({ where: { mockTestId: t.id, status: 'PUBLISHED' }, _sum: { marks: true } });
       await tx.mockTest.update({ where: { id: t.id }, data: { status: 'PUBLISHED', publishedAt: t.publishedAt ?? now(), totalMarks: marks._sum.marks ?? 0 } });
       await writeAudit(tx, req.admin!, { action: 'mock_test.publish', entityType: 'mock_test', entityId: t.id, countryCode: t.countryCode, metadata: { title: t.title, questions: published } });
     });
-    res.json({ ok: true, status: 'PUBLISHED', questions: published });
+    res.json({ ok: true, status: 'PUBLISHED', questions: published, warnings: c.items.filter((i) => !i.blocking && !i.ok).map((i) => i.key), checklist: c.items });
+  });
+
+  /** Back to draft: candidates stop seeing it; attempts in progress keep running and finished ones keep their history. */
+  router.post('/mock-tests/:id/unpublish', requirePermission('exams:write'), async (req, res) => {
+    const { reason } = z.object({ reason: reasonField }).parse(req.body);
+    const t = await loadTest(String(req.params.id), req.admin!);
+    if (t.status !== 'PUBLISHED') throw conflict('not_published');
+    const consequences = await consequencesFor(t.id);
+    await prisma.$transaction(async (tx) => {
+      await tx.mockTest.update({ where: { id: t.id }, data: { status: 'DRAFT' } });
+      await writeAudit(tx, req.admin!, { action: 'mock_test.unpublish', entityType: 'mock_test', entityId: t.id, countryCode: t.countryCode, reason, metadata: { title: t.title, ...consequences } });
+    });
+    res.json({ ok: true, status: 'DRAFT', consequences });
+  });
+
+  /** An archived test comes back as a draft (re-publish it after a look). */
+  router.post('/mock-tests/:id/restore', requirePermission('exams:write'), async (req, res) => {
+    const t = await loadTest(String(req.params.id), req.admin!);
+    if (t.status !== 'ARCHIVED') throw conflict('not_archived');
+    await prisma.$transaction(async (tx) => {
+      await tx.mockTest.update({ where: { id: t.id }, data: { status: 'DRAFT' } });
+      await writeAudit(tx, req.admin!, { action: 'mock_test.restore', entityType: 'mock_test', entityId: t.id, countryCode: t.countryCode, metadata: { title: t.title } });
+    });
+    res.json({ ok: true, status: 'DRAFT' });
+  });
+
+  /** Copy a test (sections, case studies, questions and their translations) as a new draft. */
+  router.post('/mock-tests/:id/duplicate', requirePermission('exams:write'), async (req, res) => {
+    const b = z.object({ title: z.string().trim().min(5).max(200).optional() }).parse(req.body ?? {});
+    const t = await loadTest(String(req.params.id), req.admin!);
+    const title = b.title ?? `${t.title} (copy)`.slice(0, 200);
+    let slug = slugify(title);
+    for (let n = 2; await prisma.mockTest.findUnique({ where: { countryCode_slug: { countryCode: t.countryCode, slug } } }); n++) slug = `${slugify(title)}-${n}`;
+    const [sections, cases, questions] = await Promise.all([
+      prisma.section.findMany({ where: { mockTestId: t.id }, orderBy: { sortOrder: 'asc' } }),
+      prisma.case.findMany({ where: { mockTestId: t.id }, orderBy: { sortOrder: 'asc' }, include: { translations: true } }),
+      prisma.question.findMany({ where: { mockTestId: t.id, status: { not: 'ARCHIVED' } }, orderBy: { sortOrder: 'asc' }, include: { translations: true } }),
+    ]);
+    const copy = await prisma.$transaction(async (tx) => {
+      const created = await tx.mockTest.create({
+        data: {
+          examId: t.examId, countryCode: t.countryCode, categoryId: t.categoryId, slug, title, summary: t.summary, status: 'DRAFT', isFree: t.isFree,
+          difficulty: t.difficulty, languages: t.languages, durationMinutes: t.durationMinutes, totalMarks: 0, negativeMarkPerWrong: t.negativeMarkPerWrong,
+          passMarkPercent: t.passMarkPercent, passMarkSource: t.passMarkSource, instructions: t.instructions,
+        },
+      });
+      const sectionIds = new Map<string, string>();
+      for (const sec of sections) {
+        sectionIds.set(sec.id, (await tx.section.create({ data: { mockTestId: created.id, name: sec.name, questionTypeLabel: sec.questionTypeLabel, sortOrder: sec.sortOrder } })).id);
+      }
+      const caseIds = new Map<string, string>();
+      for (const c of cases) {
+        const nc = await tx.case.create({
+          data: {
+            mockTestId: created.id, title: c.title, passage: c.passage, tables: c.tables as Prisma.InputJsonValue, notes: c.notes, sortOrder: c.sortOrder,
+            translations: { create: c.translations.map((x) => ({ language: x.language, title: x.title, passage: x.passage, tables: x.tables as Prisma.InputJsonValue, notes: x.notes })) },
+          },
+        });
+        caseIds.set(c.id, nc.id);
+      }
+      for (const [i, q] of questions.entries()) {
+        await tx.question.create({
+          data: {
+            mockTestId: created.id, sectionId: sectionIds.get(q.sectionId)!, topicId: q.topicId, caseId: q.caseId ? caseIds.get(q.caseId) ?? null : null,
+            type: q.type, stem: q.stem, payload: q.payload as Prisma.InputJsonValue, explanation: q.explanation, marks: q.marks, difficulty: q.difficulty,
+            sortOrder: i, status: 'DRAFT',
+            translations: { create: q.translations.map((x) => ({ language: x.language, stem: x.stem, optionTexts: x.optionTexts as Prisma.InputJsonValue, explanation: x.explanation })) },
+          },
+        });
+      }
+      await writeAudit(tx, req.admin!, { action: 'mock_test.duplicate', entityType: 'mock_test', entityId: created.id, countryCode: t.countryCode, metadata: { title: t.title, copyTitle: title, questions: questions.length } });
+      return created;
+    }, { timeout: 60_000, maxWait: 10_000 });
+    res.status(201).json({ id: copy.id, slug: copy.slug, status: copy.status, questions: questions.length });
   });
 
   router.post('/mock-tests/:id/archive', requirePermission('exams:write'), async (req, res) => {
@@ -292,8 +424,12 @@ export function adminExamsRouter(ctx: Ctx) {
       prisma.section.findUnique({ where: { id: q.sectionId }, select: { id: true, name: true } }),
     ]);
     const idx = siblings.findIndex((s) => s.id === q.id);
+    const translations = await prisma.questionTranslation.findMany({ where: { questionId: q.id } });
+    const keys = p.options.map((o) => o.key);
     res.json({
       question: {
+        translations: translations.map((t) => ({ language: t.language, stem: t.stem, optionTexts: t.optionTexts, explanation: t.explanation })),
+        translationStatus: q.mockTest.languages.slice(1).map((language) => ({ language, state: translationState(translations.find((t) => t.language === language), keys) })),
         id: q.id, type: q.type, status: q.status, stem: q.stem, explanation: q.explanation, marks: Number(q.marks), difficulty: q.difficulty, version: q.version,
         options: p.options.map((o) => ({ key: o.key, text: o.text, correct: p.correct.includes(o.key) })),
         scoring: p.scoring ?? null, choose: p.choose ?? null, topic, section, case: caseRow,
@@ -342,6 +478,63 @@ export function adminExamsRouter(ctx: Ctx) {
     res.json({ ok: true });
   });
 
+  /** Drag-and-drop order: every non-archived question of the test, exactly once, in the new order. */
+  router.post('/mock-tests/:id/questions/reorder', requirePermission('exams:write'), async (req, res) => {
+    const { ids } = z.object({ ids: z.array(z.string().min(1)).min(1).max(1000) }).parse(req.body);
+    const t = await loadTest(String(req.params.id), req.admin!);
+    const existing = await prisma.question.findMany({ where: { mockTestId: t.id, status: { not: 'ARCHIVED' } }, select: { id: true } });
+    const same = ids.length === existing.length && new Set(ids).size === ids.length && existing.every((e) => ids.includes(e.id));
+    if (!same) throw badRequest('ids_mismatch');
+    await prisma.$transaction(async (tx) => {
+      for (const [i, id] of ids.entries()) await tx.question.update({ where: { id }, data: { sortOrder: i } });
+      await writeAudit(tx, req.admin!, { action: 'question.reorder', entityType: 'mock_test', entityId: t.id, countryCode: t.countryCode, metadata: { title: t.title, questions: ids.length } });
+    });
+    res.json({ ok: true });
+  });
+
+  const translationBody = z.object({
+    stem: z.string().trim().max(2000), explanation: z.string().trim().max(4000),
+    optionTexts: z.record(z.string().regex(/^[A-F]$/), z.string().trim().max(500)),
+  });
+  const langParam = z.enum(['en', 'rw', 'sw']);
+  const loadTranslatable = async (id: string, langRaw: string, admin: AdminPrincipal) => {
+    const lang = langParam.safeParse(langRaw);
+    const q = await loadQuestion(id, admin);
+    // The first language of the test is the source; the others are translations.
+    if (!lang.success || !q.mockTest.languages.slice(1).includes(lang.data)) throw badRequest('language_not_in_test');
+    return { q, lang: lang.data };
+  };
+
+  /** Save (or replace) one language of a question. Partial work is allowed; the editor shows complete / partial / missing. */
+  router.put('/questions/:id/translations/:lang', requirePermission('exams:write'), async (req, res) => {
+    const b = translationBody.parse(req.body);
+    const { q, lang } = await loadTranslatable(String(req.params.id), String(req.params.lang), req.admin!);
+    const keys = (q.payload as unknown as QuestionPayload).options.map((o) => o.key);
+    const given = Object.keys(b.optionTexts);
+    if (given.length !== keys.length || !keys.every((k) => given.includes(k))) throw badRequest('option_keys_mismatch');
+    const row = await prisma.$transaction(async (tx) => {
+      const saved = await tx.questionTranslation.upsert({
+        where: { questionId_language: { questionId: q.id, language: lang } },
+        create: { questionId: q.id, language: lang, stem: b.stem, explanation: b.explanation, optionTexts: b.optionTexts },
+        update: { stem: b.stem, explanation: b.explanation, optionTexts: b.optionTexts },
+      });
+      await tx.question.update({ where: { id: q.id }, data: { version: { increment: 1 } } });
+      await writeAudit(tx, req.admin!, { action: 'question.translate', entityType: 'question', entityId: q.id, countryCode: q.mockTest.countryCode, metadata: { title: q.mockTest.title, language: lang } });
+      return saved;
+    });
+    res.json({ ok: true, state: translationState(row, keys) });
+  });
+
+  router.delete('/questions/:id/translations/:lang', requirePermission('exams:write'), async (req, res) => {
+    const { q, lang } = await loadTranslatable(String(req.params.id), String(req.params.lang), req.admin!);
+    await prisma.$transaction(async (tx) => {
+      const gone = await tx.questionTranslation.deleteMany({ where: { questionId: q.id, language: lang } });
+      if (gone.count === 0) throw notFound('translation_not_found');
+      await writeAudit(tx, req.admin!, { action: 'question.translate_delete', entityType: 'question', entityId: q.id, countryCode: q.mockTest.countryCode, metadata: { title: q.mockTest.title, language: lang } });
+    });
+    res.json({ ok: true });
+  });
+
   router.post('/mock-tests/:id/questions', requirePermission('exams:write'), async (req, res) => {
     const b = createQuestion.parse(req.body);
     const t = await loadTest(String(req.params.id), req.admin!);
@@ -374,17 +567,29 @@ export function adminExamsRouter(ctx: Ctx) {
 
   // ───────────────────────── CSV import
 
+  /** The column list and an example file for the "CSV format" help and the template download. */
+  router.get('/import-template', requirePermission('exams:read'), (_req, res) => {
+    res.json({ columns: IMPORT_COLUMNS, csv: importTemplateCsv() });
+  });
+
   router.post('/mock-tests/:id/import', requirePermission('exams:write'), async (req, res) => {
-    const b = z.object({ csv: z.string().min(1), dryRun: z.boolean().default(false), importValidRows: z.boolean().default(false) }).parse(req.body);
+    const b = z.object({
+      csv: z.string().min(1), dryRun: z.boolean().default(false), importValidRows: z.boolean().default(false),
+      columnMap: z.record(z.string().max(40), z.string().trim().max(80)).optional(),
+    }).parse(req.body);
     const t = await loadTest(String(req.params.id), req.admin!);
     const [sections, topics, existing] = await Promise.all([
       prisma.section.findMany({ where: { mockTestId: t.id } }),
       prisma.topic.findMany({ where: { categoryId: t.categoryId } }),
       prisma.question.findMany({ where: { mockTestId: t.id, status: { not: 'ARCHIVED' } }, select: { stem: true } }),
     ]);
-    const report = validateQuestionCsv(b.csv, { sections: sections.map((s) => s.name), topics: topics.map((x) => x.name), existingStems: existing.map((e) => e.stem) });
-    if ('fatal' in report) throw badRequest(report.fatal);
-    const summary = (r: ImportReport) => ({ totalRows: r.totalRows, validRows: r.valid.length, invalidRows: r.invalidRows, problems: r.problems });
+    const report = validateQuestionCsv(b.csv, { sections: sections.map((s) => s.name), topics: topics.map((x) => x.name), existingStems: existing.map((e) => e.stem) }, b.columnMap);
+    if ('fatal' in report) throw badRequest(report.fatal, { headers: report.headers ?? [], missingColumns: report.missingColumns ?? [] });
+    const summary = (r: ImportReport) => ({
+      totalRows: r.totalRows, validRows: r.valid.length, invalidRows: r.invalidRows, problems: r.problems,
+      headers: r.headers, missingColumns: [] as string[], errorCsv: r.errorCsv,
+      preview: r.valid.slice(0, 5).map(({ row, section, topic, stem, options, correct }) => ({ row, section, topic, stem, options, correct })),
+    });
 
     if (b.dryRun) return void res.json({ dryRun: true, ...summary(report) });
     if (report.problems.length > 0 && !b.importValidRows) throw new HttpError(409, 'import_has_errors', summary(report));
@@ -417,40 +622,93 @@ export function adminExamsRouter(ctx: Ctx) {
 
   router.get('/reports', requirePermission('exams:read'), async (req, res) => {
     const f = pageSchema.extend({
-      status: z.enum(['OPEN', 'RESOLVED', 'DISMISSED']).default('OPEN'), country: z.string().length(2).optional(),
+      status: z.enum(['OPEN', 'RESOLVED', 'DISMISSED']).default('OPEN'), country: z.string().length(2).optional(), group: z.enum(['question']).optional(),
     }).parse(req.query);
     const codes = countryCodes(req.admin!, f.country);
     const where: Prisma.QuestionReportWhereInput = { status: f.status, question: { mockTest: { countryCode: inCodes(codes) } } };
+
+    if (f.group === 'question') {
+      // One row per reported question: how many reports, the latest message, the newest few messages.
+      const [allGroups, page] = await Promise.all([
+        prisma.questionReport.groupBy({ by: ['questionId'], where }),
+        prisma.questionReport.groupBy({
+          by: ['questionId'], where, _count: { _all: true }, _max: { createdAt: true },
+          orderBy: [{ _count: { questionId: 'desc' } }, { _max: { createdAt: 'desc' } }], skip: (f.page - 1) * f.pageSize, take: f.pageSize,
+        }),
+      ]);
+      const ids = page.map((g) => g.questionId);
+      const [questions, reports] = await Promise.all([
+        prisma.question.findMany({ where: { id: { in: ids } }, select: { id: true, stem: true, sortOrder: true, mockTest: { select: { id: true, title: true, countryCode: true } } } }),
+        prisma.questionReport.findMany({ where: { ...where, questionId: { in: ids } }, orderBy: { createdAt: 'desc' }, select: { id: true, questionId: true, message: true, createdAt: true } }),
+      ]);
+      res.json({
+        total: allGroups.length, page: f.page, status: f.status,
+        results: page.map((g) => {
+          const q = questions.find((x) => x.id === g.questionId)!;
+          const msgs = reports.filter((r) => r.questionId === g.questionId);
+          return {
+            question: { id: q.id, number: q.sortOrder + 1, stem: q.stem }, mockTest: q.mockTest, count: g._count._all,
+            latestMessage: msgs[0]?.message ?? null, latestAt: g._max.createdAt,
+            messages: msgs.slice(0, 5).map((m) => ({ id: m.id, message: m.message, createdAt: m.createdAt })),
+          };
+        }),
+      });
+      return;
+    }
+
     const [total, rows] = await Promise.all([
       prisma.questionReport.count({ where }),
       prisma.questionReport.findMany({
         where, orderBy: { createdAt: 'desc' }, skip: (f.page - 1) * f.pageSize, take: f.pageSize,
-        include: { question: { select: { id: true, stem: true, sortOrder: true, mockTest: { select: { id: true, title: true } } } } },
+        include: { question: { select: { id: true, stem: true, sortOrder: true, mockTest: { select: { id: true, title: true } } } }, user: { select: { name: true, email: true } } },
       }),
     ]);
     res.json({
       total, page: f.page, status: f.status,
       results: rows.map((r) => ({
-        id: r.id, message: r.message, createdAt: r.createdAt, status: r.status,
+        id: r.id, message: r.message, createdAt: r.createdAt, status: r.status, resolutionNote: r.resolutionNote,
+        reporter: r.user && { name: r.user.name, email: r.user.email },
         question: { id: r.question.id, number: r.question.sortOrder + 1, stem: r.question.stem }, mockTest: r.question.mockTest,
       })),
     });
   });
 
+  /** Resolve or dismiss one report. A reason is stored with it (and in the audit row); dismissing needs one. */
   const closeReport = (status: 'RESOLVED' | 'DISMISSED') => async (req: import('express').Request, res: import('express').Response) => {
+    const b = z.object({ reason: reasonField.optional() }).parse(req.body ?? {});
+    if (status === 'DISMISSED' && !b.reason) throw badRequest('reason_required');
     const r = await prisma.questionReport.findUnique({ where: { id: String(req.params.id) }, include: { question: { include: { mockTest: true } } } });
     if (!r) throw notFound('report_not_found');
     assertCountry(req.admin!, r.question.mockTest.countryCode, 'report_not_found');
     if (r.status !== 'OPEN') throw conflict('report_already_closed');
     await prisma.$transaction(async (tx) => {
-      await tx.questionReport.update({ where: { id: r.id }, data: { status, resolvedById: req.admin!.id, resolvedAt: now() } });
+      await tx.questionReport.update({ where: { id: r.id }, data: { status, resolvedById: req.admin!.id, resolvedAt: now(), resolutionNote: b.reason ?? null } });
       await writeAudit(tx, req.admin!, {
         action: status === 'RESOLVED' ? 'report.resolve' : 'report.dismiss', entityType: 'report', entityId: r.id,
-        countryCode: r.question.mockTest.countryCode, metadata: { title: r.question.mockTest.title },
+        countryCode: r.question.mockTest.countryCode, reason: b.reason, metadata: { title: r.question.mockTest.title },
       });
     });
     res.json({ ok: true, status });
   };
+
+  /** Close every open report of one question at once (the grouped queue's "Resolve all" / "Dismiss all"). */
+  router.post('/questions/:id/reports/close', requirePermission('reports:resolve'), async (req, res) => {
+    const b = z.object({ status: z.enum(['RESOLVED', 'DISMISSED']), reason: reasonField.optional() }).parse(req.body);
+    if (b.status === 'DISMISSED' && !b.reason) throw badRequest('reason_required');
+    const q = await loadQuestion(String(req.params.id), req.admin!);
+    const closed = await prisma.$transaction(async (tx) => {
+      const out = await tx.questionReport.updateMany({
+        where: { questionId: q.id, status: 'OPEN' }, data: { status: b.status, resolvedById: req.admin!.id, resolvedAt: now(), resolutionNote: b.reason ?? null },
+      });
+      await writeAudit(tx, req.admin!, {
+        action: 'report.close_all', entityType: 'question', entityId: q.id, countryCode: q.mockTest.countryCode, reason: b.reason,
+        metadata: { title: q.mockTest.title, status: b.status, count: out.count },
+      });
+      return out.count;
+    });
+    res.json({ ok: true, closed });
+  });
+
   router.post('/reports/:id/resolve', requirePermission('reports:resolve'), closeReport('RESOLVED'));
   router.post('/reports/:id/dismiss', requirePermission('reports:resolve'), closeReport('DISMISSED'));
 

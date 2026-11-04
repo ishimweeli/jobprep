@@ -8,6 +8,7 @@ import { PhoneBackHeader } from '../../components/layout/Header';
 import { QueryError, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug, useCountryDetail } from '../country/hooks';
 
 const PROVIDER_COLOURS: Record<string, string> = { MTN_MOMO: '#FFCB05', AIRTEL_MONEY: '#E40000', MPESA: '#00A651' };
@@ -30,6 +31,7 @@ export function PricingPage() {
   useDocumentTitle('Pricing');
   const q = useQuery({ queryKey: catalogKeys.pricing(slug), queryFn: () => getPricing(slug), staleTime: 60_000 });
   const detail = useCountryDetail(slug);
+  const { user } = useSession();
   const data = q.data;
 
   return (
@@ -41,14 +43,14 @@ export function PricingPage() {
         ) : !data ? (
           <SkeletonList count={3} label="Loading pricing…" />
         ) : (
-          <PricingBody slug={slug} data={data} disclaimer={detail.data?.disclaimer ?? null} />
+          <PricingBody slug={slug} data={data} disclaimer={detail.data?.disclaimer ?? null} signedIn={!!user} />
         )}
       </main>
     </div>
   );
 }
 
-function PricingBody({ slug, data, disclaimer }: { slug: string; data: PricingResponse; disclaimer: string | null }) {
+function PricingBody({ slug, data, disclaimer, signedIn }: { slug: string; data: PricingResponse; disclaimer: string | null; signedIn: boolean }) {
   const plan = data.fullAccess;
   const days = plan?.durationDays;
   const sellable = !!plan && plan.checkoutAvailable && !!plan.priceLabel;
@@ -69,7 +71,7 @@ function PricingBody({ slug, data, disclaimer }: { slug: string; data: PricingRe
             {plan ? `${plan.name} · ${plan.durationDays} days` : 'Full Access'}
           </h2>
           <p className="m-0 flex items-baseline gap-1.5 md:gap-2">
-            <span className="text-[34px] font-bold md:text-[40px] md:tracking-tight">{plan?.priceLabel ?? '—'}</span>
+            <span className="text-[34px] font-bold md:text-[40px] md:tracking-tight">{plan?.priceLabel ?? 'Price coming soon'}</span>
             {plan?.priceLabel && plan.paidOnce && <span className="text-sm text-muted md:text-[15px]">paid once</span>}
           </p>
           {plan && (
@@ -102,7 +104,7 @@ function PricingBody({ slug, data, disclaimer }: { slug: string; data: PricingRe
             <p className="m-0 text-2xl font-bold md:mt-4 md:text-[40px] md:tracking-tight">{data.free.priceLabel ?? 'Free'}</p>
           </div>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px] text-ink-2 md:gap-2.5 md:text-base">
-            {FREE_LIST.map((f) => (
+            {FREE_LIST.filter((f) => !signedIn || !/No account needed/.test(f)).map((f) => (
               <Feature key={f} tone="free">
                 {f}
               </Feature>

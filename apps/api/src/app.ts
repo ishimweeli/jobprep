@@ -15,6 +15,7 @@ import { catalogRouter } from './routes/catalog';
 import { countriesRouter } from './routes/countries';
 import { meRouter } from './routes/me';
 import { paymentsRouter } from './routes/payments';
+import { publicRouter } from './routes/public';
 import { testSupportRouter } from './routes/test-support';
 import { createProviderRegistry, type ProviderRegistry } from './payments/registry';
 import type { FetchLike } from './payments/types';
@@ -66,6 +67,7 @@ export function createApp(deps: AppDeps) {
   app.post('/api/auth/verify-email/resend', limit({ name: 'verify-resend', windowSeconds: 60, max: 10 }));
   app.post('/api/auth/forgot-password', limit({ name: 'forgot-password', windowSeconds: 60, max: 10 }));
   app.post('/api/auth/reset-password', limit({ name: 'reset-password', windowSeconds: 60, max: 10 }));
+  app.post(['/api/me/password', '/api/me/email-change', '/api/me/email-change/verify'], limit({ name: 'account-change', windowSeconds: 60, max: 10 }));
   app.post(['/api/payments', '/api/payments/:id/resend'], limit({ name: 'payment-create', windowSeconds: 60, max: 10 }));
   app.post('/api/payments/:id/check', limit({ name: 'payment-check', windowSeconds: 60, max: 30 }));
   app.post('/api/payments/webhooks/:slug', limit({ name: 'webhooks', windowSeconds: 60, max: 600 }));
@@ -81,8 +83,9 @@ export function createApp(deps: AppDeps) {
     }
   });
 
-  app.use('/api/countries', countriesRouter(prisma));
+  app.use('/api/countries', countriesRouter(ctx));
   app.use('/api/countries/:code', catalogRouter(ctx));
+  app.use('/api', publicRouter(ctx)); // legal pages, maintenance status
   app.use('/api/auth', authRouter(ctx));
   app.use('/api', paymentsRouter(ctx)); // before /api/me so /api/me/checkout is handled here
   app.use('/api/me', meRouter(ctx));

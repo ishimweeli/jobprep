@@ -60,3 +60,53 @@ export function historyLabel(entry: { submittedAt: string | null; current: boole
 }
 
 export const answerText = (a: string[] | null): string | null => (a && a.length > 0 ? a.join(', ') : null);
+
+// ───────────────────────── Edge states and practice results (C2, C6, C18; built without artboards, see docs/missing-built-candidate.md)
+
+export const AUTO_SUBMITTED_LINE = 'Submitted automatically when time ran out. Everything you had answered was kept.';
+export const NO_WEAK_AREAS_LINE = 'No weak areas this time: every topic is at 60% or above.';
+export const PERFECT_SCORE_LINE = 'Perfect score. Every answer was correct.';
+export const ZERO_ANSWERED_LINE = 'You did not answer any questions, so the score is 0%. Review the answers to see what each question was asking.';
+export const PRACTICE_NOTE = 'Practice answers do not change your mock test scores.';
+export const SAVED_BANNER = { title: 'Saved.', body: 'Find this result under My progress.' };
+export const NOT_SAVED_BANNER = { title: 'This result is not in your account.', body: 'It belongs to another person or another country, so it could not be added. Your own results are under My progress.' };
+
+export interface ResultsFlags {
+  isPractice: boolean;
+  autoSubmitted: boolean;
+  zeroAnswered: boolean;
+  perfect: boolean;
+  /** Every topic is at or above the weak-area line (and something was answered). */
+  noWeakAreas: boolean;
+  /** Practice sets have no earlier attempt to compare with and no history chart. */
+  showComparison: boolean;
+  /** "Practice again" is possible: there is a topic to build a set from. */
+  practiceAgainTopicId: string | null;
+}
+
+/** Which of the results edge states apply. Pure; the screen only decides where each line goes. */
+export function resultsFlags(r: Pick<ResultResponse, 'attempt' | 'counts' | 'topics' | 'comparison' | 'history' | 'score' | 'canPractice' | 'weakestTopic'>): ResultsFlags {
+  const isPractice = r.attempt.kind === 'PRACTICE';
+  const zeroAnswered = r.counts.total > 0 && r.counts.unanswered === r.counts.total;
+  const perfect = r.counts.total > 0 && r.counts.correct === r.counts.total;
+  const noWeakAreas = !zeroAnswered && r.topics.length > 0 && r.topics.every((t) => !t.weak);
+  // The topic with the lowest percent, for a practice set that has no weak area left.
+  const lowest = [...r.topics].sort((a, b) => a.percent - b.percent)[0];
+  return {
+    isPractice,
+    autoSubmitted: r.attempt.autoSubmitted || r.attempt.status === 'AUTO_SUBMITTED',
+    zeroAnswered,
+    perfect,
+    noWeakAreas,
+    showComparison: !isPractice && !!r.comparison && r.history.length > 1,
+    practiceAgainTopicId: lowest?.topicId ?? null,
+  };
+}
+
+/** The one sentence that sits beside the score ring, by priority. `null` leaves the default (change + weakest topic). */
+export function resultsSummaryLine(f: ResultsFlags): string | null {
+  if (f.zeroAnswered) return ZERO_ANSWERED_LINE;
+  if (f.perfect) return PERFECT_SCORE_LINE;
+  if (f.noWeakAreas) return NO_WEAK_AREAS_LINE;
+  return null;
+}

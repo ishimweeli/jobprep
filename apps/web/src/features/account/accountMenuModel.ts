@@ -41,10 +41,10 @@ export function accountMenuItems(input: {
     { id: 'progress', label: 'My progress', secondary: null, icon: 'progress', to: `${base}/progress` },
     { id: 'access', label: 'My access', secondary: accessLine(input.access), icon: 'access', to: `${base}/progress` },
     { id: 'country', label: 'Exam country', secondary: `${input.countryName} · change`, icon: 'country', to: '/account/country' },
-    // Language has no picker design (C22): shown as drawn, inert.
-    { id: 'language', label: 'Language', secondary: languageLine(input.languages), icon: 'language', to: null },
-    // Help and support: no help page is designed and there is no support number yet, so no second line and no link.
-    { id: 'help', label: 'Help and support', secondary: null, icon: 'help', to: null },
+    // Language: opens Account settings, where the language control lives (C22; the control itself is not drawn).
+    { id: 'language', label: 'Language', secondary: languageLine(input.languages), icon: 'language', to: '/account/settings' },
+    // Help and support opens the Help page (C25 / C36, built without a design); the contact comes from the API there.
+    { id: 'help', label: 'Help and support', secondary: null, icon: 'help', to: '/help' },
     { id: 'settings', label: 'Account settings', secondary: 'Name, email', icon: 'user', to: '/account/settings' },
     ...admin,
   ];

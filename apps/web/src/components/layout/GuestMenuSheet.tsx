@@ -1,21 +1,17 @@
 import { Link } from 'react-router-dom';
 import { countryPath, useActiveCountry } from '../../features/country/hooks';
-import { cx } from '../../lib/cx';
 import { Dialog } from '../Dialog';
 import { buttonClasses } from '../Button';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 
 const row = 'flex min-h-[48px] items-center justify-between border-b border-soft px-1 text-base font-semibold text-ink no-underline hover:text-ink';
 
-const LANGUAGE_BUTTON_NAME: Record<string, string> = { en: 'English', rw: 'Ikinyarwanda', sw: 'Kiswahili' };
-
 /**
  * The guest menu sheet behind the phone hamburger (NavPhone.dc, "Guest: menu open"): Mock tests, Pricing, Country,
- * Language, Sign in, Create a free account. The language switch is drawn but inert: there is no language picker
- * design yet (C22) and the UI catalogues are not translated.
+ * Language, Sign in, Create a free account. The language switch is live (C22): it lists only the country's languages.
  */
 export function GuestMenuSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { slug, country } = useActiveCountry();
-  const languages = country?.languages ?? ['en'];
   return (
     <Dialog
       open={open}
@@ -42,24 +38,9 @@ export function GuestMenuSheet({ open, onClose }: { open: boolean; onClose: () =
           {country ? country.name : slug.toUpperCase()} ›
         </span>
       </Link>
-      <div className="flex min-h-[48px] items-center justify-between border-b border-soft px-1">
+      <div className="flex min-h-[48px] items-center justify-between gap-3 border-b border-soft px-1">
         <span className="text-base font-semibold">Language</span>
-        <span role="group" aria-label="Language" className="inline-flex rounded-[10px] bg-soft p-[3px]">
-          {languages.map((code, i) => (
-            <button
-              key={code}
-              type="button"
-              aria-pressed={i === 0}
-              aria-disabled="true"
-              className={cx(
-                'min-h-[36px] cursor-default rounded-lg border-0 px-2.5 text-sm',
-                i === 0 ? 'bg-surface font-semibold text-ink' : 'bg-transparent font-semibold text-ink-2',
-              )}
-            >
-              {LANGUAGE_BUTTON_NAME[code] ?? code.toUpperCase()}
-            </button>
-          ))}
-        </span>
+        <LanguageSwitcher variant="segmented" />
       </div>
       <Link to="/sign-in" onClick={onClose} className={buttonClasses({ variant: 'neutral', size: 'sm', block: true, className: 'mt-2.5 min-h-[48px] !font-semibold' })}>
         Sign in

@@ -38,10 +38,11 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
   useDocumentTitle(`JobPrep isn’t open in ${country.name} yet`);
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [joined, setJoined] = useState<string | null>(null);
+  const [interest, setInterest] = useState('');
+  const [joined, setJoined] = useState<{ email: string; already: boolean } | null>(null);
   const join = useMutation({
-    mutationFn: (address: string) => joinWaitingList(country.code, address),
-    onSuccess: (_r, address) => setJoined(address),
+    mutationFn: (address: string) => joinWaitingList(country.code, { email: address, ...(interest.trim() ? { interest: interest.trim() } : {}) }),
+    onSuccess: (r, address) => setJoined({ email: address, already: r.alreadyOnList }),
     onError: (e) => setError(authErrorMessage(e instanceof ApiError ? e : new ApiError(0, 'network_error'))),
   });
 
@@ -64,10 +65,10 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
           </svg>
         </span>
         <h1 role="status" className="m-0 text-2xl tracking-tight md:text-[28px]">
-          You’re on the list
+          {joined.already ? 'You’re already on the list' : 'You’re on the list'}
         </h1>
         <p className="m-0 text-base leading-[1.55] text-ink-2">
-          We’ll send one email to <strong className="break-all text-ink">{joined}</strong> when {country.name} opens. You can ask us to remove your address at any time.
+          We’ll send one email to <strong className="break-all text-ink">{joined.email}</strong> when {country.name} opens. You can ask us to remove your address at any time.
         </p>
         <Link to="/choose-country" className={buttonClasses({ variant: 'neutral', size: 'sm', className: '!min-h-[48px] !px-[18px] !font-semibold md:!min-h-[44px]' })}>
           Choose a different country
@@ -97,6 +98,16 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
           onChange={(e) => setEmail(e.target.value)}
           error={error}
         />
+        <Field
+          id="wl-interest"
+          label="What are you preparing for? (optional)"
+          autoComplete="off"
+          maxLength={120}
+          placeholder="e.g. Teacher recruitment exam"
+          value={interest}
+          onChange={(e) => setInterest(e.target.value)}
+          hint="Helps us choose which tests to prepare first."
+        />
         <Button type="submit" variant="primary" size="lg" className="px-5" loading={join.isPending}>
           Notify me
         </Button>
@@ -110,9 +121,10 @@ export function CountryNotOpen({ country }: { country: CountrySummary }) {
 
 /**
  * "This test is for Kenya": the link opened belongs to another country than the account's.
- * The API does not say which test the link was, so its title is not shown (docs/API_GAPS.md).
+ * The API's 403 `country_mismatch` now names the test (`test.title`); the layout decides this page without calling the API
+ * (a call would log a console 403 on every visit), so `testTitle` is shown only when a caller has it. See docs/missing-built-candidate.md.
  */
-export function WrongCountry({ linkCountry, session }: { linkCountry: { code: string; name: string }; session: MeResponse }) {
+export function WrongCountry({ linkCountry, session, testTitle }: { linkCountry: { code: string; name: string }; session: MeResponse; testTitle?: string | null }) {
   useDocumentTitle(`This test is for ${linkCountry.name}`);
   const own = session.country;
   const hasAccess = !!session.access.current;
@@ -121,7 +133,7 @@ export function WrongCountry({ linkCountry, session }: { linkCountry: { code: st
       <CountryPill code={linkCountry.code}>{linkCountry.name} mock test</CountryPill>
       <h1 className="m-0 text-2xl leading-[1.2] tracking-tight md:text-[28px]">This test is for {linkCountry.name}</h1>
       <p className="m-0 text-base leading-[1.55] text-ink-2">
-        The link you opened is for {linkCountry.name}. Your account is set to <strong className="text-ink">{own.name}</strong>
+        {testTitle ? <strong className="text-ink">{testTitle}</strong> : 'The link you opened'} is for {linkCountry.name}. Your account is set to <strong className="text-ink">{own.name}</strong>
         {hasAccess ? <>, so your {own.name} Full Access does not cover it.</> : '.'}
       </p>
       <Link to={`/${own.code.toLowerCase()}/tests`} className={buttonClasses({ variant: 'primary', size: 'lg' })}>
@@ -138,4 +150,10 @@ export function WrongCountry({ linkCountry, session }: { linkCountry: { code: st
       </p>
     </GateFrame>
   );
+}
+
+/** The test named by a 403 `country_mismatch` body (`test: { slug, title } | null`), if any. */
+export function mismatchTestTitle(details: Record<string, unknown> | undefined): string | null {
+  const t = details?.test as { title?: unknown } | null | undefined;
+  return t && typeof t.title === 'string' && t.title ? t.title : null;
 }

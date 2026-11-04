@@ -43,7 +43,7 @@ test.describe('Overview', () => {
     await api.dispose();
   });
 
-  test('desktop: the country select drives ?country=, the search opens Users, "+ New mock test" does nothing', async ({ page, playwright }, info) => {
+  test('desktop: the country select drives ?country=, the search opens Users, "+ New mock test" opens the new-test form', async ({ page, playwright }, info) => {
     test.skip(isPhone(info), 'the phone Overview has no country select, search or new-test button');
     await signInAs(page, playwright, 'system');
     await page.goto('/admin');
@@ -57,10 +57,8 @@ test.describe('Overview', () => {
     await select.selectOption('');
     await expect(page).toHaveURL(`${BASE}/admin`);
 
-    const newTest = page.getByRole('button', { name: '+ New mock test' });
-    await expect(newTest).toHaveAttribute('aria-disabled', 'true');
-    await newTest.dispatchEvent('click');
-    await expect(page).toHaveURL(`${BASE}/admin`);
+    // formerly inert: a link to the new mock test form (A9)
+    await expect(page.getByRole('link', { name: '+ New mock test' })).toHaveAttribute('href', '/admin/exams/new');
 
     await page.getByRole('searchbox', { name: 'Search users, emails or exams' }).fill('Aline');
     await page.keyboard.press('Enter');

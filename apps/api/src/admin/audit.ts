@@ -10,7 +10,7 @@ import type { AdminPrincipal } from './auth';
 export const REASON_REQUIRED = new Set([
   'access.grant', 'user.suspend', 'user.unsuspend', 'payment.manual_grant',
   'country.status.set', 'country.status.force_live', 'country.plan.set', 'country.payment_method.set',
-  'admin.invite', 'admin.update', 'admin.deactivate',
+  'admin.invite', 'admin.update', 'admin.deactivate', 'report.dismiss', 'mock_test.unpublish', 'demand.waiting_list.notify',
 ]);
 
 export interface AuditEntry {
@@ -60,6 +60,28 @@ export function describeAudit(e: { action: string; reason: string | null; metada
     case 'country.payment_method.set': return `set ${s('label')} in ${s('country')} to ${s('to')}${why}`;
     case 'mock_test.publish': return `published ${s('title')}`;
     case 'mock_test.archive': return `archived ${s('title')}`;
+    case 'mock_test.unpublish': return `unpublished ${s('title')}${why}`;
+    case 'mock_test.restore': return `restored ${s('title')} as a draft`;
+    case 'mock_test.duplicate': return `copied ${s('title')} as ${s('copyTitle')}`;
+    case 'question.reorder': return `reordered the questions of ${s('title')}`;
+    case 'question.translate': return `saved the ${s('language')} translation of a question in ${s('title')}`;
+    case 'question.translate_delete': return `removed the ${s('language')} translation of a question in ${s('title')}`;
+    case 'case.translate': return `saved the ${s('language')} translation of the case study ${s('name')}`;
+    case 'case.translate_delete': return `removed the ${s('language')} translation of the case study ${s('name')}`;
+    case 'case.attach': return `attached ${s('count')} question(s) to the case study ${s('name')}`;
+    case 'case.detach': return `detached ${s('count')} question(s) from the case study ${s('name')}`;
+    case 'category.reorder': return `reordered the categories of ${s('country')}`;
+    case 'section.reorder': return `reordered the sections of ${s('title')}`;
+    case 'report.close_all': return `closed ${s('count')} report(s) on a question in ${s('title')} as ${s('status').toLowerCase()}${why}`;
+    case 'user.view_as_candidate': return `viewed ${s('targetName')}'s account as the candidate sees it (read only)`;
+    case 'country.support.set': return `changed the support contact of ${s('country')}`;
+    case 'legal.update': return `saved the ${s('page')} page (${s('scope')})`;
+    case 'legal.reset': return `restored the placeholder ${s('page')} page (${s('scope')})`;
+    case 'demand.exam_request.done': return `marked the exam request "${s('query')}" done (${s('marked')} request(s), ${s('notified')} notified)${why}`;
+    case 'demand.waiting_list.notify': return `told ${s('notified')} people on the ${s('country')} waiting list that it is open${why}`;
+    case 'audit.export': return `exported ${s('rows')} audit rows`;
+    case 'export.payments': return `exported ${s('rows')} payments for accounting`;
+    case 'export.waiting_list': return `exported the ${s('country')} waiting list (${s('rows')} rows)`;
     case 'mock_test.create': return `created ${s('title')}`;
     case 'mock_test.update': return `edited ${s('title')}`;
     case 'question.update': return `edited a question in ${s('title')}`;

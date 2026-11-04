@@ -85,7 +85,8 @@ function CountryStep({ session }: { session: MeResponse }) {
         disabled: !live,
       };
     });
-  const chosen = list.find((c) => c.slug === current);
+  // A country that is not live (Kenya before it opens) is never the chosen one, even if the account was created with it.
+  const chosen = list.find((c) => c.slug === current && c.status === 'LIVE' && c.selectable);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();

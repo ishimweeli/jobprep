@@ -29,7 +29,8 @@ export interface AccessView {
   getFullAccessLabel: string | null;
 }
 
-export function accessView(exam: ExamDetail, slug: string): AccessView {
+/** `signedIn` removes the guest-only "No account needed" note: a signed-in person already has one. */
+export function accessView(exam: ExamDetail, slug: string, opts: { signedIn?: boolean } = {}): AccessView {
   const base = {
     startPath: countryPath(slug, 'tests', exam.slug, 'start'),
     checkoutPath: countryPath(slug, 'checkout'),
@@ -48,7 +49,7 @@ export function accessView(exam: ExamDetail, slug: string): AccessView {
       label: 'This test',
       headline: 'Free',
       note: exam.attempts === 'UNLIMITED' ? 'Unlimited attempts' : null,
-      footNote: 'No account needed. Sign in afterwards to save your result.',
+      footNote: opts.signedIn ? null : 'No account needed. Sign in afterwards to save your result.',
     };
   }
   if (exam.access.state === 'GRANTED') {
@@ -67,8 +68,9 @@ export function accessView(exam: ExamDetail, slug: string): AccessView {
     ...base,
     kind: 'locked',
     label: p?.durationDays ? `Full Access · ${p.durationDays} days` : 'Full Access',
-    headline: price ?? '',
-    note: 'One payment. Every mock test in every category, unlimited attempts.',
+    // A live country whose price is not set yet (C24): no number, no pay button.
+    headline: price ?? 'Price coming soon',
+    note: price ? 'One payment. Every mock test in every category, unlimited attempts.' : 'Full Access has no price in this country yet. You can still try the free sample.',
     samplePath: exam.freeSample ? countryPath(slug, 'tests', exam.freeSample.slug, 'start') : null,
     sampleLabel: exam.freeSample ? `Try the free ${exam.freeSample.questionCount}-question sample` : null,
     footNote: p && p.paymentMethods.length > 0 ? `Pay with ${p.paymentMethods.join(' or ')}` : null,

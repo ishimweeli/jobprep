@@ -5,8 +5,10 @@ import { AccountMenu } from '../../features/account/AccountMenu';
 import { GuestMenuSheet } from './GuestMenuSheet';
 import { countryPath, useActiveCountrySlug } from '../../features/country/hooks';
 import { useSession } from '../../features/auth/session';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 import { Logo } from '../Logo';
 import { cx } from '../../lib/cx';
+import { useT } from '../../lib/i18n';
 import { initials } from '../../lib/format';
 import { CountryChip } from './CountryChip';
 
@@ -22,6 +24,7 @@ const navLink = ({ isActive }: { isActive: boolean }) =>
  * users the avatar that opens the account menu (AccountMenu.dc). The landing's "Teaching exams" link is gone too.
  */
 export function DesktopHeader() {
+  const t = useT();
   const slug = useActiveCountrySlug();
   const { user, session, isLoading } = useSession();
   return (
@@ -30,18 +33,19 @@ export function DesktopHeader() {
         <Logo to={countryPath(slug)} />
         <nav aria-label="Main" className="flex flex-1 flex-wrap gap-x-[22px] gap-y-1">
           <NavLink to={countryPath(slug, 'tests')} end className={navLink}>
-            Mock tests
+            {t('nav.mockTests')}
           </NavLink>
           <NavLink to={countryPath(slug, 'pricing')} className={navLink}>
-            Pricing
+            {t('nav.pricing')}
           </NavLink>
           {user && (
             <NavLink to={countryPath(slug, 'progress')} className={navLink}>
-              My progress
+              {t('nav.progress')}
             </NavLink>
           )}
         </nav>
         <div className="flex items-center gap-2.5">
+          <LanguageSwitcher variant="header" />
           <CountryChip />
           {isLoading ? (
             <span aria-hidden="true" className="inline-block h-11 w-20" />
@@ -50,13 +54,13 @@ export function DesktopHeader() {
           ) : (
             <>
               <Link to="/sign-in" className="inline-flex min-h-[44px] items-center px-3.5 text-[15px] font-semibold text-ink no-underline hover:text-ink">
-                Sign in
+                {t('nav.signIn')}
               </Link>
               <Link
                 to="/sign-up"
                 className="inline-flex min-h-[44px] items-center rounded-pill bg-brand px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-brand-hover hover:text-white"
               >
-                Get started
+                {t('nav.getStarted')}
               </Link>
             </>
           )}

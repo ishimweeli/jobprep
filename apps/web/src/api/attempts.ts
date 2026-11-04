@@ -5,9 +5,9 @@ import type {
 } from './types';
 
 export const attemptKeys = {
-  state: (id: string) => ['attempt', id] as const,
+  state: (id: string, lang?: string) => (lang && lang !== 'en' ? (['attempt', id, 'state', lang] as const) : (['attempt', id] as const)),
   result: (id: string) => ['attempt', id, 'result'] as const,
-  review: (id: string, filter: ReviewFilter) => ['attempt', id, 'review', filter] as const,
+  review: (id: string, filter: ReviewFilter, lang?: string) => ['attempt', id, 'review', filter, lang && lang !== 'en' ? lang : 'en'] as const,
   inProgress: ['attempts', 'in-progress'] as const,
   dashboard: ['me', 'dashboard'] as const,
 };
@@ -15,7 +15,9 @@ export const attemptKeys = {
 export const startAttempt = (countryCode: string, slug: string) =>
   api<StartAttemptResponse>(`/countries/${countryCode.toUpperCase()}/mock-tests/${encodeURIComponent(slug)}/attempts`, { method: 'POST', body: {} });
 
-export const getAttempt = (id: string) => api<AttemptState>(`/attempts/${encodeURIComponent(id)}`);
+/** `lang` (rw / sw) overlays the translated text; questions without a translation stay in English (`language` in the answer says how many). */
+export const getAttempt = (id: string, lang?: string) =>
+  api<AttemptState>(`/attempts/${encodeURIComponent(id)}`, { query: { lang: lang && lang !== 'en' ? lang : undefined } });
 export const getAttemptTimer = (id: string) => api<TimerResponse>(`/attempts/${encodeURIComponent(id)}/timer`);
 
 export const saveAnswers = (id: string, changes: AnswerChangeDto[], keepalive = false) =>
@@ -25,8 +27,8 @@ export const submitAttempt = (id: string, changes: AnswerChangeDto[] = []) =>
   api<SubmitResponse>(`/attempts/${encodeURIComponent(id)}/submit`, { method: 'POST', body: changes.length > 0 ? { changes } : {} });
 
 export const getResult = (id: string) => api<ResultResponse>(`/attempts/${encodeURIComponent(id)}/result`);
-export const getReview = (id: string, filter: ReviewFilter) =>
-  api<ReviewResponse>(`/attempts/${encodeURIComponent(id)}/review`, { query: { filter } });
+export const getReview = (id: string, filter: ReviewFilter, lang?: string) =>
+  api<ReviewResponse>(`/attempts/${encodeURIComponent(id)}/review`, { query: { filter, lang: lang && lang !== 'en' ? lang : undefined } });
 
 export const listInProgress = () => api<{ attempts: InProgressAttempt[] }>('/attempts/in-progress').then((r) => r.attempts);
 export const getDashboard = () => api<DashboardResponse>('/me/dashboard');

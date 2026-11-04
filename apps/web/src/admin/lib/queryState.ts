@@ -57,10 +57,13 @@ export function paymentsSearch(next: Partial<PaymentsQuery>, current: PaymentsQu
   return s ? `?${s}` : '';
 }
 
-export interface ExamsQuery { q: string; category: string }
+export interface ExamsQuery { q: string; category: string; /** DRAFT | PUBLISHED | ARCHIVED, left out when not filtering. */ status?: string }
+
+const TEST_STATUSES = ['DRAFT', 'PUBLISHED', 'ARCHIVED'];
 
 export function parseExamsQuery(sp: URLSearchParams): ExamsQuery {
-  return { q: (sp.get('q') ?? '').trim(), category: sp.get('category') ?? '' };
+  const status = (sp.get('status') ?? '').toUpperCase();
+  return { q: (sp.get('q') ?? '').trim(), category: sp.get('category') ?? '', ...(TEST_STATUSES.includes(status) ? { status } : {}) };
 }
 
 export function examsSearch(next: Partial<ExamsQuery>, current: ExamsQuery): string {
@@ -68,6 +71,7 @@ export function examsSearch(next: Partial<ExamsQuery>, current: ExamsQuery): str
   const sp = new URLSearchParams();
   if (m.q) sp.set('q', m.q);
   if (m.category) sp.set('category', m.category);
+  if (m.status) sp.set('status', m.status.toLowerCase());
   const s = sp.toString();
   return s ? `?${s}` : '';
 }

@@ -87,3 +87,31 @@ export function teamRoleLabel(member: Pick<TeamMember, 'role' | 'roleLabel' | 'r
 }
 
 export const hasSeveralRoles = (member: Pick<TeamMember, 'roles'>): boolean => (member.roles ?? []).filter((r) => r.active).length > 1;
+
+/** The nav item a role lands on (the "Go to ..." link of the no-access page). */
+export function firstAllowedItem(permissions: readonly Permission[]): NavItem | undefined {
+  return NAV_ITEMS.find((i) => can(permissions, i.permission));
+}
+
+/** Which roles hold which permission (mirrors the API's table in apps/api/src/domain/permissions.ts; the API still decides). */
+const ROLE_HAS: Record<AdminRole, readonly Permission[]> = {
+  SYSTEM_ADMIN: ['overview:read', 'users:read', 'users:manage', 'otp:resend', 'exams:read', 'exams:write', 'reports:resolve', 'payments:read', 'payments:check', 'payments:grant', 'countries:read', 'countries:write', 'settings:write', 'audit:read', 'admins:manage'],
+  CONTENT_EDITOR: ['overview:read', 'exams:read', 'exams:write', 'reports:resolve'],
+  SUPPORT: ['overview:read', 'users:read', 'otp:resend', 'payments:read', 'payments:check'],
+};
+
+/** "System admin" or "Content editor or System admin": the roles that may do this. */
+export function rolesThatCan(p: Permission): string {
+  const order: AdminRole[] = ['SUPPORT', 'CONTENT_EDITOR', 'SYSTEM_ADMIN'];
+  return order.filter((r) => ROLE_HAS[r].includes(p)).map((r) => ROLE_LABEL[r]).join(' or ');
+}
+
+/**
+ * The words under a button this role may not use (A17): "Only a System admin can do this." Returns undefined when the
+ * permission is held, so `whyDisabled={denyHint(admin.permissions, 'users:manage')}` is all a screen needs.
+ */
+export function denyHint(held: readonly Permission[], p: Permission, what = 'do this'): string | undefined {
+  if (can(held, p)) return undefined;
+  const who = rolesThatCan(p);
+  return `Only ${/^[AEIOU]/i.test(who) ? 'an' : 'a'} ${who} can ${what}.`;
+}

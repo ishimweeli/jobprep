@@ -19,7 +19,11 @@ test.describe('Payments', () => {
       await expect(page.getByText('Failed or expired today')).toBeVisible();
       await expect(page.getByText('Full Access · RWF 2,000 · MTN MoMo and Airtel Money')).toBeVisible();
       await expect(page.getByRole('columnheader')).toHaveText(['Time', 'Candidate', 'Provider', 'Amount', 'Status', 'Reference', 'Action']);
-      await expect(page.getByRole('button', { name: 'Export for accounting' })).toHaveAttribute('aria-disabled', 'true');
+      // formerly inert: opens the export dialog (e2e/admin-missing-users-payments.spec.ts covers the download)
+      await page.getByRole('button', { name: 'Export for accounting' }).click();
+      await expect(page.getByRole('dialog', { name: /Export/ })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
       await expect(page.getByText('“Grant access manually” is for confirmed payments whose callback never arrived', { exact: false })).toBeVisible();
     }
     const tabs = page.getByRole('group', { name: 'Status' });
@@ -59,7 +63,7 @@ test.describe('Payments', () => {
     }
   });
 
-  test('stuck payments: the Overview link filters them, they are highlighted, "Grant access manually" is drawn and does nothing', async ({ page, playwright }, info) => {
+  test('stuck payments: the Overview link filters them, they are highlighted, "Grant access manually" opens its dialog and the row says Stuck', async ({ page, playwright }, info) => {
     test.setTimeout(150_000);
     const api = await adminApi(playwright);
     const before = await (await api.get('/api/admin/settings')).json();
@@ -83,8 +87,13 @@ test.describe('Payments', () => {
       const row = isPhone(info) ? page.getByRole('article').filter({ hasText: 'E2E Stuck Payer' }) : page.getByRole('row').filter({ hasText: 'E2E Stuck Payer' });
       await expect(row).toBeVisible();
       const grant = row.getByRole('button', { name: 'Grant access manually' });
-      await expect(grant).toHaveAttribute('aria-disabled', 'true');
-      await grant.dispatchEvent('click');
+      await expect(row.getByText('Stuck', { exact: true })).toBeVisible(); // the badge has a word, not just a colour
+      await expect(grant).not.toHaveAttribute('aria-disabled', 'true');
+      await grant.click();
+      const dlg = page.getByRole('dialog', { name: /Grant access manually/ });
+      await expect(dlg).toBeVisible();
+      await expect(dlg.getByLabel('Provider transaction ID')).toBeVisible();
+      await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog')).toHaveCount(0);
       await expect(row.getByRole('button', { name: 'Check status' })).toBeVisible();
     } finally {
@@ -94,9 +103,10 @@ test.describe('Payments', () => {
     }
   });
 
-  test('a content editor cannot open Payments', async ({ page, playwright }) => {
+  test('a content editor is told it has no access to Payments', async ({ page, playwright }) => {
     await signInAs(page, playwright, 'editor');
     await page.goto('/admin/payments');
-    await expect(page).toHaveURL(`${BASE}/admin`);
+    await expect(page).toHaveURL(`${BASE}/admin/payments`);
+    await expect(page.getByRole('heading', { level: 1, name: 'You do not have access to this' })).toBeVisible();
   });
 });

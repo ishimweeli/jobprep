@@ -26,7 +26,7 @@ for (const s of SCREENS) {
   });
 }
 
-test('axe: the user detail, the question editor (editable and read-only), the phone audit page', async ({ page, playwright }, info) => {
+test('axe: the user detail, the question editor (single and multiple-select), the audit log', async ({ page, playwright }, info) => {
   const api = await adminApi(playwright);
   const users = await (await api.get('/api/admin/users', { params: { pageSize: 1 } })).json();
   const exams = await (await api.get('/api/admin/exams', { params: { q: 'Secondary Mathematics' } })).json();
@@ -45,13 +45,12 @@ test('axe: the user detail, the question editor (editable and read-only), the ph
 
   await page.goto(`/admin/exams/${maths.id}/q/${multi.id}`);
   await expect(page.getByLabel('Question', { exact: true })).toBeVisible();
-  await expectAccessible(page, 'question editor, read-only');
+  await expectAccessible(page, 'question editor, multiple-select (editable since A10)');
 
-  if (isPhone(info)) {
-    await page.goto('/admin/settings/audit');
-    await expect(page.getByRole('heading', { level: 2, name: 'Audit log' })).toBeVisible();
-    await expectAccessible(page, 'audit log (phone)');
-  }
+  // the full audit log (A12) is on both sizes now
+  await page.goto('/admin/settings/audit');
+  await expect(page.getByRole('heading', { name: 'Audit log' }).first()).toBeVisible();
+  await expectAccessible(page, 'audit log');
   await api.dispose();
 });
 

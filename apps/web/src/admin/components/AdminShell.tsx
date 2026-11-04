@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { getPayments, keys } from '../api/admin';
 import { useAdmin } from '../features/auth/session';
+import { useAdminSignOut } from '../features/auth/useAdminSignOut';
 import { useAdminCountry } from '../lib/adminCountry';
 import { cx } from '../lib/cx';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
@@ -34,8 +35,11 @@ function Icon({ path, size, strokeWidth = 2 }: { path: string; size: number; str
 /** The phone header's pill (AdminOverviewPhone.dc): dark, upper case. The desktop sidebar has its own softer "Admin" pill. */
 const AdminMark = () => <span className="rounded-md bg-dark px-[7px] py-[3px] text-[11px] font-semibold text-white">ADMIN</span>;
 
+const SIGN_OUT_ICON = 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9';
+
 function Sidebar({ items, pending }: { items: NavItem[]; pending: number }) {
   const admin = useAdmin();
+  const signOut = useAdminSignOut();
   return (
     <aside aria-label="Admin navigation" className="sticky top-0 flex h-screen w-[248px] flex-none flex-col gap-[18px] overflow-y-auto border-r border-border bg-white px-3.5 py-[18px]">
       <Link to={ADMIN_HOME} className="flex items-center gap-2.5 px-1 no-underline hover:no-underline">
@@ -75,14 +79,25 @@ function Sidebar({ items, pending }: { items: NavItem[]; pending: number }) {
           </NavLink>
         ))}
       </nav>
-      <div className="mt-auto flex items-center gap-2.5 border-t border-border px-1 pt-3">
-        <span aria-hidden="true" className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full bg-brand-soft text-[13px] font-semibold text-brand">
-          {initials(admin.name)}
-        </span>
-        <span className="flex min-w-0 flex-col">
-          <span className="text-sm font-semibold text-ink">{admin.name}</span>
-          <span className="text-xs text-muted">{rolesLabel(admin.roles)}</span>
-        </span>
+      <div className="mt-auto flex flex-col gap-2 border-t border-border px-1 pt-3">
+        <div className="flex items-center gap-2.5">
+          <span aria-hidden="true" className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full bg-brand-soft text-[13px] font-semibold text-brand">
+            {initials(admin.name)}
+          </span>
+          <span className="flex min-w-0 flex-col">
+            <span className="text-sm font-semibold text-ink">{admin.name}</span>
+            <span className="text-xs text-muted">{rolesLabel(admin.roles)}</span>
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => void signOut.run()}
+          disabled={signOut.busy}
+          className="flex min-h-11 items-center gap-2.5 rounded-[10px] border-0 bg-transparent px-2 text-left text-[15px] font-medium text-ink hover:bg-soft disabled:opacity-60"
+        >
+          <span className="text-muted"><Icon path={SIGN_OUT_ICON} size={18} strokeWidth={1.8} /></span>
+          Sign out
+        </button>
       </div>
     </aside>
   );
@@ -126,6 +141,7 @@ interface ShellProps {
  */
 export function AdminShell({ title, back, headerExtra, gap = 18, children }: ShellProps) {
   const admin = useAdmin();
+  const phoneSignOut = useAdminSignOut();
   const isDesktop = useIsDesktop();
   useDocumentTitle(`${title} · Admin`);
   const canPayments = admin.permissions.includes('payments:read');
@@ -164,6 +180,15 @@ export function AdminShell({ title, back, headerExtra, gap = 18, children }: She
           )}
           <h1 className="m-0 flex-1 text-[19px]">{title}</h1>
           <AdminMark />
+          <button
+            type="button"
+            aria-label="Sign out"
+            onClick={() => void phoneSignOut.run()}
+            disabled={phoneSignOut.busy}
+            className="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border-0 bg-transparent text-muted disabled:opacity-60"
+          >
+            <Icon path={SIGN_OUT_ICON} size={20} />
+          </button>
         </div>
         {headerExtra}
       </header>

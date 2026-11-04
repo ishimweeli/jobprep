@@ -77,6 +77,7 @@ test.describe('Web: accessibility of the Batch 1 screens', () => {
     await expect(page.getByRole('button', { name: 'Next question' })).toBeVisible();
     await expectNoViolations(page);
     await page.getByRole('button', { name: 'End practice' }).click();
+    await page.getByRole('dialog', { name: 'Finish practice?' }).getByRole('button', { name: 'Finish now' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Practice finished' })).toBeVisible();
     await expectNoViolations(page);
     await page.goto(`/rw/review/${id}?q=7`);

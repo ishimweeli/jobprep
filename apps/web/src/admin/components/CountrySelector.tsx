@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useId, useRef, useState } from 'react';
 import { getCountries, keys } from '../api/admin';
+import { getCountryOptions } from '../api/questions-demand';
 import { useAdmin } from '../features/auth/session';
 import { useAdminCountry } from '../lib/adminCountry';
 import { cx } from '../lib/cx';
@@ -24,14 +25,17 @@ export function CountrySelector() {
   const { country, setCountry, options, canChooseAll } = useAdminCountry();
   const canCountries = admin.permissions.includes('countries:read');
   const countries = useQuery({ queryKey: keys.countries, queryFn: getCountries, enabled: canCountries, staleTime: 5 * 60_000 });
+  // Content editors and Support lack countries:read: the country-options endpoint gives them the same list (only their countries).
+  const opts = useQuery({ queryKey: ['admin', 'country-options'], queryFn: getCountryOptions, enabled: !canCountries, staleTime: 5 * 60_000 });
+  const list = canCountries ? countries.data?.countries : opts.data;
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const menuId = useId();
 
   // Only countries that exist (the API already limits them to the admin's scope); before it answers, the scope itself.
-  const known = countries.data?.countries.filter((c) => options.includes(c.code));
+  const known = list?.filter((c) => options.includes(c.code));
   const codes = known ? known.map((c) => c.code) : options;
-  const statusOf = (code: string) => countries.data?.countries.find((c) => c.code === code)?.status;
+  const statusOf = (code: string) => list?.find((c) => c.code === code)?.status;
 
   useEffect(() => {
     if (!open) return;

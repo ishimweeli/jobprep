@@ -80,7 +80,9 @@ describe('validateQuestionCsv', () => {
   });
 
   it('stops early on a missing column, an empty file, or a file that is too big', () => {
-    expect(validateQuestionCsv('section,topic,stem\nA,B,C', ctx)).toEqual({ fatal: 'missing_columns:option_a,option_b,correct,explanation' });
+    expect(validateQuestionCsv('section,topic,stem\nA,B,C', ctx)).toEqual({
+      fatal: 'missing_columns:option_a,option_b,correct,explanation', headers: ['section', 'topic', 'stem'], missingColumns: ['option_a', 'option_b', 'correct', 'explanation'],
+    });
     expect(validateQuestionCsv(header, ctx)).toEqual({ fatal: 'no_rows' });
     expect(validateQuestionCsv('x'.repeat(CSV_LIMITS.maxBytes + 1), ctx)).toEqual({ fatal: 'file_too_large' });
     const many = [header, ...Array.from({ length: CSV_LIMITS.maxRows + 1 }, () => ok)].join('\n');

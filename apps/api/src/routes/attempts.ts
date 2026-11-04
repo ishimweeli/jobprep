@@ -6,7 +6,9 @@ import {
   buildState, finalizeIfExpired, getOwnedAttempt, listInProgress, MAX_CHANGES_PER_REQUEST,
   saveChanges, startAttempt, submitAttempt, type AnswerChange, type Viewer,
 } from '../services/attempts';
+import { canStartMockTest, type GrantLike } from '../domain/access';
 import { timerState } from '../domain/timer';
+import { langQuery, overlayLanguage } from '../services/translate';
 import {
   assertFinished, buildResult, buildReview, checkPracticeAnswer, createPracticeAttempt, REVIEW_FILTERS, weakTopicIdsFor,
 } from '../services/results';
@@ -72,9 +74,33 @@ export function attemptsRouter(ctx: Ctx) {
   /** Full state for the exam screen — also what a refresh or another device loads to resume. */
   router.get('/attempts/:id', async (req, res) => {
     const viewer = viewerFromReq(req);
+    const lang = langQuery.parse(req.query.lang);
     await getOwnedAttempt(ctx, String(req.params.id), viewer);
     await finalizeIfExpired(ctx, String(req.params.id)); // opening an expired attempt shows "Time is up", not a stale clock
-    res.json(await buildState(ctx, String(req.params.id)));
+    const state = await buildState(ctx, String(req.params.id));
+    const language = await overlayLanguage(prisma, lang, { questions: state.questions, cases: state.cases });
+
+    // Reopening a finished attempt ("This attempt has ended"): can the person start a new one?
+    let reopen = null;
+    if (state.finished) {
+      const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewer);
+      const test = attempt.mockTest;
+      let canStartNew = false;
+      let startNewReason: string | null = null;
+      if (attempt.kind === 'PRACTICE') startNewReason = 'practice';
+      else if (test.status !== 'PUBLISHED') startNewReason = 'unavailable';
+      else {
+        const grants: GrantLike[] = viewer.user
+          ? (await prisma.accessGrant.findMany({ where: { userId: viewer.user.id, countryCode: test.countryCode, endsAt: { gt: ctx.now() } } }))
+              .map((g) => ({ countryCode: g.countryCode, startsAt: g.startsAt, endsAt: g.endsAt, status: g.status }))
+          : [];
+        const decision = canStartMockTest(test, test.countryCode, grants, ctx.now());
+        canStartNew = decision.allowed;
+        startNewReason = decision.allowed ? null : decision.reason;
+      }
+      reopen = { ended: true, autoSubmitted: attempt.status === 'AUTO_SUBMITTED', canStartNew, startNewReason, mockTestSlug: test.slug, countryCode: test.countryCode };
+    }
+    res.json({ ...state, reopen, ...(language && { language }) });
   });
 
   /** Cheap clock resync for the display-only client timer. */
@@ -123,11 +149,15 @@ export function attemptsRouter(ctx: Ctx) {
   /** Answer review with correct answers and explanations. Filters: incorrect | flagged | unanswered | all. */
   router.get('/attempts/:id/review', async (req, res) => {
     const { filter } = z.object({ filter: z.enum(REVIEW_FILTERS).default('incorrect') }).parse(req.query);
+    const lang = langQuery.parse(req.query.lang);
     const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
     await finalizeIfExpired(ctx, attempt.id);
     const fresh = await getOwnedAttempt(ctx, attempt.id, viewerFromReq(req));
     assertFinished(fresh);
-    res.json(await buildReview(ctx, fresh, filter));
+    const review = await buildReview(ctx, fresh, filter);
+    // The language note must cover the whole attempt, not just the filtered items: overlay every question of the grid via the items we hold.
+    const language = await overlayLanguage(prisma, lang, { questions: review.items, cases: review.cases });
+    res.json({ ...review, ...(language && { language }) });
   });
 
   /** "Practice Weak Areas": a short set built from this attempt's lowest-scoring topics. */

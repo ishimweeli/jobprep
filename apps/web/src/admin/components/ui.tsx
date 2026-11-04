@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { useId, type ButtonHTMLAttributes, type ComponentProps, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import type { Tone } from '../lib/badges';
 import { cx } from '../lib/cx';
 
@@ -34,13 +35,58 @@ export function Avatar({ text, size = 34, className }: { text: string; size?: nu
   );
 }
 
-type Kind = 'primary' | 'secondary' | 'danger' | 'outline-brand';
+type Kind = 'primary' | 'secondary' | 'danger' | 'outline-brand' | 'danger-solid';
 const KIND: Record<Kind, string> = {
   primary: 'border-0 bg-brand text-white',
   secondary: 'border border-input-border bg-white text-ink',
   danger: 'border border-incorrect-line bg-white text-incorrect',
   'outline-brand': 'border border-brand bg-white text-brand',
+  /** The confirm button of a destructive dialog (suspend, delete, move a country back). */
+  'danger-solid': 'border-0 bg-incorrect text-white',
 };
+
+export const BTN_SIZE = {
+  sm: 'min-h-10 rounded-[10px] px-3 text-sm font-semibold',
+  md: 'min-h-11 rounded-[10px] px-4 text-[15px] font-semibold',
+  lg: 'min-h-12 rounded-[10px] px-4 text-base font-semibold',
+} as const;
+
+/**
+ * The admin's working button (every control is at least 44px tall, except `sm` at 40px inside tables). `busy` disables it
+ * and announces the wait. `whyDisabled` is for a control this role may not use: it stays visible, is announced as
+ * unavailable (aria-disabled, not removed from the tab order) and says why in text under it (A17).
+ */
+export function Btn({ kind = 'secondary', size = 'md', busy, whyDisabled, disabled, className, children, onClick, ...rest }: {
+  kind?: Kind;
+  size?: keyof typeof BTN_SIZE;
+  busy?: boolean;
+  whyDisabled?: string;
+} & ButtonHTMLAttributes<HTMLButtonElement>) {
+  const why = useId();
+  const blocked = !!whyDisabled;
+  const button = (
+    <button
+      type="button"
+      {...rest}
+      disabled={disabled || busy}
+      aria-disabled={blocked || undefined}
+      aria-busy={busy || undefined}
+      aria-describedby={blocked ? why : rest['aria-describedby']}
+      title={blocked ? whyDisabled : rest.title}
+      onClick={blocked ? (e) => e.preventDefault() : onClick}
+      className={cx(buttonClass(kind, BTN_SIZE[size]), (disabled || busy) && 'opacity-60', blocked && 'cursor-not-allowed opacity-60', className)}
+    >
+      {children}
+    </button>
+  );
+  if (!blocked) return button;
+  return (
+    <span className={cx('inline-flex flex-col items-start gap-1', className?.includes('w-full') && 'flex w-full items-stretch')}>
+      {button}
+      <span id={why} className="max-w-[260px] text-xs text-muted">{whyDisabled}</span>
+    </span>
+  );
+}
 
 export function buttonClass(kind: Kind, sizeClass: string, extra?: string) {
   return cx('inline-flex items-center justify-center text-center font-[inherit]', KIND[kind], sizeClass, extra);
@@ -109,5 +155,22 @@ export function Pager({ page, pages, onPage }: { page: number; pages: number; on
         Next
       </button>
     </div>
+  );
+}
+
+const LINK_TEXT: Record<Kind, string> = {
+  primary: 'text-white hover:text-white',
+  secondary: 'text-ink hover:text-ink',
+  danger: 'text-incorrect hover:text-incorrect',
+  'outline-brand': 'text-brand hover:text-brand',
+  'danger-solid': 'text-white hover:text-white',
+};
+
+/** A link that looks like a button (same sizes and colours as `Btn`): for "Plan exam", "Open", "Back to ...". */
+export function LinkButton({ to, kind = 'secondary', size = 'md', className, children, ...rest }: { to: string; kind?: Kind; size?: keyof typeof BTN_SIZE; className?: string; children: ReactNode } & Omit<ComponentProps<typeof Link>, 'to' | 'className'>) {
+  return (
+    <Link to={to} {...rest} className={cx(buttonClass(kind, BTN_SIZE[size]), LINK_TEXT[kind], 'no-underline hover:no-underline', className)}>
+      {children}
+    </Link>
   );
 }

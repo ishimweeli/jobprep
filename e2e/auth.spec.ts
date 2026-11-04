@@ -52,14 +52,19 @@ test.describe('Auth and country (real server, dev DB)', () => {
   });
 
   test('Kenya is not open yet: sign-up refused, waiting list accepted', async ({ request }) => {
+    const hopeful = randomEmail();
     const refused = await request.post(`${API}/api/auth/sign-up`, {
-      data: { countryCode: 'KE', email: 'kenya.hopeful@example.com', name: 'Kenya Hopeful', password: PASSWORD },
+      data: { countryCode: 'KE', email: hopeful, name: 'Kenya Hopeful', password: PASSWORD },
     });
     expect(refused.status()).toBe(400);
     expect((await refused.json()).error).toBe('country_not_available');
 
-    const waiting = await request.post(`${API}/api/countries/KE/waiting-list`, { data: { email: 'kenya.hopeful@example.com' } });
+    const waiting = await request.post(`${API}/api/countries/KE/waiting-list`, { data: { email: hopeful } });
     expect(waiting.status()).toBe(201);
+    // a repeat is not an error: 200 with alreadyOnList
+    const again = await request.post(`${API}/api/countries/KE/waiting-list`, { data: { email: hopeful } });
+    expect(again.status()).toBe(200);
+    expect((await again.json()).alreadyOnList).toBe(true);
   });
 
   test('the emailed code cannot be brute-forced: wrong guesses are rejected and counted', async ({ request }) => {

@@ -1,7 +1,7 @@
 import type { Attempt, Country, MockTest, Prisma, PrismaClient } from '@prisma/client';
 import { canStartMockTest, type GrantLike } from '../domain/access';
 import {
-  scoreQuestion, WEAK_TOPIC_CUTOFF_PERCENT, weakTopics, type QuestionPayload, type ScorableQuestion, type TopicResult,
+  chooseLimit, scoreQuestion, WEAK_TOPIC_CUTOFF_PERCENT, weakTopics, type QuestionPayload, type ScorableQuestion, type TopicResult,
 } from '../domain/scoring';
 import { conflict, forbidden, notFound } from '../http/errors';
 import { attemptTitle, startAttempt, type Ctx, type Viewer } from './attempts';
@@ -117,6 +117,13 @@ export async function buildResult(ctx: Ctx, a: AttemptWithTest, reviewFirstLimit
     // Guests are offered "Save my result"; signed-in users already have it.
     isGuest: !a.userId,
     canPractice: topics.some((t) => t.weak),
+    // Edge states of the results screen.
+    edge: {
+      noneAnswered: questions.length > 0 && unanswered === questions.length,
+      perfect: questions.length > 0 && correct === questions.length,
+      noWeakAreas: topics.length > 0 && !topics.some((t) => t.weak),
+      allTopicsStrong: topics.length > 0 && topics.every((t) => t.percent >= STRONG_TOPIC_CUTOFF_PERCENT),
+    },
   };
 }
 
@@ -153,6 +160,8 @@ export async function buildReview(ctx: Ctx, a: AttemptWithTest, filter: ReviewFi
       topic: q.topic.name,
       type: q.type,
       multiple: q.type === 'MULTIPLE_SELECT',
+      /** "Choose N" as the exam showed it (null for single-answer questions). */
+      choose: q.type === 'MULTIPLE_SELECT' ? chooseLimit(p) : null,
       status: (s.state === 'correct' ? 'correct' : s.state === 'unanswered' ? 'unanswered' : s.state === 'partial' ? 'partial' : 'incorrect') as 'correct' | 'incorrect' | 'partial' | 'unanswered',
       flagged: row?.flagged ?? false,
       stem: q.stem,

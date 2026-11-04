@@ -3,15 +3,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { attemptKeys, getReview } from '../../api/attempts';
 import { isApiError } from '../../api/client';
-import type { ReviewFilter, ReviewItem, ReviewResponse } from '../../api/types';
+import type { ExamCase, ReviewFilter, ReviewItem, ReviewResponse } from '../../api/types';
 import { QueryError, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
+import { translationNote, useLocale, useT } from '../../lib/i18n';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import {
   BADGE, chooseCount, defaultFilter, filterItems, GRID_STYLE, gridAria, gridKind, gridMark, marksOfLabel, multiOptionNote, optionKind, positionLabel, tabsFor,
 } from './reviewModel';
 import { StartPracticeLink } from '../practice/StartPracticeLink';
+import { CasePanel } from '../exam/CasePanel';
+import { caseRange } from '../exam/examModel';
 
 /**
  * Answer review (Review.dc desktop: jump grid + every question in the filter; ReviewPhone.dc: one question at a
@@ -21,7 +24,8 @@ import { StartPracticeLink } from '../practice/StartPracticeLink';
 export function ReviewPage() {
   const slug = useActiveCountrySlug();
   const { attemptId = '' } = useParams();
-  const q = useQuery({ queryKey: attemptKeys.review(attemptId, 'all'), queryFn: () => getReview(attemptId, 'all'), retry: false, staleTime: 30_000 });
+  const locale = useLocale();
+  const q = useQuery({ queryKey: attemptKeys.review(attemptId, 'all', locale), queryFn: () => getReview(attemptId, 'all', locale), retry: false, staleTime: 30_000 });
   useDocumentTitle('Answer review');
 
   if (q.isError && isApiError(q.error) && q.error.code === 'attempt_in_progress') return <Navigate to={countryPath(slug, 'exam', attemptId)} replace />;
@@ -56,6 +60,7 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
     return base;
   });
   const list = useMemo(() => filterItems(data.items, filter), [data.items, filter]);
+  const caseById = useMemo(() => new Map((data.cases ?? []).map((c) => [c.id, c])), [data.cases]);
   const [pos, setPos] = useState(() => {
     if (Number.isInteger(jump) && jump > 0) {
       const f = filterItems(data.items, defaultFilter(data.counts));
@@ -69,6 +74,8 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
   const [scrollTo, setScrollTo] = useState<number | null>(Number.isInteger(jump) && jump > 0 ? jump : null);
   const phoneIndex = Math.min(pos, Math.max(0, list.length - 1));
   const tabs = tabsFor(data.counts);
+  const t = useT();
+  const note = translationNote(data.language);
   const correctCount = data.counts.all - data.counts.incorrect - data.counts.unanswered;
   const partlyCount = data.grid.filter((g) => g.status === 'partial').length;
 
@@ -157,9 +164,14 @@ function ReviewView({ data, slug, attemptId }: { data: ReviewResponse; slug: str
         </aside>
 
         <main id="main-content" tabIndex={-1} className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto p-4 outline-none md:flex-[999_1_600px] md:gap-4 md:overflow-visible md:p-0">
+          {note && (
+            <p role="note" data-testid="translation-note" className="m-0 rounded-[10px] bg-soft px-3 py-2 text-[13px] font-semibold text-ink-2 md:text-sm">
+              {note === 'english_only' ? t('language.englishOnly') : t('language.partlyTranslated')}
+            </p>
+          )}
           <Tabs tabs={tabs} filter={filter} onPick={pickTab} className="hidden flex-wrap md:flex" />
           {list.map((item, i) => (
-            <QuestionCard key={item.id} item={item} shownOnPhone={i === phoneIndex} />
+            <QuestionCard key={item.id} item={item} shownOnPhone={i === phoneIndex} caseData={item.caseId ? caseById.get(item.caseId) : undefined} />
           ))}
         </main>
       </div>
@@ -242,7 +254,8 @@ function CheckBox({ on, small }: { on: boolean; small?: boolean }) {
   );
 }
 
-function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: boolean }) {
+function QuestionCard({ item, shownOnPhone, caseData }: { item: ReviewItem; shownOnPhone: boolean; caseData?: ExamCase }) {
+  const [view, setView] = useState<'question' | 'case'>('question');
   const kind = gridKind(item.status);
   const badge = BADGE[kind];
   const multi = item.multiple;
@@ -265,6 +278,8 @@ function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: 
         {item.flagged && <span className="rounded-pill bg-flagged-bg px-[9px] py-[3px] text-xs font-semibold text-flagged-ink md:px-2.5 md:text-[13px]">Flagged</span>}
         {!multi && <span className="hidden text-sm text-muted md:ml-auto md:inline">{item.topic}</span>}
       </div>
+      {caseData && <CaseControls c={caseData} view={view} onView={setView} />}
+      <div className={cx('flex-col gap-3 md:gap-3.5', view === 'case' ? 'hidden md:flex' : 'flex')}>
       <span className={cx('text-[13px] font-semibold text-muted', !multi && 'md:hidden')}>
         {item.topic}
         {multi && choose > 0 && ` · Choose ${choose}`}
@@ -333,6 +348,51 @@ function QuestionCard({ item, shownOnPhone }: { item: ReviewItem; shownOnPhone: 
           <p className="m-0 text-[15px] leading-[1.6] text-ink md:text-base">{item.explanation}</p>
         </div>
       )}
+      </div>
     </article>
+  );
+}
+
+/**
+ * The case study in the answer review (C4; not drawn, built from CaseExam.dc / CaseExamPhone.dc).
+ * Phone: a "Question | Case study" switch swaps the card's body for the passage. Desktop: a collapsible case study
+ * (closed by default) above the question, labelled "Case study · questions 8–12".
+ */
+function CaseControls({ c, view, onView }: { c: ExamCase; view: 'question' | 'case'; onView: (v: 'question' | 'case') => void }) {
+  const [open, setOpen] = useState(false);
+  const range = caseRange(c);
+  return (
+    <>
+      <div role="group" aria-label="Show" className="flex gap-1 rounded-[10px] bg-soft p-[3px] md:hidden">
+        {(['question', 'case'] as const).map((v) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={view === v}
+            onClick={() => onView(v)}
+            className={cx('min-h-[44px] flex-1 cursor-pointer rounded-lg border-0 text-sm font-semibold', view === v ? 'bg-surface text-ink' : 'bg-transparent text-ink-2')}
+          >
+            {v === 'question' ? 'Question' : 'Case study'}
+          </button>
+        ))}
+      </div>
+      {view === 'case' && (
+        <div className="md:hidden">
+          <CasePanel c={c} />
+        </div>
+      )}
+      <div className="hidden flex-col gap-2 md:flex">
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="inline-flex min-h-[44px] cursor-pointer items-center justify-between gap-2 rounded-control border border-border bg-page px-3.5 text-left text-[15px] font-semibold text-brand"
+        >
+          <span>Case study · questions {range}</span>
+          <span aria-hidden="true">{open ? 'Hide' : 'Show'}</span>
+        </button>
+        {open && <CasePanel c={c} />}
+      </div>
+    </>
   );
 }

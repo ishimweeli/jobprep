@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { AdminRoleName, PaymentProviderCode, PrismaClient, Role, User, UserRole } from '@prisma/client';
+import type { AdminRoleName, PaymentProviderCode, Prisma, PrismaClient, Role, User, UserRole } from '@prisma/client';
 import { z } from 'zod';
 import { assertCountry, requirePermission } from '../../admin/auth';
 import { describeAudit, writeAudit } from '../../admin/audit';
@@ -8,7 +8,10 @@ import { ROLE_LABELS, type AdminRoleCode } from '../../domain/permissions';
 import { formatMoney } from '../../domain/pricing';
 import type { Ctx } from '../../http/context';
 import { badRequest, conflict, HttpError, notFound } from '../../http/errors';
-import { countryCodes, inCodes, pageSchema, settingBool, settingNumber } from './util';
+import { LEGAL_SLUGS } from '../../domain/legal';
+import { supportContactFor, supportKey } from '../../services/support-contact';
+import { idOfHeading, legalKey, legalSectionSchema, loadLegalPage } from '../public';
+import { countryCodes, csvSafe, inCodes, pageSchema, sendCsv, settingBool, settingNumber } from './util';
 
 const reasonField = z.string().trim().min(5, 'reason_too_short').max(300);
 const ROLES = ['SYSTEM_ADMIN', 'CONTENT_EDITOR', 'SUPPORT'] as const;
@@ -31,6 +34,31 @@ export async function goLiveChecklist(prisma: PrismaClient, code: string): Promi
     { key: 'legal', label: 'Legal review of terms and refund policy', ok: legal?.value === true },
   ];
 }
+
+/**
+ * Whether a payment method is wired up, WITHOUT any secret: which adapter serves it, whether its credentials are set, the
+ * webhook URL (with its ?token= secret cut off) and when it last saw a payment.
+ */
+export function providerStatus(ctx: Ctx, provider: PaymentProviderCode) {
+  const c = ctx.config;
+  const adapter = c.PAYMENT_PROVIDER_MODE === 'fake' ? 'fake' : c.PAWAPAY_API_TOKEN ? 'pawapay' : 'direct';
+  const direct: Record<string, string[]> = {
+    MTN_MOMO: [c.MTN_MOMO_SUBSCRIPTION_KEY, c.MTN_MOMO_API_USER, c.MTN_MOMO_API_KEY, c.MTN_MOMO_CALLBACK_SECRET],
+    AIRTEL_MONEY: [c.AIRTEL_CLIENT_ID, c.AIRTEL_CLIENT_SECRET, c.AIRTEL_CALLBACK_SECRET],
+    MPESA: [c.MPESA_CONSUMER_KEY, c.MPESA_CONSUMER_SECRET, c.MPESA_SHORTCODE, c.MPESA_PASSKEY, c.MPESA_CALLBACK_SECRET],
+  };
+  const credentialsConfigured = adapter === 'fake' ? true
+    : adapter === 'pawapay' ? c.PAWAPAY_API_TOKEN.length > 0 && c.PAWAPAY_CALLBACK_SECRET.length >= 16
+    : (direct[provider] ?? []).length > 0 && (direct[provider] ?? []).every((v) => v.length > 0);
+  let callbackUrl = '';
+  try { callbackUrl = ctx.providers.callbackUrl(provider).split('?')[0] ?? ''; } catch { callbackUrl = ''; }
+  return { adapter, credentialsConfigured, callbackUrl };
+}
+
+const supportSchema = z.object({
+  phone: z.string().trim().max(80).nullable().optional(), whatsapp: z.string().trim().max(80).nullable().optional(),
+  email: z.string().trim().max(120).email().nullable().optional(), hours: z.string().trim().max(120).nullable().optional(),
+});
 
 export function adminCountriesRouter(ctx: Ctx) {
   const router = Router();
@@ -94,7 +122,18 @@ export function adminCountriesRouter(ctx: Ctx) {
         url: `jobprep.nexvecta.com/${c.slug}`, disclaimer: c.disclaimer, users, mockTests: tests, waitingList: waiting,
       },
       plan: plan && { priceMinor: plan.priceMinor, priceLabel: formatMoney(plan.priceMinor, plan.currencyCode, c.currencyExponent), durationDays: plan.durationDays, autoRenew: plan.autoRenew },
-      paymentMethods: methods.map((m) => ({ provider: m.provider, label: m.label, mode: m.mode, hint: m.hint })),
+      paymentMethods: await Promise.all(methods.map(async (m) => {
+        const seen = await prisma.payment.aggregate({ where: { countryCode: c.code, provider: m.provider }, _max: { createdAt: true, confirmedAt: true } });
+        return {
+          provider: m.provider, label: m.label, mode: m.mode, hint: m.hint,
+          providerStatus: { ...providerStatus(ctx, m.provider), lastPaymentAt: seen._max.createdAt, lastSuccessAt: seen._max.confirmedAt },
+        };
+      })),
+      supportContact: await supportContactFor(ctx, c.code),
+      legal: {
+        reviewed: checklist.find((x) => x.key === 'legal')?.ok ?? false,
+        pages: await Promise.all(LEGAL_SLUGS.map(async (slug) => ({ slug, overridden: !(await loadLegalPage(ctx, slug, c.code)).placeholder }))),
+      },
       languages,
       categories: cats.map((x) => ({ id: x.id, name: x.name, mockTests: x._count.mockTests })),
       checklist,
@@ -102,11 +141,27 @@ export function adminCountriesRouter(ctx: Ctx) {
     });
   });
 
+  /** The numbers for the go-live / move-back confirmation dialog. */
+  router.get('/countries/:code/status-impact', read, async (req, res) => {
+    const to = z.enum(['LIVE', 'PREPARING', 'PLANNED']).parse(req.query.to);
+    const c = await loadCountry(String(req.params.code), req.admin!);
+    const at = now();
+    const [users, activeAccessGrants, attemptsInProgress, publishedTests, checklist] = await Promise.all([
+      prisma.user.count({ where: { countryCode: c.code } }),
+      prisma.accessGrant.count({ where: { countryCode: c.code, status: 'ACTIVE', startsAt: { lte: at }, endsAt: { gt: at } } }),
+      prisma.attempt.count({ where: { countryCode: c.code, status: 'IN_PROGRESS' } }),
+      prisma.mockTest.count({ where: { countryCode: c.code, status: 'PUBLISHED' } }),
+      goLiveChecklist(prisma, c.code),
+    ]);
+    res.json({ from: c.status, to, users, activeAccessGrants, attemptsInProgress, publishedTests, checklist, readyToLaunch: checklist.every((x) => x.ok) });
+  });
+
   /** Disclaimer, legal-review flag, and status. A status change needs a reason, and going live needs the whole checklist. */
   router.patch('/countries/:code', write, async (req, res) => {
     const b = z.object({
       status: z.enum(['LIVE', 'PREPARING', 'PLANNED']).optional(), disclaimer: z.string().trim().min(10).max(300).optional(),
       legalReviewed: z.boolean().optional(), reason: z.string().trim().max(300).optional(), force: z.boolean().optional(),
+      supportContact: supportSchema.optional(),
     }).parse(req.body);
     const c = await loadCountry(String(req.params.code), req.admin!);
 
@@ -114,6 +169,15 @@ export function adminCountriesRouter(ctx: Ctx) {
       if (b.disclaimer !== undefined && b.disclaimer !== c.disclaimer) {
         await tx.country.update({ where: { code: c.code }, data: { disclaimer: b.disclaimer } });
         await writeAudit(tx, req.admin!, { action: 'country.disclaimer.set', entityType: 'country', entityId: c.code, countryCode: c.code, metadata: { country: c.name } });
+      }
+      if (b.supportContact) {
+        const row = await tx.setting.findUnique({ where: { key: supportKey(c.code) } });
+        const prev = (row?.value && typeof row.value === 'object' && !Array.isArray(row.value) ? row.value : {}) as Record<string, unknown>;
+        const next: Record<string, unknown> = { ...prev };
+        for (const [k, v] of Object.entries(b.supportContact)) next[k] = v === undefined ? prev[k] ?? null : (v && v.trim() !== '' ? v.trim() : null);
+        delete next.placeholder; // an admin's values are never placeholders
+        await tx.setting.upsert({ where: { key: supportKey(c.code) }, update: { value: next as Prisma.InputJsonValue }, create: { key: supportKey(c.code), value: next as Prisma.InputJsonValue } });
+        await writeAudit(tx, req.admin!, { action: 'country.support.set', entityType: 'country', entityId: c.code, countryCode: c.code, metadata: { country: c.name } });
       }
       if (b.legalReviewed !== undefined) {
         await tx.setting.upsert({ where: { key: `country.legalReviewed:${c.code}` }, update: { value: b.legalReviewed }, create: { key: `country.legalReviewed:${c.code}`, value: b.legalReviewed } });
@@ -175,11 +239,17 @@ export function adminCountriesRouter(ctx: Ctx) {
     showPassMarks: 'results.showPassMarks',
   } as const;
 
+  const readMaintenance = async () => {
+    const v = ((await prisma.setting.findUnique({ where: { key: 'system.maintenance' } }))?.value ?? {}) as Record<string, unknown>;
+    return { enabled: v.enabled === true, message: typeof v.message === 'string' && v.message ? v.message : null, backAt: typeof v.backAt === 'string' && v.backAt ? v.backAt : null };
+  };
+
   router.get('/settings', requirePermission('settings:write'), async (_req, res) => {
     res.json({
       stuckAfterMinutes: await settingNumber(prisma, SETTING_KEYS.stuckAfterMinutes, 10),
       showExplanationsOnFreeResults: await settingBool(prisma, SETTING_KEYS.showExplanationsOnFreeResults, true),
       showPassMarks: await settingBool(prisma, SETTING_KEYS.showPassMarks, true),
+      maintenance: await readMaintenance(),
       // Free samples are playable without an account in every country: a product rule, not a switch.
       freeSamplesOpenWithoutAccount: true,
     });
@@ -188,10 +258,20 @@ export function adminCountriesRouter(ctx: Ctx) {
   router.put('/settings', requirePermission('settings:write'), async (req, res) => {
     const b = z.object({
       stuckAfterMinutes: z.number().int().min(1).max(240), showExplanationsOnFreeResults: z.boolean(), showPassMarks: z.boolean(),
+      maintenance: z.object({ enabled: z.boolean(), message: z.string().trim().max(300).nullable().optional(), backAt: z.iso.datetime().nullable().optional() }).partial(),
     }).partial().parse(req.body);
+    const { maintenance, ...scalars } = b;
     await prisma.$transaction(async (tx) => {
+      if (maintenance) {
+        const before = await readMaintenance();
+        const next = { ...before, ...maintenance, message: maintenance.message === undefined ? before.message : (maintenance.message || null), backAt: maintenance.backAt === undefined ? before.backAt : maintenance.backAt };
+        if (JSON.stringify(before) !== JSON.stringify(next)) {
+          await tx.setting.upsert({ where: { key: 'system.maintenance' }, update: { value: next }, create: { key: 'system.maintenance', value: next } });
+          await writeAudit(tx, req.admin!, { action: 'settings.update', entityType: 'setting', entityId: 'system.maintenance', metadata: { key: 'maintenance', from: before.enabled ? 'on' : 'off', to: next.enabled ? 'on' : 'off' } });
+        }
+      }
       for (const [field, key] of Object.entries(SETTING_KEYS) as [keyof typeof SETTING_KEYS, string][]) {
-        const next = b[field];
+        const next = scalars[field];
         if (next === undefined) continue;
         const before = (await tx.setting.findUnique({ where: { key } }))?.value ?? null;
         if (before === next) continue;
@@ -217,7 +297,7 @@ export function adminCountriesRouter(ctx: Ctx) {
       id: u.id, name: u.name, email: u.email, active: roles.some((r) => r.active), status: u.status,
       roles: roles.map(roleView),
       role: first.role.name, roleLabel: ROLE_LABELS[first.role.name as AdminRoleCode], countryScope: first.countryScope,
-      createdAt: u.createdAt,
+      createdAt: u.createdAt, lastActiveAt: u.lastSeenAt,
     };
   };
   const loadTeamUser = (id: string) => prisma.user.findUnique({ where: { id }, include: { roles: { include: { role: true } } } });
@@ -306,29 +386,110 @@ export function adminCountriesRouter(ctx: Ctx) {
 
   // ───────────────────────── Audit log
 
+  const auditFilters = pageSchema.extend({
+    actorId: z.string().optional(), action: z.string().max(60).optional(), entityType: z.string().max(40).optional(),
+    country: z.string().length(2).optional(), from: z.iso.datetime().optional(), to: z.iso.datetime().optional(), q: z.string().trim().max(80).optional(),
+  });
+  const auditWhere = (f: z.infer<typeof auditFilters>): Prisma.AuditLogWhereInput => ({
+    ...(f.actorId && { actorId: f.actorId }),
+    ...(f.action && { action: { startsWith: f.action } }),
+    ...(f.entityType && { entityType: f.entityType }),
+    ...(f.country && { countryCode: f.country.toUpperCase() }),
+    ...((f.from || f.to) && { createdAt: { ...(f.from && { gte: new Date(f.from) }), ...(f.to && { lte: new Date(f.to) }) } }),
+    ...(f.q && { OR: [{ action: { contains: f.q, mode: 'insensitive' } }, { reason: { contains: f.q, mode: 'insensitive' } }, { actor: { name: { contains: f.q, mode: 'insensitive' } } }] }),
+  });
+  const auditRow = (r: Prisma.AuditLogGetPayload<{ include: { actor: { select: { id: true; name: true } } } }>) => ({
+    id: r.id, at: r.createdAt, actor: r.actor, action: r.action, entityType: r.entityType, entityId: r.entityId, countryCode: r.countryCode, reason: r.reason,
+    metadata: r.metadata, summary: describeAudit({ action: r.action, reason: r.reason, metadata: r.metadata, entityId: r.entityId }),
+  });
+
   router.get('/audit', requirePermission('audit:read'), async (req, res) => {
-    const f = pageSchema.extend({
-      actorId: z.string().optional(), action: z.string().max(60).optional(), entityType: z.string().max(40).optional(),
-      country: z.string().length(2).optional(), from: z.iso.datetime().optional(), to: z.iso.datetime().optional(),
-    }).parse(req.query);
-    const where = {
-      ...(f.actorId && { actorId: f.actorId }),
-      ...(f.action && { action: { startsWith: f.action } }),
-      ...(f.entityType && { entityType: f.entityType }),
-      ...(f.country && { countryCode: f.country.toUpperCase() }),
-      ...((f.from || f.to) && { createdAt: { ...(f.from && { gte: new Date(f.from) }), ...(f.to && { lte: new Date(f.to) }) } }),
-    };
+    const f = auditFilters.parse(req.query);
+    const where = auditWhere(f);
     const [total, rows] = await Promise.all([
       prisma.auditLog.count({ where }),
       prisma.auditLog.findMany({ where, orderBy: { createdAt: 'desc' }, skip: (f.page - 1) * f.pageSize, take: f.pageSize, include: { actor: { select: { id: true, name: true } } } }),
     ]);
+    res.json({ total, page: f.page, pageSize: f.pageSize, results: rows.map(auditRow) });
+  });
+
+  /** What exists in the log, for the filter dropdowns. */
+  router.get('/audit/filters', requirePermission('audit:read'), async (_req, res) => {
+    const [actions, entityTypes, actors] = await Promise.all([
+      prisma.auditLog.findMany({ distinct: ['action'], select: { action: true } }),
+      prisma.auditLog.findMany({ distinct: ['entityType'], select: { entityType: true }, orderBy: { entityType: 'asc' } }),
+      prisma.user.findMany({ where: { auditLogs: { some: {} } }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    ]);
+    res.json({ actions: actions.map((x) => x.action).sort(), entityTypes: entityTypes.map((x) => x.entityType), actors });
+  });
+
+  /** CSV of the same filtered view (newest 5,000 rows). The export itself is logged. */
+  router.get('/audit/export', requirePermission('audit:read'), async (req, res) => {
+    const f = auditFilters.parse(req.query);
+    const rows = await prisma.auditLog.findMany({ where: auditWhere(f), orderBy: { createdAt: 'desc' }, take: 5000, include: { actor: { select: { id: true, name: true } } } });
+    await writeAudit(prisma, req.admin!, { action: 'audit.export', entityType: 'audit', metadata: { rows: rows.length } });
+    sendCsv(res, 'audit-log.csv', [
+      ['time', 'actor', 'action', 'entityType', 'entityId', 'country', 'reason', 'summary'],
+      ...rows.map((r) => {
+        const x = auditRow(r);
+        return [x.at.toISOString(), csvSafe(x.actor?.name), x.action, x.entityType, x.entityId ?? '', x.countryCode ?? '', csvSafe(x.reason), csvSafe(x.summary)];
+      }),
+    ]);
+  });
+
+  router.get('/audit/:id', requirePermission('audit:read'), async (req, res) => {
+    const r = await prisma.auditLog.findUnique({ where: { id: String(req.params.id) }, include: { actor: { select: { id: true, name: true, email: true } } } });
+    if (!r) throw notFound('audit_entry_not_found');
+    res.json({ entry: { ...auditRow({ ...r, actor: r.actor && { id: r.actor.id, name: r.actor.name } }), actor: r.actor } });
+  });
+
+  // ───────────────────────── Legal pages (real text replaces the placeholder)
+
+  const legalSlug = z.enum(LEGAL_SLUGS);
+  router.get('/legal', requirePermission('settings:write'), async (_req, res) => {
+    const rows = await prisma.setting.findMany({ where: { key: { startsWith: 'legal.page:' } }, select: { key: true } });
     res.json({
-      total, page: f.page, pageSize: f.pageSize,
-      results: rows.map((r) => ({
-        id: r.id, at: r.createdAt, actor: r.actor, action: r.action, entityType: r.entityType, entityId: r.entityId, countryCode: r.countryCode, reason: r.reason,
-        metadata: r.metadata, summary: describeAudit({ action: r.action, reason: r.reason, metadata: r.metadata, entityId: r.entityId }),
-      })),
+      pages: await Promise.all(LEGAL_SLUGS.map(async (slug) => ({
+        slug, title: (await loadLegalPage(ctx, slug, null)).title,
+        overrides: rows.map((r) => r.key.split(':')).filter((k) => k[1] === slug).map((k) => k[2]!),
+      }))),
     });
+  });
+
+  router.put('/legal/:page', requirePermission('settings:write'), async (req, res) => {
+    const slug = legalSlug.parse(String(req.params.page));
+    const b = z.object({
+      countryCode: z.string().length(2).optional(), title: z.string().trim().min(2).max(120).optional(), intro: z.string().trim().max(2000).default(''),
+      lastUpdated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), sections: z.array(legalSectionSchema).min(1).max(40),
+    }).parse(req.body);
+    const code = b.countryCode?.toUpperCase();
+    if (code && !(await prisma.country.findUnique({ where: { code } }))) throw notFound('country_not_found');
+    const used = new Set<string>();
+    const sections = b.sections.map((x, i) => {
+      let id = x.id ?? idOfHeading(x.heading, i);
+      for (let n = 2; used.has(id); n++) id = `${x.id ?? idOfHeading(x.heading, i)}-${n}`;
+      used.add(id);
+      return { id, heading: x.heading, paragraphs: x.paragraphs };
+    });
+    const value = { title: b.title, intro: b.intro, lastUpdated: b.lastUpdated ?? now().toISOString().slice(0, 10), sections } as unknown as Prisma.InputJsonValue;
+    const key = legalKey(slug, code ?? '*');
+    await prisma.$transaction(async (tx) => {
+      await tx.setting.upsert({ where: { key }, update: { value }, create: { key, value } });
+      await writeAudit(tx, req.admin!, { action: 'legal.update', entityType: 'legal', entityId: key, countryCode: code ?? null, metadata: { page: slug, scope: code ?? 'all countries' } });
+    });
+    res.json({ ok: true });
+  });
+
+  router.delete('/legal/:page', requirePermission('settings:write'), async (req, res) => {
+    const slug = legalSlug.parse(String(req.params.page));
+    const code = typeof req.query.country === 'string' && req.query.country ? req.query.country.toUpperCase() : undefined;
+    const key = legalKey(slug, code ?? '*');
+    await prisma.$transaction(async (tx) => {
+      const gone = await tx.setting.deleteMany({ where: { key } });
+      if (gone.count === 0) throw notFound('legal_override_not_found');
+      await writeAudit(tx, req.admin!, { action: 'legal.reset', entityType: 'legal', entityId: key, countryCode: code ?? null, metadata: { page: slug, scope: code ?? 'all countries' } });
+    });
+    res.json({ ok: true });
   });
 
   void now;

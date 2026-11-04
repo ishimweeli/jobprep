@@ -111,7 +111,14 @@ export function SignUpPage() {
       </p>
       <p className="m-0 text-center text-[13px] text-muted">
         By continuing you agree to the{' '}
-        <span className="text-brand">Terms and Privacy policy</span>.
+        <Link to="/terms" target="_blank" rel="noreferrer" aria-label="Terms (opens in a new tab)" className="link">
+          Terms
+        </Link>{' '}
+        and{' '}
+        <Link to="/privacy" target="_blank" rel="noreferrer" aria-label="Privacy policy (opens in a new tab)" className="link">
+          Privacy policy
+        </Link>
+        .
       </p>
     </AuthFrame>
   );

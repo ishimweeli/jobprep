@@ -1,3 +1,4 @@
+import { toCsv } from '../../admin/csv';
 import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { allowedCountries, type AdminPrincipal } from '../../admin/auth';
@@ -33,4 +34,20 @@ export async function settingNumber(prisma: PrismaClient, key: string, fallback:
 export async function settingBool(prisma: PrismaClient, key: string, fallback: boolean) {
   const v = (await prisma.setting.findUnique({ where: { key } }))?.value;
   return typeof v === 'boolean' ? v : fallback;
+}
+
+/**
+ * A cell that comes from user input must not run as a spreadsheet formula when an accountant opens the export:
+ * a leading = + - @ (or tab / carriage return) gets a quote in front.
+ */
+export const csvSafe = (v: unknown): string => {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+};
+
+/** Send rows as a CSV download (UTF-8 with a byte-order mark so Excel reads accents correctly). */
+export function sendCsv(res: import('express').Response, filename: string, rows: string[][]) {
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send('﻿' + toCsv(rows));
 }

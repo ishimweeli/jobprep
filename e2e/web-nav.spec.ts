@@ -48,9 +48,10 @@ test.describe('Web: navigation (C13 desktop header, C29 phone tabs)', () => {
     await expect(sheet.getByRole('link', { name: 'Mock tests' })).toBeVisible();
     await expect(sheet.getByRole('link', { name: 'Pricing' })).toBeVisible();
     await expect(sheet.getByRole('link', { name: /Country/ })).toHaveText('CountryRwanda ›'); // the country only, no currency
-    // the language switch is drawn but inert (no picker design)
+    // the language switch is live: it lists only the languages Rwanda offers
     await expect(sheet.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'English' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(sheet.getByRole('group', { name: 'Language' }).getByRole('button').first()).toHaveAttribute('aria-disabled', 'true');
+    await expect(sheet.getByRole('group', { name: 'Language' }).getByRole('button')).toHaveCount(2);
+    await expect(sheet.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'Ikinyarwanda' })).toBeEnabled();
     await expect(sheet.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/sign-in');
     await expect(sheet.getByRole('link', { name: 'Create a free account' })).toHaveAttribute('href', '/sign-up');
     await page.keyboard.press('Escape');
@@ -73,8 +74,9 @@ test.describe('Web: navigation (C13 desktop header, C29 phone tabs)', () => {
     await expect(menu.getByRole('menuitem')).toHaveCount(7);
     await expect(menu.getByRole('menuitem', { name: /My access/ })).toContainText(/Full Access · \d+ days? left|^My access$/);
     await expect(menu.getByRole('menuitem', { name: /Exam country/ })).toContainText('Rwanda · change');
-    await expect(menu.getByRole('menuitem', { name: /Language/ })).toHaveAttribute('aria-disabled', 'true');
+    await expect(menu.getByRole('menuitem', { name: /Language/ })).toHaveAttribute('href', '/account/settings');
     await expect(menu.getByRole('menuitem', { name: /Help and support/ })).not.toContainText('[');
+    await expect(menu.getByRole('menuitem', { name: /Help and support/ })).toHaveAttribute('href', '/help');
     await page.keyboard.press('Escape');
     await expect(menu).toBeHidden();
     await expect(button).toBeFocused();

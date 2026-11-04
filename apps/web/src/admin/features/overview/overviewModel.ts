@@ -58,7 +58,7 @@ export function buildAlerts(o: Overview, phone: boolean): Alert[] {
       title: phone ? `${rep.count} ${rep.count === 1 ? 'question' : 'questions'} reported` : `${rep.count} ${rep.count === 1 ? 'question' : 'questions'} reported by candidates`,
       meta: rep.top ? `${rep.top.mockTestTitle} · Q${rep.top.questionNumber} reported ${times(rep.top.reports)}` : '',
       action: 'Open',
-      to: '/admin/exams',
+      to: '/admin/exams/reports',
       dot: '#8A5300',
     });
   }
@@ -69,7 +69,7 @@ export function buildAlerts(o: Overview, phone: boolean): Alert[] {
       title: phone ? `“${top.label}” requested ${top.n}×` : `“${top.label}” requested ${top.n} ${top.n === 1 ? 'time' : 'times'}`,
       meta: phone ? 'No mock test yet' : 'No mock test exists for this search yet',
       action: 'Plan exam',
-      to: '/admin/exams',
+      to: `/admin/exams/requests?q=${encodeURIComponent(top.label)}`,
       dot: '#164A7A',
     });
   }

@@ -59,15 +59,17 @@ test.describe('Settings', () => {
     await expect(box).toBeChecked();
   });
 
-  test('plan card shows the live price and days; Save plan, Invite and the role selects are drawn and do nothing', async ({ page, playwright }, info) => {
+  test('plan card shows the live price and days; "Change price…", Invite and the team buttons open their dialogs', async ({ page, playwright }, info) => {
     await signInAs(page, playwright, 'system');
     await page.goto('/admin/settings');
     await expect(page.getByRole('heading', { name: 'Full Access plan · Rwanda' })).toBeVisible();
     await expect(page.getByLabel('Price (RWF)')).toHaveValue('2000');
     await expect(page.getByLabel(isPhone(info) ? 'Days' : 'Access length (days)')).toHaveValue('30');
-    const save = page.getByRole('button', { name: 'Save plan' });
-    await expect(save).toHaveAttribute('aria-disabled', 'true');
-    await save.dispatchEvent('click');
+    // formerly "Save plan" (inert): the price changes through a dialog that asks for a reason (A14)
+    await page.getByRole('button', { name: 'Change price…' }).click();
+    const price = page.getByRole('dialog', { name: /Set the Full Access price in Rwanda/ });
+    await expect(price.getByText(/never shortened/)).toBeVisible();
+    await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
 
     await expect(page.getByRole('heading', { name: 'Payment providers' })).toBeVisible();
@@ -78,17 +80,21 @@ test.describe('Settings', () => {
     await expect(page.getByRole('heading', { name: 'Admin team' })).toBeVisible();
     for (const name of ['Jean Bosco N.', 'Marie C.', 'Support Agent']) await expect(page.getByText(name).first()).toBeVisible();
     const invite = page.getByRole('button', { name: isPhone(info) ? 'Invite admin' : 'Invite' });
-    await expect(invite).toHaveAttribute('aria-disabled', 'true');
-    if (!isPhone(info)) {
+    await invite.click();
+    await expect(page.getByRole('dialog', { name: 'Invite an admin' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    {
       // each team row carries the admin's email address
       for (const email of Object.values(ADMINS)) await expect(page.getByText(email, { exact: true })).toBeVisible();
-      const role = page.getByRole('combobox', { name: 'Role for Marie C.' });
-      await expect(role).toHaveValue('CONTENT_EDITOR');
-      await expect(role).toHaveAttribute('aria-disabled', 'true');
-      await role.focus();
-      await page.keyboard.press('ArrowDown');
-      await expect(role).toHaveValue('CONTENT_EDITOR'); // nothing changed
+      // the closed role selects are gone: each role has Change / Deactivate buttons (A13)
+      await expect(page.getByRole('combobox', { name: 'Role for Marie C.' })).toHaveCount(0);
     }
+    await page.getByRole('button', { name: /^Change Content editor role of Marie C./ }).click();
+    const edit = page.getByRole('dialog', { name: /Change role of Marie C./ });
+    await expect(edit.getByRole('radio', { name: /Content editor/ })).toBeChecked();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
   });
 
   test('audit log: the server\'s sentences with who and when (desktop on the page, phone behind "Audit log")', async ({ page, playwright }, info) => {
@@ -107,7 +113,7 @@ test.describe('Settings', () => {
       }
       await expect(page.getByRole('heading', { name: 'Audit log' }).first()).toBeVisible();
       await expect(page.getByText(`changed the setting stuckAfterMinutes from ${stamp} to ${before.stuckAfterMinutes}`).first()).toBeVisible();
-      await expect(page.getByText('Jean Bosco N.').first()).toBeVisible();
+      await expect(page.locator('strong, td').filter({ hasText: 'Jean Bosco N.' }).first()).toBeVisible(); // not the filter's <option>
       await expect(page.getByText(/\d+ \w{3}, \d{2}:\d{2}/).first()).toBeVisible();
       await expectNoHorizontalScroll(page);
     } finally {
@@ -115,7 +121,7 @@ test.describe('Settings', () => {
     }
   });
 
-  test('"Countries" leads to the Countries screen; Support and the editor cannot open Settings', async ({ page, playwright }, info) => {
+  test('"Countries" leads to the Countries screen; Support and the editor are told they have no access to Settings', async ({ page, playwright }, info) => {
     await signInAs(page, playwright, 'system');
     await page.goto('/admin/settings');
     await page.getByRole('link', { name: /^Countries/ }).first().click();
@@ -123,7 +129,8 @@ test.describe('Settings', () => {
     for (const role of ['support', 'editor'] as const) {
       await signInAs(page, playwright, role);
       await page.goto('/admin/settings');
-      await expect(page).toHaveURL(`${BASE}/admin`);
+      await expect(page).toHaveURL(`${BASE}/admin/settings`);
+      await expect(page.getByRole('heading', { level: 1, name: 'You do not have access to this' })).toBeVisible();
     }
     void info;
   });

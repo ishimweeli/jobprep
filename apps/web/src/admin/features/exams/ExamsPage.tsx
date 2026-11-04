@@ -1,10 +1,10 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useMatch, useParams, useSearchParams } from 'react-router-dom';
 import { getCatalogOptions, getExams, getMockTest, keys } from '../../api/admin';
 import type { ExamRow, MockTestDetail } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
 import { EmptyLine, ErrorBox, Skeleton } from '../../components/states';
-import { InertButton, Pill } from '../../components/ui';
+import { Pill } from '../../components/ui';
 import { TEST_TONE } from '../../lib/badges';
 import { cx } from '../../lib/cx';
 import { formatCount, plural } from '../../lib/format';
@@ -13,6 +13,8 @@ import { useDebouncedSearch } from '../../lib/useDebouncedSearch';
 import { useAdminCountry } from '../../lib/adminCountry';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { QuestionEditor } from './QuestionEditor';
+import { QuestionList } from './QuestionList';
+import { ExamsHeaderActions, TestToolbar } from './TestToolbar';
 
 /** Which question opens first in a test: the first with an open report, else the first. */
 export function firstQuestionId(t: Pick<MockTestDetail, 'questions'>): string | undefined {
@@ -55,13 +57,14 @@ function ExamRows({ rows, selectedId }: { rows: ExamRow[]; selectedId?: string }
 export function ExamsPage() {
   const isDesktop = useIsDesktop();
   const { testId, questionId } = useParams();
+  const isNewQuestion = !!useMatch('/admin/exams/:testId/q/new');
   const [sp, setSp] = useSearchParams();
   const query = parseExamsQuery(sp);
   const { country } = useAdminCountry();
 
   const list = useQuery({
     queryKey: keys.exams({ ...query, country }),
-    queryFn: () => getExams({ q: query.q || undefined, category: query.category || undefined, country, pageSize: 100 }),
+    queryFn: () => getExams({ q: query.q || undefined, category: query.category || undefined, status: query.status, country, pageSize: 100 }),
     placeholderData: keepPreviousData,
   });
   const catalog = useQuery({ queryKey: keys.catalog, queryFn: getCatalogOptions, staleTime: 5 * 60_000 });
@@ -70,7 +73,7 @@ export function ExamsPage() {
   // Desktop always shows a test (the first one until another is picked); the phone shows the list until one is opened.
   const selectedTest = testId ?? (isDesktop ? rows[0]?.id : undefined);
   const test = useQuery({ queryKey: keys.mockTest(selectedTest ?? ''), queryFn: () => getMockTest(selectedTest!), enabled: !!selectedTest });
-  const qid = questionId ?? (test.data ? firstQuestionId(test.data) : undefined);
+  const qid = isNewQuestion ? 'new' : (questionId ?? (test.data ? firstQuestionId(test.data) : undefined));
 
   const [text, setText] = useDebouncedSearch(query.q, (q) => setSp(new URLSearchParams(examsSearch({ q }, query)), { replace: true }));
   const categories = [...new Map((catalog.data?.categories ?? []).map((c) => [c.slug, c.name])).entries()];
@@ -94,6 +97,17 @@ export function ExamsPage() {
       >
         <option value="">All categories</option>
         {categories.map(([slug, name]) => <option key={slug} value={slug}>{name}</option>)}
+      </select>
+      <select
+        aria-label="Status"
+        value={query.status ?? ''}
+        onChange={(e) => setSp(new URLSearchParams(examsSearch({ status: e.target.value || undefined }, query)), { replace: true })}
+        className="h-10 rounded-[10px] border border-input-border bg-white px-2.5 text-sm text-ink"
+      >
+        <option value="">Any status</option>
+        <option value="DRAFT">Draft</option>
+        <option value="PUBLISHED">Published</option>
+        <option value="ARCHIVED">Archived</option>
       </select>
     </div>
   );
@@ -124,13 +138,16 @@ export function ExamsPage() {
   if (!isDesktop) {
     if (selectedTest) {
       return (
-        <AdminShell title={`Question ${test.data?.questions.find((q) => q.id === qid)?.number ?? ''}${test.data ? ` of ${test.data.questions.length}` : ''}`.trim()} back="/admin/exams">
+        <AdminShell title={qid === 'new' ? 'New question' : `Question ${test.data?.questions.find((q) => q.id === qid)?.number ?? ''}${test.data ? ` of ${test.data.questions.length}` : ''}`.trim()} back="/admin/exams">
+          {test.data && <TestToolbar testId={selectedTest} status={test.data.mockTest.status} title={test.data.mockTest.title} />}
+          <QuestionList testId={selectedTest} activeId={qid} phone />
           {editor}
         </AdminShell>
       );
     }
     return (
       <AdminShell title="Exams">
+        <ExamsHeaderActions phone />
         {listCard}
       </AdminShell>
     );
@@ -144,14 +161,13 @@ export function ExamsPage() {
           <h1 className="m-0 text-[28px] tracking-[-0.02em]">Exams &amp; questions</h1>
           <span className="text-sm text-muted">{t ? `${formatCount(t.mockTests)} mock tests · ${formatCount(t.questions)} questions · ${plural(t.categories, 'category', 'categories')}` : ' '}</span>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <InertButton kind="secondary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">Import questions (CSV)</InertButton>
-          <InertButton kind="primary" sizeClass="h-11 rounded-[10px] px-4 text-[15px] font-semibold">+ New mock test</InertButton>
-        </div>
+        <ExamsHeaderActions testId={testId} />
       </div>
+      {selectedTest && test.data && <TestToolbar testId={selectedTest} status={test.data.mockTest.status} title={test.data.mockTest.title} />}
       <div className="flex flex-wrap items-start gap-[18px]">
         {listCard}
         {editor}
+        {selectedTest && <QuestionList testId={selectedTest} activeId={qid} phone={false} />}
       </div>
     </AdminShell>
   );

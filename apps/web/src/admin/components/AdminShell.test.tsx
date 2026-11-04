@@ -108,3 +108,25 @@ describe('desktop sidebar (AdminOverview.dc)', () => {
     expect(screen.queryByRole('button', { name: /Country filter/ })).not.toBeInTheDocument();
   });
 });
+
+describe('sign-out control (A1)', () => {
+  const signOutCalls = (fn: ReturnType<typeof mockFetch>) => fn.calls.filter((c) => c.url === '/api/auth/sign-out' && c.init?.method === 'POST');
+
+  it('desktop: a Sign out button under the name ends the session', async () => {
+    stubViewport(true);
+    const f = mockFetch((url) => (url === '/api/auth/sign-out' ? { status: 204 } : url.includes('/payments') ? { body: payments } : url.includes('/countries') ? { body: countries } : undefined));
+    renderAdminRoutes([{ path: '/admin', element: page }, { path: '/', element: <p>home page</p> }], { route: '/admin', me: admin('SYSTEM_ADMIN', SYSTEM_PERMS) });
+    await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(await screen.findByText('home page')).toBeInTheDocument();
+    expect(signOutCalls(f)).toHaveLength(1);
+  });
+
+  it('phone: an icon button in the header', async () => {
+    stubViewport(false);
+    const f = mockFetch((url) => (url === '/api/auth/sign-out' ? { status: 204 } : undefined));
+    renderAdminRoutes([{ path: '/admin', element: page }, { path: '/', element: <p>home page</p> }], { route: '/admin', me: admin('SUPPORT', SUPPORT_PERMS) });
+    await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(await screen.findByText('home page')).toBeInTheDocument();
+    expect(signOutCalls(f)).toHaveLength(1);
+  });
+});

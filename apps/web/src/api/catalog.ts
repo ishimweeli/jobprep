@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { CatalogResponse, ExamDetail, Landing, PricingResponse } from './types';
+import type { CatalogResponse, ExamDetail, ExamRequestResponse, Landing, PricingResponse } from './types';
 
 export interface CatalogQuery {
   q?: string;
@@ -29,4 +29,4 @@ export const getMockTest = (country: string, slug: string) =>
   api<ExamDetail>(`${base(country)}/mock-tests/${encodeURIComponent(slug)}`);
 export const getPricing = (country: string) => api<PricingResponse>(`${base(country)}/pricing`);
 export const requestExam = (country: string, input: { query: string; email?: string }) =>
-  api<{ ok: true }>(`${base(country)}/exam-requests`, { method: 'POST', body: input });
+  api<ExamRequestResponse>(`${base(country)}/exam-requests`, { method: 'POST', body: input });

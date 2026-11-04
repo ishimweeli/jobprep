@@ -1,6 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
+import fs from 'node:fs';
 
 const API_PORT = 4000;
+
+/**
+ * The admin specs write data (categories, mock tests, team members ...): their API on 4001 must never use the dev database.
+ * ADMIN_E2E_DATABASE_URL wins; otherwise it is the dev URL of .env with the database name `jobprep_admin_test`.
+ */
+function adminTestDatabaseUrl(): string | undefined {
+  if (process.env.ADMIN_E2E_DATABASE_URL) return process.env.ADMIN_E2E_DATABASE_URL;
+  try {
+    const m = /^DATABASE_URL=(.+)$/m.exec(fs.readFileSync('.env', 'utf8'));
+    return m ? m[1]!.trim().replace(/^["']|["']$/g, '').replace(/\/[^/?]+(\?|$)/, '/jobprep_admin_test$1') : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 /**
  * Every e2e spec runs at desktop (1440×900) AND phone (390×844). UI specs arrive with the web app;
@@ -38,7 +53,7 @@ export default defineConfig({
       command: 'npm run start -w @jobprep/api',
       url: 'http://localhost:4001/api/health',
       // The same few admin emails sign in many times per run, so the per-email code cooldown and hourly cap are relaxed on this test API only.
-      env: { PORT: '4001', EMAIL_PROVIDER: 'console', WEB_ORIGIN: 'http://localhost:5174', OTP_RESEND_COOLDOWN_SECONDS: '0', OTP_MAX_PER_HOUR: '1000', ...(process.env.ADMIN_E2E_DATABASE_URL ? { DATABASE_URL: process.env.ADMIN_E2E_DATABASE_URL } : {}) },
+      env: { PORT: '4001', EMAIL_PROVIDER: 'console', WEB_ORIGIN: 'http://localhost:5174', OTP_RESEND_COOLDOWN_SECONDS: '0', OTP_MAX_PER_HOUR: '1000', ...(adminTestDatabaseUrl() ? { DATABASE_URL: adminTestDatabaseUrl()! } : {}) },
       reuseExistingServer: true,
       timeout: 60_000,
     },

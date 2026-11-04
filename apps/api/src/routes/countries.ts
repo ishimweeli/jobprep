@@ -2,15 +2,17 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { badRequest, notFound } from '../http/errors';
 import { emailInput } from '../domain/email';
-import type { PrismaClient } from '@prisma/client';
 import { formatMoney, isSellable } from '../domain/pricing';
+import type { Ctx } from '../http/context';
+import { supportContactFor } from '../services/support-contact';
 
 /**
  * Public, country-scoped config. Price, currency and duration come from PlanConfig in the
  * database — never from code. A country with no price set reports `checkoutAvailable: false`.
  */
-export function countriesRouter(prisma: PrismaClient) {
+export function countriesRouter(ctx: Ctx) {
   const router = Router();
+  const { prisma } = ctx;
 
   router.get('/', async (_req, res) => {
     const countries = await prisma.country.findMany({ orderBy: { name: 'asc' } });
@@ -53,13 +55,30 @@ export function countriesRouter(prisma: PrismaClient) {
     const country = await prisma.country.findUnique({ where: { code } });
     if (!country) throw notFound('country_not_found');
     if (country.status === 'LIVE') throw badRequest('country_already_live');
-    const { email } = z.object({ email: emailInput }).parse(req.body);
-    await prisma.waitingListEntry.upsert({
-      where: { countryCode_email: { countryCode: code, email } },
-      create: { countryCode: code, email },
-      update: {},
-    });
-    res.status(201).json({ ok: true });
+    const body = z.object({ email: emailInput.optional(), interest: z.string().trim().max(120).optional() }).parse(req.body);
+    const email = body.email ?? req.user?.email;
+    if (!email) throw badRequest('validation_error', { issues: [{ path: 'email', message: 'Required' }] });
+    const interest = body.interest || null;
+    const existing = await prisma.waitingListEntry.findUnique({ where: { countryCode_email: { countryCode: code, email } } });
+    if (existing) {
+      if (interest && interest !== existing.interest) await prisma.waitingListEntry.update({ where: { id: existing.id }, data: { interest } });
+      return void res.status(200).json({ ok: true, alreadyOnList: true });
+    }
+    try {
+      await prisma.waitingListEntry.create({ data: { countryCode: code, email, interest } });
+    } catch (e) {
+      // Two identical requests at once: the unique key makes the second one a repeat, not an error.
+      if ((e as { code?: string }).code === 'P2002') return void res.status(200).json({ ok: true, alreadyOnList: true });
+      throw e;
+    }
+    res.status(201).json({ ok: true, alreadyOnList: false });
+  });
+
+  /** Support phone / WhatsApp / email for a country (set by an admin; never hard-coded in the web app). */
+  router.get('/:code/support', async (req, res) => {
+    const country = await prisma.country.findUnique({ where: { code: req.params.code.toUpperCase() } });
+    if (!country) throw notFound('country_not_found');
+    res.json({ supportContact: await supportContactFor(ctx, country.code) });
   });
 
   router.get('/:code', async (req, res) => {
@@ -93,6 +112,7 @@ export function countriesRouter(prisma: PrismaClient) {
       paymentMethods: country.paymentMethods.map((m) => ({
         provider: m.provider, label: m.label, hint: m.hint, mode: m.mode,
       })),
+      supportContact: await supportContactFor(ctx, country.code),
     });
   });
 

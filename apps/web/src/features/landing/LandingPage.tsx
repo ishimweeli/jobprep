@@ -1,4 +1,3 @@
-import { t } from '@jobprep/shared';
 import { Check, ChevronRight, Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -10,6 +9,8 @@ import { PhoneBrandHeader } from '../../components/layout/Header';
 import { QueryError, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate, languageList, languageListShort, plural } from '../../lib/format';
+import { useT } from '../../lib/i18n';
+import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug, useCountries } from '../country/hooks';
 import { HeroPreview } from './HeroPreview';
 import { useLanding } from './queries';
@@ -29,14 +30,16 @@ export function listPhrase(names: string[]): string {
 }
 
 export function LandingPage() {
+  const t = useT();
   const slug = useActiveCountrySlug();
   const landing = useLanding(slug);
+  const { user } = useSession();
   const countries = useCountries();
   const data = landing.data;
   const countryName = data?.country.name ?? countries.data?.find((c) => c.slug === slug)?.name;
   const freeTest = data ? [...data.featuredTests, ...data.recentlyAdded].find((x) => x.isFree) : undefined;
   const freeHref = freeTest ? countryPath(slug, 'tests', freeTest.slug) : `${countryPath(slug, 'tests')}?price=free`;
-  const [headA, headB] = splitHeadline(t('en', 'landing.headline'));
+  const [headA, headB] = splitHeadline(t('landing.headline'));
 
   return (
     <div className="bg-surface">
@@ -72,11 +75,11 @@ export function LandingPage() {
               <HeroSearch slug={slug} popular={data?.popularSearches ?? []} loading={landing.isLoading} />
               <p className="m-0 hidden items-center gap-2 text-[15px] text-ink-2 md:flex">
                 <Check size={18} strokeWidth={2.4} className="text-correct" aria-hidden="true" />
-                Free sample tests — start without an account or payment.
+                {user ? 'Free sample tests — start any time, no payment.' : 'Free sample tests — start without an account or payment.'}
               </p>
               <Link to={freeHref} className="flex items-center gap-2 text-[15px] font-semibold text-free no-underline hover:text-free md:hidden">
                 <Check size={18} strokeWidth={2.4} aria-hidden="true" />
-                Try a free sample test — no account needed
+                {user ? 'Try a free sample test' : 'Try a free sample test — no account needed'}
               </Link>
             </div>
             <HeroPreview />
@@ -109,6 +112,7 @@ function splitHeadline(h: string): [string, string | null] {
 }
 
 function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[]; loading: boolean }) {
+  const t = useT();
   const [q, setQ] = useState('');
   const navigate = useNavigate();
   const go = (query: string) => navigate(`${countryPath(slug, 'tests')}${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`);
@@ -133,7 +137,7 @@ function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[
         className="flex flex-col gap-2.5 rounded-card border border-border-strong bg-surface p-3.5 md:rounded-[20px] md:p-[18px] md:shadow-search"
       >
         <label htmlFor="hero-q" className="text-[15px] font-semibold md:text-base">
-          {t('en', 'landing.searchPlaceholder')}
+          {t('landing.searchPlaceholder')}
         </label>
         <div className="flex flex-col gap-2.5 md:flex-row md:flex-wrap">
           <input
@@ -147,7 +151,7 @@ function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[
           />
           <button type="submit" className={buttonClasses({ variant: 'primary', size: 'lg', className: 'md:px-[22px]' })}>
             <Search size={18} strokeWidth={2.4} aria-hidden="true" />
-            {t('en', 'landing.searchCta')}
+            {t('landing.searchCta')}
           </button>
         </div>
         {/* Desktop: chips live inside the search card. */}

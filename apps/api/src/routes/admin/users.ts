@@ -8,6 +8,10 @@ import { formatMoney } from '../../domain/pricing';
 import type { Ctx } from '../../http/context';
 import { badRequest, conflict, notFound } from '../../http/errors';
 import { sendResetOrThrow } from '../../services/password-reset';
+import { accessSummary } from '../../services/access-summary';
+import { attemptTitle } from '../../services/attempts';
+import { buildDashboard } from '../../services/dashboard';
+import { publicUser } from '../../services/public-user';
 import { countryCodes, inCodes, pageSchema } from './util';
 
 const FILTERS = ['all', 'active', 'free', 'expired', 'suspended'] as const;
@@ -123,6 +127,53 @@ export function adminUsersRouter(ctx: Ctx) {
     assertCountry(req.admin!, u.countryCode, 'user_not_found');
     return u;
   };
+
+  /** "Access will run until ...": the window a grant would get, before the admin confirms it. */
+  router.get('/users/:id/access-preview', requirePermission('users:read'), async (req, res) => {
+    const q = z.object({ days: z.coerce.number().int().min(1).max(365).optional(), countryCode: z.string().length(2).optional() }).parse(req.query);
+    const u = await loadUser(req);
+    const code = (q.countryCode ?? u.countryCode).toUpperCase();
+    assertCountry(req.admin!, code, 'country_not_found');
+    const plan = await prisma.planConfig.findFirst({ where: { countryCode: code, code: 'FULL_ACCESS', active: true } });
+    if (!plan) throw conflict('no_plan_for_country');
+    const days = q.days ?? plan.durationDays;
+    const existing = await prisma.accessGrant.findMany({ where: { userId: u.id, countryCode: code } });
+    const w = nextGrantWindow(existing, code, days, now());
+    res.json({ days, startsAt: w.startsAt, endsAt: w.endsAt, currentEndsAt: coveredUntil(existing, code, now()) });
+  });
+
+  /**
+   * "View as candidate", read only: what the person sees on their dashboard, their attempts and their payments, as data.
+   * It does not switch the session or sign anyone in as them. The look-up is written to the audit log.
+   */
+  router.get('/users/:id/candidate-view', requirePermission('users:read'), async (req, res) => {
+    const u = await loadUser(req);
+    const [country, dashboard, access, attempts, payments, methods] = await Promise.all([
+      prisma.country.findUniqueOrThrow({ where: { code: u.countryCode } }),
+      buildDashboard(ctx, u),
+      accessSummary(ctx, u.id, u.countryCode),
+      prisma.attempt.findMany({ where: { userId: u.id }, orderBy: [{ startedAt: 'desc' }, { id: 'desc' }], take: 20, include: { mockTest: true } }),
+      prisma.payment.findMany({ where: { userId: u.id }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 20, include: { accessGrant: { select: { endsAt: true } } } }),
+      prisma.paymentMethodConfig.findMany({ select: { countryCode: true, provider: true, label: true } }),
+    ]);
+    await writeAudit(prisma, req.admin!, { action: 'user.view_as_candidate', entityType: 'user', entityId: u.id, countryCode: u.countryCode, metadata: { targetName: u.name } });
+    res.json({
+      readOnly: true,
+      user: publicUser(u, []),
+      country: { code: country.code, name: country.name, currencyCode: country.currencyCode, languages: country.languages },
+      access, dashboard,
+      attempts: await Promise.all(attempts.map(async (a) => ({
+        id: a.id, kind: a.kind, title: await attemptTitle(prisma, a), status: a.status, startedAt: a.startedAt, submittedAt: a.submittedAt,
+        percent: a.percent === null ? null : Number(a.percent),
+      }))),
+      payments: payments.map((p) => ({
+        id: p.id, createdAt: p.createdAt, status: p.status, countryCode: p.countryCode, amountMinor: p.amountMinor, currencyCode: p.currencyCode,
+        priceLabel: formatMoney(p.amountMinor, p.currencyCode, country.currencyExponent),
+        providerLabel: methods.find((m) => m.countryCode === p.countryCode && m.provider === p.provider)?.label ?? p.provider,
+        transactionId: p.status === 'SUCCESSFUL' ? (p.transactionId ?? p.providerReference) : null, accessUntil: p.accessGrant?.endsAt ?? null,
+      })),
+    });
+  });
 
   /** Grant or extend Full Access by hand. Reason required; goes on top of whatever access they still have. */
   router.post('/users/:id/access', requirePermission('users:manage'), async (req, res) => {

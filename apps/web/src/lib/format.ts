@@ -4,6 +4,8 @@ const LANGUAGE_NAMES: Record<string, string> = { en: 'English', rw: 'Kinyarwanda
 const LANGUAGE_SHORT: Record<string, string> = { en: 'EN', rw: 'KIN', sw: 'SW' };
 
 export const languageName = (code: string) => LANGUAGE_NAMES[code] ?? code.toUpperCase();
+/** A language in its own name, as the language controls show it ("Ikinyarwanda"). */
+export const languageOwnName = (code: string) => (code === 'rw' ? 'Ikinyarwanda' : languageName(code));
 export const languageShort = (code: string) => LANGUAGE_SHORT[code] ?? code.toUpperCase();
 export const languageList = (codes: string[]) => codes.map(languageName).join(' · ');
 export const languageListShort = (codes: string[]) => codes.map(languageShort).join(' · ');

@@ -43,13 +43,13 @@ describe('Needs attention', () => {
     const [a] = buildAlerts(o, false);
     expect(a).toMatchObject({ title: '3 payments pending over 10 minutes', meta: 'MTN MoMo · oldest 24 min ago', action: 'Review', to: '/admin/payments?stuck=true' });
   });
-  it('reported questions go to Exams', () => {
-    expect(buildAlerts(o, false)[1]).toMatchObject({ title: '4 questions reported by candidates', meta: 'Secondary Mathematics Mock 1 · Q31 reported twice', to: '/admin/exams' });
+  it('reported questions go to the reports queue', () => {
+    expect(buildAlerts(o, false)[1]).toMatchObject({ title: '4 questions reported by candidates', meta: 'Secondary Mathematics Mock 1 · Q31 reported twice', to: '/admin/exams/reports' });
   });
   it('the top exam request is shown; the "support requests" row has no data and is not there', () => {
     const list = buildAlerts(o, false);
     expect(list).toHaveLength(3);
-    expect(list[2]).toMatchObject({ title: '“Veterinary officer” requested 7 times', action: 'Plan exam' });
+    expect(list[2]).toMatchObject({ title: '“Veterinary officer” requested 7 times', action: 'Plan exam', to: '/admin/exams/requests?q=Veterinary%20officer' });
     expect(list.map((x) => x.title).join(' ')).not.toMatch(/support/i);
   });
   it('rows with nothing to report are left out', () => {

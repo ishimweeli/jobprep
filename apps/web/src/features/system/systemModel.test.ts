@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { isMaintenanceResponse } from '../../lib/systemState';
-import { formatReference, isServerError, SYSTEM_COPY } from './systemModel';
+import { formatReference, isServerError, maintenanceBody, SYSTEM_COPY } from './systemModel';
 
 describe('system pages', () => {
   it('the error page shows the API request id as the Reference (JP-XXXX-XXXX)', () => {
@@ -30,5 +30,18 @@ describe('system pages', () => {
     expect(isMaintenanceResponse(502, true)).toBe(false); // provider_unavailable has its own screen
     expect(isMaintenanceResponse(500, false)).toBe(false);
     expect(isMaintenanceResponse(0, false)).toBe(false);
+  });
+});
+
+describe('maintenance text (C26)', () => {
+  const now = new Date('2026-11-05T10:00:00');
+  it('uses the default without an admin message and never invents a time', () => {
+    expect(maintenanceBody(null, 'Default.', now)).toBe('Default.');
+    expect(maintenanceBody({ message: null, backAt: null }, 'Default.', now)).toBe('Default.');
+  });
+  it('the admin message, and the return time when it is still ahead', () => {
+    expect(maintenanceBody({ message: 'Upgrading the database.', backAt: null }, 'Default.', now)).toBe('Upgrading the database.');
+    expect(maintenanceBody({ message: 'Upgrading.', backAt: new Date('2026-11-05T14:30:00').toISOString() }, 'Default.', now)).toBe('Upgrading. We expect to be back by 14:30.');
+    expect(maintenanceBody({ message: 'Upgrading.', backAt: new Date('2026-11-05T08:00:00').toISOString() }, 'Default.', now)).toBe('Upgrading.');
   });
 });

@@ -17,13 +17,10 @@ test.describe('Countries', () => {
     await expect(list.getByRole('button', { name: /Uganda/ })).toContainText('Planned');
     await expect(list.getByRole('button', { name: /Kenya/ })).toHaveAttribute('aria-pressed', 'true'); // as the artboard opens
 
-    if (isPhone(info)) {
-      await expect(page.getByRole('heading', { name: 'Kenya · ready to launch?' })).toBeVisible();
-    } else {
-      await expect(page.getByRole('heading', { level: 2, name: 'Kenya' })).toBeVisible();
-      await expect(page.getByText('jobprep.nexvecta.com/ke')).toBeVisible();
-      await expect(page.getByText('Before this country can go live')).toBeVisible();
-    }
+    // the same detail panel on both sizes (the phone used to show only a checklist card)
+    await expect(page.getByRole('heading', { level: 2, name: 'Kenya' })).toBeVisible();
+    await expect(page.getByText('jobprep.nexvecta.com/ke')).toBeVisible();
+    await expect(page.getByText('Before this country can go live')).toBeVisible();
     // the checklist comes from the API: price, payment, free samples, legal
     for (const item of ['Set the Full Access price', 'Move a payment method from sandbox to live', 'At least one free sample test in every category', 'Legal review of terms and refund policy']) {
       await expect(page.getByText(item)).toBeVisible();
@@ -50,28 +47,45 @@ test.describe('Countries', () => {
     w.expectClean();
   });
 
-  test('Save, Preview as candidate, + Add country, + Language and the editable-looking fields are drawn and change nothing', async ({ page, playwright }, info) => {
+  test('what has no server support stays visible but disabled with the reason; Save country waits for a change; Preview opens the candidate page', async ({ page, playwright }, info) => {
     await signInAs(page, playwright, 'system');
     await page.goto('/admin/countries?country=KE');
-    const inert = isPhone(info) ? ['Save Kenya', 'Preview as candidate', '+ Add country'] : ['Save country', 'Preview as candidate', '+ Add country', '+ Language'];
-    for (const name of inert) {
+    await expect(page.getByRole('heading', { level: 2, name: 'Kenya' })).toBeVisible();
+    // no endpoint for these: aria-disabled, with the reason in text
+    for (const name of ['+ Add country', '+ Language', 'Copy structure from Rwanda']) {
       const b = page.getByRole('button', { name });
       await expect(b).toHaveAttribute('aria-disabled', 'true');
       await b.dispatchEvent('click');
     }
+    await expect(page.getByText('Not available yet: countries are added on the server.')).toBeVisible();
     await expect(page.getByRole('dialog')).toHaveCount(0);
+    // nothing changed yet: nothing to save
+    await expect(page.getByRole('button', { name: 'Save country' })).toBeDisabled();
+    const preview = page.getByRole('link', { name: 'Preview as candidate' });
+    await expect(preview).toHaveAttribute('href', '/ke');
+    await expect(preview).toHaveAttribute('target', '_blank');
     await expect(page).toHaveURL(`${BASE}/admin/countries?country=KE`);
     if (!isPhone(info)) {
       await expect(page.getByLabel('Currency')).toHaveAttribute('readonly', '');
-      await expect(page.getByLabel('Full Access price')).toHaveAttribute('readonly', '');
+      await expect(page.getByLabel('Full Access price')).toHaveAttribute('readonly', ''); // changed through "Set price…" with a reason
     }
+    // an edit of the notice enables Save and the page warns before leaving
+    const notice = page.getByLabel('Independence notice shown in the footer and FAQ');
+    const original = await notice.inputValue();
+    await notice.fill(original + ' ');
+    await expect(page.getByRole('button', { name: 'Save country' })).toBeDisabled(); // a trailing space is not a change
+    await notice.fill(original + ' Edited.');
+    await expect(page.getByRole('button', { name: 'Save country' })).toBeEnabled();
+    await notice.fill(original);
+    await expect(page.getByRole('button', { name: 'Save country' })).toBeDisabled();
   });
 
-  test('Support and the editor cannot open Countries', async ({ page, playwright }) => {
+  test('Support and the editor are told they have no access (no redirect)', async ({ page, playwright }) => {
     for (const role of ['support', 'editor'] as const) {
       await signInAs(page, playwright, role);
       await page.goto('/admin/countries');
-      await expect(page).toHaveURL(`${BASE}/admin`);
+      await expect(page).toHaveURL(`${BASE}/admin/countries`);
+      await expect(page.getByRole('heading', { level: 1, name: 'You do not have access to this' })).toBeVisible();
     }
   });
 });

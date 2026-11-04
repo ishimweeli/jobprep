@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { attemptKeys, getAttempt, saveAnswers, submitAttempt } from '../../api/attempts';
 import { ErrorState, SkeletonList } from '../../components/states';
-import { countryPath, useActiveCountrySlug } from '../country/hooks';
+import { useLocale } from '../../lib/i18n';
+import { useActiveCountrySlug } from '../country/hooks';
 import { PracticeRunner } from '../practice/PracticeRunner';
+import { AttemptEnded } from './AttemptEnded';
 import { ExamRunner } from './ExamRunner';
 import { createQueueStore, mergeQueueOnto, type LocalAnswers } from './queue';
 import { SaveEngine } from './saveEngine';
@@ -16,9 +18,10 @@ import { SaveEngine } from './saveEngine';
 export function ExamPage() {
   const slug = useActiveCountrySlug();
   const { attemptId = '' } = useParams();
+  const locale = useLocale();
   const state = useQuery({
-    queryKey: attemptKeys.state(attemptId),
-    queryFn: () => getAttempt(attemptId),
+    queryKey: attemptKeys.state(attemptId, locale),
+    queryFn: () => getAttempt(attemptId, locale),
     staleTime: Infinity,
     gcTime: 0,
     retry: false,
@@ -48,7 +51,8 @@ export function ExamPage() {
       </main>
     );
   }
-  if (data?.finished) return <Navigate to={countryPath(slug, 'results', attemptId)} replace />;
+  // C9: an exam link whose attempt is already submitted says so and offers the results (and a new attempt).
+  if (data?.finished) return <AttemptEnded state={data} slug={slug} />;
   // A practice set has no clock, no autosave queue and its own screen (Practice.dc).
   if (data && !data.finished && data.attempt.kind === 'PRACTICE') return <PracticeRunner state={data} slug={slug} />;
   if (!data || !boot) {

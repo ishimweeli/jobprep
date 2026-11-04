@@ -24,14 +24,14 @@ describe('account menu items', () => {
     expect(items.find((i) => i.id === 'settings')).toMatchObject({ secondary: 'Name, email', to: '/account/settings' });
     expect(items.find((i) => i.id === 'progress')?.to).toBe('/rw/progress');
   });
-  it('Language has no picker design: drawn, with no destination', () => {
-    expect(items.find((i) => i.id === 'language')).toMatchObject({ secondary: 'English · Ikinyarwanda', to: null });
+  it('Language opens Account settings, where the language control lives', () => {
+    expect(items.find((i) => i.id === 'language')).toMatchObject({ secondary: 'English · Ikinyarwanda', to: '/account/settings' });
     expect(languageLine(['en', 'sw'])).toBe('English · Kiswahili');
   });
-  it('Help and support has no number to show: no second line, no destination', () => {
+  it('Help and support opens the Help page; the number is shown there, never in the menu', () => {
     const help = items.find((i) => i.id === 'help')!;
     expect(help.secondary).toBeNull();
-    expect(help.to).toBeNull();
+    expect(help.to).toBe('/help');
     expect(JSON.stringify(items)).not.toContain('[SUPPORT');
   });
 });

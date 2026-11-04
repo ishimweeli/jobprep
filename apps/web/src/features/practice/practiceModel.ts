@@ -60,12 +60,35 @@ export function practiceSummary(state: PracticeState): { answered: number; right
 
 export type FeedbackTone = 'correct' | 'incorrect' | 'partial';
 
-/** The feedback panel: "Correct", "Not quite — the answer is B", or for multiple-select "Partly correct". */
-export function feedbackFor(result: Pick<PracticeCheckResponse, 'state' | 'correct'>): { title: string; tone: FeedbackTone } {
-  if (result.state === 'correct') return { title: 'Correct', tone: 'correct' };
-  if (result.state === 'partial') return { title: 'Partly correct', tone: 'partial' };
+/**
+ * The feedback panel: "Correct", "Not quite — the answer is B", or for multiple-select "Partly correct", which also says how
+ * many of the right answers were found and which are right (a line the artboard does not draw: MISSING_DESIGNS C1 / new gaps).
+ */
+export function feedbackFor(result: Pick<PracticeCheckResponse, 'state' | 'correct'> & Partial<Pick<PracticeCheckResponse, 'yourAnswer'>>): { title: string; tone: FeedbackTone; detail: string | null } {
+  if (result.state === 'correct') return { title: 'Correct', tone: 'correct', detail: null };
+  if (result.state === 'partial') return { title: 'Partly correct', tone: 'partial', detail: partialDetail(result.correct, result.yourAnswer ?? []) };
   const keys = [...result.correct].sort().join(', ');
-  return { title: `Not quite — the answer ${result.correct.length === 1 ? 'is' : 'are'} ${keys}`, tone: 'incorrect' };
+  return { title: `Not quite — the ${result.correct.length === 1 ? 'answer is' : 'answers are'} ${keys}`, tone: 'incorrect', detail: null };
+}
+
+/** "You found 1 of 2 correct answers and chose 1 that is not correct. The correct answers are A, C." */
+export function partialDetail(correct: string[], yours: string[]): string {
+  const hits = yours.filter((k) => correct.includes(k)).length;
+  const wrong = yours.length - hits;
+  const found = `You found ${hits} of ${correct.length} correct ${correct.length === 1 ? 'answer' : 'answers'}`;
+  const extra = wrong > 0 ? ` and chose ${wrong} that ${wrong === 1 ? 'is' : 'are'} not correct` : '';
+  return `${found}${extra}. The correct ${correct.length === 1 ? 'answer is' : 'answers are'} ${[...correct].sort().join(', ')}.`;
+}
+
+/** The "Finish practice?" dialog text (counts are the questions checked so far). */
+export function finishPrompt(state: Pick<PracticeState, 'checked'>, total: number): { answered: number; unanswered: number; body: string } {
+  const answered = Object.keys(state.checked).length;
+  const unanswered = Math.max(0, total - answered);
+  const body =
+    unanswered === 0
+      ? `You have answered all ${total} ${total === 1 ? 'question' : 'questions'}.`
+      : `You have answered ${answered} of ${total} ${total === 1 ? 'question' : 'questions'}. The ${unanswered} you have not answered will be left out.`;
+  return { answered, unanswered, body: `${body} Practice answers don’t change your mock test scores.` };
 }
 
 /** The tag at the end of an option after checking: "✓ Correct" on a right option, "✕ Your answer" on a wrong pick. */

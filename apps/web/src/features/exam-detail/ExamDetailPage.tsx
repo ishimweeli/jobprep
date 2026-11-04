@@ -1,4 +1,3 @@
-import { t } from '@jobprep/shared';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { catalogKeys, getMockTest } from '../../api/catalog';
@@ -11,7 +10,8 @@ import { attemptScore, formatDate, languageList, passMarkDisplay } from '../../l
 import { useSession } from '../auth/session';
 import { formatClock } from '../exam/timer';
 import { useRemaining } from '../exam/useRemaining';
-import { answeredShare, attemptsLine, PRIMARY_LABEL, reviewLastLabel, unlockedState } from './detailsModel';
+import { useLocale, useT, untranslatedFor } from '../../lib/i18n';
+import { answeredShare, attemptsLine, lastAttempt, PRIMARY_LABEL, reviewLastLabel, unlockedState } from './detailsModel';
 import { GuestPaidDialog } from './GuestPaidDialog';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useIsDesktop } from '../../lib/useMediaQuery';
@@ -61,7 +61,7 @@ export function ExamDetailPage() {
     );
   }
 
-  const view = accessView(exam, slug);
+  const view = accessView(exam, slug, { signedIn: !!user });
   const guest = !user && !sessionLoading;
   const gateOpen = guest && exam.access.state === 'LOCKED' && params.get('gate') === 'paid';
   const closeGate = () => {
@@ -123,7 +123,20 @@ function Header({ exam }: { exam: ExamDetail }) {
       </div>
       <h1 className="m-0 text-2xl font-bold leading-[1.2] tracking-tight md:text-[28px] md:leading-[1.15]">{exam.title}</h1>
       {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2 md:text-[17px]">{exam.summary}</p>}
+      <EnglishOnlyNote languages={exam.languages} />
     </div>
+  );
+}
+
+/** "This test is available in English only": shown when another language is chosen and the test has no translation in it (C22). */
+export function EnglishOnlyNote({ languages }: { languages: string[] }) {
+  const locale = useLocale();
+  const t = useT();
+  if (!untranslatedFor(locale, languages)) return null;
+  return (
+    <p role="note" data-testid="english-only" className="m-0 self-start rounded-[10px] bg-soft px-3 py-2 text-[13px] font-semibold text-ink-2 md:text-sm">
+      {t('language.englishOnly')}
+    </p>
   );
 }
 
@@ -193,6 +206,7 @@ function Sections({ exam }: { exam: ExamDetail }) {
 }
 
 function Instructions({ exam }: { exam: ExamDetail }) {
+  const t = useT();
   const pass = passMarkDisplay(exam);
   return (
     <section aria-labelledby="ins" className={`${sectionCard} md:gap-3`}>
@@ -212,7 +226,7 @@ function Instructions({ exam }: { exam: ExamDetail }) {
         </p>
       ) : (
         <p className="m-0 rounded-[10px] bg-soft px-3 py-2.5 text-[13px] text-muted md:px-3.5 md:py-3 md:text-sm" data-testid="no-pass-mark">
-          {t('en', 'exam.noPassMark')}
+          {t('exam.noPassMark')}
         </p>
       )}
     </section>
@@ -257,7 +271,7 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
   const left = useRemaining(running?.remainingSeconds ?? 0);
   const startTo = countryPath(slug, 'tests', exam.slug, 'start');
   const primaryTo = running ? countryPath(slug, 'exam', running.attemptId) : startTo;
-  const last = exam.previousAttempts[0];
+  const last = lastAttempt(exam);
   const reviewLabel = reviewLastLabel(exam);
   const until = exam.access.accessEndsAt ? ` · until ${formatDate(exam.access.accessEndsAt, true)}` : '';
 
@@ -321,6 +335,7 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
               </div>
               <h1 className="m-0 text-2xl font-bold leading-[1.15] tracking-tight md:text-[28px]">{exam.title}</h1>
               {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2">{exam.summary}</p>}
+              <EnglishOnlyNote languages={exam.languages} />
             </div>
             <Facts exam={exam} />
             <Instructions exam={exam} />

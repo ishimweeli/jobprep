@@ -4,14 +4,15 @@ import { Link } from 'react-router-dom';
 import { attemptKeys, checkPracticeAnswer, saveAnswers, submitAttempt } from '../../api/attempts';
 import { ApiError } from '../../api/client';
 import type { AttemptState } from '../../api/types';
-import { buttonClasses } from '../../components/Button';
+import { Button, buttonClasses } from '../../components/Button';
+import { Dialog } from '../../components/Dialog';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath } from '../country/hooks';
 import { ChooseBadge } from '../exam/ExamParts';
 import {
-  canCheck, dominantTopic, feedbackFor, initialPracticeState, joinNames, optionTag, practiceProgress, practiceReducer, practiceSummary, type FeedbackTone,
+  canCheck, dominantTopic, feedbackFor, finishPrompt, initialPracticeState, joinNames, optionTag, practiceProgress, practiceReducer, practiceSummary, type FeedbackTone,
 } from './practiceModel';
 import { useStartPractice } from './useStartPractice';
 
@@ -32,6 +33,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
   const qc = useQueryClient();
   const [s, dispatch] = useReducer(practiceReducer, undefined, () => initialPracticeState(questions, attempt.answers));
   const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const topics = joinNames(questions.map((q) => q.topic.name));
   useDocumentTitle(s.finished ? 'Practice finished' : 'Practice');
   const more = useStartPractice(slug);
@@ -55,13 +57,12 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
   });
 
   const end = () => {
+    setConfirming(false);
     finish.mutate();
     dispatch({ type: 'end' });
   };
-  const next = () => {
-    if (s.index >= questions.length - 1) finish.mutate();
-    dispatch({ type: 'next', total: questions.length });
-  };
+  const isLast = s.index >= questions.length - 1;
+  const next = () => dispatch({ type: 'next', total: questions.length });
 
   const header = (
     <header className="shrink-0 border-b border-border bg-surface">
@@ -210,6 +211,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
           {fb && checked && (
             <div role="status" className={cx('flex flex-col gap-1.5 rounded-[14px] border px-4 py-3.5', FEEDBACK[fb.tone])}>
               <strong className="text-base">{fb.title}</strong>
+              {fb.detail && <p className="m-0 text-[15px] leading-normal">{fb.detail}</p>}
               {checked.explanation && <p className="m-0 text-[15px] leading-[1.6] text-ink">{checked.explanation}</p>}
             </div>
           )}
@@ -219,12 +221,12 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
             </p>
           )}
           <div className="flex flex-wrap items-center justify-between gap-2.5">
-            <button type="button" onClick={end} className="min-h-[48px] cursor-pointer border-0 bg-transparent px-1 text-[15px] font-semibold text-ink-2 md:min-h-[44px]">
+            <button type="button" onClick={() => setConfirming(true)} aria-haspopup="dialog" className="min-h-[48px] cursor-pointer border-0 bg-transparent px-1 text-[15px] font-semibold text-ink-2 md:min-h-[44px]">
               End practice
             </button>
             {checked ? (
-              <button type="button" onClick={next} className={buttonClasses({ variant: 'primary', size: 'lg', className: 'cursor-pointer' })}>
-                Next question
+              <button type="button" onClick={isLast ? () => setConfirming(true) : next} className={buttonClasses({ variant: 'primary', size: 'lg', className: 'cursor-pointer' })}>
+                {isLast ? 'Finish practice' : 'Next question'}
               </button>
             ) : (
               <button
@@ -240,6 +242,36 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
           </div>
         </div>
       </main>
+      <FinishDialog open={confirming} onClose={() => setConfirming(false)} onConfirm={end} prompt={finishPrompt(s, questions.length)} />
     </div>
+  );
+}
+
+/** "Finish practice?" (C1; not drawn, built like the exam's submit dialog): answered / not answered, then "Finish now" or "Keep practising". */
+function FinishDialog({ open, onClose, onConfirm, prompt }: { open: boolean; onClose: () => void; onConfirm: () => void; prompt: ReturnType<typeof finishPrompt> }) {
+  return (
+    <Dialog open={open} onClose={onClose} title="Finish practice?" variant="responsive" desktopPanelClassName="md:max-w-[440px] md:rounded-[20px] md:p-[26px]">
+      <div className="flex flex-col gap-3.5">
+        <p className="m-0 text-[15px] leading-[1.55] text-ink-2">{prompt.body}</p>
+        <dl className="m-0 grid grid-cols-2 gap-2">
+          <div className="rounded-control border border-border px-3 py-2.5">
+            <dt className="text-[13px] text-muted">Answered</dt>
+            <dd className="m-0 text-xl font-bold tabular">{prompt.answered}</dd>
+          </div>
+          <div className="rounded-control border border-border px-3 py-2.5">
+            <dt className="text-[13px] text-muted">Not answered</dt>
+            <dd className="m-0 text-xl font-bold tabular">{prompt.unanswered}</dd>
+          </div>
+        </dl>
+        <div className="flex flex-col gap-2 md:flex-row-reverse">
+          <Button variant="final" size="lg" onClick={onConfirm}>
+            Finish now
+          </Button>
+          <Button variant="neutral" size="lg" onClick={onClose}>
+            Keep practising
+          </Button>
+        </div>
+      </div>
+    </Dialog>
   );
 }

@@ -84,13 +84,13 @@ describe('account menu (AccountMenu.dc)', () => {
     expect(screen.getAllByRole('menuitem').map((e) => e.textContent).at(-2)).toBe('Admin');
   });
 
-  it('Language and Help are drawn but inert (no designs for their follow-ups)', async () => {
+  it('Language opens Account settings and Help and support opens the Help page', async () => {
     server([]);
     const user = userEvent.setup();
     renderMenu();
     await user.click(screen.getByRole('button', { name: /account menu/i }));
-    expect(screen.getByRole('menuitem', { name: /Language/ })).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('menuitem', { name: /Help and support/ })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: /Language/ })).toHaveAttribute('href', '/account/settings');
+    expect(screen.getByRole('menuitem', { name: /Help and support/ })).toHaveAttribute('href', '/help');
     expect(screen.queryByText(/SUPPORT PHONE/)).not.toBeInTheDocument();
   });
 

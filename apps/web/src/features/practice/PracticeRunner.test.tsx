@@ -88,7 +88,11 @@ describe('practice runner (Practice.dc)', () => {
     await u.click(screen.getByRole('button', { name: /Option C/ }));
     await u.click(screen.getByRole('button', { name: 'Check answer' }));
     expect(await screen.findByText('Correct')).toBeInTheDocument();
-    await u.click(screen.getByRole('button', { name: 'Next question' }));
+    // the last question offers "Finish practice", which asks first (answered / not answered)
+    await u.click(screen.getByRole('button', { name: 'Finish practice' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Finish practice?' });
+    expect(dialog).toHaveTextContent('You have answered all 2 questions.');
+    await u.click(screen.getByRole('button', { name: 'Finish now' }));
     expect(await screen.findByRole('heading', { name: 'Practice finished' })).toBeInTheDocument();
     expect(screen.getByText(/You answered/)).toHaveTextContent('You answered 2 questions on Statistics & probability and got 1 right. Practice answers don’t change your mock test scores.');
     expect(screen.getByRole('button', { name: 'Practise 2 more' })).toBeInTheDocument();
@@ -96,13 +100,35 @@ describe('practice runner (Practice.dc)', () => {
     await waitFor(() => expect(calls.some((c) => c.url === '/api/attempts/att1/submit')).toBe(true));
   });
 
-  it('End practice goes straight to the summary with what was answered so far', async () => {
+  it('End practice asks first with the counts; Keep practising goes back, Finish now shows the summary', async () => {
     server();
     const u = userEvent.setup();
     renderRunner([mk('q1', 1), mk('q2', 2)]);
     await u.click(screen.getByRole('button', { name: 'End practice' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Finish practice?' });
+    expect(dialog).toHaveTextContent('You have answered 0 of 2 questions. The 2 you have not answered will be left out.');
+    await u.click(screen.getByRole('button', { name: 'Keep practising' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Question 1 of 2' })).toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'End practice' }));
+    await u.click(screen.getByRole('button', { name: 'Finish now' }));
     expect(await screen.findByRole('heading', { name: 'Practice finished' })).toBeInTheDocument();
     expect(screen.getByText(/You answered/)).toHaveTextContent('You answered 0 questions');
+  });
+
+  it('a partly correct multiple-select answer says how many right answers were found', async () => {
+    mockFetch((url, init) => {
+      if (url === '/api/attempts/att1/answers' && init?.method === 'PUT') return { body: { results: [{ questionId: 'q1', status: 'saved' }] } };
+      if (url === '/api/attempts/att1/check' && init?.method === 'POST') return { body: { questionId: 'q1', state: 'partial', correct: ['A', 'C'], yourAnswer: ['A', 'B'], explanation: 'Because.' } };
+      return undefined;
+    });
+    const u = userEvent.setup();
+    renderRunner([mk('q1', 1, { multiple: true, type: 'MULTIPLE_SELECT', choose: 2 })]);
+    await u.click(screen.getByRole('checkbox', { name: /Option A/ }));
+    await u.click(screen.getByRole('checkbox', { name: /Option B/ }));
+    await u.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(await screen.findByText('Partly correct')).toBeInTheDocument();
+    expect(screen.getByText('You found 1 of 2 correct answers and chose 1 that is not correct. The correct answers are A, C.')).toBeInTheDocument();
   });
 
   it('a multiple-select practice question shows "Choose 2", caps picks and tells the user to unselect one', async () => {

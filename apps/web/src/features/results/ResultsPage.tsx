@@ -1,19 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { attemptKeys, getResult } from '../../api/attempts';
 import { isApiError } from '../../api/client';
 import type { ResultResponse } from '../../api/types';
-import { ActionLink } from '../../components/Button';
+import { ActionLink, Button, buttonClasses } from '../../components/Button';
 import { QueryError, SkeletonBar, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate } from '../../lib/format';
 import { signUpPath } from '../../lib/next';
 import { ROUTES_READY } from '../../lib/routesReady';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { StartPracticeLink } from '../practice/StartPracticeLink';
+import { useStartPractice } from '../practice/useStartPractice';
 import {
-  answerText, barHeight, deltaHeadline, historyLabel, marksLabel, percentLabel, ringDash, timeSpent, timeSpentChange, topicBarColor,
+  answerText, AUTO_SUBMITTED_LINE, barHeight, deltaHeadline, historyLabel, marksLabel, NOT_SAVED_BANNER, percentLabel, PRACTICE_NOTE, resultsFlags, resultsSummaryLine,
+  ringDash, SAVED_BANNER, timeSpent, timeSpentChange, topicBarColor,
 } from './resultsModel';
 
 const card = 'min-w-0 rounded-card border border-border bg-surface';
@@ -23,9 +26,22 @@ export function ResultsPage() {
   const { attemptId = '' } = useParams();
   const q = useQuery({ queryKey: attemptKeys.result(attemptId), queryFn: () => getResult(attemptId), retry: false, staleTime: 30_000 });
   useDocumentTitle('Your results');
+  const saved = useSearchParams()[0].get('saved') === '1';
+  const { user } = useSession();
 
   if (q.isError && isApiError(q.error) && q.error.code === 'attempt_in_progress') {
     return <Navigate to={countryPath(slug, 'exam', attemptId)} replace />;
+  }
+  // C18: the person just signed up from "Save my result" and the attempt could not be added to the account: a neutral note, no error tone.
+  if (q.isError && saved && user && isApiError(q.error) && (q.error.status === 404 || q.error.status === 403)) {
+    return (
+      <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[640px] flex-col gap-4 px-4 py-8 md:px-6">
+        <SavedNote tone="neutral" title={NOT_SAVED_BANNER.title} body={NOT_SAVED_BANNER.body} />
+        <Link to={countryPath(slug, 'progress')} className={buttonClasses({ variant: 'primary', size: 'lg' })}>
+          Go to My progress
+        </Link>
+      </main>
+    );
   }
   if (q.isError) {
     return (
@@ -45,16 +61,31 @@ export function ResultsPage() {
       </main>
     );
   }
-  return <ResultsView r={q.data} slug={slug} attemptId={attemptId} />;
+  return <ResultsView r={q.data} slug={slug} attemptId={attemptId} justSaved={saved && !!user && !q.data.isGuest} />;
 }
 
-function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; attemptId: string }) {
-  const headline = deltaHeadline(r.comparison?.deltaPoints ?? null);
+/** The "Saved." confirmation after Save my result (and its neutral twin). Same box style as the guest banner. */
+function SavedNote({ tone, title, body, action }: { tone: 'good' | 'neutral'; title: string; body: string; action?: React.ReactNode }) {
+  return (
+    <div role="status" className={cx('flex flex-col gap-2.5 rounded-[14px] border p-3.5 md:flex-row md:flex-wrap md:items-center md:gap-x-5 md:rounded-card md:px-5 md:py-4', tone === 'good' ? 'border-correct-line bg-correct-bg' : 'border-border bg-surface')}>
+      <p className="m-0 text-[15px] text-ink-2 md:flex-[1_1_360px]">
+        <strong className={tone === 'good' ? 'text-correct' : 'text-ink'}>{title}</strong> {body}
+      </p>
+      {action}
+    </div>
+  );
+}
+
+function ResultsView({ r, slug, attemptId, justSaved }: { r: ResultResponse; slug: string; attemptId: string; justSaved: boolean }) {
+  const flags = resultsFlags(r);
+  const practice = useStartPractice(slug);
+  const summaryLine = resultsSummaryLine(flags);
+  const headline = flags.showComparison ? deltaHeadline(r.comparison?.deltaPoints ?? null) : null;
   const submitted = formatDate(r.attempt.submittedAt, true);
   const reviewTo = countryPath(slug, 'review', attemptId);
   const tryTo = countryPath(slug, 'tests');
   const weak = r.weakestTopic;
-  const prev = r.comparison;
+  const prev = flags.showComparison ? r.comparison : null;
   const change = timeSpentChange(r.attempt.timeSpentSeconds, prev?.previousTimeSpentSeconds ?? null);
   const stats = [
     { label: 'Correct', value: String(r.counts.correct), dot: '#1E7A46' },
@@ -62,19 +93,33 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
     { label: 'Unanswered', value: String(r.counts.unanswered), dot: '#CDD4DE' },
     { label: 'Time spent', value: timeSpent(r.attempt.timeSpentSeconds), dot: '#164A7A' },
   ];
-  const savePath = signUpPath(countryPath(slug, 'results', attemptId));
+  const savePath = signUpPath(`${countryPath(slug, 'results', attemptId)}?saved=1`);
   const shortDate = formatDate(r.attempt.submittedAt, true);
 
   return (
     <div className="flex flex-1 flex-col bg-page">
       <header className="flex items-center justify-between border-b border-border bg-surface py-2 pl-4 pr-2 md:hidden">
-        <h1 className="m-0 text-[17px] font-semibold">Your results</h1>
+        <h1 className="m-0 text-[17px] font-semibold">{flags.isPractice ? 'Practice results' : 'Your results'}</h1>
         <Link to={countryPath(slug)} className="p-3 text-[15px] font-semibold text-ink no-underline hover:text-ink">
           Close
         </Link>
       </header>
 
       <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-4 py-4 outline-none md:gap-[22px] md:px-6 md:pb-16 md:pt-7">
+        {justSaved && (
+          <div className="order-1 md:order-1">
+            <SavedNote
+              tone="good"
+              title={SAVED_BANNER.title}
+              body={SAVED_BANNER.body}
+              action={
+                <Link to={countryPath(slug, 'progress')} className="self-start rounded-[10px] border border-brand bg-surface px-3.5 py-2.5 text-[15px] font-semibold text-brand no-underline hover:text-brand md:rounded-control md:px-4 md:py-[11px]">
+                  Go to My progress
+                </Link>
+              }
+            />
+          </div>
+        )}
         {r.isGuest && (
           <div className="order-4 flex flex-col gap-2.5 rounded-[14px] border border-brand-light bg-brand-softer p-3.5 md:order-1 md:flex-row md:flex-wrap md:items-center md:gap-x-5 md:gap-y-3 md:rounded-card md:px-5 md:py-4">
             <p className="m-0 text-[15px] text-ink-2 md:flex-[1_1_360px]">
@@ -100,7 +145,13 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
               {r.mockTest.title} · Submitted {submitted}
             </span>
           </span>
-          <h1 className="m-0 hidden text-[28px] tracking-tight md:block">Your results</h1>
+          <h1 className="m-0 hidden text-[28px] tracking-tight md:block">{flags.isPractice ? 'Practice results' : 'Your results'}</h1>
+          {flags.autoSubmitted && (
+            <span data-testid="auto-submitted" className="text-[13px] text-ink-2 md:text-sm">
+              {AUTO_SUBMITTED_LINE}
+            </span>
+          )}
+          {flags.isPractice && <span className="text-[13px] text-ink-2 md:text-sm">{PRACTICE_NOTE}</span>}
         </div>
 
         <section aria-label="Score summary" className="order-2 flex flex-col items-center gap-3.5 rounded-card border border-border bg-surface p-5 text-center md:order-3 md:flex-row md:flex-wrap md:gap-7 md:rounded-[20px] md:p-7 md:text-left">
@@ -115,7 +166,12 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
             </div>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-4 md:flex-[1_1_420px]">
-            {(headline || weak) && (
+            {summaryLine && (
+              <p className="m-0 text-base leading-normal md:text-lg" data-testid="results-summary-line">
+                {summaryLine}
+              </p>
+            )}
+            {!summaryLine && (headline || weak) && (
               <p className="m-0 text-base leading-normal md:text-lg">
                 {headline && prev && (
                   <>
@@ -166,7 +222,17 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
           <ActionLink ready={ROUTES_READY.review} to={reviewTo} variant="primary" className="md:flex-[1_1_220px]">
             Review Answers
           </ActionLink>
-          {r.canPractice && (
+          {flags.isPractice && flags.practiceAgainTopicId && (
+            <Button variant="secondary" size="sm" className="md:flex-[1_1_220px]" loading={practice.pending} onClick={() => (r.canPractice ? practice.startFromAttempt(attemptId) : practice.startTopic(flags.practiceAgainTopicId!))}>
+              Practice again
+            </Button>
+          )}
+          {practice.error && (
+            <span role="alert" className="text-sm font-semibold text-incorrect">
+              {practice.error}
+            </span>
+          )}
+          {!flags.isPractice && r.canPractice && (
             <StartPracticeLink
               attemptId={attemptId}
               slug={slug}
@@ -177,11 +243,11 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
           )}
           <ActionLink
             ready={ROUTES_READY.tryAnother}
-            to={tryTo}
+            to={flags.isPractice && !r.isGuest ? countryPath(slug, 'progress') : tryTo}
             variant="plain"
             className="!min-h-[44px] p-3 !text-[15px] md:flex-[1_1_220px] md:border-input-border md:!text-base"
           >
-            Try Another Mock Test
+            {flags.isPractice ? (r.isGuest ? 'Try a mock test' : 'Back to my progress') : 'Try Another Mock Test'}
           </ActionLink>
         </div>
 
@@ -213,7 +279,7 @@ function ResultsView({ r, slug, attemptId }: { r: ResultResponse; slug: string; 
             </ul>
           </section>
 
-          {prev && r.history.length > 1 && (
+          {flags.showComparison && (
             <section aria-labelledby="hist" className={cx(card, 'order-6 flex flex-col gap-2.5 rounded-card p-4 md:flex-[1_1_340px] md:gap-4 md:rounded-card-lg md:p-6')}>
               <h2 id="hist" className="m-0 text-[17px]">
                 <span className="md:hidden">Compared with last time</span>

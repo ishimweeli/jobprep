@@ -94,8 +94,8 @@ await expect(page.getByRole('article').first()).toContainText('Foundation');
     await page.goto('/rw/tests?q=Veterinary%20officer');
     await expect(page.getByText('No mock tests match “Veterinary officer” yet')).toBeVisible();
     await expect(count(page)).toContainText('0 mock tests');
-    // The request form is not designed: the button is drawn, inert.
-    await expect(page.getByRole('button', { name: 'Request this exam' })).toHaveAttribute('aria-disabled', 'true');
+    // The button opens the request dialog (web-missing-flows.spec.ts covers the form).
+    await expect(page.getByRole('button', { name: 'Request this exam' })).toHaveAttribute('aria-haspopup', 'dialog');
     await page.getByRole('button', { name: 'Clear search' }).click();
     await expect(page).not.toHaveURL(/q=/);
     await expect(page.getByRole('article').first()).toBeVisible();

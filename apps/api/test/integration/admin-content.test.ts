@@ -472,8 +472,9 @@ describe('candidate reports and the admin queue', () => {
     const r1 = await prisma.questionReport.create({ data: { questionId: q.id, message: 'Fix this please' } });
     const r2 = await prisma.questionReport.create({ data: { questionId: q.id, message: 'Not actually a problem' } });
     expect((await editor.post(`/api/admin/reports/${r1.id}/resolve`).send({})).body.status).toBe('RESOLVED');
-    expect((await editor.post(`/api/admin/reports/${r2.id}/dismiss`).send({})).body.status).toBe('DISMISSED');
-    expect((await editor.post(`/api/admin/reports/${r1.id}/dismiss`).send({})).body.error).toBe('report_already_closed');
+    expect((await editor.post(`/api/admin/reports/${r2.id}/dismiss`).send({})).body.error).toBe('reason_required'); // dismissing needs a reason
+    expect((await editor.post(`/api/admin/reports/${r2.id}/dismiss`).send({ reason: 'The question is fine as it is' })).body.status).toBe('DISMISSED');
+    expect((await editor.post(`/api/admin/reports/${r1.id}/dismiss`).send({ reason: 'Already handled' })).body.error).toBe('report_already_closed');
     const row = await prisma.questionReport.findUniqueOrThrow({ where: { id: r1.id }, include: { resolvedBy: true } });
     expect([row.status, row.resolvedBy?.name]).toEqual(['RESOLVED', 'Marie C.']);
     expect((await auditFor('report.resolve', r1.id))[0]!.actor?.name).toBe('Marie C.');

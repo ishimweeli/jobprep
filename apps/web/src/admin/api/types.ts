@@ -183,6 +183,8 @@ export type SettingsPatch = Partial<Pick<AdminSettings, 'stuckAfterMinutes' | 's
 export interface TeamMemberRole { code: AdminRole; label: string; countryScope: string[]; active: boolean }
 export interface TeamMember {
   id: string; name: string; email: string; active: boolean; countryScope: string[];
+  /** When the person last used the app (only if the API sends it). */
+  lastActiveAt?: string | null;
   /** Every role the person holds (an invite for an existing account adds one). The single-role fields below are the legacy shape. */
   roles?: TeamMemberRole[];
   role: AdminRole; roleLabel: string;
@@ -190,5 +192,83 @@ export interface TeamMember {
 export interface AuditEntry {
   id: string; at: string; actor: { id: string; name: string } | null; action: string; entityType: string; entityId: string | null;
   countryCode: string | null; reason: string | null; summary: string;
+  /** Names and values the API stored with the entry (old and new price, target name ...). Never secrets. */
+  metadata?: Record<string, unknown>;
 }
 export interface AuditPage { total: number; page: number; pageSize: number; results: AuditEntry[] }
+export interface AuditQuery {
+  actorId?: string; action?: string; entityType?: string; country?: string; from?: string; to?: string; page?: number; pageSize?: number;
+}
+
+// ───────────────────────── Actions on users and payments (A2-A5)
+export interface GrantAccessBody { days?: number; countryCode?: string; reason: string }
+export interface GrantAccessResult { grantId: string; endsAt: string; access: { state: AccessState; endsAt: string | null; daysLeft: number | null; expiredAt: string | null } }
+export interface PasswordResetResult { cooldownSeconds: number; expiresInSeconds: number }
+export interface PaymentDetail {
+  payment: {
+    id: string; status: PaymentStatus; provider: string; msisdn: string; createdAt: string; expiresAt: string; confirmedAt: string | null;
+    priceLabel: string | null; reference: string | null; transactionId: string | null; failureReason: string | null; countryCode: string;
+    /** Added with the missing-designs batch: what the buttons may do and how old the payment is. Absent on an older API. */
+    stuck?: boolean; waitingMinutes?: number | null; canCheck?: boolean; canManualGrant?: boolean; ageMinutes?: number;
+  };
+  user: { id: string; name: string; email: string };
+  events: { id: string; source: string; status: string; at: string }[];
+  grant: { id: string; source: string; startsAt: string; endsAt: string; grantedBy: string | null; reason: string | null } | null;
+}
+export interface ManualGrantResult { id: string; status: PaymentStatus; accessUntil: string | null }
+
+// ───────────────────────── Catalog (A7, A8)
+export interface CategoryRow {
+  id: string; countryCode: string; slug: string; name: string; description: string; icon: string; sortOrder: number; featured: boolean;
+  mockTests: number; topics: number; professions: number;
+}
+export interface CategoryBody { countryCode?: string; name?: string; description?: string; icon?: string; sortOrder?: number; featured?: boolean }
+export interface TopicRow { id: string; slug: string; name: string; questions: number }
+export interface SectionBody { name?: string; questionTypeLabel?: string; sortOrder?: number }
+export interface CaseTable { caption: string; rows: { label: string; value?: string; heading?: boolean }[] }
+export interface CaseStudy { id: string; mockTestId: string; title: string; passage: string[]; tables: CaseTable[]; notes: string[]; questions: number }
+export interface CaseBody { title?: string; passage?: string[]; tables?: CaseTable[]; notes?: string[] }
+
+// ───────────────────────── Mock tests (A9) and questions (A10)
+export interface MockTestFull {
+  id: string; slug: string; title: string; summary: string; status: TestStatus; isFree: boolean; difficulty: Difficulty; durationMinutes: number;
+  languages: string[]; instructions: string[]; countryCode: string; negativeMarkPerWrong: number; passMarkPercent: number | null;
+  passMarkSource: string | null; category: { id: string; name: string }; publishedAt: string | null;
+}
+/** `GET /mock-tests/:id` as the API really sends it (the list-friendly `MockTestDetail` above keeps only what the editor needs). */
+export interface MockTestDetailFull {
+  mockTest: MockTestFull;
+  sections: { id: string; name: string; questionTypeLabel: string; sortOrder: number; questionCount: number }[];
+  cases: { id: string; title: string }[];
+  questions: { id: string; number: number; stem: string; type: QuestionType; status: TestStatus; section: string; topic: string; marks: number; openReports: number }[];
+}
+export interface MockTestBody {
+  title?: string; summary?: string; categoryId?: string; examId?: string; professionId?: string; isFree?: boolean; difficulty?: Difficulty;
+  durationMinutes?: number; languages?: string[]; instructions?: string[]; negativeMarkPerWrong?: number; passMarkPercent?: number | null; passMarkSource?: string | null;
+}
+export interface CatalogOptionsFull extends CatalogOptions {
+  professions?: { id: string; categoryId: string; name: string; examId: string | null }[];
+  authorities?: { id: string; countryCode: string; shortName: string; name: string }[];
+}
+export interface QuestionCreateBody {
+  sectionId: string; stem: string; options: { key: string; text: string }[]; correct: string[]; type?: QuestionType; scoring?: 'ALL_OR_NOTHING' | 'PARTIAL';
+  choose?: number | null; explanation: string; topicId: string; caseId?: string | null; marks?: number; difficulty?: Difficulty; status?: 'DRAFT' | 'PUBLISHED';
+}
+
+// ───────────────────────── CSV import (A6) and reports (A11)
+export interface ImportRowProblem { row: number; column?: string; problem: string }
+export interface ImportSummary { totalRows: number; validRows: number; invalidRows: number; problems: ImportRowProblem[] }
+export type ImportResult = ({ dryRun: true } & ImportSummary) | ({ dryRun: false; created: number } & ImportSummary);
+export type ReportStatus = 'OPEN' | 'RESOLVED' | 'DISMISSED';
+export interface ReportRow {
+  id: string; message: string | null; createdAt: string; status: ReportStatus;
+  question: { id: string; number: number; stem: string }; mockTest: { id: string; title: string };
+}
+export interface ReportsPage { total: number; page: number; status: ReportStatus; results: ReportRow[] }
+
+// ───────────────────────── Countries (A14) and team (A13)
+export interface SupportContact { phone?: string | null; whatsapp?: string | null; email?: string | null; hours?: string | null }
+export interface CountryPatch { status?: CountryStatus; disclaimer?: string; legalReviewed?: boolean; reason?: string; force?: boolean; supportContact?: SupportContact }
+export interface PlanPatch { priceMinor: number; durationDays?: number; reason: string }
+export interface InviteBody { email: string; name: string; role: AdminRole; countryScope: string[]; reason: string }
+export interface TeamPatch { name?: string; role?: AdminRole; newRole?: AdminRole; countryScope?: string[]; active?: boolean; reason: string }

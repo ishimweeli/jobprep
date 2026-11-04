@@ -17,14 +17,10 @@ import {
 import { cx } from '../../lib/cx';
 import { plural } from '../../lib/format';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
-import { FilterPanel } from './FilterPanel';
-import { useCatalog } from './queries';
+import { FilterPanel, SORT_OPTIONS } from './FilterPanel';
+import { CATALOG_PAGE_SIZE, useCatalog } from './queries';
+import { RequestExamDialog } from './RequestExamDialog';
 import { ResultCard } from './ResultCard';
-
-const SORT_OPTIONS: { value: CatalogFilters['sort']; label: string }[] = [
-  { value: '', label: 'Most relevant' },
-  { value: 'recent', label: 'Newest' },
-];
 
 /** Exam discovery. All filters live in the query string (see lib/catalogFilters) so results are linkable. */
 export function CatalogPage() {
@@ -169,6 +165,7 @@ export function CatalogPage() {
               isFetching={catalog.isFetching}
               onRetry={() => void catalog.refetch()}
               onClear={clearAll}
+              paging={{ hasNextPage: !!catalog.hasNextPage, loadingMore: catalog.isFetchingNextPage, failed: catalog.nextPageFailed, onLoadMore: () => void catalog.fetchNextPage() }}
             />
 
           </section>
@@ -297,6 +294,7 @@ function Results({
   isFetching,
   onRetry,
   onClear,
+  paging,
 }: {
   slug: string;
   filters: CatalogFilters;
@@ -306,7 +304,9 @@ function Results({
   isFetching: boolean;
   onRetry: () => void;
   onClear: () => void;
+  paging: { hasNextPage: boolean; loadingMore: boolean; failed: boolean; onLoadMore: () => void };
 }) {
+  const [requesting, setRequesting] = useState(false);
   if (!data) {
     return isError ? (
       <QueryError error={error} what="the mock tests" onRetry={onRetry} retrying={isFetching} />
@@ -327,11 +327,11 @@ function Results({
       >
         <div className="flex flex-col items-center gap-3">
           {data.canRequestExam && (
-            // The request form is not designed: the button is drawn (States.dc) and inert.
             <button
               type="button"
-              aria-disabled="true"
-              className="min-h-touch cursor-default rounded-control border border-brand bg-surface px-[18px] text-[15px] font-semibold text-brand"
+              aria-haspopup="dialog"
+              onClick={() => setRequesting(true)}
+              className="min-h-touch cursor-pointer rounded-control border border-brand bg-surface px-[18px] text-[15px] font-semibold text-brand"
             >
               Request this exam
             </button>
@@ -340,6 +340,7 @@ function Results({
             {q ? 'Clear search' : 'Clear filters'}
           </Button>
         </div>
+        <RequestExamDialog open={requesting} onClose={() => setRequesting(false)} slug={slug} initialQuery={q} />
       </EmptyState>
     );
   }
@@ -351,6 +352,35 @@ function Results({
           <ResultCard key={t.id} slug={slug} test={t} />
         ))}
       </div>
+      <LoadMore total={data.total} shown={data.results.length} paging={paging} />
     </>
+  );
+}
+
+/** Load more, the loading-more state and the end of the list (C31; not drawn: the plainest controls in the existing style). */
+export function LoadMore({ total, shown, paging }: { total: number; shown: number; paging: { hasNextPage: boolean; loadingMore: boolean; failed: boolean; onLoadMore: () => void } }) {
+  if (paging.hasNextPage || paging.loadingMore) {
+    return (
+      <div className="flex flex-col items-center gap-2.5 pt-1" data-testid="load-more">
+        <p role="status" className="m-0 text-sm text-ink-2">
+          {paging.loadingMore ? 'Loading more mock tests…' : `Showing ${shown} of ${total}`}
+        </p>
+        {paging.failed && !paging.loadingMore && (
+          <p role="alert" className="m-0 text-sm font-semibold text-incorrect">
+            We could not load more mock tests. Check your connection and try again.
+          </p>
+        )}
+        <Button variant="secondary" size="lg" loading={paging.loadingMore} onClick={paging.onLoadMore}>
+          {paging.failed ? 'Try again' : 'Load more'}
+        </Button>
+      </div>
+    );
+  }
+  // One page only: nothing to say. More than one page loaded: the list ended.
+  if (shown <= CATALOG_PAGE_SIZE) return null;
+  return (
+    <p className="m-0 pt-1 text-center text-sm text-ink-2" data-testid="end-of-list">
+      That is all {total} mock tests.
+    </p>
   );
 }

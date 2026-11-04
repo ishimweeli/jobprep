@@ -2,13 +2,18 @@ import type { ExamDetail } from '../../api/types';
 
 /**
  * The three states of an unlocked test (ExamDetailUnlocked.dc): not started, in progress (Resume), taken before
- * (new attempt + "Review last attempt"). From `access.state === 'GRANTED'`, `inProgress` and `previousAttempts`.
+ * (new attempt + "Review last attempt"). From `access.state === 'GRANTED'`, `inProgress` and the finished full attempts:
+ * the API's `attemptStats` (count, best, last; practice sets are not counted) when present, else `previousAttempts`.
  */
 export type UnlockedState = 'not_started' | 'in_progress' | 'taken_before';
 
-export function unlockedState(exam: Pick<ExamDetail, 'inProgress' | 'previousAttempts'>): UnlockedState {
+type Attempts = Pick<ExamDetail, 'previousAttempts' | 'attemptStats'>;
+
+const attemptCount = (exam: Attempts): number => exam.attemptStats?.count ?? exam.previousAttempts.length;
+
+export function unlockedState(exam: Pick<ExamDetail, 'inProgress'> & Attempts): UnlockedState {
   if (exam.inProgress) return 'in_progress';
-  return exam.previousAttempts.length > 0 ? 'taken_before' : 'not_started';
+  return attemptCount(exam) > 0 ? 'taken_before' : 'not_started';
 }
 
 export const PRIMARY_LABEL: Record<UnlockedState, string> = {
@@ -19,20 +24,33 @@ export const PRIMARY_LABEL: Record<UnlockedState, string> = {
 
 const pct = (n: number) => `${Math.round(n)}%`;
 
+/** The last finished attempt: its id (the review target) and score. */
+export function lastAttempt(exam: Attempts): { id: string; percent: number | null } | null {
+  const s = exam.attemptStats?.last;
+  if (s) return { id: s.id, percent: s.percent };
+  const a = exam.previousAttempts[0];
+  return a ? { id: a.id, percent: a.percent } : null;
+}
+
 /** "Review last attempt · 58%" (the percent is left out when the attempt has none). */
-export function reviewLastLabel(exam: Pick<ExamDetail, 'previousAttempts'>): string | null {
-  const last = exam.previousAttempts[0];
+export function reviewLastLabel(exam: Attempts): string | null {
+  const last = lastAttempt(exam);
   if (!last) return null;
   return last.percent === null ? 'Review last attempt' : `Review last attempt · ${pct(last.percent)}`;
 }
 
-/** "Attempts: 2 · best 58% · unlimited attempts while your access lasts." The API lists at most 5 attempts. */
-export function attemptsLine(exam: Pick<ExamDetail, 'previousAttempts' | 'attempts'>, listLimit = 5): string | null {
+/** "Attempts: 2 · best 58% · unlimited attempts while your access lasts." Exact when the API sends `attemptStats`; else the API lists at most 5 attempts. */
+export function attemptsLine(exam: Attempts & Pick<ExamDetail, 'attempts'>, listLimit = 5): string | null {
+  const stats = exam.attemptStats;
   const list = exam.previousAttempts;
-  if (list.length === 0) return null;
-  const scores = list.map((a) => a.percent).filter((p): p is number => p !== null);
-  const parts = [`Attempts: ${list.length}${list.length >= listLimit ? '+' : ''}`];
-  if (scores.length > 0) parts.push(`best ${pct(Math.max(...scores))}`);
+  const count = attemptCount(exam);
+  if (count === 0) return null;
+  const best = stats ? stats.bestPercent : (() => {
+    const scores = list.map((a) => a.percent).filter((p): p is number => p !== null);
+    return scores.length > 0 ? Math.max(...scores) : null;
+  })();
+  const parts = [`Attempts: ${count}${!stats && list.length >= listLimit ? '+' : ''}`];
+  if (best !== null) parts.push(`best ${pct(best)}`);
   if (exam.attempts === 'UNLIMITED') parts.push('unlimited attempts while your access lasts');
   return `${parts.join(' · ')}.`;
 }

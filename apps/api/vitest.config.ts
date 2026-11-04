@@ -7,6 +7,8 @@ export default defineConfig({
     // Integration tests share one Postgres database, so files run one at a time.
     fileParallelism: false,
     testTimeout: 20_000,
+    // Resetting and re-seeding a database can take longer than 10 s when the machine is busy.
+    hookTimeout: 60_000,
     coverage: { provider: 'v8', include: ['src/domain/**'] },
   },
 });

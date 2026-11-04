@@ -55,7 +55,7 @@ test.describe('Users', () => {
     // nothing matches
     await group.getByRole('button', { name: 'All', exact: true }).click();
     await search(page, 'zzzzzznomatch');
-    await expect(page.getByText(isPhone(info) ? 'No users match.' : 'No users match this search.')).toBeVisible();
+    await expect(page.getByText('No users match this search.')).toBeVisible();
 
     // paging: the whole list has more than one page
     await search(page, '');
@@ -77,7 +77,7 @@ test.describe('Users', () => {
     await expect(page.getByRole('button', { name: 'All', exact: true })).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('detail: access state and days left, attempts, payments with the reference, inert actions with the audit note', async ({ page, playwright }, info) => {
+  test('detail: access state and days left, attempts, payments with the reference, live actions with the audit note', async ({ page, playwright }, info) => {
     const { paid, free } = await twoCandidates(playwright);
     await signInAs(page, playwright, 'system');
     await page.goto(`/admin/users?q=${q(paid.email)}`);
@@ -94,12 +94,14 @@ test.describe('Users', () => {
     await expect(detail.getByText('Paid', { exact: true })).toBeVisible();
     await expect(detail.getByText('Access changes ask for a reason and are recorded in the audit log.')).toBeVisible();
 
-    // the four buttons are drawn, announced as unavailable, and do nothing
-    for (const name of ['Grant / extend 30 days', 'Send password reset', 'View as candidate', 'Suspend account']) {
-      const b = detail.getByRole('button', { name });
-      await expect(b).toHaveAttribute('aria-disabled', 'true');
-      await b.dispatchEvent('click');
+    // the four buttons used to be inert; they are live now (e2e/admin-missing-users-payments.spec.ts covers what they do)
+    for (const name of ['Grant / extend 30 days', 'Send password reset', 'Suspend account']) {
+      await expect(detail.getByRole('button', { name })).not.toHaveAttribute('aria-disabled', 'true');
     }
+    await expect(detail.getByRole('link', { name: 'View as candidate' })).toHaveAttribute('href', /\/admin\/users\/[^/]+\/view$/);
+    await detail.getByRole('button', { name: 'Grant / extend 30 days' }).click();
+    await expect(page.getByRole('dialog', { name: /Grant|extend/i })).toBeVisible();
+    await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
 
     // a free candidate: Free badge, no payments
@@ -110,12 +112,13 @@ test.describe('Users', () => {
     await expectNoHorizontalScroll(page);
   });
 
-  test('support may open Users; the editor is sent away', async ({ page, playwright }) => {
+  test('support may open Users; the editor is told it has no access', async ({ page, playwright }) => {
     await signInAs(page, playwright, 'support');
     await page.goto('/admin/users');
     await expect(page.getByRole('heading', { level: 1, name: 'Users' })).toBeVisible();
     await signInAs(page, playwright, 'editor');
     await page.goto('/admin/users');
-    await expect(page).toHaveURL(`${BASE}/admin`);
+    await expect(page).toHaveURL(`${BASE}/admin/users`);
+    await expect(page.getByRole('heading', { level: 1, name: 'You do not have access to this' })).toBeVisible();
   });
 });
