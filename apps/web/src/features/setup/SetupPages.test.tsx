@@ -172,6 +172,21 @@ describe('setup 3 of 3: level, subject, exam date (OnboardGoal.dc)', () => {
     expect(patchBody(calls)).toEqual({ level: 'Secondary (S1–S3)', subject: 'Mathematics', examDate: '2026-12-14', finish: true });
   });
 
+  it('more than one subject can be picked at once, saved joined by a comma', async () => {
+    const { calls } = server({ session: at3 });
+    const u = userEvent.setup();
+    renderAt('/setup/goal');
+    await u.click(await screen.findByRole('button', { name: 'Mathematics' }));
+    await u.click(screen.getByRole('button', { name: 'Chemistry' }));
+    expect(screen.getByRole('button', { name: 'Mathematics' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Chemistry' })).toHaveAttribute('aria-pressed', 'true');
+    await u.click(screen.getByRole('button', { name: 'Mathematics' })); // toggled back off
+    expect(screen.getByRole('button', { name: 'Mathematics' })).toHaveAttribute('aria-pressed', 'false');
+    await u.click(screen.getByRole('button', { name: 'Finish setup' }));
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/progress'));
+    expect(patchBody(calls)).toEqual({ subject: 'Chemistry', examDate: null, finish: true });
+  });
+
   it('a date that is not a date is an inline message and nothing is saved', async () => {
     const { calls } = server({ session: at3 });
     const u = userEvent.setup();

@@ -48,7 +48,7 @@ export const onboardingSchema = z.object({
   countryCode: z.string().length(2).transform((s) => s.toUpperCase()).optional(),
   goalCategoryId: z.string().min(1).nullable().optional(),
   level: z.string().trim().min(1).max(80).nullable().optional(),
-  subject: z.string().trim().min(1).max(80).nullable().optional(),
+  subject: z.string().trim().min(1).max(200).nullable().optional(), // joined "Mathematics, Chemistry" when more than one is picked
   examDate: ymd.nullable().optional(),
   finish: z.boolean().optional(),
   skip: z.boolean().optional(),

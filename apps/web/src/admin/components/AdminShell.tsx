@@ -36,6 +36,7 @@ function Icon({ path, size, strokeWidth = 2 }: { path: string; size: number; str
 const AdminMark = () => <span className="rounded-md bg-dark px-[7px] py-[3px] text-[11px] font-semibold text-white">ADMIN</span>;
 
 const SIGN_OUT_ICON = 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9';
+const VIEW_SITE_ICON = 'M15 3h6v6 M10 14L21 3 M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6';
 
 function Sidebar({ items, pending }: { items: NavItem[]; pending: number }) {
   const admin = useAdmin();
@@ -89,6 +90,13 @@ function Sidebar({ items, pending }: { items: NavItem[]; pending: number }) {
             <span className="text-xs text-muted">{rolesLabel(admin.roles)}</span>
           </span>
         </div>
+        <Link
+          to="/"
+          className="flex min-h-11 items-center gap-2.5 rounded-[10px] px-2 text-[15px] font-medium text-ink no-underline hover:bg-soft hover:text-ink"
+        >
+          <span className="text-muted"><Icon path={VIEW_SITE_ICON} size={18} strokeWidth={1.8} /></span>
+          View site
+        </Link>
         <button
           type="button"
           onClick={() => void signOut.run()}
@@ -180,6 +188,13 @@ export function AdminShell({ title, back, headerExtra, gap = 18, children }: She
           )}
           <h1 className="m-0 flex-1 text-[19px]">{title}</h1>
           <AdminMark />
+          <Link
+            to="/"
+            aria-label="View site"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-[10px] text-muted no-underline hover:text-muted"
+          >
+            <Icon path={VIEW_SITE_ICON} size={20} />
+          </Link>
           <button
             type="button"
             aria-label="Sign out"

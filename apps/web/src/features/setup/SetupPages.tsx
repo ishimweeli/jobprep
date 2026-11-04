@@ -227,6 +227,39 @@ function Chips({ legend, options, value, onPick }: { legend: string; options: re
   );
 }
 
+/** "Mathematics, Chemistry" (as stored) back into the picked chips; also accepts an old single-subject value. */
+function splitSubjects(stored: string | null): string[] {
+  return stored ? stored.split(',').map((s) => s.trim()).filter(Boolean) : [];
+}
+
+/** Subject: more than one can apply (e.g. Mathematics and Chemistry), unlike the single-pick Level above it. */
+function MultiChips({ legend, options, value, onToggle }: { legend: string; options: readonly string[]; value: string[]; onToggle: (v: string) => void }) {
+  return (
+    <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+      <legend className="mb-2.5 p-0 text-sm font-semibold">{legend}</legend>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => {
+          const on = value.includes(o);
+          return (
+            <button
+              key={o}
+              type="button"
+              aria-pressed={on}
+              onClick={() => onToggle(o)}
+              className={cx(
+                'min-h-[44px] cursor-pointer rounded-pill border px-4 text-sm font-semibold',
+                on ? 'border-brand bg-brand-softer text-brand-hover' : 'border-border bg-surface text-ink',
+              )}
+            >
+              {o}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
 function GoalStep({ session }: { session: MeResponse }) {
   const navigate = useNavigate();
   const next = safeNext(useSearchParams()[0].get('next'));
@@ -235,9 +268,11 @@ function GoalStep({ session }: { session: MeResponse }) {
   const fromPaid = !!paidTestFromNext(next);
   const { save, error, busy } = useStepSaver();
   const [level, setLevel] = useState<string | null>(user.level);
-  const [subject, setSubject] = useState<string | null>(user.subject);
+  const [subjects, setSubjects] = useState<string[]>(() => splitSubjects(user.subject));
   const [date, setDate] = useState(formatExamDate(user.examDate));
   const [dateError, setDateError] = useState<string | null>(null);
+
+  const toggleSubject = (o: string) => setSubjects((prev) => (prev.includes(o) ? prev.filter((s) => s !== o) : [...prev, o]));
 
   const finish = (e: FormEvent) => {
     e.preventDefault();
@@ -247,6 +282,7 @@ function GoalStep({ session }: { session: MeResponse }) {
       return;
     }
     setDateError(null);
+    const subject = subjects.length ? subjects.join(', ') : null;
     void save(
       { ...(level ? { level } : {}), ...(subject ? { subject } : {}), examDate, finish: true },
       () => navigate(afterSetupPath(user, next), { replace: true }),
@@ -263,7 +299,7 @@ function GoalStep({ session }: { session: MeResponse }) {
       <form onSubmit={finish} noValidate className="flex flex-col gap-5 md:gap-[22px]">
         <AuthCard>
           <Chips legend="Level" options={LEVELS} value={level} onPick={setLevel} />
-          <Chips legend="Subject" options={SUBJECTS} value={subject} onPick={setSubject} />
+          <MultiChips legend="Subject" options={SUBJECTS} value={subjects} onToggle={toggleSubject} />
           <div className="flex min-w-0 flex-col gap-1.5">
             <label htmlFor="od" className="text-sm font-semibold">
               Exam date (optional)

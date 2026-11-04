@@ -18,7 +18,7 @@ const patchSchema = z.object({
   goalCategoryId: z.string().min(1).nullable().optional(),
   language: z.string().min(2).max(5).optional(),
   level: z.string().trim().min(1).max(80).nullable().optional(),
-  subject: z.string().trim().min(1).max(80).nullable().optional(),
+  subject: z.string().trim().min(1).max(200).nullable().optional(),
   examDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
 });
 const newPassword = z.string().min(PASSWORD_MIN).max(PASSWORD_MAX);

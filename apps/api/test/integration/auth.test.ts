@@ -1074,11 +1074,13 @@ describe('setup (onboarding)', () => {
 
   it('validates level, subject and exam date; null clears them', async () => {
     const { agent } = await signUp(nextEmail());
-    for (const body of [{ level: 'x'.repeat(81) }, { subject: 'x'.repeat(81) }, { level: '' }, { examDate: '2026-02-30' }, { examDate: '15/12/2026' }, { examDate: 'tomorrow' }, { finish: 'yes' }]) {
+    for (const body of [{ level: 'x'.repeat(81) }, { subject: 'x'.repeat(201) }, { level: '' }, { examDate: '2026-02-30' }, { examDate: '15/12/2026' }, { examDate: 'tomorrow' }, { finish: 'yes' }]) {
       const r = await patch(agent, body);
       expect([r.status, r.body.error], JSON.stringify(body)).toEqual([400, 'validation_error']);
     }
     expect((await patch(agent, { level: 'x'.repeat(80) })).status).toBe(200);
+    // longer than a single subject, short enough for several joined by ", " (the setup page lets more than one be picked)
+    expect((await patch(agent, { subject: 'Mathematics, Chemistry, Biology' })).status).toBe(200);
     await patch(agent, { subject: 'Biology', examDate: '2026-12-01' });
     const cleared = await patch(agent, { level: null, subject: null, examDate: null });
     expect(cleared.body.user).toMatchObject({ level: null, subject: null, examDate: null });
