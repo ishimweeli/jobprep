@@ -94,6 +94,8 @@ export function CountryLayout() {
       </SiteShell>
     );
   }
+  // Signed in: the marketing landing page is only useful before an account exists, so go straight to the mock tests.
+  if (landing && user) return <Navigate to={countryPath(slug, 'tests')} replace />;
 
   return (
     <SiteShell landing={landing}>
