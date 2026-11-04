@@ -15,7 +15,6 @@
     "db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
     "db:reset": "dotenv -e ../../.env -- prisma migrate reset --force --skip-seed --skip-generate && tsx --env-file=../../.env prisma/seed.ts",
     "seed": "tsx --env-file=../../.env prisma/seed.ts",
-    "start:mail": "tsx --env-file=../../.env --env-file=../../.env.mail src/server.ts",
     "admin:create": "tsx prisma/create-admin.ts"
   },
   "prisma": {

@@ -20,6 +20,8 @@ export default defineConfig({
     {
       command: 'npm run start -w @jobprep/api',
       url: `http://localhost:${API_PORT}/api/health`,
+      // .env has real SMTP settings now: the suites make hundreds of accounts, so they must never send real email.
+      env: { EMAIL_PROVIDER: 'console' },
       reuseExistingServer: true,
       timeout: 60_000,
     },
@@ -36,7 +38,7 @@ export default defineConfig({
       command: 'npm run start -w @jobprep/api',
       url: 'http://localhost:4001/api/health',
       // The same few admin emails sign in many times per run, so the per-email code cooldown and hourly cap are relaxed on this test API only.
-      env: { PORT: '4001', WEB_ORIGIN: 'http://localhost:5174', OTP_RESEND_COOLDOWN_SECONDS: '0', OTP_MAX_PER_HOUR: '1000', ...(process.env.ADMIN_E2E_DATABASE_URL ? { DATABASE_URL: process.env.ADMIN_E2E_DATABASE_URL } : {}) },
+      env: { PORT: '4001', EMAIL_PROVIDER: 'console', WEB_ORIGIN: 'http://localhost:5174', OTP_RESEND_COOLDOWN_SECONDS: '0', OTP_MAX_PER_HOUR: '1000', ...(process.env.ADMIN_E2E_DATABASE_URL ? { DATABASE_URL: process.env.ADMIN_E2E_DATABASE_URL } : {}) },
       reuseExistingServer: true,
       timeout: 60_000,
     },
