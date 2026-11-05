@@ -30,17 +30,27 @@ export function formatDate(iso: string | null | undefined, withYear = false): st
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', ...(withYear ? { year: 'numeric' } : {}) });
 }
 
-/** "Closes today" / "Closes tomorrow" / "Closes in 5 days" for a mock's linked job-application deadline. Null once it's passed (the list already excludes those). */
-export function jobDeadlineLabel(iso: string | null | undefined): string | null {
+export interface JobDeadlineLabel {
+  text: string;
+  /** Past its deadline: render with a quieter tone than a still-open one. */
+  closed: boolean;
+}
+
+/**
+ * "Application closes today" / "... tomorrow" / "... in 5 days" while open, or "Application closed 12 days ago ·
+ * 24 Oct" once it's passed — the exact closed date lets someone who remembers a specific posting confirm this is
+ * the same mock they were looking for, instead of the badge just disappearing once the deadline is gone.
+ */
+export function jobDeadlineLabel(iso: string | null | undefined): JobDeadlineLabel | null {
   if (!iso) return null;
   const deadline = new Date(iso);
   if (Number.isNaN(deadline.getTime())) return null;
   const msPerDay = 24 * 60 * 60 * 1000;
   const days = Math.ceil((deadline.getTime() - Date.now()) / msPerDay);
-  if (days < 0) return null;
-  if (days === 0) return 'Closes today';
-  if (days === 1) return 'Closes tomorrow';
-  return `Closes in ${days} days`;
+  if (days < 0) return { text: `Application closed ${plural(-days, 'day')} ago · ${formatDate(iso)}`, closed: true };
+  if (days === 0) return { text: 'Application closes today', closed: false };
+  if (days === 1) return { text: 'Application closes tomorrow', closed: false };
+  return { text: `Application closes in ${days} days`, closed: false };
 }
 
 /** "31 / 50 · 62%" — only the parts the API actually returned. */

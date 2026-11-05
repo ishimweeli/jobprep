@@ -16,7 +16,7 @@ export function ResultCard({ slug, test }: { slug: string; test: TestCard }) {
         <div className="flex flex-wrap items-center justify-between gap-2 md:justify-start">
           <span className="text-[11px] font-bold uppercase tracking-[0.05em] text-heading md:text-[12px]">{test.category.name}</span>
           <div className="flex items-center gap-1.5">
-            {deadlineLabel && <Badge tone="brand">{deadlineLabel}</Badge>}
+            {deadlineLabel && <Badge tone={deadlineLabel.closed ? 'neutral' : 'brand'}>{deadlineLabel.text}</Badge>}
             <AccessBadge isFree={test.isFree} />
           </div>
         </div>
