@@ -35,10 +35,10 @@ describe('palette (the Mwalimu Tools artboards)', () => {
     expect(colors.partial.bg).toBe('#FFEDD5');
   });
 
-  it('uses the smaller corner radii: cards 16px, controls 10px', () => {
-    expect(radii.card).toBe('16px');
-    expect(radii['card-lg']).toBe('16px');
-    expect(radii.control).toBe('10px');
+  it('uses the tightened corner radii (the "serious, institutional" pass): cards 10px, controls 8px', () => {
+    expect(radii.card).toBe('10px');
+    expect(radii['card-lg']).toBe('10px');
+    expect(radii.control).toBe('8px');
     expect(colors.dark).toBe(colors.brand.DEFAULT);
   });
 

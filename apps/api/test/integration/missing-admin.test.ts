@@ -545,9 +545,16 @@ describe('country actions: provider status, support contact, impact', () => {
     expect(fake).toMatchObject({ adapter: 'fake', credentialsConfigured: true });
     const direct = createApp({ prisma, config: testConfig({ PAYMENT_PROVIDER_MODE: 'sandbox' }), email: mail, now: () => clock });
     const d = await adminAgent(direct, mail, ADMINS.SYSTEM);
-    const dm = (await d.get('/api/admin/countries/RW')).body.paymentMethods[0].providerStatus;
-    expect(dm).toMatchObject({ adapter: 'direct', credentialsConfigured: false });
-    expect(dm.callbackUrl).toMatch(/\/api\/payments\/webhooks\/(mtn-momo|airtel-money)$/);
+    const directMethods = (await d.get('/api/admin/countries/RW')).body.paymentMethods as { provider: string; providerStatus: { adapter: string; credentialsConfigured: boolean; callbackUrl: string } }[];
+    // MTN MoMo and Airtel Money no longer have a direct adapter (pawaPay is their only path): no credentials, no webhook.
+    const mtnDirect = directMethods.find((m) => m.provider === 'MTN_MOMO')!.providerStatus;
+    expect(mtnDirect).toMatchObject({ adapter: 'direct', credentialsConfigured: false, callbackUrl: '' });
+    // M-Pesa still has a direct adapter.
+    const mpesaDirect = directMethods.find((m) => m.provider === 'MPESA')?.providerStatus;
+    if (mpesaDirect) {
+      expect(mpesaDirect.adapter).toBe('direct');
+      expect(mpesaDirect.callbackUrl).toMatch(/\/api\/payments\/webhooks\/mpesa$/);
+    }
   });
 
   it('last payment times follow the payments', async () => {

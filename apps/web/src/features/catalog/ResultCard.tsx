@@ -11,10 +11,10 @@ import { countryPath } from '../country/hooks';
 export function ResultCard({ slug, test }: { slug: string; test: TestCard }) {
   const deadlineLabel = jobDeadlineLabel(test.jobDeadlineAt);
   return (
-    <article className="relative flex flex-col gap-2 rounded-[14px] border border-border bg-surface p-3.5 md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-4 md:rounded-card md:p-5">
+    <article className="relative flex flex-col gap-2 rounded-card border border-border-strong bg-surface p-3.5 md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-4 md:p-5">
       <div className="flex min-w-0 flex-col gap-2 md:flex-[1_1_360px]">
         <div className="flex flex-wrap items-center justify-between gap-2 md:justify-start">
-          <span className="text-xs font-semibold text-muted md:text-[13px]">{test.category.name}</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.05em] text-heading md:text-[12px]">{test.category.name}</span>
           <div className="flex items-center gap-1.5">
             {deadlineLabel && <Badge tone="brand">{deadlineLabel}</Badge>}
             <AccessBadge isFree={test.isFree} />
@@ -35,7 +35,7 @@ export function ResultCard({ slug, test }: { slug: string; test: TestCard }) {
       <Link
         to={countryPath(slug, 'tests', test.slug)}
         aria-label={`View test: ${test.title}`}
-        className="inline-flex min-h-[44px] items-center justify-center rounded-control bg-brand px-[22px] text-[15px] font-semibold text-white no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:bg-brand-hover hover:text-white max-md:absolute max-md:inset-0 max-md:min-h-0 max-md:rounded-[14px] max-md:bg-transparent max-md:px-0 max-md:text-[0] max-md:hover:bg-transparent md:flex-none"
+        className="inline-flex min-h-[44px] items-center justify-center rounded-control bg-brand px-[22px] text-[15px] font-semibold text-white no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:bg-brand-hover hover:text-white max-md:absolute max-md:inset-0 max-md:min-h-0 max-md:rounded-card max-md:bg-transparent max-md:px-0 max-md:text-[0] max-md:hover:bg-transparent md:flex-none"
       >
         View test
       </Link>

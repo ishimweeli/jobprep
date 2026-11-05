@@ -1,8 +1,6 @@
 import type { Config } from '../config';
-import { AirtelMoneyProvider } from './airtel';
 import { FakeProvider } from './fake';
 import { MpesaProvider } from './mpesa';
-import { MtnMomoProvider } from './mtn';
 import { PawaPayProvider } from './pawapay';
 import type { FetchLike, PaymentProvider, ProviderCode } from './types';
 
@@ -57,34 +55,21 @@ export function createProviderRegistry(config: Config, fetchFn?: FetchLike): Pro
     };
   }
 
-  const real: Record<Exclude<ProviderCode, 'FAKE'>, PaymentProvider> = {
-    MTN_MOMO: new MtnMomoProvider({
-      baseUrl: config.MTN_MOMO_BASE_URL, subscriptionKey: config.MTN_MOMO_SUBSCRIPTION_KEY, apiUser: config.MTN_MOMO_API_USER,
-      apiKey: config.MTN_MOMO_API_KEY, targetEnvironment: config.MTN_MOMO_TARGET_ENV, callbackSecret: config.MTN_MOMO_CALLBACK_SECRET,
-    }, fetchFn),
-    AIRTEL_MONEY: new AirtelMoneyProvider({
-      baseUrl: config.AIRTEL_BASE_URL, clientId: config.AIRTEL_CLIENT_ID, clientSecret: config.AIRTEL_CLIENT_SECRET,
-      callbackSecret: config.AIRTEL_CALLBACK_SECRET,
-    }, fetchFn),
-    MPESA: new MpesaProvider({
-      baseUrl: config.MPESA_BASE_URL, consumerKey: config.MPESA_CONSUMER_KEY, consumerSecret: config.MPESA_CONSUMER_SECRET,
-      shortcode: config.MPESA_SHORTCODE, passkey: config.MPESA_PASSKEY, callbackSecret: config.MPESA_CALLBACK_SECRET,
-    }, fetchFn),
-  };
-  const secrets: Record<Exclude<ProviderCode, 'FAKE'>, string> = {
-    MTN_MOMO: config.MTN_MOMO_CALLBACK_SECRET, AIRTEL_MONEY: config.AIRTEL_CALLBACK_SECRET, MPESA: config.MPESA_CALLBACK_SECRET,
-  };
+  // Without a pawaPay token, M-Pesa is the only adapter left that still talks to its operator directly (MTN MoMo and
+  // Airtel Money's direct adapters were retired once pawaPay became the sole live path — see config.ts's production
+  // check, which no longer requires their secrets). This branch exists for M-Pesa sandbox testing only.
+  const mpesa = new MpesaProvider({
+    baseUrl: config.MPESA_BASE_URL, consumerKey: config.MPESA_CONSUMER_KEY, consumerSecret: config.MPESA_CONSUMER_SECRET,
+    shortcode: config.MPESA_SHORTCODE, passkey: config.MPESA_PASSKEY, callbackSecret: config.MPESA_CALLBACK_SECRET,
+  }, fetchFn);
   return {
     get: (code) => {
-      if (code === 'FAKE') throw new Error('fake provider is not enabled in this mode');
-      return real[code];
+      if (code !== 'MPESA') throw new Error(`${code} has no direct adapter (pawaPay is not configured): set PAWAPAY_API_TOKEN`);
+      return mpesa;
     },
-    fromSlug: (slug) => {
-      const entry = (Object.entries(WEBHOOK_SLUGS) as [ProviderCode, string][]).find(([, s]) => s === slug);
-      return entry && entry[0] !== 'FAKE' ? real[entry[0]] : null;
-    },
+    fromSlug: (slug) => (slug === WEBHOOK_SLUGS.MPESA ? mpesa : null),
     fake: null,
     callbackUrl: (code) =>
-      code === 'FAKE' ? '' : `${base}/api/payments/webhooks/${WEBHOOK_SLUGS[code]}?token=${encodeURIComponent(secrets[code])}`,
+      code === 'MPESA' ? `${base}/api/payments/webhooks/${WEBHOOK_SLUGS.MPESA}?token=${encodeURIComponent(config.MPESA_CALLBACK_SECRET)}` : '',
   };
 }

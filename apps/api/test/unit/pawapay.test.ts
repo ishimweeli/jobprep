@@ -215,10 +215,11 @@ describe('registry and config with pawaPay', () => {
     expect(() => r.get('FAKE')).toThrow();
   });
 
-  it('without a token the direct adapters are used and pawaPay is not reachable', () => {
+  it('without a token pawaPay is not reachable; M-Pesa is the only remaining direct adapter', () => {
     const r = createProviderRegistry(loadConfig({ ...env, PAYMENT_PROVIDER_MODE: 'sandbox' }));
     expect(r.fromSlug('pawapay')).toBeNull();
-    expect(r.get('MTN_MOMO').code).toBe('MTN_MOMO');
+    expect(r.get('MPESA').code).toBe('MPESA');
+    expect(() => r.get('MTN_MOMO')).toThrow();
   });
 
   it('defaults', () => {

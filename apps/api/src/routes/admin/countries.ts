@@ -42,9 +42,9 @@ export async function goLiveChecklist(prisma: PrismaClient, code: string): Promi
 export function providerStatus(ctx: Ctx, provider: PaymentProviderCode) {
   const c = ctx.config;
   const adapter = c.PAYMENT_PROVIDER_MODE === 'fake' ? 'fake' : c.PAWAPAY_API_TOKEN ? 'pawapay' : 'direct';
-  const direct: Record<string, string[]> = {
-    MTN_MOMO: [c.MTN_MOMO_SUBSCRIPTION_KEY, c.MTN_MOMO_API_USER, c.MTN_MOMO_API_KEY, c.MTN_MOMO_CALLBACK_SECRET],
-    AIRTEL_MONEY: [c.AIRTEL_CLIENT_ID, c.AIRTEL_CLIENT_SECRET, c.AIRTEL_CALLBACK_SECRET],
+  // MTN MoMo and Airtel Money's direct adapters were retired once pawaPay became the sole live path (registry.ts) —
+  // M-Pesa is the only provider the 'direct' adapter mode can still serve.
+  const direct: Partial<Record<string, string[]>> = {
     MPESA: [c.MPESA_CONSUMER_KEY, c.MPESA_CONSUMER_SECRET, c.MPESA_SHORTCODE, c.MPESA_PASSKEY, c.MPESA_CALLBACK_SECRET],
   };
   const credentialsConfigured = adapter === 'fake' ? true

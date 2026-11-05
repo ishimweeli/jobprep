@@ -42,16 +42,8 @@ const schema = z.object({
   /** Public URL operators call back to (webhooks). */
   PUBLIC_API_URL: z.string().url().default('http://localhost:4000'),
   FAKE_WEBHOOK_SECRET: z.string().default('fake-webhook-secret-dev-only'),
-  MTN_MOMO_BASE_URL: z.string().default('https://sandbox.momodeveloper.mtn.com'),
-  MTN_MOMO_SUBSCRIPTION_KEY: z.string().default(''),
-  MTN_MOMO_API_USER: z.string().default(''),
-  MTN_MOMO_API_KEY: z.string().default(''),
-  MTN_MOMO_TARGET_ENV: z.string().default('sandbox'),
-  MTN_MOMO_CALLBACK_SECRET: z.string().default(''),
-  AIRTEL_BASE_URL: z.string().default('https://openapiuat.airtel.africa'),
-  AIRTEL_CLIENT_ID: z.string().default(''),
-  AIRTEL_CLIENT_SECRET: z.string().default(''),
-  AIRTEL_CALLBACK_SECRET: z.string().default(''),
+  /** M-Pesa is the only direct (non-pawaPay) adapter left — MTN MoMo and Airtel Money's direct adapters were retired
+   * once pawaPay became the sole live provider (see registry.ts and the production check below). */
   MPESA_BASE_URL: z.string().default('https://sandbox.safaricom.co.ke'),
   MPESA_CONSUMER_KEY: z.string().default(''),
   MPESA_CONSUMER_SECRET: z.string().default(''),
@@ -94,7 +86,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     if (!cfg.PUBLIC_API_URL.startsWith('https://')) problems.push('PUBLIC_API_URL must be https in production');
     if (!cfg.WEB_ORIGIN.startsWith('https://')) problems.push('WEB_ORIGIN must be https in production');
     // pawaPay is the live provider. It cannot sign callbacks, so the secret in the callback URL is the only authentication;
-    // an empty secret would reject every real payment. (The direct MTN/Airtel/M-Pesa adapters are not required here.)
+    // an empty secret would reject every real payment. (M-Pesa's direct adapter is not required here; MTN MoMo and
+    // Airtel Money no longer have direct adapters at all — pawaPay is the only path to those operators now.)
     if (cfg.PAWAPAY_CALLBACK_SECRET.length < 16) problems.push('PAWAPAY_CALLBACK_SECRET must be set (at least 16 characters)');
     // Google sign-in is optional, but half a configuration is a mistake that would fail at the first click.
     if (!!cfg.GOOGLE_CLIENT_ID !== !!cfg.GOOGLE_CLIENT_SECRET) problems.push('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set together (or both left empty)');

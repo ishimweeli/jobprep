@@ -45,12 +45,17 @@ export const colors = {
   free: { DEFAULT: '#1E6B3C', bg: '#E3F4E8' },
 } as const;
 
+/**
+ * Tightened from the original 10-16px range (the "serious, institutional exam board" pass): less rounding
+ * reads as more authoritative and less like a generic consumer/SaaS template. `pill` is kept for the few
+ * genuinely pill-shaped things left (segmented-group thumb etc.) — badges and category chips moved off it.
+ */
 export const radii = {
-  control: '10px', // buttons, inputs, selects
-  card: '16px',
-  'card-lg': '16px', // same as card since the typography/shape pass (ba8f27b)
-  tiles: '14px', // stat tiles, category cards
-  tables: '12px', // table containers
+  control: '8px', // buttons, inputs, selects
+  card: '10px',
+  'card-lg': '10px', // same as card since the typography/shape pass (ba8f27b)
+  tiles: '8px', // stat tiles, category cards
+  tables: '8px', // table containers
   pill: '9999px',
 } as const;
 

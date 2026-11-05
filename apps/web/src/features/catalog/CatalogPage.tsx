@@ -149,7 +149,7 @@ export function CatalogPage() {
                 <select
                   value={filters.sort}
                   onChange={(e) => update({ sort: e.target.value as CatalogFilters['sort'] })}
-                  className="h-10 rounded-[10px] border border-input-border bg-surface px-2.5 text-sm text-ink"
+                  className="h-10 rounded-control border border-input-border bg-surface px-2.5 text-sm text-ink"
                 >
                   {SORT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>

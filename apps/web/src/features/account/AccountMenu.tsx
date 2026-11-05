@@ -7,13 +7,13 @@ import { initials } from '../../lib/format';
 import { accountMenuItems, type AccountMenuItem } from './accountMenuModel';
 import { useSignOut } from './useSignOut';
 
-/** Avatar circle with the user's initials. */
+/** Avatar badge with the user's initials. A squared-off corner (not a circle) reads closer to an ID badge than a social-app avatar. */
 export function Avatar({ name, size = 40 }: { name: string; size?: 40 | 44 | 48 }) {
   return (
     <span
       aria-hidden="true"
       className={cx(
-        'inline-flex flex-none items-center justify-center rounded-full bg-brand-soft font-semibold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand',
+        'inline-flex flex-none items-center justify-center rounded-[8px] bg-brand-soft font-bold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand',
         size === 40 ? 'h-10 w-10' : size === 44 ? 'h-11 w-11' : 'h-12 w-12',
       )}
     >
@@ -107,7 +107,7 @@ export function AccountMenu({ session, slug }: { session: MeResponse; slug: stri
         // The name starts with the visible initials (WCAG 2.5.3 label in name).
         aria-label={`${initials(user.name)} account menu for ${user.name}`}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-0 bg-brand-soft p-0 font-semibold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand"
+        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-[8px] border-0 bg-brand-soft p-0 font-bold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand"
       >
         {initials(user.name)}
       </button>

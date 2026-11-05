@@ -54,7 +54,7 @@ function RadioGroup({
               {variant === 'sheet' ? (
                 <span
                   className={cx(
-                    'flex min-h-[44px] cursor-pointer items-center justify-center rounded-[10px] border px-2 text-center text-sm font-semibold peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-ring',
+                    'flex min-h-[44px] cursor-pointer items-center justify-center rounded-control border px-2 text-center text-sm font-semibold peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-ring',
                     on ? 'border-brand bg-brand-softer text-brand' : 'border-border-strong bg-surface text-ink',
                   )}
                 >
@@ -63,7 +63,7 @@ function RadioGroup({
               ) : (
                 <span
                   className={cx(
-                    'flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-[10px] border px-3 text-[15px] peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-ring',
+                    'flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-control border px-3 text-[15px] peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-ring',
                     on ? 'border-brand bg-brand-softer' : 'border-border bg-surface',
                   )}
                 >
@@ -92,7 +92,7 @@ function SelectField({ id, legend, value, options, onChange }: { id: string; leg
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-11 rounded-[10px] border border-input-border bg-surface px-3 text-[15px] text-ink dark:border-night-border dark:bg-night-surface dark:text-night-ink"
+        className="h-11 rounded-control border border-input-border bg-surface px-3 text-[15px] text-ink dark:border-night-border dark:bg-night-surface dark:text-night-ink"
       >
         {options.map((o) => (
           <option key={o.value || 'any'} value={o.value}>
@@ -112,7 +112,7 @@ function SegmentedGroup({ legend, name, value, options, onPick }: { legend: stri
   return (
     <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
       <legend className="mb-2 p-0 text-[15px] font-semibold text-heading dark:text-night-heading">{legend}</legend>
-      <div role="radiogroup" aria-label={legend} className="inline-flex rounded-[10px] border border-input-border bg-surface p-[3px] dark:border-night-border dark:bg-night-surface">
+      <div role="radiogroup" aria-label={legend} className="inline-flex rounded-control border border-input-border bg-surface p-[3px] dark:border-night-border dark:bg-night-surface">
         {options.map((o) => {
           const on = o.value === value;
           return (
@@ -172,7 +172,7 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
         id={`${idPrefix}-subject`}
         value={filters.subject}
         onChange={(e) => onChange({ subject: e.target.value })}
-        className="h-11 rounded-[10px] border border-input-border bg-surface px-3 text-[15px] text-ink"
+        className="h-11 rounded-control border border-input-border bg-surface px-3 text-[15px] text-ink"
       >
         {subjectOptions.map((o) => (
           <option key={o.value || 'any'} value={o.value}>

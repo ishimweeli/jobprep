@@ -89,7 +89,7 @@ export function Sidebar() {
           <div className="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-soft text-[13px] font-semibold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand"
+              className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] bg-brand-soft text-[13px] font-bold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand"
             >
               {initials(session.user.name)}
             </span>
