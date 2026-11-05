@@ -15,10 +15,7 @@ import {
   executiveSecretaryFullMock1, executiveSecretaryFullMock2, executiveSecretaryFullMock3, executiveSecretaryFullMock4, executiveSecretaryFullMock5,
   sedoFullMock1, sedoFullMock2, sedoFullMock3, sedoFullMock4, sedoFullMock5,
 } from './seed-data/tests-professional-full';
-import {
-  accountantMininterMock1, accountantMininterMock2, accountantMininterMock3, accountantMininterPsychMock4, accountantMininterCaseMock5,
-  internalAuditorMininterMock1, internalAuditorMininterMock2, internalAuditorMininterMock3, internalAuditorMininterPsychMock4, internalAuditorMininterCaseMock5,
-} from './seed-data/tests-mininter-pfm';
+import { accountantMininterPsychMock4, internalAuditorMininterPsychMock4 } from './seed-data/tests-mininter-pfm';
 import {
   accountantMininterFullMock1, accountantMininterFullMock2, accountantMininterFullMock3, accountantMininterFullMock4, accountantMininterFullMock5,
   internalAuditorMininterFullMock1, internalAuditorMininterFullMock2, internalAuditorMininterFullMock3, internalAuditorMininterFullMock4, internalAuditorMininterFullMock5,
@@ -39,20 +36,14 @@ import {
   socialWorkerMock1, socialWorkerMock2, socialWorkerMock3, socialWorkerMock4, socialWorkerMock5,
 } from './seed-data/tests-minubumwe-ndera';
 import {
-  biostatisticianMock1, biostatisticianMock2, biostatisticianMock3, biostatisticianMock4, biostatisticianMock5,
-  clinicalPsychologistMock1, clinicalPsychologistMock2, clinicalPsychologistMock3, clinicalPsychologistMock4, clinicalPsychologistMock5,
-} from './seed-data/tests-ndera-clinical';
-import {
+  biostatisticianPsychMock4,
   biostatisticianFullMock1, biostatisticianFullMock2, biostatisticianFullMock3, biostatisticianFullMock4, biostatisticianFullMock5,
   clinicalPsychologistFullMock1, clinicalPsychologistFullMock2, clinicalPsychologistFullMock3, clinicalPsychologistFullMock4, clinicalPsychologistFullMock5,
 } from './seed-data/tests-ndera-clinical-full';
 import {
-  biomedicalTechnicianMock1, biomedicalTechnicianMock2, biomedicalTechnicianMock3, biomedicalTechnicianMock4, biomedicalTechnicianMock5,
-  networkSpecialistMock1, networkSpecialistMock2, networkSpecialistMock3, networkSpecialistMock4, networkSpecialistMock5,
-} from './seed-data/tests-ndera-ict';
-import {
   biomedicalTechnicianFullMock1, biomedicalTechnicianFullMock2, biomedicalTechnicianFullMock3, biomedicalTechnicianFullMock4, biomedicalTechnicianFullMock5,
   networkSpecialistFullMock1, networkSpecialistFullMock2, networkSpecialistFullMock3, networkSpecialistFullMock4, networkSpecialistFullMock5,
+  biomedicalTechnicianPsychMock4, networkSpecialistPsychMock4,
 } from './seed-data/tests-ndera-ict-full';
 import {
   researchGrantMock1, researchGrantMock2, researchGrantMock3,
@@ -132,8 +123,7 @@ const ALL_TESTS: TestDef[] = [
   executiveSecretaryFullMock1, executiveSecretaryFullMock2, executiveSecretaryFullMock3, executiveSecretaryFullMock4, executiveSecretaryFullMock5,
   sedoFullMock1, sedoFullMock2, sedoFullMock3, sedoFullMock4, sedoFullMock5,
 
-  accountantMininterMock1, accountantMininterMock2, accountantMininterMock3, accountantMininterPsychMock4, accountantMininterCaseMock5,
-  internalAuditorMininterMock1, internalAuditorMininterMock2, internalAuditorMininterMock3, internalAuditorMininterPsychMock4, internalAuditorMininterCaseMock5,
+  accountantMininterPsychMock4, internalAuditorMininterPsychMock4,
   accountantMininterFullMock1, accountantMininterFullMock2, accountantMininterFullMock3, accountantMininterFullMock4, accountantMininterFullMock5,
   internalAuditorMininterFullMock1, internalAuditorMininterFullMock2, internalAuditorMininterFullMock3, internalAuditorMininterFullMock4, internalAuditorMininterFullMock5,
 
@@ -150,13 +140,11 @@ const ALL_TESTS: TestDef[] = [
   avDigitizationMock1, avDigitizationMock2, avDigitizationMock3, avDigitizationMock4, avDigitizationMock5,
   socialWorkerMock1, socialWorkerMock2, socialWorkerMock3, socialWorkerMock4, socialWorkerMock5,
 
-  biostatisticianMock1, biostatisticianMock2, biostatisticianMock3, biostatisticianMock4, biostatisticianMock5,
-  clinicalPsychologistMock1, clinicalPsychologistMock2, clinicalPsychologistMock3, clinicalPsychologistMock4, clinicalPsychologistMock5,
+  biostatisticianPsychMock4,
   biostatisticianFullMock1, biostatisticianFullMock2, biostatisticianFullMock3, biostatisticianFullMock4, biostatisticianFullMock5,
   clinicalPsychologistFullMock1, clinicalPsychologistFullMock2, clinicalPsychologistFullMock3, clinicalPsychologistFullMock4, clinicalPsychologistFullMock5,
 
-  biomedicalTechnicianMock1, biomedicalTechnicianMock2, biomedicalTechnicianMock3, biomedicalTechnicianMock4, biomedicalTechnicianMock5,
-  networkSpecialistMock1, networkSpecialistMock2, networkSpecialistMock3, networkSpecialistMock4, networkSpecialistMock5,
+  biomedicalTechnicianPsychMock4, networkSpecialistPsychMock4,
   biomedicalTechnicianFullMock1, biomedicalTechnicianFullMock2, biomedicalTechnicianFullMock3, biomedicalTechnicianFullMock4, biomedicalTechnicianFullMock5,
   networkSpecialistFullMock1, networkSpecialistFullMock2, networkSpecialistFullMock3, networkSpecialistFullMock4, networkSpecialistFullMock5,
 
