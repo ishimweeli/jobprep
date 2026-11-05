@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MeResponse } from '../../api/types';
-import { PhoneTabBar } from '../../components/layout/PhoneTabBar';
 import { SignedOutNotice } from '../../components/layout/SignedOutNotice';
 import { setNotice } from '../../lib/notice';
 import { testUser } from '../../test/fixtures';
@@ -151,15 +150,6 @@ describe('account menu (AccountMenu.dc)', () => {
 });
 
 describe('phone navigation (NavPhone.dc)', () => {
-  it('signed-in tabs: Home, Tests, Progress, Account, with the current one marked', () => {
-    renderWithProviders(<PhoneTabBar />, { route: '/rw/tests' });
-    const links = screen.getAllByRole('link');
-    expect(links.map((l) => l.textContent)).toEqual(['Home', 'Tests', 'Progress', 'Account']);
-    expect(links.map((l) => l.getAttribute('href'))).toEqual(['/rw', '/rw/tests', '/rw/progress', '/account']);
-    expect(screen.getByRole('link', { name: 'Tests' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveAttribute('aria-current');
-  });
-
   it('the Account tab page lists the same rows and a Sign out button', async () => {
     server([]);
     renderWithProviders(

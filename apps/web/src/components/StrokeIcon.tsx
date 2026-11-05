@@ -10,6 +10,8 @@ export const ICON_PATHS = {
   shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
   home: 'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
   tests: 'M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5',
+  /** The top bar's dark-mode toggle (a crescent moon). */
+  moon: 'M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z',
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;

@@ -179,9 +179,16 @@ export function accessCardView(i: AccessCardInput): AccessCardView {
   };
 }
 
-/** "Welcome, Aline" for someone who has not finished a test yet, else the usual greeting. */
-export function headline(d: Pick<DashboardResponse, 'hasActivity' | 'country' | 'user'>): string {
-  return d.hasActivity ? greeting(d.country.code, d.user.firstName) : `Welcome, ${d.user.firstName}`;
+/** "Good morning" / "Good afternoon" / "Good evening" from the hour (0-23, local time). */
+export function getGreeting(hour: number): string {
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/** A time-of-day greeting ("Good morning, Aline") for someone who has not finished a test yet, else the usual greeting. */
+export function headline(d: Pick<DashboardResponse, 'hasActivity' | 'country' | 'user'>, hour: number = new Date().getHours()): string {
+  return d.hasActivity ? greeting(d.country.code, d.user.firstName) : `${getGreeting(hour)}, ${d.user.firstName}`;
 }
 
 /** "Free sample · 50 questions · 60 minutes" on the Start here card. */

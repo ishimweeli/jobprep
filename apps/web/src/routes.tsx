@@ -101,7 +101,7 @@ export const routes: RouteObject[] = [
         element: <AccountLayout />,
         children: [
           // NavPhone.dc "Account" tab (also the desktop /account)
-          { path: '/account', handle: { tabs: true }, lazy: async () => ({ Component: (await import('./features/account/AccountTabPage')).AccountTabPage }) },
+          { path: '/account', handle: { tabs: true, title: 'Account' }, lazy: async () => ({ Component: (await import('./features/account/AccountTabPage')).AccountTabPage }) },
           // ChangeCountryPhone.dc: name, email, exam country
           { path: '/account/settings', lazy: async () => ({ Component: (await import('./features/account/AccountPage')).AccountPage }) },
           // Payment history and receipt (C21, built without a design)
@@ -118,13 +118,13 @@ export const routes: RouteObject[] = [
         element: <CountryLayout />,
         children: [
           { index: true, handle: { landing: true, tabs: true }, lazy: async () => ({ Component: (await import('./features/landing/LandingPage')).LandingPage }) },
-          { path: 'tests', handle: { tabs: true }, lazy: async () => ({ Component: (await import('./features/catalog/CatalogPage')).CatalogPage }) },
-          { path: 'tests/:slug', handle: { tabs: true }, lazy: async () => ({ Component: (await import('./features/exam-detail/ExamDetailPage')).ExamDetailPage }) },
+          { path: 'tests', handle: { tabs: true, title: 'Mock tests' }, lazy: async () => ({ Component: (await import('./features/catalog/CatalogPage')).CatalogPage }) },
+          { path: 'tests/:slug', handle: { tabs: true, title: 'Mock test', backTo: 'tests' }, lazy: async () => ({ Component: (await import('./features/exam-detail/ExamDetailPage')).ExamDetailPage }) },
           { path: 'tests/:slug/start', lazy: async () => ({ Component: (await import('./features/exam/StartPage')).StartPage }) },
           { path: 'results/:attemptId', lazy: async () => ({ Component: (await import('./features/results/ResultsPage')).ResultsPage }) },
-          { path: 'progress', handle: { tabs: true }, lazy: async () => ({ Component: (await import('./features/dashboard/DashboardPage')).DashboardPage }) },
+          { path: 'progress', handle: { tabs: true, title: 'Dashboard' }, lazy: async () => ({ Component: (await import('./features/dashboard/DashboardPage')).DashboardPage }) },
           { path: 'checkout', lazy: async () => ({ Component: (await import('./features/checkout/CheckoutPage')).CheckoutPage }) },
-          { path: 'pricing', handle: { tabs: true }, lazy: async () => ({ Component: (await import('./features/pricing/PricingPage')).PricingPage }) },
+          { path: 'pricing', handle: { tabs: true, title: 'Pricing' }, lazy: async () => ({ Component: (await import('./features/pricing/PricingPage')).PricingPage }) },
           { path: '*', element: <CountryNotFound /> },
         ],
       },

@@ -51,15 +51,15 @@ export function MyAccessCard({ d, slug, className }: { d: DashboardResponse; slu
   const ctaTo = view.cta?.target === 'check' && pendingId ? `${checkout}?payment=${encodeURIComponent(pendingId)}&check=1` : checkout;
 
   return (
-    <section aria-labelledby="ma-t" className={cx('flex min-w-0 flex-col gap-3 rounded-card border border-border bg-surface p-5', className)}>
+    <section aria-labelledby="ma-t" className={cx('flex min-w-0 flex-col gap-3 rounded-card border border-border bg-surface p-5 dark:border-night-border dark:bg-night-surface', className)}>
       <div className="flex items-center justify-between gap-2">
-        <h2 id="ma-t" className="m-0 text-[17px]">
+        <h2 id="ma-t" className="m-0 text-base font-bold text-heading dark:text-night-heading">
           My access
         </h2>
         <span className={cx('rounded-pill px-2.5 py-[3px] text-xs font-semibold', badgeTone[view.badge.tone])}>{view.badge.text}</span>
       </div>
-      <p className="m-0 text-[17px] font-semibold">{view.title}</p>
-      <p className="m-0 text-[15px] leading-normal text-ink-2">{view.body}</p>
+      <p className="m-0 text-[17px] font-semibold text-heading dark:text-night-heading">{view.title}</p>
+      <p className="m-0 text-[15px] leading-normal text-ink-2 dark:text-night-ink">{view.body}</p>
       {view.bar && (
         <div aria-hidden="true" className="h-2 overflow-hidden rounded-pill bg-soft">
           <div className="h-2" style={{ width: `${view.bar.percent}%`, background: view.bar.amber ? '#8A5300' : '#164A7A' }} />

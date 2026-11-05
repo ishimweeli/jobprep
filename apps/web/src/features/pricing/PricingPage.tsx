@@ -36,7 +36,7 @@ export function PricingPage() {
 
   return (
     <div>
-      <PhoneBackHeader to={countryPath(slug)} label="Back to home" title="Pricing" />
+      {!user && <PhoneBackHeader to={countryPath(slug)} label="Back to home" title="Pricing" />}
       <main id="main-content" tabIndex={-1} className="mx-auto flex max-w-[1040px] flex-col gap-[18px] px-4 pb-8 pt-[22px] md:gap-8 md:px-6 md:pb-[72px] md:pt-12">
         {q.isError ? (
           <QueryError error={q.error} what="the pricing" onRetry={() => void q.refetch()} retrying={q.isFetching} />
@@ -59,7 +59,7 @@ function PricingBody({ slug, data, disclaimer, signedIn }: { slug: string; data:
   return (
     <>
       <div className="flex flex-col gap-2 md:items-center md:gap-2.5 md:text-center">
-        <h1 className="m-0 text-2xl font-bold leading-[1.15] tracking-tight md:text-[28px] md:tracking-[-0.025em]">One price. Every mock test.</h1>
+        <h1 className="m-0 text-[22px] font-bold leading-[1.15] tracking-[-0.02em] text-heading md:text-2xl dark:text-night-heading">One price. Every mock test.</h1>
         <p className="m-0 max-w-[36em] text-base leading-normal text-ink-2 md:text-lg">
           Try free sample tests first. {days ? `When you are ready, one payment unlocks everything for ${days} days.` : ''}
         </p>

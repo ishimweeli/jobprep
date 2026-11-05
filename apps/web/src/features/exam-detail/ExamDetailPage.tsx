@@ -19,7 +19,7 @@ import { countryPath, useActiveCountry } from '../country/hooks';
 import { AccessCard, accessView, PhoneCtaBar } from './AccessCard';
 import { ResumePrompt, useInProgress } from '../exam/ResumePrompt';
 
-const sectionCard = 'flex flex-col gap-1 rounded-[14px] border border-border bg-surface p-4 md:gap-3 md:rounded-card md:p-[22px]';
+const sectionCard = 'flex flex-col gap-1 rounded-[14px] border border-border bg-surface p-4 md:gap-3 md:rounded-card md:p-[22px] dark:border-night-border dark:bg-night-surface';
 
 export function ExamDetailPage() {
   const { slug, country } = useActiveCountry();
@@ -38,7 +38,7 @@ export function ExamDetailPage() {
   if (q.isError) {
     return (
       <div>
-        <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title="Mock tests" />
+        {!user && <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title="Mock tests" />}
         <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1200px] px-4 py-8 md:px-6">
           <QueryError error={q.error} what="this mock test" onRetry={() => void q.refetch()} retrying={q.isFetching} />
         </main>
@@ -49,7 +49,7 @@ export function ExamDetailPage() {
   if (!exam) {
     return (
       <div>
-        <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title="Mock tests" />
+        {!user && <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title="Mock tests" />}
         <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6 md:py-7">
           <div className="mb-5 flex flex-col gap-3" aria-hidden="true">
             <SkeletonBar className="h-6 w-1/3" />
@@ -79,14 +79,14 @@ export function ExamDetailPage() {
   const running = inProgress.data?.find((a) => a.mockTest.slug === exam.slug && a.kind === 'FULL');
   return (
     <div className="flex flex-1 flex-col">
-      <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title={<span className="text-[15px] font-semibold text-ink-2">{exam.category.name}</span>} />
+      {!user && <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title={<span className="text-[15px] font-semibold text-ink-2">{exam.category.name}</span>} />}
       <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-4 px-4 pb-6 pt-[18px] md:gap-[22px] md:px-6 md:pb-16 md:pt-7">
-        <nav aria-label="Breadcrumb" className="hidden text-sm text-muted md:block">
-          <Link to={countryPath(slug)} className="text-muted underline hover:text-ink">
+        <nav aria-label="Breadcrumb" className="hidden text-sm text-muted md:block dark:text-night-muted">
+          <Link to={countryPath(slug)} className="text-muted underline hover:text-ink dark:text-night-muted">
             Home
           </Link>{' '}
           ›{' '}
-          <Link to={countryPath(slug, 'tests')} className="text-muted underline hover:text-ink">
+          <Link to={countryPath(slug, 'tests')} className="text-muted underline hover:text-ink dark:text-night-muted">
             Mock tests
           </Link>{' '}
           › {exam.category.name}
@@ -121,7 +121,7 @@ function Header({ exam }: { exam: ExamDetail }) {
         </Badge>
         <AccessBadge isFree={exam.isFree} className="px-2.5 py-1 text-xs md:text-[13px]" />
       </div>
-      <h1 className="m-0 text-2xl font-bold leading-[1.2] tracking-tight md:text-[28px] md:leading-[1.15]">{exam.title}</h1>
+      <h1 className="m-0 text-[22px] font-bold leading-[1.2] tracking-[-0.02em] text-heading md:text-2xl md:leading-[1.15] dark:text-night-heading">{exam.title}</h1>
       {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2 md:text-[17px]">{exam.summary}</p>}
       <EnglishOnlyNote languages={exam.languages} />
     </div>
@@ -150,9 +150,9 @@ function Facts({ exam }: { exam: ExamDetail }) {
   return (
     <dl className="m-0 grid grid-cols-2 gap-2.5 md:grid-cols-[repeat(auto-fill,minmax(min(100%,160px),1fr))] md:gap-3">
       {facts.map((f) => (
-        <div key={f.label} className="flex flex-col-reverse gap-0.5 rounded-[10px] border border-border bg-surface p-3 md:rounded-[14px] md:p-4">
-          <dt className="text-[13px] text-muted md:text-sm">{f.label}</dt>
-          <dd className="m-0 text-xl font-bold md:text-2xl">{f.value}</dd>
+        <div key={f.label} className="flex flex-col-reverse gap-0.5 rounded-[10px] border border-border bg-surface p-3 md:rounded-tiles md:p-4 dark:border-night-border dark:bg-night-surface">
+          <dt className="text-[13px] text-muted md:text-sm dark:text-night-muted">{f.label}</dt>
+          <dd className="m-0 text-xl font-bold text-heading md:text-2xl dark:text-night-heading">{f.value}</dd>
         </div>
       ))}
     </dl>
@@ -163,7 +163,7 @@ function Sections({ exam }: { exam: ExamDetail }) {
   if (exam.sections.length === 0) return null;
   return (
     <section aria-labelledby="sec" className={sectionCard}>
-      <h2 id="sec" className="m-0 mb-1.5 text-[17px] font-bold md:mb-0">
+      <h2 id="sec" className="m-0 mb-1.5 text-base font-bold text-heading md:mb-0 dark:text-night-heading">
         What the test covers
       </h2>
       <div className="hidden overflow-x-auto md:block">
@@ -210,7 +210,7 @@ function Instructions({ exam }: { exam: ExamDetail }) {
   const pass = passMarkDisplay(exam);
   return (
     <section aria-labelledby="ins" className={`${sectionCard} md:gap-3`}>
-      <h2 id="ins" className="m-0 text-[17px] font-bold">
+      <h2 id="ins" className="m-0 text-base font-bold text-heading dark:text-night-heading">
         Instructions
       </h2>
       {exam.instructions.length > 0 && (
@@ -237,7 +237,7 @@ function Attempts({ exam }: { exam: ExamDetail }) {
   const attempts = exam.previousAttempts;
   return (
     <section aria-labelledby="att" className={sectionCard}>
-      <h2 id="att" className="m-0 text-[17px] font-bold">
+      <h2 id="att" className="m-0 text-base font-bold text-heading dark:text-night-heading">
         Your previous attempts
       </h2>
       {attempts.length > 0 ? (
@@ -265,6 +265,7 @@ function Attempts({ exam }: { exam: ExamDetail }) {
  * (Resume) and taken before (new attempt + "Review last attempt").
  */
 function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
+  const { user } = useSession();
   const desktop = useIsDesktop();
   const state = unlockedState(exam);
   const running = exam.inProgress;
@@ -307,14 +308,14 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
 
   return (
     <div className="flex flex-1 flex-col">
-      <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title={<span className="text-[15px] font-semibold text-ink-2">{exam.category.name}</span>} />
+      {!user && <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title={<span className="text-[15px] font-semibold text-ink-2">{exam.category.name}</span>} />}
       <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-4 px-4 pb-6 pt-[18px] md:gap-[18px] md:px-6 md:pb-14 md:pt-7">
-        <nav aria-label="Breadcrumb" className="hidden text-sm text-muted md:block">
-          <Link to={countryPath(slug)} className="text-muted underline hover:text-ink">
+        <nav aria-label="Breadcrumb" className="hidden text-sm text-muted md:block dark:text-night-muted">
+          <Link to={countryPath(slug)} className="text-muted underline hover:text-ink dark:text-night-muted">
             Home
           </Link>{' '}
           ›{' '}
-          <Link to={countryPath(slug, 'tests')} className="text-muted underline hover:text-ink">
+          <Link to={countryPath(slug, 'tests')} className="text-muted underline hover:text-ink dark:text-night-muted">
             Mock tests
           </Link>{' '}
           › {exam.category.name}
@@ -333,7 +334,7 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
                   Unlocked with Full Access
                 </Badge>
               </div>
-              <h1 className="m-0 text-2xl font-bold leading-[1.15] tracking-tight md:text-[28px]">{exam.title}</h1>
+              <h1 className="m-0 text-[22px] font-bold leading-[1.15] tracking-[-0.02em] text-heading md:text-2xl dark:text-night-heading">{exam.title}</h1>
               {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2">{exam.summary}</p>}
               <EnglishOnlyNote languages={exam.languages} />
             </div>

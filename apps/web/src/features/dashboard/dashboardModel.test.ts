@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { DashboardResponse } from '../../api/types';
 import {
-  accessCardView, accessState, chartAria, chartPoints, DESKTOP_CHART, greeting, headline, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta,
+  accessCardView, accessState, chartAria, chartPoints, DESKTOP_CHART, getGreeting, greeting, headline, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta,
   visibleSections, type AccessCardInput,
 } from './dashboardModel';
 
@@ -129,9 +129,19 @@ describe('My access state (DashboardNew.dc)', () => {
 
 describe('new user dashboard (DashboardNew.dc)', () => {
   const d = { hasActivity: false, country: { code: 'RW', name: 'Rwanda' }, user: { name: 'Aline Uwase', firstName: 'Aline' } };
-  it('says Welcome until the first test is finished, then the usual greeting', () => {
-    expect(headline(d)).toBe('Welcome, Aline');
-    expect(headline({ ...d, hasActivity: true })).toBe('Muraho, Aline');
+  it('greets by time of day until the first test is finished, then the usual greeting', () => {
+    expect(headline(d, 9)).toBe('Good morning, Aline');
+    expect(headline(d, 14)).toBe('Good afternoon, Aline');
+    expect(headline(d, 20)).toBe('Good evening, Aline');
+    expect(headline({ ...d, hasActivity: true }, 9)).toBe('Muraho, Aline');
+  });
+  it('getGreeting splits the day into morning / afternoon / evening', () => {
+    expect(getGreeting(0)).toBe('Good morning');
+    expect(getGreeting(11)).toBe('Good morning');
+    expect(getGreeting(12)).toBe('Good afternoon');
+    expect(getGreeting(17)).toBe('Good afternoon');
+    expect(getGreeting(18)).toBe('Good evening');
+    expect(getGreeting(23)).toBe('Good evening');
   });
   it('Start here line and suggested tests use the API numbers', () => {
     expect(startHereLine({ isFree: true, questionCount: 50, durationMinutes: 60 })).toBe('Free sample · 50 questions · 60 minutes');

@@ -18,7 +18,7 @@ describe('palette (the Mwalimu Tools artboards)', () => {
     expect(colors.link.hover).toBe('#1E4BA8');
     expect(colors.ink).toBe('#3A3F4A');
     expect(colors.muted).toBe('#5E6573');
-    expect(colors.page).toBe('#EFF3F8');
+    expect(colors.page).toBe('#F6F8FB');
     expect(colors.border).toBe('#E2E7EF');
     expect(colors['input-border']).toBe('#CDD4DE');
     expect(colors.brand.soft).toBe('#E8EFFB');

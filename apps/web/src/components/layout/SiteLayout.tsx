@@ -5,36 +5,70 @@ import { setStoredCountry } from '../../lib/country';
 import { countryPath, useCountries } from '../../features/country/hooks';
 import { CountryNotOpen, WrongCountry } from '../../features/country/CountryGate';
 import { NotFoundPage } from '../../features/system/SystemPage';
+import { useDocumentTheme } from '../../lib/theme';
 import { SkeletonList } from '../states';
 import { Footer } from './Footer';
 import { DesktopHeader } from './Header';
-import { PhoneTabBar } from './PhoneTabBar';
+import { PhoneTopBar } from './PhoneTopBar';
+import { Sidebar } from './Sidebar';
+import { TopBar } from './TopBar';
 
 /** Route `handle` flags. */
 export interface RouteHandle {
   /** Landing-only shell part drawn in Main.dc: the footer. */
   landing?: boolean;
-  /** Signed-in phone users get the bottom tabs (NavPhone.dc) on this page. */
+  /** Signed-in users get the candidate app chrome (sidebar + top bar on desktop, hamburger header on phone) on this page. */
   tabs?: boolean;
+  /** Static page title shown in the top bar (desktop) and the phone header. */
+  title?: string;
+  /** Exam-detail-only: the desktop top bar shows a back arrow to this (country-relative) path + `title` instead of a plain title. */
+  backTo?: string;
 }
 
-/** Shell shared by pages: skip link, desktop header, page, and (landing only, as designed) the footer. */
+/**
+ * Shell shared by pages: skip link, chrome, page, and (landing only, as designed) the footer.
+ * Signed-in users on a `tabs` route get the November redesign's candidate chrome: a 232px sidebar + top bar on
+ * desktop, a hamburger header + slide-out drawer on phone (replacing the desktop header / bottom tab bar).
+ * Guests, and any signed-in page outside that set (checkout, account/settings, …), keep the original header.
+ */
 export function SiteShell({ children, landing }: { children: React.ReactNode; landing?: boolean }) {
   const matches = useMatches();
   const { user } = useSession();
-  const tabs = !!user && matches.some((m) => (m.handle as RouteHandle | undefined)?.tabs);
+  const chrome = !!user && matches.some((m) => (m.handle as RouteHandle | undefined)?.tabs);
+  useDocumentTheme();
+
+  const skipLink = (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-control focus:bg-ink focus:px-4 focus:py-3 focus:font-semibold focus:text-white"
+    >
+      Skip to content
+    </a>
+  );
+
+  if (chrome) {
+    return (
+      <div className="flex min-h-screen flex-col md:flex-row dark:bg-night-page dark:text-night-ink">
+        {skipLink}
+        <Sidebar />
+        <div className="flex min-h-screen flex-1 flex-col dark:bg-night-page">
+          <PhoneTopBar />
+          <div className="hidden md:block">
+            <TopBar />
+          </div>
+          <div className="flex flex-1 flex-col">{children}</div>
+          {landing && <Footer />}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-control focus:bg-ink focus:px-4 focus:py-3 focus:font-semibold focus:text-white"
-      >
-        Skip to content
-      </a>
+      {skipLink}
       <DesktopHeader />
       <div className="flex flex-1 flex-col">{children}</div>
       {landing && <Footer />}
-      {tabs && <PhoneTabBar />}
     </div>
   );
 }

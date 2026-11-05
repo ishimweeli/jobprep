@@ -81,19 +81,54 @@ function RadioGroup({
   );
 }
 
+/**
+ * Price as one bordered segmented-button group (three buttons sharing a container), the desktop filter row's
+ * look for Price specifically. The phone sheet keeps the pill-radio style (`RadioGroup`) for every field.
+ */
+function SegmentedGroup({ legend, name, value, options, onPick }: { legend: string; name: string; value: string; options: Option[]; onPick: (v: string) => void }) {
+  return (
+    <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
+      <legend className="mb-2 p-0 text-[15px] font-semibold text-heading dark:text-night-heading">{legend}</legend>
+      <div role="radiogroup" aria-label={legend} className="inline-flex rounded-[10px] border border-border-strong bg-surface p-[3px] dark:border-night-border dark:bg-night-surface">
+        {options.map((o) => {
+          const on = o.value === value;
+          return (
+            <button
+              key={o.value || 'any'}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              name={name}
+              onClick={() => onPick(o.value)}
+              className={cx(
+                'min-h-[38px] flex-1 cursor-pointer whitespace-nowrap rounded-[8px] border-0 px-3 text-[13px] font-semibold transition-colors',
+                on ? 'bg-brand text-white' : 'bg-transparent text-ink-2 hover:bg-soft dark:text-night-ink dark:hover:bg-night-soft',
+              )}
+            >
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
 /** Subject / price / difficulty / language controls, shared by the desktop sidebar and the phone sheet. */
 export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Props) {
   const sheet = variant === 'sheet';
+  // The desktop filter row draws Price as one segmented group of short pill buttons (All / Free / Full Access);
+  // the phone sheet keeps the longer radio-row labels.
   const priceOptions: Option[] = sheet
     ? [
-        { value: '', label: 'All' },
-        { value: 'free', label: 'Free' },
-        { value: 'paid', label: 'Full Access' },
-      ]
-    : [
         { value: '', label: 'All tests' },
         { value: 'free', label: 'Free only' },
         { value: 'paid', label: 'Full Access only' },
+      ]
+    : [
+        { value: '', label: 'All' },
+        { value: 'free', label: 'Free' },
+        { value: 'paid', label: 'Full Access' },
       ];
   const difficultyOptions: Option[] = [
     { value: '', label: 'Any' },
@@ -128,7 +163,11 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
   return (
     <div className={cx('flex flex-col', sheet ? 'gap-4' : 'gap-5')}>
       {subject}
-      <RadioGroup legend="Price" name={`${idPrefix}-price`} value={filters.price} options={priceOptions} variant={variant} onPick={(v) => onChange({ price: v as CatalogFilters['price'] })} />
+      {sheet ? (
+        <RadioGroup legend="Price" name={`${idPrefix}-price`} value={filters.price} options={priceOptions} variant={variant} onPick={(v) => onChange({ price: v as CatalogFilters['price'] })} />
+      ) : (
+        <SegmentedGroup legend="Price" name={`${idPrefix}-price`} value={filters.price} options={priceOptions} onPick={(v) => onChange({ price: v as CatalogFilters['price'] })} />
+      )}
       <RadioGroup
         legend="Difficulty"
         name={`${idPrefix}-difficulty`}

@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import { Chip } from '../../components/Chip';
 import { Dialog } from '../../components/Dialog';
 import { EmptyState, QueryError, SkeletonList } from '../../components/states';
+import { useSession } from '../auth/session';
 import {
   activeSheetFilterCount,
   applyFilterChange,
@@ -25,6 +26,7 @@ import { ResultCard } from './ResultCard';
 /** Exam discovery. All filters live in the query string (see lib/catalogFilters) so results are linkable. */
 export function CatalogPage() {
   const slug = useActiveCountrySlug();
+  const { user } = useSession();
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => parseFilters(params), [params]);
   const [qInput, setQInput] = useState(filters.q);
@@ -73,12 +75,14 @@ export function CatalogPage() {
     <div>
       {/* Phone header: back, title, search + Filters, category chips */}
       <header className="sticky top-0 z-20 flex flex-col gap-2.5 border-b border-border bg-surface px-4 pb-3 pt-2 md:hidden">
-        <div className="flex items-center gap-1">
-          <Link to={countryPath(slug)} aria-label="Back to home" className="-ml-3 inline-flex h-11 w-11 items-center justify-center text-ink no-underline hover:text-ink">
-            <ArrowLeft size={22} aria-hidden="true" />
-          </Link>
-          <h1 className="m-0 text-[19px] font-bold">Find your mock test</h1>
-        </div>
+        {!user && (
+          <div className="flex items-center gap-1">
+            <Link to={countryPath(slug)} aria-label="Back to home" className="-ml-3 inline-flex h-11 w-11 items-center justify-center text-ink no-underline hover:text-ink">
+              <ArrowLeft size={22} aria-hidden="true" />
+            </Link>
+            <h1 className="m-0 text-[19px] font-bold">Find your mock test</h1>
+          </div>
+        )}
         <div role="search" className="flex gap-2">
           <SearchBox id="catalog-q-phone" value={qInput} onChange={setQInput} onSubmit={commitSearch} placeholder="Job title or subject" label="Search job title or subject" compact />
           <button
@@ -103,7 +107,7 @@ export function CatalogPage() {
             </Link>{' '}
             › Mock tests
           </nav>
-          <h1 className="m-0 text-[28px] font-bold tracking-tight">Find your mock test</h1>
+          <h1 className="m-0 text-2xl font-bold tracking-[-0.02em] text-heading dark:text-night-heading">Find your mock test</h1>
         </div>
         <div role="search" className="hidden gap-2.5 md:flex">
           <SearchBox
@@ -121,7 +125,7 @@ export function CatalogPage() {
         </div>
 
         <div className="flex flex-col gap-6 md:flex-row md:flex-wrap md:items-start">
-          <aside aria-label="Filters" className="hidden max-w-full flex-[1_1_240px] rounded-card border border-border bg-surface p-5 md:block">
+          <aside aria-label="Filters" className="hidden max-w-full flex-[1_1_240px] rounded-card border border-border bg-surface p-5 md:block dark:border-night-border dark:bg-night-surface">
             <FilterPanel filters={filters} facets={data?.facets} onChange={(p) => update(p)} variant="aside" idPrefix="f" />
           </aside>
 

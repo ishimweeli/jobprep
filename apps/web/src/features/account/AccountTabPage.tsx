@@ -1,5 +1,4 @@
 import type { MeResponse } from '../../api/types';
-import { PhoneBackHeader } from '../../components/layout/Header';
 import { StrokeIcon } from '../../components/StrokeIcon';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
@@ -26,16 +25,16 @@ function AccountTab({ session }: { session: MeResponse }) {
 
   return (
     <div className="flex flex-1 flex-col">
-      <PhoneBackHeader to={countryPath(slug, 'progress')} title="Account" />
+      <h1 className="sr-only">Account</h1>
       <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[480px] flex-1 flex-col gap-3 p-4 outline-none md:py-8">
-        <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-4">
+        <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-4 dark:border-night-border dark:bg-night-surface">
           <Avatar name={user.name} size={48} />
           <span className="flex min-w-0 flex-col">
-            <strong className="truncate text-[17px]">{user.name}</strong>
-            <span className="truncate text-[13px] text-muted">{user.email}</span>
+            <strong className="truncate text-base text-heading dark:text-night-heading">{user.name}</strong>
+            <span className="truncate text-[13px] text-muted dark:text-night-muted">{user.email}</span>
           </span>
         </div>
-        <nav aria-label="Account" className="rounded-card border border-border bg-surface p-1">
+        <nav aria-label="Account" className="rounded-card border border-border bg-surface p-1 dark:border-night-border dark:bg-night-surface">
           {items.map((item) => (
             <MenuRow key={item.id} item={item} />
           ))}

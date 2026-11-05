@@ -185,7 +185,8 @@ function SectionHead({ id, title, sub, linkTo, linkText, phoneLinkText }: { id: 
   );
 }
 
-function Categories({ slug, data }: { slug: string; data: Landing }) {
+/** "Browse by job category" grid: shared by the landing page and (for signed-in users) the dashboard. */
+export function Categories({ slug, data }: { slug: string; data: Landing }) {
   return (
     <section aria-labelledby="cats" className="mx-auto flex max-w-[1200px] flex-col gap-3.5 px-4 pb-2 pt-7 md:gap-6 md:px-6 md:pb-6 md:pt-16">
       <SectionHead id="cats" title="Browse by job category" linkTo={countryPath(slug, 'tests')} linkText="See all mock tests" />
