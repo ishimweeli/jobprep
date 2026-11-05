@@ -125,7 +125,7 @@ export function CatalogPage() {
         </div>
 
         <div className="flex flex-col gap-6 md:flex-row md:flex-wrap md:items-start">
-          <aside aria-label="Filters" className="hidden max-w-full flex-[1_1_240px] rounded-card border border-border bg-surface p-5 md:block dark:border-night-border dark:bg-night-surface">
+          <aside aria-label="Filters" className="hidden min-w-0 max-w-full flex-[1_1_240px] rounded-card border border-border bg-surface p-5 md:block dark:border-night-border dark:bg-night-surface">
             <FilterPanel filters={filters} facets={data?.facets} onChange={(p) => update(p)} variant="aside" idPrefix="f" />
           </aside>
 
