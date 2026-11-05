@@ -89,7 +89,7 @@ function SegmentedGroup({ legend, name, value, options, onPick }: { legend: stri
   return (
     <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
       <legend className="mb-2 p-0 text-[15px] font-semibold text-heading dark:text-night-heading">{legend}</legend>
-      <div role="radiogroup" aria-label={legend} className="inline-flex rounded-[10px] border border-border-strong bg-surface p-[3px] dark:border-night-border dark:bg-night-surface">
+      <div role="radiogroup" aria-label={legend} className="inline-flex rounded-[10px] border border-input-border bg-surface p-[3px] dark:border-night-border dark:bg-night-surface">
         {options.map((o) => {
           const on = o.value === value;
           return (
@@ -102,7 +102,7 @@ function SegmentedGroup({ legend, name, value, options, onPick }: { legend: stri
               onClick={() => onPick(o.value)}
               className={cx(
                 'min-h-[38px] flex-1 cursor-pointer whitespace-nowrap rounded-[8px] border-0 px-3 text-[13px] font-semibold transition-colors',
-                on ? 'bg-brand text-white' : 'bg-transparent text-ink-2 hover:bg-soft dark:text-night-ink dark:hover:bg-night-soft',
+                on ? 'bg-brand-soft text-brand' : 'bg-transparent text-ink-2 hover:bg-soft dark:text-night-ink dark:hover:bg-night-soft',
               )}
             >
               {o.label}
