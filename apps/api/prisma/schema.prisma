@@ -222,6 +222,8 @@ model MockTest {
   passMarkSource  String?
   instructions    String[]
   publishedAt     DateTime?
+  /// Application deadline of the real job posting this mock targets (e.g. a MIFOTRA listing). Null for mocks not tied to a specific live posting.
+  jobDeadlineAt   DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 

@@ -23,6 +23,7 @@ export const SORT_OPTIONS: { value: CatalogFilters['sort']; label: string }[] = 
   { value: 'free_first', label: 'Free first' },
   { value: 'recent', label: 'Newest' },
   { value: 'title', label: 'A to Z' },
+  { value: 'deadline', label: 'Closing soon' },
 ];
 
 /** Radio group (single choice) with the design's two looks. Native radios: arrow keys work for free. */

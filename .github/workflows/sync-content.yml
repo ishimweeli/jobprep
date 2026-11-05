@@ -1,0 +1,37 @@
+name: Sync content to production
+
+# Manual only — never runs on push. Adds new mock tests/questions defined in apps/api/prisma/seed-data/*
+# to the production database. Never touches countries, payment methods, admin accounts, settings, or any
+# mock test that already exists there (see apps/api/prisma/sync-content.ts) — so it's safe to run any time
+# new content is merged to main, independently of a full app deploy.
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - run: npm run typecheck
+      - run: npm run lint
+
+  sync:
+    needs: check
+    runs-on: [self-hosted, netcup]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t jobprep:v1 .
+      - name: Sync content (additive only — see apps/api/prisma/sync-content.ts)
+        # Calls tsx directly (not `npm run sync-content`) because that script wraps itself with
+        # `--env-file=../../.env` for local dev; that file doesn't exist in the container, where real env
+        # vars already come from --env-file below (same reasoning as the migrate step above).
+        run: >
+          docker run --rm --add-host host.docker.internal:host-gateway
+          --env-file /opt/jobprep/migrate.env jobprep:v1 npx tsx prisma/sync-content-cli.ts

@@ -15,6 +15,7 @@
     "db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
     "db:reset": "dotenv -e ../../.env -- prisma migrate reset --force --skip-seed --skip-generate && tsx --env-file=../../.env prisma/seed.ts",
     "seed": "tsx --env-file=../../.env prisma/seed.ts",
+    "sync-content": "tsx --env-file=../../.env prisma/sync-content-cli.ts",
     "admin:create": "tsx prisma/create-admin.ts"
   },
   "prisma": {

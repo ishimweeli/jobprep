@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { TestCard } from '../../api/types';
-import { AccessBadge } from '../../components/Badge';
-import { difficultyLabel, languageList, languageListShort, plural } from '../../lib/format';
+import { AccessBadge, Badge } from '../../components/Badge';
+import { difficultyLabel, jobDeadlineLabel, languageList, languageListShort, plural } from '../../lib/format';
 import { countryPath } from '../country/hooks';
 
 /**
@@ -9,12 +9,16 @@ import { countryPath } from '../country/hooks';
  * fully tappable, as in the design); its label is visible from md up and read by screen readers on phone.
  */
 export function ResultCard({ slug, test }: { slug: string; test: TestCard }) {
+  const deadlineLabel = jobDeadlineLabel(test.jobDeadlineAt);
   return (
     <article className="relative flex flex-col gap-2 rounded-[14px] border border-border bg-surface p-3.5 md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-4 md:rounded-card md:p-5">
       <div className="flex min-w-0 flex-col gap-2 md:flex-[1_1_360px]">
         <div className="flex flex-wrap items-center justify-between gap-2 md:justify-start">
           <span className="text-xs font-semibold text-muted md:text-[13px]">{test.category.name}</span>
-          <AccessBadge isFree={test.isFree} />
+          <div className="flex items-center gap-1.5">
+            {deadlineLabel && <Badge tone="brand">{deadlineLabel}</Badge>}
+            <AccessBadge isFree={test.isFree} />
+          </div>
         </div>
         <h2 className="m-0 text-base font-semibold leading-snug md:text-[17px] md:font-bold md:leading-[1.3]">{test.title}</h2>
         <ul className="m-0 flex list-none flex-wrap gap-x-[18px] gap-y-1.5 p-0 text-[13px] text-ink-2 md:text-sm">

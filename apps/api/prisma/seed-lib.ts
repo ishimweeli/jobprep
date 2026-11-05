@@ -4,12 +4,60 @@ import { ROLE_LABELS, ROLE_PERMISSIONS, type AdminRoleCode } from '../src/domain
 import { hashPassword } from '../src/services/password';
 import type { QDef, TestDef } from './seed-data/types';
 import {
-  accountantFreeSample, accountantMock1, executiveSecretaryFree, executiveSecretaryMock2,
+  accountantFreeSample, accountantMock1, executiveSecretaryFree, executiveSecretaryMock2, executiveSecretaryMock3,
   headteacherMock1, ictOfficerFree, keAccountantMock, keTeachingSample, procurementFree, procurementMock1,
+  sedoLocalEconomicDevelopmentMock1,
 } from './seed-data/tests-professional';
 import {
   primaryTeacherGeneral, secondaryMathsS1S3, secondaryMathsS4S6, teachingProfessionCbc,
 } from './seed-data/tests-teaching';
+import {
+  executiveSecretaryFullMock1, executiveSecretaryFullMock2, executiveSecretaryFullMock3, executiveSecretaryFullMock4, executiveSecretaryFullMock5,
+  sedoFullMock1, sedoFullMock2, sedoFullMock3, sedoFullMock4, sedoFullMock5,
+} from './seed-data/tests-professional-full';
+import {
+  accountantMininterMock1, accountantMininterMock2, accountantMininterMock3, accountantMininterPsychMock4, accountantMininterCaseMock5,
+  internalAuditorMininterMock1, internalAuditorMininterMock2, internalAuditorMininterMock3, internalAuditorMininterPsychMock4, internalAuditorMininterCaseMock5,
+} from './seed-data/tests-mininter-pfm';
+import {
+  accountantMininterFullMock1, accountantMininterFullMock2, accountantMininterFullMock3, accountantMininterFullMock4, accountantMininterFullMock5,
+  internalAuditorMininterFullMock1, internalAuditorMininterFullMock2, internalAuditorMininterFullMock3, internalAuditorMininterFullMock4, internalAuditorMininterFullMock5,
+} from './seed-data/tests-mininter-pfm-full';
+import { STOREKEEPER_CHUB_MOCKS, RADIOGRAPHER_CHUB_MOCKS } from './seed-data/tests-chub';
+import {
+  legalAffairsSpecialistMinalocMock1, legalAffairsSpecialistMinalocMock2, legalAffairsSpecialistMinalocMock3, legalAffairsSpecialistMinalocMock4, legalAffairsSpecialistMinalocMock5,
+  lgCapacityDevelopmentSpecialistMinalocMock1, lgCapacityDevelopmentSpecialistMinalocMock2, lgCapacityDevelopmentSpecialistMinalocMock3, lgCapacityDevelopmentSpecialistMinalocMock4, lgCapacityDevelopmentSpecialistMinalocMock5,
+  idpManagementSpecialistMinalocMock1, idpManagementSpecialistMinalocMock2, idpManagementSpecialistMinalocMock3, idpManagementSpecialistMinalocMock4, idpManagementSpecialistMinalocMock5,
+} from './seed-data/tests-minaloc';
+import {
+  adminAssistantProsecutorGeneralMock1, adminAssistantProsecutorGeneralMock2, adminAssistantProsecutorGeneralMock3, adminAssistantProsecutorGeneralMock4, adminAssistantProsecutorGeneralMock5,
+  accountantCityOfKigaliMock1, accountantCityOfKigaliMock2, accountantCityOfKigaliMock3, accountantCityOfKigaliMock4, accountantCityOfKigaliMock5,
+} from './seed-data/tests-nppa-cok';
+import {
+  genocideMemorialsMock1, genocideMemorialsMock2, genocideMemorialsMock3, genocideMemorialsMock4, genocideMemorialsMock5,
+  avDigitizationMock1, avDigitizationMock2, avDigitizationMock3, avDigitizationMock4, avDigitizationMock5,
+  socialWorkerMock1, socialWorkerMock2, socialWorkerMock3, socialWorkerMock4, socialWorkerMock5,
+} from './seed-data/tests-minubumwe-ndera';
+import {
+  biostatisticianMock1, biostatisticianMock2, biostatisticianMock3, biostatisticianMock4, biostatisticianMock5,
+  clinicalPsychologistMock1, clinicalPsychologistMock2, clinicalPsychologistMock3, clinicalPsychologistMock4, clinicalPsychologistMock5,
+} from './seed-data/tests-ndera-clinical';
+import {
+  biostatisticianFullMock1, biostatisticianFullMock2, biostatisticianFullMock3, biostatisticianFullMock4, biostatisticianFullMock5,
+  clinicalPsychologistFullMock1, clinicalPsychologistFullMock2, clinicalPsychologistFullMock3, clinicalPsychologistFullMock4, clinicalPsychologistFullMock5,
+} from './seed-data/tests-ndera-clinical-full';
+import {
+  biomedicalTechnicianMock1, biomedicalTechnicianMock2, biomedicalTechnicianMock3, biomedicalTechnicianMock4, biomedicalTechnicianMock5,
+  networkSpecialistMock1, networkSpecialistMock2, networkSpecialistMock3, networkSpecialistMock4, networkSpecialistMock5,
+} from './seed-data/tests-ndera-ict';
+import {
+  biomedicalTechnicianFullMock1, biomedicalTechnicianFullMock2, biomedicalTechnicianFullMock3, biomedicalTechnicianFullMock4, biomedicalTechnicianFullMock5,
+  networkSpecialistFullMock1, networkSpecialistFullMock2, networkSpecialistFullMock3, networkSpecialistFullMock4, networkSpecialistFullMock5,
+} from './seed-data/tests-ndera-ict-full';
+import {
+  researchGrantMock1, researchGrantMock2, researchGrantMock3,
+  cpdCoordinationMock1, cpdCoordinationMock2, postgraduateCoordinationMock1, postgraduateCoordinationMock2,
+} from './seed-data/tests-ndera-research';
 
 /** Password of the dev admins (system.admin@, content.editor@, support@, multi.role@jobprep.test). Never set in production. */
 export const DEV_PASSWORD = 'Password123!';
@@ -76,15 +124,52 @@ const KE_CATEGORIES: CategoryDef[] = [
 
 const ALL_TESTS: TestDef[] = [
   secondaryMathsS1S3, secondaryMathsS4S6, primaryTeacherGeneral, teachingProfessionCbc,
-  headteacherMock1, executiveSecretaryFree, executiveSecretaryMock2,
+  headteacherMock1, executiveSecretaryFree, executiveSecretaryMock2, executiveSecretaryMock3, sedoLocalEconomicDevelopmentMock1,
   accountantMock1, accountantFreeSample, procurementFree, procurementMock1, ictOfficerFree,
   keTeachingSample, keAccountantMock,
+
+  // ───────────────────────── MIFOTRA-linked mocks (job-specific, jobDeadlineAt set) — added in bulk below
+  executiveSecretaryFullMock1, executiveSecretaryFullMock2, executiveSecretaryFullMock3, executiveSecretaryFullMock4, executiveSecretaryFullMock5,
+  sedoFullMock1, sedoFullMock2, sedoFullMock3, sedoFullMock4, sedoFullMock5,
+
+  accountantMininterMock1, accountantMininterMock2, accountantMininterMock3, accountantMininterPsychMock4, accountantMininterCaseMock5,
+  internalAuditorMininterMock1, internalAuditorMininterMock2, internalAuditorMininterMock3, internalAuditorMininterPsychMock4, internalAuditorMininterCaseMock5,
+  accountantMininterFullMock1, accountantMininterFullMock2, accountantMininterFullMock3, accountantMininterFullMock4, accountantMininterFullMock5,
+  internalAuditorMininterFullMock1, internalAuditorMininterFullMock2, internalAuditorMininterFullMock3, internalAuditorMininterFullMock4, internalAuditorMininterFullMock5,
+
+  ...STOREKEEPER_CHUB_MOCKS, ...RADIOGRAPHER_CHUB_MOCKS,
+
+  legalAffairsSpecialistMinalocMock1, legalAffairsSpecialistMinalocMock2, legalAffairsSpecialistMinalocMock3, legalAffairsSpecialistMinalocMock4, legalAffairsSpecialistMinalocMock5,
+  lgCapacityDevelopmentSpecialistMinalocMock1, lgCapacityDevelopmentSpecialistMinalocMock2, lgCapacityDevelopmentSpecialistMinalocMock3, lgCapacityDevelopmentSpecialistMinalocMock4, lgCapacityDevelopmentSpecialistMinalocMock5,
+  idpManagementSpecialistMinalocMock1, idpManagementSpecialistMinalocMock2, idpManagementSpecialistMinalocMock3, idpManagementSpecialistMinalocMock4, idpManagementSpecialistMinalocMock5,
+
+  adminAssistantProsecutorGeneralMock1, adminAssistantProsecutorGeneralMock2, adminAssistantProsecutorGeneralMock3, adminAssistantProsecutorGeneralMock4, adminAssistantProsecutorGeneralMock5,
+  accountantCityOfKigaliMock1, accountantCityOfKigaliMock2, accountantCityOfKigaliMock3, accountantCityOfKigaliMock4, accountantCityOfKigaliMock5,
+
+  genocideMemorialsMock1, genocideMemorialsMock2, genocideMemorialsMock3, genocideMemorialsMock4, genocideMemorialsMock5,
+  avDigitizationMock1, avDigitizationMock2, avDigitizationMock3, avDigitizationMock4, avDigitizationMock5,
+  socialWorkerMock1, socialWorkerMock2, socialWorkerMock3, socialWorkerMock4, socialWorkerMock5,
+
+  biostatisticianMock1, biostatisticianMock2, biostatisticianMock3, biostatisticianMock4, biostatisticianMock5,
+  clinicalPsychologistMock1, clinicalPsychologistMock2, clinicalPsychologistMock3, clinicalPsychologistMock4, clinicalPsychologistMock5,
+  biostatisticianFullMock1, biostatisticianFullMock2, biostatisticianFullMock3, biostatisticianFullMock4, biostatisticianFullMock5,
+  clinicalPsychologistFullMock1, clinicalPsychologistFullMock2, clinicalPsychologistFullMock3, clinicalPsychologistFullMock4, clinicalPsychologistFullMock5,
+
+  biomedicalTechnicianMock1, biomedicalTechnicianMock2, biomedicalTechnicianMock3, biomedicalTechnicianMock4, biomedicalTechnicianMock5,
+  networkSpecialistMock1, networkSpecialistMock2, networkSpecialistMock3, networkSpecialistMock4, networkSpecialistMock5,
+  biomedicalTechnicianFullMock1, biomedicalTechnicianFullMock2, biomedicalTechnicianFullMock3, biomedicalTechnicianFullMock4, biomedicalTechnicianFullMock5,
+  networkSpecialistFullMock1, networkSpecialistFullMock2, networkSpecialistFullMock3, networkSpecialistFullMock4, networkSpecialistFullMock5,
+
+  researchGrantMock1, researchGrantMock2, researchGrantMock3,
+  cpdCoordinationMock1, cpdCoordinationMock2, postgraduateCoordinationMock1, postgraduateCoordinationMock2,
 ];
 
-const slugify = (s: string) =>
+export { ALL_TESTS };
+
+export const slugify = (s: string) =>
   s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-function buildPayload(q: QDef) {
+export function buildPayload(q: QDef) {
   const correctIdx = Array.isArray(q.correct) ? q.correct : [q.correct];
   const options = q.options.map((text, i) => ({ key: KEYS[i]!, text }));
   return {
@@ -225,6 +310,7 @@ export async function seedDatabase(prisma: PrismaClient) {
           'When time runs out, your answers are submitted automatically.',
         ],
         publishedAt: new Date(),
+        jobDeadlineAt: t.jobDeadlineAt ? new Date(t.jobDeadlineAt) : null,
       },
     });
 

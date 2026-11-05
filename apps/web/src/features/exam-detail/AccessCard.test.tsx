@@ -18,6 +18,7 @@ const base: ExamDetail = {
   accessTag: 'FULL_ACCESS',
   attempts: 'UNLIMITED',
   publishedAt: null,
+  jobDeadlineAt: null,
   summary: null,
   totalMarks: 12,
   sections: [],

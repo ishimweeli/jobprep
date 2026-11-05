@@ -8,7 +8,7 @@ export interface CatalogFilters {
   difficulty: '' | 'FOUNDATION' | 'STANDARD' | 'CHALLENGING';
   language: string;
   subject: string;
-  sort: '' | 'recent' | 'title' | 'free_first';
+  sort: '' | 'recent' | 'title' | 'free_first' | 'deadline';
   page: number;
 }
 
@@ -24,7 +24,7 @@ export const EMPTY_FILTERS: CatalogFilters = {
 };
 
 const DIFFICULTIES = ['FOUNDATION', 'STANDARD', 'CHALLENGING'] as const;
-const SORTS = ['recent', 'title', 'free_first'] as const;
+const SORTS = ['recent', 'title', 'free_first', 'deadline'] as const;
 
 /** Parse URLSearchParams defensively: unknown or malformed values fall back to "no filter". */
 export function parseFilters(params: URLSearchParams): CatalogFilters {

@@ -77,6 +77,8 @@ export interface TestCard {
   accessTag: 'FREE' | 'FULL_ACCESS';
   attempts: 'UNLIMITED' | string;
   publishedAt: string | null;
+  /** Application deadline of the real job posting this mock targets, if it's tied to one currently open. */
+  jobDeadlineAt: string | null;
 }
 
 export interface Landing {

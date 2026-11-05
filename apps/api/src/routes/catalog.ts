@@ -31,7 +31,7 @@ const listQuery = z.object({
   difficulty: csv(z.enum(['FOUNDATION', 'STANDARD', 'CHALLENGING'])),
   language: csv(z.string().min(2).max(5)),
   subject: csv(z.string().max(80)), // topic slugs
-  sort: z.enum(['recommended', 'recent', 'title', 'free_first']).default('recommended'),
+  sort: z.enum(['recommended', 'recent', 'title', 'free_first', 'deadline']).default('recommended'),
   page: z.coerce.number().int().min(1).max(500).default(1),
   pageSize: z.coerce.number().int().min(1).max(50).default(20),
 });
@@ -64,6 +64,7 @@ function card(t: CardRow) {
     accessTag: t.isFree ? 'FREE' : 'FULL_ACCESS',
     attempts: 'UNLIMITED',
     publishedAt: t.publishedAt,
+    jobDeadlineAt: t.jobDeadlineAt,
   };
 }
 
@@ -193,12 +194,15 @@ export function catalogRouter(ctx: Ctx) {
       ...(f.language.length > 0 && { languages: { hasSome: f.language } }),
       ...(f.subject.length > 0 && { questions: { some: { ...PUBLISHED, topic: { slug: { in: f.subject } } } } }),
       ...(wordFilters.length > 0 && { AND: wordFilters }),
+      // "Closing soon" only makes sense for mocks tied to a real, still-open job posting.
+      ...(f.sort === 'deadline' && { jobDeadlineAt: { not: null } }),
     };
 
     const orderBy: Prisma.MockTestOrderByWithRelationInput[] =
       f.sort === 'recent' ? [{ publishedAt: 'desc' }, { title: 'asc' }]
       : f.sort === 'title' ? [{ title: 'asc' }]
       : f.sort === 'free_first' ? [{ isFree: 'desc' }, { title: 'asc' }]
+      : f.sort === 'deadline' ? [{ jobDeadlineAt: 'asc' }, { title: 'asc' }]
       : [{ category: { sortOrder: 'asc' } }, { isFree: 'desc' }, { title: 'asc' }];
 
     const [total, rows, facetCats, facetTopics, facetRows] = await Promise.all([

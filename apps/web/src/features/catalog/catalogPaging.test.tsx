@@ -10,7 +10,7 @@ import { mergePages } from './queries';
 
 const card = (n: number): TestCard => ({
   id: `t${n}`, slug: `s${n}`, title: `Test ${n}`, category: { slug: 'c', name: 'C' }, profession: 'P', questionCount: 10, durationMinutes: 20, languages: ['en'],
-  difficulty: 'STANDARD', isFree: true, accessTag: 'FREE', attempts: 'UNLIMITED', publishedAt: null,
+  difficulty: 'STANDARD', isFree: true, accessTag: 'FREE', attempts: 'UNLIMITED', publishedAt: null, jobDeadlineAt: null,
 });
 const page = (n: number, results: TestCard[], hasMore: boolean): CatalogResponse => ({
   total: 45, page: n, pageSize: 20, results, empty: false, canRequestExam: false, hasMore, nextPage: hasMore ? n + 1 : null, totalPages: 3,
@@ -72,7 +72,7 @@ describe('catalog filters on the phone sheet (C32)', () => {
     renderWithProviders(<FilterPanel filters={EMPTY_FILTERS} facets={facets} onChange={onChange} variant="sheet" idPrefix="sheet" />);
     expect(screen.getByLabelText('Subject / role')).toBeInTheDocument();
     for (const legend of ['Price', 'Difficulty', 'Language', 'Sort by']) expect(screen.getByRole('group', { name: legend })).toBeInTheDocument();
-    expect(SORT_OPTIONS.map((o) => o.label)).toEqual(['Most relevant', 'Free first', 'Newest', 'A to Z']);
+    expect(SORT_OPTIONS.map((o) => o.label)).toEqual(['Most relevant', 'Free first', 'Newest', 'A to Z', 'Closing soon']);
     await u.click(screen.getByRole('radio', { name: 'Free first' }));
     expect(onChange).toHaveBeenCalledWith({ sort: 'free_first' });
     await u.click(screen.getByRole('radio', { name: 'Kinyarwanda' }));

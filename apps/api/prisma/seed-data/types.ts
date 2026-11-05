@@ -35,4 +35,6 @@ export interface TestDef {
   questions: QDef[];
   cases?: CaseDef[];
   instructions?: string[];
+  /** Application deadline (ISO date, e.g. '2026-11-12') of the real job posting this mock targets. Omit for mocks not tied to a specific live posting. */
+  jobDeadlineAt?: string;
 }
