@@ -12,14 +12,17 @@ export function Avatar({ name, size = 40 }: { name: string; size?: 40 | 44 | 48 
   return (
     <span
       aria-hidden="true"
-      className={cx('inline-flex flex-none items-center justify-center rounded-full bg-brand-soft font-semibold text-brand-hover', size === 40 ? 'h-10 w-10' : size === 44 ? 'h-11 w-11' : 'h-12 w-12')}
+      className={cx(
+        'inline-flex flex-none items-center justify-center rounded-full bg-brand-soft font-semibold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand',
+        size === 40 ? 'h-10 w-10' : size === 44 ? 'h-11 w-11' : 'h-12 w-12',
+      )}
     >
       {initials(name)}
     </span>
   );
 }
 
-const itemBase = 'flex min-h-[48px] items-center gap-3 rounded-[10px] px-3 py-3 md:min-h-[44px] text-ink no-underline hover:bg-soft hover:text-ink';
+const itemBase = 'flex min-h-[48px] items-center gap-3 rounded-[10px] px-3 py-3 md:min-h-[44px] text-ink no-underline hover:bg-soft hover:text-ink dark:text-night-ink dark:hover:bg-night-soft dark:hover:text-night-ink';
 
 /** One row of the list: icon, label and the grey second line. Inert rows (no designed follow-up) are `aria-disabled`. */
 export function MenuRow({ item, role, onNavigate }: { item: AccountMenuItem; role?: 'menuitem'; onNavigate?: () => void }) {
@@ -104,7 +107,7 @@ export function AccountMenu({ session, slug }: { session: MeResponse; slug: stri
         // The name starts with the visible initials (WCAG 2.5.3 label in name).
         aria-label={`${initials(user.name)} account menu for ${user.name}`}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-0 bg-brand-soft p-0 font-semibold text-brand-hover"
+        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-0 bg-brand-soft p-0 font-semibold text-brand-hover dark:bg-night-brand-soft dark:text-night-brand"
       >
         {initials(user.name)}
       </button>
@@ -114,20 +117,20 @@ export function AccountMenu({ session, slug }: { session: MeResponse; slug: stri
           id={menuId}
           role="menu"
           aria-label="Account"
-          className="absolute right-0 top-[calc(100%+10px)] z-40 flex w-[340px] flex-col rounded-card border border-border bg-surface p-2 shadow-[0_16px_40px_rgba(20,30,50,0.16)]"
+          className="absolute right-0 top-[calc(100%+10px)] z-40 flex w-[340px] flex-col rounded-card border border-border bg-surface p-2 shadow-[0_16px_40px_rgba(20,30,50,0.16)] dark:border-night-border dark:bg-night-surface"
         >
           <div className="flex items-center gap-3 p-3">
             <Avatar name={user.name} size={44} />
             <span className="flex min-w-0 flex-col">
-              <strong className="truncate text-base">{user.name}</strong>
-              <span className="truncate text-[13px] text-muted">{user.email}</span>
+              <strong className="truncate text-base text-heading dark:text-night-heading">{user.name}</strong>
+              <span className="truncate text-[13px] text-muted dark:text-night-muted">{user.email}</span>
             </span>
           </div>
-          <div className="my-1 h-px bg-border" />
+          <div className="my-1 h-px bg-border dark:bg-night-border" />
           {items.map((item) => (
             <MenuRow key={item.id} item={item} role="menuitem" onNavigate={() => setOpen(false)} />
           ))}
-          <div className="my-1 h-px bg-border" />
+          <div className="my-1 h-px bg-border dark:bg-night-border" />
           <button
             type="button"
             role="menuitem"

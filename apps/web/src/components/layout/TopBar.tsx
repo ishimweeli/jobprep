@@ -4,10 +4,11 @@ import { Link, useMatches } from 'react-router-dom';
 import { isLocale } from '@jobprep/shared';
 import { StrokeIcon } from '../StrokeIcon';
 import { cx } from '../../lib/cx';
-import { initials, languageOwnName } from '../../lib/format';
+import { languageOwnName } from '../../lib/format';
 import { useLocale, useOfferedLanguages, useSetLocale } from '../../lib/i18n';
 import { useSetTheme } from '../../lib/theme';
 import { useSession } from '../../features/auth/session';
+import { AccountMenu } from '../../features/account/AccountMenu';
 import { countryPath, useActiveCountrySlug } from '../../features/country/hooks';
 import type { RouteHandle } from './SiteLayout';
 
@@ -95,25 +96,12 @@ function LanguageButton() {
   );
 }
 
+/** The account chip opens the real dropdown (AccountMenu.dc) — the chevron promises a menu, not a page. */
 function AccountChip() {
   const { session } = useSession();
+  const slug = useActiveCountrySlug();
   if (!session) return null;
-  const firstName = session.user.name.split(' ')[0] ?? session.user.name;
-  return (
-    <Link
-      to="/account"
-      className="flex h-10 flex-none items-center gap-2 rounded-[20px] border border-border bg-surface px-2 pr-3 text-ink no-underline hover:bg-soft hover:text-ink dark:border-night-border dark:bg-night-surface dark:text-night-ink dark:hover:bg-night-soft"
-    >
-      <span
-        aria-hidden="true"
-        className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand text-[12px] font-semibold text-white"
-      >
-        {initials(session.user.name)}
-      </span>
-      <span className="text-[13px] font-semibold">{firstName}</span>
-      <ChevronDown size={14} strokeWidth={2.2} aria-hidden="true" className="flex-none text-muted dark:text-night-muted" />
-    </Link>
-  );
+  return <AccountMenu session={session} slug={slug} />;
 }
 
 /**
