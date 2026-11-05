@@ -7,16 +7,16 @@ import { Button } from './Button';
 
 /* Shared system states (design: States.dc.html) — loading skeletons, empty, error with retry. */
 
+/** A subtle pulse, not a shimmer sweep — simpler, and `motion-safe:` keeps it off entirely for reduced-motion users. */
 export function SkeletonBar({ className }: { className?: string }) {
-  return <span aria-hidden="true" className={cx('block rounded-md bg-soft', className)} />;
+  return <span aria-hidden="true" className={cx('block rounded-md bg-soft motion-safe:animate-pulse dark:bg-night-soft', className)} />;
 }
 
-/** Static (non-animated) skeleton card: no decorative motion anywhere in the app. */
 export function CardSkeleton({ className }: { className?: string }) {
   return (
-    <div aria-hidden="true" className={cx('flex flex-col gap-2.5 rounded-[14px] border border-border bg-surface p-4', className)}>
+    <div aria-hidden="true" className={cx('flex flex-col gap-2.5 rounded-tiles border border-border bg-surface p-4 dark:border-night-border dark:bg-night-surface', className)}>
       <SkeletonBar className="h-3 w-2/5" />
-      <SkeletonBar className="h-4 w-[85%] bg-border" />
+      <SkeletonBar className="h-4 w-[85%] bg-border dark:bg-night-border" />
       <SkeletonBar className="h-3 w-3/5" />
     </div>
   );
