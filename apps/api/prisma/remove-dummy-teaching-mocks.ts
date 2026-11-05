@@ -1,14 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 
 /**
- * One-off cleanup, requested directly: removes 5 leftover placeholder/dummy mocks (small, pre-MIFOTRA sample
+ * One-off cleanup, requested directly: removes leftover placeholder/dummy mocks (small, pre-MIFOTRA sample
  * content) from the live catalog — Primary Teacher General, Secondary Mathematics Teacher S1-S3 and S4-S6,
- * Teaching Profession & CBC Pedagogy, and Headteacher School Leadership Mock 1. Database rows only: these
- * stay in ALL_TESTS/seed-data (they're also used as fixture data by ~14 backend integration tests), so a
- * fresh `prisma migrate reset && seed` or a `sync-content` run would recreate them — this is a one-time
- * catalog cleanup, not a permanent removal from the codebase. Never deletes a mock any candidate has
- * actually attempted — reports it instead, so a real attempt is never silently destroyed. Safe to run more
- * than once: already-removed slugs are just reported as not found.
+ * Teaching Profession & CBC Pedagogy, Headteacher School Leadership Mock 1, and Executive Secretary Free
+ * Sample. Database rows only: these stay in ALL_TESTS/seed-data (they're also used as fixture data by
+ * backend integration tests), so a fresh `prisma migrate reset && seed` or a `sync-content` run would
+ * recreate them — this is a one-time catalog cleanup, not a permanent removal from the codebase. Never
+ * deletes a mock any candidate has actually attempted — reports it instead, so a real attempt is never
+ * silently destroyed. Safe to run more than once: already-removed slugs are just reported as not found.
  */
 const SLUGS = [
   'primary-teacher-general-p1-p6-mock-1',
@@ -16,6 +16,7 @@ const SLUGS = [
   'secondary-mathematics-teacher-s4-s6-mock-1',
   'teaching-profession-cbc-pedagogy',
   'headteacher-school-leadership-mock-1',
+  'executive-secretary-free-sample',
 ];
 
 async function main() {
