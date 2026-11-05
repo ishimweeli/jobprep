@@ -81,6 +81,29 @@ function RadioGroup({
   );
 }
 
+/** A plain `<select>`, the desktop filter row's look for Subject / Difficulty / Language — compact, one line, not a stack of bordered radio rows. */
+function SelectField({ id, legend, value, options, onChange }: { id: string; legend: string; value: string; options: Option[]; onChange: (v: string) => void }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-[15px] font-semibold text-heading dark:text-night-heading">
+        {legend}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-11 rounded-[10px] border border-input-border bg-surface px-3 text-[15px] text-ink dark:border-night-border dark:bg-night-surface dark:text-night-ink"
+      >
+        {options.map((o) => (
+          <option key={o.value || 'any'} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 /**
  * Price as one bordered segmented-button group (three buttons sharing a container), the desktop filter row's
  * look for Price specifically. The phone sheet keeps the pill-radio style (`RadioGroup`) for every field.
@@ -139,7 +162,8 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
     ...(facets?.languages ?? []).map((l) => ({ value: l, label: languageName(l) })),
   ];
 
-  const subject = (
+  const subjectOptions: Option[] = [{ value: '', label: 'All subjects' }, ...(facets?.subjects ?? []).map((s) => ({ value: s.slug, label: s.name }))];
+  const subject = sheet ? (
     <div className="flex flex-col gap-2">
       <label htmlFor={`${idPrefix}-subject`} className="text-[15px] font-semibold">
         Subject / role
@@ -150,14 +174,15 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
         onChange={(e) => onChange({ subject: e.target.value })}
         className="h-11 rounded-[10px] border border-input-border bg-surface px-3 text-[15px] text-ink"
       >
-        <option value="">All subjects</option>
-        {(facets?.subjects ?? []).map((s) => (
-          <option key={s.slug} value={s.slug}>
-            {s.name}
+        {subjectOptions.map((o) => (
+          <option key={o.value || 'any'} value={o.value}>
+            {o.label}
           </option>
         ))}
       </select>
     </div>
+  ) : (
+    <SelectField id={`${idPrefix}-subject`} legend="Subject / role" value={filters.subject} options={subjectOptions} onChange={(v) => onChange({ subject: v })} />
   );
 
   return (
@@ -168,17 +193,24 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
       ) : (
         <SegmentedGroup legend="Price" name={`${idPrefix}-price`} value={filters.price} options={priceOptions} onPick={(v) => onChange({ price: v as CatalogFilters['price'] })} />
       )}
-      <RadioGroup
-        legend="Difficulty"
-        name={`${idPrefix}-difficulty`}
-        value={filters.difficulty}
-        options={difficultyOptions}
-        variant={variant}
-        onPick={(v) => onChange({ difficulty: v as CatalogFilters['difficulty'] })}
-      />
-      {languageOptions.length > 1 && (
-        <RadioGroup legend="Language" name={`${idPrefix}-language`} value={filters.language} options={languageOptions} variant={variant} onPick={(v) => onChange({ language: v })} />
+      {sheet ? (
+        <RadioGroup
+          legend="Difficulty"
+          name={`${idPrefix}-difficulty`}
+          value={filters.difficulty}
+          options={difficultyOptions}
+          variant={variant}
+          onPick={(v) => onChange({ difficulty: v as CatalogFilters['difficulty'] })}
+        />
+      ) : (
+        <SelectField id={`${idPrefix}-difficulty`} legend="Difficulty" value={filters.difficulty} options={difficultyOptions} onChange={(v) => onChange({ difficulty: v as CatalogFilters['difficulty'] })} />
       )}
+      {languageOptions.length > 1 &&
+        (sheet ? (
+          <RadioGroup legend="Language" name={`${idPrefix}-language`} value={filters.language} options={languageOptions} variant={variant} onPick={(v) => onChange({ language: v })} />
+        ) : (
+          <SelectField id={`${idPrefix}-language`} legend="Language" value={filters.language} options={languageOptions} onChange={(v) => onChange({ language: v })} />
+        ))}
       {sheet && (
         <RadioGroup
           legend="Sort by"
