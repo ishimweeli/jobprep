@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { JobCatalogResponse } from '../../api/types';
+import { markPushNavigation, resetPushedThisSession } from '../../lib/navigationHistory';
 import { setStoredPreferredJob } from '../../lib/preferredJob';
 import { mockFetch, renderWithProviders } from '../../test/utils';
 import { CatalogPage } from './CatalogPage';
@@ -9,6 +10,7 @@ import { CatalogPage } from './CatalogPage';
 afterEach(() => {
   vi.unstubAllGlobals();
   localStorage.clear();
+  resetPushedThisSession();
 });
 
 function Where() {
@@ -61,5 +63,16 @@ describe('catalog page (job-first)', () => {
     render();
     await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/tests/jobs/rw-cpd-coordination-officer'));
     expect(screen.getByText('JOB PAGE')).toBeInTheDocument();
+  });
+
+  it('browser Back out of the job page is not treated as a fresh visit, so it does not re-redirect', async () => {
+    setStoredPreferredJob('rw-cpd-coordination-officer');
+    // A POP straight to /tests with nothing pushed first (this test's own render) is a fresh load/direct Back out
+    // of the app — still redirects. Only a POP *after* an in-app PUSH (simulated here) is "escaping" the job page.
+    markPushNavigation();
+    render();
+    expect(await screen.findByText('CPD Coordination Officer')).toBeInTheDocument();
+    expect(screen.queryByText('JOB PAGE')).not.toBeInTheDocument();
+    expect(screen.getByTestId('where')).toHaveTextContent('/rw/tests');
   });
 });

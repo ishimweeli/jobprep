@@ -1,6 +1,6 @@
 import { ArrowLeft, Search, SlidersHorizontal } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigationType, useSearchParams } from 'react-router-dom';
 import type { CatalogFacets, JobCatalogResponse } from '../../api/types';
 import { Button } from '../../components/Button';
 import { Chip } from '../../components/Chip';
@@ -17,6 +17,7 @@ import {
 } from '../../lib/catalogFilters';
 import { cx } from '../../lib/cx';
 import { plural } from '../../lib/format';
+import { hasPushedThisSession } from '../../lib/navigationHistory';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { FilterPanel, SORT_OPTIONS } from './FilterPanel';
 import { JobResultCard } from './JobResultCard';
@@ -30,6 +31,7 @@ export function CatalogPage() {
   const slug = useActiveCountrySlug();
   const { user, isLoading: sessionLoading } = useSession();
   const { slug: preferredSlug, isLoading: preferredLoading } = usePreferredJobSlug();
+  const navigationType = useNavigationType();
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => parseFilters(params), [params]);
   const [qInput, setQInput] = useState(filters.q);
@@ -75,9 +77,11 @@ export function CatalogPage() {
   const catName = data?.facets.categories.find((c) => c.slug === filters.category)?.name;
 
   // A saved job (server-side for a signed-in user, localStorage for a guest) opens straight to its page;
-  // "Change job" there is what brings someone back here. See `usePreferredJob.ts`.
+  // "Change job" there is what brings someone back here. See `usePreferredJob.ts`. Browser Back out of that
+  // job page is also a POP landing here, so it's excluded too — otherwise Back would just bounce right back.
+  const isBackNavigation = navigationType === 'POP' && hasPushedThisSession();
   if (user && (sessionLoading || preferredLoading)) return <SkeletonList count={2} label="Loading…" />;
-  if (preferredSlug) return <Navigate to={countryPath(slug, 'tests', 'jobs', preferredSlug)} replace />;
+  if (preferredSlug && !isBackNavigation) return <Navigate to={countryPath(slug, 'tests', 'jobs', preferredSlug)} replace />;
 
   return (
     <div>

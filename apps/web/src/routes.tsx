@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { Outlet, type RouteObject } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { Outlet, useNavigationType, type RouteObject } from 'react-router-dom';
 import { SignedOutNotice } from './components/layout/SignedOutNotice';
 import { CountryLayout } from './components/layout/SiteLayout';
 import { SkeletonList } from './components/states';
@@ -9,12 +9,19 @@ import { MaintenanceWatcher } from './features/system/MaintenanceWatcher';
 import { NotFoundPage, RouteErrorPage, SystemGate, SystemPageBody } from './features/system/SystemPage';
 import { countryPath, useActiveCountrySlug } from './features/country/hooks';
 import { PhoneBrandHeader } from './components/layout/Header';
+import { markPushNavigation } from './lib/navigationHistory';
 import { useSystemState } from './lib/systemState';
 import type { LegalSlug } from './api/types';
 
 /** Root: the system pages (maintenance, session expired) replace everything; the signed-out notice floats above. */
 function RootLayout() {
   const system = useSystemState();
+  const navigationType = useNavigationType();
+  // Tracked for CatalogPage's preferred-job redirect: a fresh load and the browser's Back button both report
+  // as POP, so it also needs to know whether an in-app PUSH happened first (see lib/navigationHistory.ts).
+  useEffect(() => {
+    if (navigationType !== 'POP') markPushNavigation();
+  }, [navigationType]);
   return (
     <>
       <MaintenanceWatcher />
