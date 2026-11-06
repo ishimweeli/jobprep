@@ -175,7 +175,7 @@ describe('support contact', () => {
     expect(rw.phone).toBeTruthy();
     expect((await request(app).get('/api/countries/RW')).body.supportContact).toEqual(rw);
     const ug = (await request(app).get('/api/countries/UG/support')).body.supportContact;
-    expect(ug).toEqual({ phone: null, whatsapp: null, email: null, hours: null, configured: false, placeholder: false });
+    expect(ug).toEqual({ phone: null, whatsapp: null, email: null, hours: null, people: [], configured: false, placeholder: false });
     expect((await request(app).get('/api/countries/ZZ/support')).status).toBe(404);
   });
 

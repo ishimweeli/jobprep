@@ -42,8 +42,8 @@ export interface SupportRow {
 const digits = (s: string) => s.replace(/[^\d]/g, '');
 
 /** The contact rows to draw: only the ones the country has, each with a tappable link. */
-export function supportRows(c: Pick<SupportContact, 'phone' | 'whatsapp' | 'email'> | null | undefined): SupportRow[] {
-  const rows: SupportRow[] = [];
+export function supportRows(c: Pick<SupportContact, 'phone' | 'whatsapp' | 'email' | 'people'> | null | undefined): SupportRow[] {
+  const rows: SupportRow[] = (c?.people ?? []).map((p) => ({ kind: 'phone', label: p.name, value: p.phone, href: `tel:${p.phone.replace(/[^\d+]/g, '')}` }));
   if (c?.phone) rows.push({ kind: 'phone', label: 'Phone', value: c.phone, href: `tel:${c.phone.replace(/[^\d+]/g, '')}` });
   if (c?.whatsapp) rows.push({ kind: 'whatsapp', label: 'WhatsApp', value: c.whatsapp, href: `https://wa.me/${digits(c.whatsapp)}` });
   if (c?.email) rows.push({ kind: 'email', label: 'Email', value: c.email, href: `mailto:${c.email}` });

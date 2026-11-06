@@ -49,6 +49,8 @@ export interface SupportContact {
   whatsapp: string | null;
   email: string | null;
   hours: string | null;
+  /** Named people to call, shown as well as the general phone and WhatsApp. */
+  people?: { name: string; phone: string }[];
   configured: boolean;
   placeholder: boolean;
 }

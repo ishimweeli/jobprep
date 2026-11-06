@@ -47,7 +47,7 @@ Body `{ email?, interest? }` (`email` may be left out when signed in; `interest`
 
 ### GET `/api/countries/:code` (changed) and GET `/api/countries/:code/support` (new)
 `GET /api/countries/:code` gains `supportContact` (below). `GET /api/countries/:code/support` returns `{ supportContact }` (any country, public).
-`supportContact = { phone: string|null, whatsapp: string|null, email: string|null, hours: string|null, configured: boolean, placeholder: boolean }`.
+`supportContact = { phone: string|null, whatsapp: string|null, email: string|null, hours: string|null, people: {name,phone}[], configured: boolean, placeholder: boolean }`. `people` comes only from the `support.contact:<CC>` setting; an admin's PATCH leaves it unchanged.
 `configured` false = nothing set for that country: hide the block. `placeholder` true = dev placeholder values (never shown in production data).
 Values come from the admin (PATCH `/api/admin/countries/:code`, field `supportContact`), else from the env fallback `SUPPORT_PHONE|WHATSAPP|EMAIL|HOURS`.
 

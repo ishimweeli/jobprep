@@ -22,6 +22,8 @@ describe('legal and help pages (C25 / C36)', () => {
     expect(rows.map((r) => r.href)).toEqual(['tel:+250788000000', 'https://wa.me/250788000001', 'mailto:help@jobprep.test']);
     expect(supportRows({ phone: null, whatsapp: null, email: 'a@b.c' }).map((r) => r.kind)).toEqual(['email']);
     expect(supportRows(null)).toEqual([]);
+    const named = supportRows({ phone: null, whatsapp: null, email: 'a@b.c', people: [{ name: 'Abel', phone: '+250 785 969 446' }, { name: 'Pacifique', phone: '+250 783 137 606' }] });
+    expect(named.map((r) => [r.label, r.href])).toEqual([['Abel', 'tel:+250785969446'], ['Pacifique', 'tel:+250783137606'], ['Email', 'mailto:a@b.c']]);
   });
   it('support state: ready, placeholder, or missing', () => {
     const base = { phone: '+250788000000', whatsapp: null, email: null, hours: null, configured: true, placeholder: false };

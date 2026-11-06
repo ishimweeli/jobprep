@@ -1,11 +1,18 @@
 import type { PrismaClient } from '@prisma/client';
 import type { Config } from '../config';
 
+export interface SupportPerson {
+  name: string;
+  phone: string;
+}
+
 export interface SupportContact {
   phone: string | null;
   whatsapp: string | null;
   email: string | null;
   hours: string | null;
+  /** Named people to call, shown as well as the general phone and WhatsApp. */
+  people: SupportPerson[];
   /** False when nothing is set for the country (and no env fallback): the web app hides the block. */
   configured: boolean;
   /** True for dev placeholder values; never true for data an admin entered. */
@@ -29,5 +36,10 @@ export async function supportContactFor(
     email: clean(v.email) ?? clean(config.SUPPORT_EMAIL),
     hours: clean(v.hours) ?? clean(config.SUPPORT_HOURS),
   };
-  return { ...out, configured: !!(out.phone || out.whatsapp || out.email), placeholder: v.placeholder === true };
+  const people = (Array.isArray(v.people) ? (v.people as Record<string, unknown>[]) : []).flatMap((p) => {
+    const name = clean(p?.name);
+    const phone = clean(p?.phone);
+    return name && phone ? [{ name, phone }] : [];
+  });
+  return { ...out, people, configured: !!(out.phone || out.whatsapp || out.email || people.length > 0), placeholder: v.placeholder === true };
 }

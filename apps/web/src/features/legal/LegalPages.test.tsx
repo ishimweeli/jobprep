@@ -88,6 +88,14 @@ describe('help page (C25 / C36)', () => {
     expect(screen.queryByTestId('placeholder-note')).not.toBeInTheDocument();
   });
 
+  it('named contacts each get their own card with their name and a number to call', async () => {
+    run(support({ phone: null, people: [{ name: 'Abel', phone: '+250 785 969 446' }, { name: 'Pacifique', phone: '+250 783 137 606' }] }));
+    expect(await screen.findByRole('link', { name: '+250 785 969 446' })).toHaveAttribute('href', 'tel:+250785969446');
+    expect(screen.getByRole('link', { name: '+250 783 137 606' })).toHaveAttribute('href', 'tel:+250783137606');
+    expect(screen.getByText('Abel')).toBeInTheDocument();
+    expect(screen.getByText('Pacifique')).toBeInTheDocument();
+  });
+
   it('placeholder contact details read as placeholders', async () => {
     run(support({ placeholder: true }));
     expect(await screen.findByTestId('placeholder-note')).toHaveTextContent('These are placeholder contact details, not real ones.');

@@ -60,7 +60,7 @@ export function HelpPage() {
               {rows.map((r) => {
                 const Icon = CHANNEL_ICON[r.kind];
                 return (
-                  <li key={r.kind} className={`${panel} flex-[1_1_240px] items-center gap-3.5 p-4`}>
+                  <li key={r.href} className={`${panel} flex-[1_1_240px] items-center gap-3.5 p-4`}>
                     <span className={iconBox}>
                       <Icon size={20} strokeWidth={2} aria-hidden="true" />
                     </span>
