@@ -113,6 +113,75 @@ export interface CatalogResponse {
   totalPages?: number;
 }
 
+/** One card per job (`Exam`): its mock tests aggregated. See `TestCard` for the per-mock-test shape. */
+export interface JobCard {
+  examId: string;
+  jobSlug: string;
+  jobName: string;
+  category: { slug: string; name: string };
+  mockTestCount: number;
+  freeCount: number;
+  difficulties: Difficulty[];
+  durationMinutes: number | null;
+  durationRange: { min: number; max: number } | null;
+  questionCount: number | null;
+  questionCountRange: { min: number; max: number } | null;
+  languages: string[];
+  jobDeadlineAt: string | null;
+  publishedAt: string | null;
+}
+
+export interface JobCatalogResponse {
+  total: number;
+  page: number;
+  pageSize: number;
+  results: JobCard[];
+  empty: boolean;
+  canRequestExam: boolean;
+  facets: CatalogFacets;
+  hasMore?: boolean;
+  nextPage?: number | null;
+  totalPages?: number;
+}
+
+export interface JobMockTestCard {
+  id: string;
+  slug: string;
+  title: string;
+  isFree: boolean;
+  accessTag: 'FREE' | 'FULL_ACCESS';
+  difficulty: Difficulty;
+  languages: string[];
+  durationMinutes: number;
+  questionCount: number;
+  jobDeadlineAt: string | null;
+  publishedAt: string | null;
+  access: {
+    state: 'FREE' | 'GRANTED' | 'LOCKED';
+    canStart: boolean;
+    needsFullAccess: boolean;
+    accessEndsAt: string | null;
+    daysLeft: number | null;
+  };
+}
+
+export interface JobDetail {
+  exam: { id: string; slug: string; name: string };
+  category: { slug: string; name: string };
+  profession: { name: string };
+  jobDeadlineAt: string | null;
+  freeCount: number;
+  totalMockTests: number;
+  mockTests: JobMockTestCard[];
+}
+
+/** The job a user picked on the catalog — carried on the session so `tests/jobs/:slug` can be reached directly. */
+export interface PreferredJob {
+  examId: string;
+  slug: string;
+  name: string;
+}
+
 export interface ExamSection {
   name: string;
   questionType: string;
@@ -197,6 +266,7 @@ export interface PublicUser {
   emailVerified: boolean;
   countryCode: string;
   goalCategoryId: string | null;
+  preferredExamId: string | null;
   level: string | null;
   subject: string | null;
   /** `YYYY-MM-DD` or null. */
@@ -218,6 +288,7 @@ export interface MeResponse {
   user: PublicUser;
   country: { code: string; name: string; currencyCode: string; languages: string[] };
   access: AccessSummary;
+  preferredJob: PreferredJob | null;
 }
 
 /** What a sign-up and a "send a new code" answer: how long until another code may be asked for, and how long this one works. */
@@ -648,6 +719,7 @@ export interface ClaimOutcome {
 export interface PatchMeInput {
   name?: string;
   goalCategoryId?: string | null;
+  preferredExamId?: string | null;
   language?: string;
   level?: string | null;
   subject?: string | null;

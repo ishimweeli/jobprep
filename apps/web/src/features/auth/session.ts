@@ -7,6 +7,7 @@ export function useSession() {
   return {
     session: q.data ?? null,
     user: q.data?.user ?? null,
+    preferredJob: q.data?.preferredJob ?? null,
     isLoading: q.isLoading,
     isError: q.isError,
     refetch: q.refetch,

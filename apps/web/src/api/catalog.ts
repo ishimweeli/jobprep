@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { CatalogResponse, ExamDetail, ExamRequestResponse, Landing, PricingResponse } from './types';
+import type { CatalogResponse, ExamDetail, ExamRequestResponse, JobCatalogResponse, JobDetail, Landing, PricingResponse } from './types';
 
 export interface CatalogQuery {
   q?: string;
@@ -20,6 +20,8 @@ export const catalogKeys = {
   list: (c: string, q: CatalogQuery) => ['catalog', c, 'list', q] as const,
   detail: (c: string, slug: string) => ['catalog', c, 'detail', slug] as const,
   pricing: (c: string) => ['catalog', c, 'pricing'] as const,
+  jobList: (c: string, q: CatalogQuery) => ['catalog', c, 'jobs', q] as const,
+  jobDetail: (c: string, jobSlug: string) => ['catalog', c, 'jobs', 'detail', jobSlug] as const,
 };
 
 export const getLanding = (country: string) => api<Landing>(`${base(country)}/landing`);
@@ -30,3 +32,7 @@ export const getMockTest = (country: string, slug: string) =>
 export const getPricing = (country: string) => api<PricingResponse>(`${base(country)}/pricing`);
 export const requestExam = (country: string, input: { query: string; email?: string }) =>
   api<ExamRequestResponse>(`${base(country)}/exam-requests`, { method: 'POST', body: input });
+export const listJobs = (country: string, query: CatalogQuery) =>
+  api<JobCatalogResponse>(`${base(country)}/jobs`, { query: { ...query } });
+export const getJob = (country: string, jobSlug: string) =>
+  api<JobDetail>(`${base(country)}/jobs/${encodeURIComponent(jobSlug)}`);

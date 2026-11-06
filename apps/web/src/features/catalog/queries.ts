@@ -5,8 +5,22 @@ import { toApiQuery, type CatalogFilters } from '../../lib/catalogFilters';
 
 export const CATALOG_PAGE_SIZE = 20;
 
+/** The paged-list envelope shared by `CatalogResponse` and `JobCatalogResponse` — only `results`' item type differs. */
+export interface PagedCatalog<T> {
+  total: number;
+  page: number;
+  pageSize: number;
+  results: T[];
+  empty: boolean;
+  canRequestExam: boolean;
+  facets: CatalogResponse['facets'];
+  hasMore?: boolean;
+  nextPage?: number | null;
+  totalPages?: number;
+}
+
 /** The loaded pages as one response: the first page's facets and total, every page's results in order (C31: Load more). */
-export function mergePages(pages: CatalogResponse[]): CatalogResponse | undefined {
+export function mergePages<T>(pages: PagedCatalog<T>[]): PagedCatalog<T> | undefined {
   const first = pages[0];
   if (!first) return undefined;
   const last = pages[pages.length - 1]!;

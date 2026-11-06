@@ -3,6 +3,7 @@ import type { Country, Difficulty, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { canStartMockTest, coveredUntil, daysLeft, type GrantLike } from '../domain/access';
 import { emailInput } from '../domain/email';
+import { deriveJobDeadline } from '../domain/jobDeadline';
 import { formatMoney, isSellable } from '../domain/pricing';
 import { normalizeQuery } from '../services/demand';
 import { HttpError, notFound } from '../http/errors';
@@ -43,7 +44,7 @@ const examRequestSchema = z.object({
 
 const mockTestInclude = {
   category: { select: { slug: true, name: true } },
-  exam: { select: { profession: { select: { name: true } } } },
+  exam: { select: { slug: true, name: true, profession: { select: { name: true } } } },
   _count: { select: { questions: { where: PUBLISHED } } },
 } satisfies Prisma.MockTestInclude;
 
@@ -65,6 +66,63 @@ function card(t: CardRow) {
     attempts: 'UNLIMITED',
     publishedAt: t.publishedAt,
     jobDeadlineAt: t.jobDeadlineAt,
+  };
+}
+
+/** The `where` every catalog list (flat or grouped by job) filters mock tests by. */
+function buildMockTestWhere(countryCode: string, f: z.infer<typeof listQuery>): Prisma.MockTestWhereInput {
+  // Every search word must match somewhere: title, summary, category, profession or a topic (subject).
+  // LIKE wildcards typed by the user (% _ \) are matched literally, not treated as patterns.
+  const words = (f.q ?? '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 6)
+    .map((w) => w.replace(/[\\%_]/g, '\\$&'));
+  const wordFilters: Prisma.MockTestWhereInput[] = words.map((w) => ({
+    OR: [
+      { title: { contains: w, mode: 'insensitive' } },
+      { summary: { contains: w, mode: 'insensitive' } },
+      { category: { name: { contains: w, mode: 'insensitive' } } },
+      { exam: { profession: { name: { contains: w, mode: 'insensitive' } } } },
+      { questions: { some: { ...PUBLISHED, topic: { name: { contains: w, mode: 'insensitive' } } } } },
+    ],
+  }));
+
+  return {
+    countryCode,
+    ...PUBLISHED,
+    ...(f.category && { category: { slug: f.category } }),
+    ...(f.price && { isFree: f.price === 'free' }),
+    ...(f.difficulty.length > 0 && { difficulty: { in: f.difficulty as Difficulty[] } }),
+    ...(f.language.length > 0 && { languages: { hasSome: f.language } }),
+    ...(f.subject.length > 0 && { questions: { some: { ...PUBLISHED, topic: { slug: { in: f.subject } } } } }),
+    ...(wordFilters.length > 0 && { AND: wordFilters }),
+    // "Closing soon" only makes sense for mocks tied to a real, still-open job posting.
+    ...(f.sort === 'deadline' && { jobDeadlineAt: { not: null } }),
+  };
+}
+
+/** One card per job (`Exam`): every row below shares one `examId`, already filtered to this country + PUBLISHED. */
+function jobCard(rows: CardRow[], now: Date) {
+  const first = rows[0]!; // callers only ever pass a non-empty group (grouped by examId from at least one row)
+  const durations = [...new Set(rows.map((r) => r.durationMinutes))];
+  const questionCounts = [...new Set(rows.map((r) => r._count.questions))];
+  const publishedDates = rows.map((r) => r.publishedAt).filter((d): d is Date => d !== null);
+  return {
+    examId: first.examId,
+    jobSlug: first.exam.slug,
+    jobName: first.exam.name,
+    category: first.category,
+    mockTestCount: rows.length,
+    freeCount: rows.filter((r) => r.isFree).length,
+    difficulties: [...new Set(rows.map((r) => r.difficulty))],
+    durationMinutes: durations.length === 1 ? durations[0] : null,
+    durationRange: durations.length > 1 ? { min: Math.min(...durations), max: Math.max(...durations) } : null,
+    questionCount: questionCounts.length === 1 ? questionCounts[0] : null,
+    questionCountRange: questionCounts.length > 1 ? { min: Math.min(...questionCounts), max: Math.max(...questionCounts) } : null,
+    languages: [...new Set(rows.flatMap((r) => r.languages))].sort(),
+    jobDeadlineAt: deriveJobDeadline(rows.map((r) => r.jobDeadlineAt), now),
+    publishedAt: publishedDates.length > 0 ? new Date(Math.max(...publishedDates.map((d) => d.getTime()))) : null,
   };
 }
 
@@ -167,36 +225,8 @@ export function catalogRouter(ctx: Ctx) {
   router.get('/mock-tests', async (req, res) => {
     const country = await liveCountry(req);
     const f = listQuery.parse(req.query);
-
-    // Every search word must match somewhere: title, summary, category, profession or a topic (subject).
-    // LIKE wildcards typed by the user (% _ \) are matched literally, not treated as patterns.
-    const words = (f.q ?? '')
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 6)
-      .map((w) => w.replace(/[\\%_]/g, '\\$&'));
-    const wordFilters: Prisma.MockTestWhereInput[] = words.map((w) => ({
-      OR: [
-        { title: { contains: w, mode: 'insensitive' } },
-        { summary: { contains: w, mode: 'insensitive' } },
-        { category: { name: { contains: w, mode: 'insensitive' } } },
-        { exam: { profession: { name: { contains: w, mode: 'insensitive' } } } },
-        { questions: { some: { ...PUBLISHED, topic: { name: { contains: w, mode: 'insensitive' } } } } },
-      ],
-    }));
-
-    const where: Prisma.MockTestWhereInput = {
-      countryCode: country.code,
-      ...PUBLISHED,
-      ...(f.category && { category: { slug: f.category } }),
-      ...(f.price && { isFree: f.price === 'free' }),
-      ...(f.difficulty.length > 0 && { difficulty: { in: f.difficulty as Difficulty[] } }),
-      ...(f.language.length > 0 && { languages: { hasSome: f.language } }),
-      ...(f.subject.length > 0 && { questions: { some: { ...PUBLISHED, topic: { slug: { in: f.subject } } } } }),
-      ...(wordFilters.length > 0 && { AND: wordFilters }),
-      // "Closing soon" only makes sense for mocks tied to a real, still-open job posting.
-      ...(f.sort === 'deadline' && { jobDeadlineAt: { not: null } }),
-    };
+    const where = buildMockTestWhere(country.code, f);
+    const words = (f.q ?? '').split(/\s+/).filter(Boolean).slice(0, 6);
 
     const orderBy: Prisma.MockTestOrderByWithRelationInput[] =
       f.sort === 'recent' ? [{ publishedAt: 'desc' }, { title: 'asc' }]
@@ -238,6 +268,117 @@ export function catalogRouter(ctx: Ctx) {
         difficulties: [...new Set(facetRows.map((r) => r.difficulty))],
         languages: [...new Set(facetRows.flatMap((r) => r.languages))].sort(),
       },
+    });
+  });
+
+  /** Same catalog as `/mock-tests`, grouped into one card per job (`Exam`) instead of one per mock test. */
+  router.get('/jobs', async (req, res) => {
+    const country = await liveCountry(req);
+    const f = listQuery.parse(req.query);
+    const where = buildMockTestWhere(country.code, f);
+    const words = (f.q ?? '').split(/\s+/).filter(Boolean).slice(0, 6);
+
+    const [rows, facetCats, facetTopics, facetRows] = await Promise.all([
+      // Unpaginated: one country's whole catalog, grouped in JS below (same pattern as the facet queries).
+      prisma.mockTest.findMany({ where, include: mockTestInclude }),
+      prisma.category.findMany({
+        where: { countryCode: country.code }, orderBy: { sortOrder: 'asc' },
+        include: { _count: { select: { mockTests: { where: PUBLISHED } } } },
+      }),
+      prisma.topic.findMany({
+        where: { category: { countryCode: country.code }, questions: { some: { ...PUBLISHED, mockTest: PUBLISHED } } },
+        orderBy: { name: 'asc' }, select: { slug: true, name: true },
+      }),
+      prisma.mockTest.findMany({
+        where: { countryCode: country.code, ...PUBLISHED }, select: { languages: true, difficulty: true },
+      }),
+    ]);
+
+    const byExam = new Map<string, CardRow[]>();
+    for (const row of rows) {
+      const group = byExam.get(row.examId);
+      if (group) group.push(row);
+      else byExam.set(row.examId, [row]);
+    }
+    const jobs = [...byExam.values()].map((group) => jobCard(group, ctx.now()));
+
+    const categoryRank = new Map(facetCats.map((c, i) => [c.slug, i]));
+    jobs.sort(
+      f.sort === 'recent' ? (a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0) || a.jobName.localeCompare(b.jobName)
+      : f.sort === 'title' ? (a, b) => a.jobName.localeCompare(b.jobName)
+      : f.sort === 'free_first' ? (a, b) => (Number(b.freeCount > 0) - Number(a.freeCount > 0)) || a.jobName.localeCompare(b.jobName)
+      : f.sort === 'deadline' ? (a, b) => (a.jobDeadlineAt?.getTime() ?? Infinity) - (b.jobDeadlineAt?.getTime() ?? Infinity) || a.jobName.localeCompare(b.jobName)
+      : (a, b) => (categoryRank.get(a.category.slug) ?? 0) - (categoryRank.get(b.category.slug) ?? 0) || (Number(b.freeCount > 0) - Number(a.freeCount > 0)) || a.jobName.localeCompare(b.jobName),
+    );
+
+    const total = jobs.length;
+    const page = jobs.slice((f.page - 1) * f.pageSize, f.page * f.pageSize);
+
+    res.json({
+      total,
+      page: f.page,
+      pageSize: f.pageSize,
+      totalPages: Math.max(1, Math.ceil(total / f.pageSize)),
+      hasMore: f.page * f.pageSize < total,
+      nextPage: f.page * f.pageSize < total ? f.page + 1 : null,
+      results: page,
+      // Shown in the empty state: "No jobs for “Veterinary officer” yet — Request this exam".
+      empty: total === 0,
+      canRequestExam: total === 0 && words.length > 0,
+      facets: {
+        categories: facetCats.map((c) => ({ slug: c.slug, name: c.name, count: c._count.mockTests })),
+        subjects: [...new Map(facetTopics.map((t) => [t.slug, t])).values()],
+        difficulties: [...new Set(facetRows.map((r) => r.difficulty))],
+        languages: [...new Set(facetRows.flatMap((r) => r.languages))].sort(),
+      },
+    });
+  });
+
+  /** One job's detail: its name/category plus every published mock test under it, each with its own access state. */
+  router.get('/jobs/:jobSlug', async (req, res) => {
+    const country = await liveCountry(req);
+    const exam = await prisma.exam.findFirst({
+      where: { slug: String(req.params.jobSlug) },
+      include: { profession: { select: { name: true, category: { select: { slug: true, name: true } } } } },
+    });
+    if (!exam) throw notFound('job_not_found');
+
+    const mockTests = await prisma.mockTest.findMany({
+      where: { examId: exam.id, countryCode: country.code, ...PUBLISHED },
+      include: mockTestInclude,
+      orderBy: [{ isFree: 'desc' }, { title: 'asc' }],
+    });
+    // A job with no published mocks in this country is indistinguishable from one that doesn't exist here.
+    if (mockTests.length === 0) throw notFound('job_not_found');
+
+    const grants = req.user
+      ? await prisma.accessGrant.findMany({ where: { userId: req.user.id, countryCode: country.code, endsAt: { gt: ctx.now() } } })
+      : [];
+    const grantLikes: GrantLike[] = grants.map((g) => ({
+      countryCode: g.countryCode, startsAt: g.startsAt, endsAt: g.endsAt, status: g.status,
+    }));
+
+    res.json({
+      exam: { id: exam.id, slug: exam.slug, name: exam.name },
+      category: exam.profession.category,
+      profession: { name: exam.profession.name },
+      jobDeadlineAt: deriveJobDeadline(mockTests.map((t) => t.jobDeadlineAt), ctx.now()),
+      freeCount: mockTests.filter((t) => t.isFree).length,
+      totalMockTests: mockTests.length,
+      mockTests: mockTests.map((t) => {
+        const decision = canStartMockTest(t, country.code, grantLikes, ctx.now());
+        const accessEnd = coveredUntil(grantLikes, country.code, ctx.now());
+        return {
+          ...card(t),
+          access: {
+            state: decision.allowed ? (decision.reason === 'free' ? 'FREE' : 'GRANTED') : 'LOCKED',
+            canStart: decision.allowed,
+            needsFullAccess: !decision.allowed && decision.reason === 'needs_full_access',
+            accessEndsAt: accessEnd,
+            daysLeft: accessEnd ? daysLeft({ endsAt: accessEnd }, ctx.now()) : null,
+          },
+        };
+      }),
     });
   });
 

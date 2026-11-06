@@ -1,7 +1,7 @@
 import { ArrowLeft, Search, SlidersHorizontal } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import type { CatalogFacets, CatalogResponse } from '../../api/types';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import type { CatalogFacets, JobCatalogResponse } from '../../api/types';
 import { Button } from '../../components/Button';
 import { Chip } from '../../components/Chip';
 import { Dialog } from '../../components/Dialog';
@@ -19,19 +19,22 @@ import { cx } from '../../lib/cx';
 import { plural } from '../../lib/format';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { FilterPanel, SORT_OPTIONS } from './FilterPanel';
-import { CATALOG_PAGE_SIZE, useCatalog } from './queries';
+import { JobResultCard } from './JobResultCard';
+import { useJobCatalog } from './jobQueries';
+import { CATALOG_PAGE_SIZE } from './queries';
 import { RequestExamDialog } from './RequestExamDialog';
-import { ResultCard } from './ResultCard';
+import { usePreferredJobSlug } from './usePreferredJob';
 
-/** Exam discovery. All filters live in the query string (see lib/catalogFilters) so results are linkable. */
+/** Exam discovery, job-first: one card per job, each linking to its own page with every mock test under it. */
 export function CatalogPage() {
   const slug = useActiveCountrySlug();
-  const { user } = useSession();
+  const { user, isLoading: sessionLoading } = useSession();
+  const { slug: preferredSlug, isLoading: preferredLoading } = usePreferredJobSlug();
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => parseFilters(params), [params]);
   const [qInput, setQInput] = useState(filters.q);
   const [sheet, setSheet] = useState(false);
-  const catalog = useCatalog(slug, filters);
+  const catalog = useJobCatalog(slug, filters);
   const data = catalog.data;
 
   const update = useCallback(
@@ -70,6 +73,11 @@ export function CatalogPage() {
   };
   const sheetCount = activeSheetFilterCount(filters);
   const catName = data?.facets.categories.find((c) => c.slug === filters.category)?.name;
+
+  // A saved job (server-side for a signed-in user, localStorage for a guest) opens straight to its page;
+  // "Change job" there is what brings someone back here. See `usePreferredJob.ts`.
+  if (user && (sessionLoading || preferredLoading)) return <SkeletonList count={2} label="Loading…" />;
+  if (preferredSlug) return <Navigate to={countryPath(slug, 'tests', 'jobs', preferredSlug)} replace />;
 
   return (
     <div>
@@ -137,7 +145,7 @@ export function CatalogPage() {
               <p aria-live="polite" className="m-0 text-sm font-semibold text-ink-2 md:text-[15px]" data-testid="result-count">
                 {data ? (
                   <>
-                    <strong className="text-ink md:font-semibold">{plural(data.total, 'mock test')}</strong>
+                    <strong className="text-ink md:font-semibold">{plural(data.total, 'job')}</strong>
                     <span className="hidden md:inline"> {scopeText(filters, catName)}</span>
                   </>
                 ) : (
@@ -302,7 +310,7 @@ function Results({
 }: {
   slug: string;
   filters: CatalogFilters;
-  data: CatalogResponse | undefined;
+  data: JobCatalogResponse | undefined;
   isError: boolean;
   error: unknown;
   isFetching: boolean;
@@ -313,20 +321,20 @@ function Results({
   const [requesting, setRequesting] = useState(false);
   if (!data) {
     return isError ? (
-      <QueryError error={error} what="the mock tests" onRetry={onRetry} retrying={isFetching} />
+      <QueryError error={error} what="the jobs" onRetry={onRetry} retrying={isFetching} />
     ) : (
-      <SkeletonList count={4} label="Loading mock tests…" />
+      <SkeletonList count={4} label="Loading jobs…" />
     );
   }
   if (data.empty) {
     const q = filters.q.trim();
     return (
       <EmptyState
-        title={q ? `No mock tests match “${q}” yet` : 'No mock tests match these filters yet'}
+        title={q ? `No jobs match “${q}” yet` : 'No jobs match these filters yet'}
         message={
           q
             ? 'Try a broader job title, or tell us which exam you are preparing for and we will notify you when it is added.'
-            : 'Try removing a filter to see more mock tests.'
+            : 'Try removing a filter to see more jobs.'
         }
       >
         <div className="flex flex-col items-center gap-3">
@@ -350,28 +358,38 @@ function Results({
   }
   return (
     <>
-      {isError && <QueryError error={error} what="the mock tests" onRetry={onRetry} retrying={isFetching} />}
+      {isError && <QueryError error={error} what="the jobs" onRetry={onRetry} retrying={isFetching} />}
       <div className={cx('flex flex-col gap-3 md:gap-3.5', isFetching && 'opacity-60')} aria-busy={isFetching}>
-        {data.results.map((t) => (
-          <ResultCard key={t.id} slug={slug} test={t} />
+        {data.results.map((j) => (
+          <JobResultCard key={j.examId} slug={slug} job={j} />
         ))}
       </div>
-      <LoadMore total={data.total} shown={data.results.length} paging={paging} />
+      <LoadMore total={data.total} shown={data.results.length} paging={paging} itemLabel="job" />
     </>
   );
 }
 
 /** Load more, the loading-more state and the end of the list (C31; not drawn: the plainest controls in the existing style). */
-export function LoadMore({ total, shown, paging }: { total: number; shown: number; paging: { hasNextPage: boolean; loadingMore: boolean; failed: boolean; onLoadMore: () => void } }) {
+export function LoadMore({
+  total,
+  shown,
+  paging,
+  itemLabel = 'mock test',
+}: {
+  total: number;
+  shown: number;
+  paging: { hasNextPage: boolean; loadingMore: boolean; failed: boolean; onLoadMore: () => void };
+  itemLabel?: string;
+}) {
   if (paging.hasNextPage || paging.loadingMore) {
     return (
       <div className="flex flex-col items-center gap-2.5 pt-1" data-testid="load-more">
         <p role="status" className="m-0 text-sm text-ink-2">
-          {paging.loadingMore ? 'Loading more mock tests…' : `Showing ${shown} of ${total}`}
+          {paging.loadingMore ? `Loading more ${itemLabel}s…` : `Showing ${shown} of ${total}`}
         </p>
         {paging.failed && !paging.loadingMore && (
           <p role="alert" className="m-0 text-sm font-semibold text-incorrect">
-            We could not load more mock tests. Check your connection and try again.
+            We could not load more {itemLabel}s. Check your connection and try again.
           </p>
         )}
         <Button variant="secondary" size="lg" loading={paging.loadingMore} onClick={paging.onLoadMore}>
@@ -384,7 +402,7 @@ export function LoadMore({ total, shown, paging }: { total: number; shown: numbe
   if (shown <= CATALOG_PAGE_SIZE) return null;
   return (
     <p className="m-0 pt-1 text-center text-sm text-ink-2" data-testid="end-of-list">
-      That is all {total} mock tests.
+      That is all {total} {itemLabel}s.
     </p>
   );
 }

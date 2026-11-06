@@ -1,4 +1,4 @@
-import type { Difficulty, ExamDetail, PreviousAttempt } from '../api/types';
+import type { Difficulty, ExamDetail, JobCard, PreviousAttempt } from '../api/types';
 
 const LANGUAGE_NAMES: Record<string, string> = { en: 'English', rw: 'Kinyarwanda', sw: 'Kiswahili' };
 const LANGUAGE_SHORT: Record<string, string> = { en: 'EN', rw: 'KIN', sw: 'SW' };
@@ -51,6 +51,26 @@ export function jobDeadlineLabel(iso: string | null | undefined): JobDeadlineLab
   if (days === 0) return { text: 'Application closes today', closed: false };
   if (days === 1) return { text: 'Application closes tomorrow', closed: false };
   return { text: `Application closes in ${days} days`, closed: false };
+}
+
+/** "3 free · 5 total" / "All free" / "Full Access only" — a job card's access summary across its mock tests. */
+export function jobAccessSummary(freeCount: number, totalCount: number): string {
+  if (freeCount === 0) return 'Full Access only';
+  if (freeCount === totalCount) return 'All free';
+  return `${freeCount} free · ${totalCount} total`;
+}
+
+/** "100 questions · 120 minutes each", or a range ("80–120 questions · 90–150 minutes") when a job's mocks differ. */
+export function jobFactsLine(job: Pick<JobCard, 'durationMinutes' | 'durationRange' | 'questionCount' | 'questionCountRange'>): string {
+  const questions = job.questionCount !== null ? `${job.questionCount} questions` : `${job.questionCountRange!.min}–${job.questionCountRange!.max} questions`;
+  const minutes = job.durationMinutes !== null ? `${job.durationMinutes} minutes` : `${job.durationRange!.min}–${job.durationRange!.max} minutes`;
+  const uniform = job.durationMinutes !== null && job.questionCount !== null;
+  return `${questions} · ${minutes}${uniform ? ' each' : ''}`;
+}
+
+/** The job card's difficulty: the single level its mocks share, or "Mixed difficulty" when they vary. */
+export function jobDifficultyLabel(difficulties: Difficulty[]): string {
+  return difficulties.length === 1 ? difficultyLabel(difficulties[0]!) : 'Mixed difficulty';
 }
 
 /** "31 / 50 · 62%" — only the parts the API actually returned. */

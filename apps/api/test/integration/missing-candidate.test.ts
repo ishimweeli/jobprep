@@ -248,6 +248,25 @@ describe('profile and account changes', () => {
     expect((await u.agent.patch('/api/me').send({ goalCategoryId: cat.id })).body.error).toBe('invalid_goal');
   });
 
+  it('PATCH /me saves and clears the preferred job, and refuses one from another country', async () => {
+    const u = await newUser();
+    const exam = await prisma.exam.findFirstOrThrow({ where: { profession: { category: { countryCode: 'RW' } } } });
+    const saved = await u.agent.patch('/api/me').send({ preferredExamId: exam.id });
+    expect(saved.status).toBe(200);
+    expect(saved.body.preferredJob).toMatchObject({ examId: exam.id, slug: exam.slug });
+    expect(saved.body.user.preferredExamId).toBe(exam.id);
+    const fetched = await u.agent.get('/api/me');
+    expect(fetched.body.preferredJob).toMatchObject({ examId: exam.id, slug: exam.slug });
+
+    const otherCountry = await prisma.exam.findFirstOrThrow({ where: { profession: { category: { countryCode: 'KE' } } } });
+    const rejected = await u.agent.patch('/api/me').send({ preferredExamId: otherCountry.id });
+    expect(rejected.body.error).toBe('invalid_preferred_job');
+
+    const cleared = await u.agent.patch('/api/me').send({ preferredExamId: null });
+    expect(cleared.body.preferredJob).toBeNull();
+    expect(cleared.body.user.preferredExamId).toBeNull();
+  });
+
   it('changes the password: current one required, others signed out, this device stays', async () => {
     const u = await newUser();
     const other = request.agent(app);

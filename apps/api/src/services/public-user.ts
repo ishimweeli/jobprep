@@ -11,6 +11,7 @@ export function publicUser(u: User, roles: string[] = []) {
     emailVerified: u.emailVerifiedAt !== null,
     countryCode: u.countryCode,
     goalCategoryId: u.goalCategoryId,
+    preferredExamId: u.preferredExamId,
     level: u.level,
     subject: u.subject,
     examDate: isoDate(u.examDate),

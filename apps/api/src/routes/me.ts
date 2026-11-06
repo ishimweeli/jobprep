@@ -16,6 +16,7 @@ import { hashToken } from '../services/session';
 const patchSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
   goalCategoryId: z.string().min(1).nullable().optional(),
+  preferredExamId: z.string().min(1).nullable().optional(),
   language: z.string().min(2).max(5).optional(),
   level: z.string().trim().min(1).max(80).nullable().optional(),
   subject: z.string().trim().min(1).max(200).nullable().optional(),
@@ -47,6 +48,13 @@ export function meRouter(ctx: Ctx) {
 
   const accessFor = (userId: string, countryCode: string) => accessSummary(ctx, userId, countryCode);
 
+  /** The slug the frontend needs to route to `tests/jobs/:slug` without a second round trip. */
+  const preferredJobFor = async (preferredExamId: string | null) =>
+    preferredExamId
+      ? ctx.prisma.exam.findUnique({ where: { id: preferredExamId }, select: { id: true, slug: true, name: true } })
+          .then((e) => e && { examId: e.id, slug: e.slug, name: e.name })
+      : null;
+
   router.get('/', async (req, res) => {
     const user = req.user!;
     const country = await ctx.prisma.country.findUniqueOrThrow({ where: { code: user.countryCode } });
@@ -54,6 +62,7 @@ export function meRouter(ctx: Ctx) {
       user: publicUser(user, roleCodes(req)),
       country: { code: country.code, name: country.name, currencyCode: country.currencyCode, languages: country.languages },
       access: await accessFor(user.id, user.countryCode),
+      preferredJob: await preferredJobFor(user.preferredExamId),
     });
   });
 
@@ -73,6 +82,11 @@ export function meRouter(ctx: Ctx) {
       const cat = await ctx.prisma.category.findFirst({ where: { id: body.goalCategoryId, countryCode: user.countryCode } });
       if (!cat) throw badRequest('invalid_goal');
     }
+    if (body.preferredExamId) {
+      // The preferred job must have at least one mock test in THIS country.
+      const exam = await ctx.prisma.exam.findFirst({ where: { id: body.preferredExamId, profession: { category: { countryCode: user.countryCode } } } });
+      if (!exam) throw badRequest('invalid_preferred_job');
+    }
     if (body.language && !country.languages.includes(body.language)) throw badRequest('language_not_available');
 
     const updated = await ctx.prisma.user.update({
@@ -80,13 +94,14 @@ export function meRouter(ctx: Ctx) {
       data: {
         ...(body.name !== undefined && { name: body.name }),
         ...(body.goalCategoryId !== undefined && { goalCategoryId: body.goalCategoryId }),
+        ...(body.preferredExamId !== undefined && { preferredExamId: body.preferredExamId }),
         ...(body.language !== undefined && { language: body.language }),
         ...(body.level !== undefined && { level: body.level }),
         ...(body.subject !== undefined && { subject: body.subject }),
         ...(body.examDate !== undefined && { examDate: examDate(body.examDate) }),
       },
     });
-    res.json({ user: publicUser(updated, roleCodes(req)) });
+    res.json({ user: publicUser(updated, roleCodes(req)), preferredJob: await preferredJobFor(updated.preferredExamId) });
   });
 
   /**

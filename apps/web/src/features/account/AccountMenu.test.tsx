@@ -14,6 +14,7 @@ const session: MeResponse = {
   user: testUser(),
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en', 'rw'] },
   access: { current: { endsAt: '2026-11-25T00:00:00Z', daysLeft: 23, endingSoon: false }, expired: null, otherCountries: [] },
+  preferredJob: null,
 };
 const running = { id: 'a1', kind: 'FULL', startedAt: '', mockTest: { slug: 's', title: 'Teaching Profession & CBC Pedagogy', countryCode: 'RW' }, total: 40, answered: 3, remainingSeconds: 1265 };
 

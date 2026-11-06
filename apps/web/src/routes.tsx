@@ -121,6 +121,7 @@ export const routes: RouteObject[] = [
           { path: 'tests', handle: { tabs: true, title: 'Mock tests' }, lazy: async () => ({ Component: (await import('./features/catalog/CatalogPage')).CatalogPage }) },
           { path: 'tests/:slug', handle: { tabs: true, title: 'Mock test', backTo: 'tests' }, lazy: async () => ({ Component: (await import('./features/exam-detail/ExamDetailPage')).ExamDetailPage }) },
           { path: 'tests/:slug/start', lazy: async () => ({ Component: (await import('./features/exam/StartPage')).StartPage }) },
+          { path: 'tests/jobs/:jobSlug', handle: { tabs: true, title: 'Job' }, lazy: async () => ({ Component: (await import('./features/job-detail/JobDetailPage')).JobDetailPage }) },
           { path: 'results/:attemptId', lazy: async () => ({ Component: (await import('./features/results/ResultsPage')).ResultsPage }) },
           { path: 'progress', handle: { tabs: true, title: 'Dashboard' }, lazy: async () => ({ Component: (await import('./features/dashboard/DashboardPage')).DashboardPage }) },
           { path: 'checkout', lazy: async () => ({ Component: (await import('./features/checkout/CheckoutPage')).CheckoutPage }) },

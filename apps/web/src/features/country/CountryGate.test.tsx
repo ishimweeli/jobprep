@@ -13,6 +13,7 @@ const session = (access: boolean): MeResponse => ({
   user: testUser(),
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en'] },
   access: { current: access ? { endsAt: '2026-11-25T00:00:00Z', daysLeft: 20, endingSoon: false } : null, expired: null, otherCountries: [] },
+  preferredJob: null,
 });
 
 afterEach(() => vi.unstubAllGlobals());

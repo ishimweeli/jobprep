@@ -1,7 +1,7 @@
 import { clearSessionHint, hasSessionHint, SESSION_HINT_KEY } from '../lib/sessionHint';
 import { setSystemState } from '../lib/systemState';
 import { ApiError, api } from './client';
-import type { ClaimOutcome, MeResponse, PatchMeInput, PaymentDetail, PaymentHistory, PublicUser } from './types';
+import type { ClaimOutcome, MeResponse, PatchMeInput, PaymentDetail, PaymentHistory, PreferredJob, PublicUser } from './types';
 
 export { SESSION_HINT_KEY };
 
@@ -25,7 +25,8 @@ export async function getSession(): Promise<MeResponse | null> {
   }
 }
 
-export const patchMe = (input: PatchMeInput) => api<{ user: PublicUser }>('/me', { method: 'PATCH', body: input });
+export const patchMe = (input: PatchMeInput) =>
+  api<{ user: PublicUser; preferredJob: PreferredJob | null }>('/me', { method: 'PATCH', body: input });
 
 export const paymentsKeys = { list: ['me', 'payments'] as const, detail: (id: string) => ['me', 'payments', id] as const };
 

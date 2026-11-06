@@ -8,6 +8,7 @@ export const testUser = (over: Partial<PublicUser> = {}): PublicUser => ({
   emailVerified: true,
   countryCode: 'RW',
   goalCategoryId: null,
+  preferredExamId: null,
   level: null,
   subject: null,
   examDate: null,
@@ -20,4 +21,5 @@ export const testSession = (over: Partial<PublicUser> = {}): MeResponse => ({
   user: testUser(over),
   country: { code: 'RW', name: 'Rwanda', currencyCode: 'RWF', languages: ['en', 'rw'] },
   access: { current: null, expired: null, otherCountries: [] },
+  preferredJob: null,
 });

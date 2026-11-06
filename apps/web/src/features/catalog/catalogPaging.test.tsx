@@ -56,6 +56,18 @@ describe('catalog pagination (C31)', () => {
     expect(screen.queryByTestId('end-of-list')).not.toBeInTheDocument();
     expect(screen.queryByTestId('load-more')).not.toBeInTheDocument();
   });
+
+  it('itemLabel swaps the copy (the job-grouped catalog uses "job")', () => {
+    renderWithProviders(<LoadMore total={45} shown={20} paging={{ hasNextPage: true, loadingMore: true, failed: true, onLoadMore: vi.fn() }} itemLabel="job" />);
+    expect(screen.getByRole('status')).toHaveTextContent('Loading more jobs…');
+    const { unmount } = renderWithProviders(
+      <LoadMore total={45} shown={45} paging={{ hasNextPage: false, loadingMore: false, failed: false, onLoadMore: vi.fn() }} itemLabel="job" />,
+    );
+    expect(screen.getByTestId('end-of-list')).toHaveTextContent('That is all 45 jobs.');
+    unmount();
+    renderWithProviders(<LoadMore total={45} shown={20} paging={{ hasNextPage: true, loadingMore: false, failed: true, onLoadMore: vi.fn() }} itemLabel="job" />);
+    expect(screen.getByRole('alert')).toHaveTextContent('We could not load more jobs.');
+  });
 });
 
 describe('catalog filters on the phone sheet (C32)', () => {

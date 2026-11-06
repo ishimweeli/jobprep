@@ -195,6 +195,7 @@ model Exam {
   createdAt    DateTime    @default(now())
 
   mockTests MockTest[]
+  preferredByUsers User[]
 }
 
 model MockTest {
@@ -360,6 +361,9 @@ model User {
   countryConfirmedAt DateTime?
   goalCategoryId String?
   goalCategory  Category?  @relation(fields: [goalCategoryId], references: [id])
+  /// The job someone picked on the catalog: visiting Mock tests again opens straight to its exams (until "Change job").
+  preferredExamId String?
+  preferredExam Exam?      @relation(fields: [preferredExamId], references: [id])
   level         String?
   subject       String?
   examDate      DateTime?  @db.Date
@@ -381,6 +385,7 @@ model User {
   passwordResets PasswordReset[]
 
   @@index([countryCode])
+  @@index([preferredExamId])
 }
 
 /// A password-reset link. Only a hash of the token is stored; the token is single use and expires after an hour.
