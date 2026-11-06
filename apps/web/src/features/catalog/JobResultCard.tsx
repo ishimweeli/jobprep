@@ -12,7 +12,7 @@ export function JobResultCard({ slug, job }: { slug: string; job: JobCard }) {
       <div className="flex min-w-0 flex-col gap-2 md:flex-[1_1_360px]">
         <div className="flex flex-wrap items-center justify-between gap-2 md:justify-start">
           <span className="text-[11px] font-bold uppercase tracking-[0.05em] text-heading md:text-[12px]">{job.category.name}</span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             {deadlineLabel && <Badge tone={deadlineLabel.closed ? 'neutral' : 'brand'}>{deadlineLabel.text}</Badge>}
             <Badge tone={job.freeCount > 0 ? 'free' : 'fullAccess'}>{jobAccessSummary(job.freeCount, job.mockTestCount)}</Badge>
           </div>
