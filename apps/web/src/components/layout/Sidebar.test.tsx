@@ -47,11 +47,11 @@ describe('Sidebar (the signed-in desktop chrome)', () => {
     expect(screen.getByRole('link', { name: /Help and support/ })).toHaveAttribute('href', '/help');
   });
 
-  it('shows the account block and a Sign out button', async () => {
+  it('has no account block or Sign out button — those live only in the top bar profile menu', async () => {
     server();
     renderWithProviders(<Sidebar />, { route: '/rw/tests' });
-    expect(await screen.findByText('Aline Uwase')).toBeInTheDocument();
-    expect(screen.getByText('aline@example.test')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sign out/ })).toBeInTheDocument();
+    await screen.findByText('Rwanda');
+    expect(screen.queryByText('Aline Uwase')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Sign out/ })).not.toBeInTheDocument();
   });
 });
