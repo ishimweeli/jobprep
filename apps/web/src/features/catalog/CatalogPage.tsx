@@ -23,7 +23,7 @@ import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { FilterPanel, SORT_OPTIONS } from './FilterPanel';
 import { JobResultCard } from './JobResultCard';
 import { useJobCatalog } from './jobQueries';
-import { CATALOG_PAGE_SIZE } from './queries';
+import { Pagination } from './Pagination';
 import { RequestExamDialog } from './RequestExamDialog';
 import { usePreferredJobSlug } from './usePreferredJob';
 
@@ -68,6 +68,13 @@ export function CatalogPage() {
     }
     window.scrollTo({ top: 0 });
   }, [filters.page]);
+
+  // A page past the end (an old link, or fewer jobs than when it was shared) -> the last page that has jobs.
+  useEffect(() => {
+    if (data && !catalog.isFetching && data.results.length === 0 && data.total > 0) {
+      update({ page: Math.ceil(data.total / data.pageSize) }, { replace: true });
+    }
+  }, [data, catalog.isFetching, update]);
 
   const commitSearch = () => update({ q: qInput }, { replace: true });
   const clearAll = () => {
@@ -115,68 +122,61 @@ export function CatalogPage() {
         <CategoryChips filters={filters} facets={data?.facets} onPick={(c) => update({ category: c })} compact />
       </header>
 
-      <main id="main-content" tabIndex={-1} className="mx-auto flex max-w-[1200px] flex-col gap-3 px-4 pb-6 pt-3.5 md:gap-[22px] md:px-6 md:pb-16 md:pt-7">
-        {/* Desktop heading, search and chips */}
-        <div className="hidden flex-col gap-1.5 md:flex">
-          <nav aria-label="Breadcrumb" className="text-sm text-muted">
-            <Link to={countryPath(slug)} className="text-muted underline hover:text-ink">
-              Home
-            </Link>{' '}
-            › Mock tests
-          </nav>
-          <h1 className="m-0 text-2xl font-bold tracking-[-0.02em] text-heading dark:text-night-heading">Find your mock test</h1>
+      <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 px-4 pb-6 pt-3.5 md:px-6 md:pb-10">
+        {/* Desktop heading, search and chips: kept short so the jobs start high on the screen */}
+        <div className="hidden items-center gap-4 md:flex">
+          <h1 className="m-0 flex-none text-xl font-bold tracking-[-0.01em] text-heading dark:text-night-heading">Find your mock test</h1>
+          <div role="search" className="flex min-w-0 flex-1">
+            <SearchBox
+              id="catalog-q"
+              value={qInput}
+              onChange={setQInput}
+              onSubmit={commitSearch}
+              placeholder="Search job title, subject or exam — e.g. Accountant"
+              label="Search by job title, subject or exam"
+              icon
+            />
+          </div>
+          <label className="flex flex-none items-center gap-2 text-sm text-ink-2">
+            Sort
+            <select
+              value={filters.sort}
+              onChange={(e) => update({ sort: e.target.value as CatalogFilters['sort'] })}
+              className="h-10 rounded-control border border-input-border bg-surface px-2 text-sm text-ink"
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
-        <div role="search" className="hidden gap-2.5 md:flex">
-          <SearchBox
-            id="catalog-q"
-            value={qInput}
-            onChange={setQInput}
-            onSubmit={commitSearch}
-            placeholder="Search job title, subject or exam — e.g. Accountant"
-            label="Search by job title, subject or exam"
-            icon
-          />
-        </div>
-        <div className="hidden md:block">
-          <CategoryChips filters={filters} facets={data?.facets} onPick={(c) => update({ category: c })} />
+        <div className="flex items-center justify-between gap-4">
+          <div className="hidden min-w-0 flex-1 md:block">
+            <CategoryChips filters={filters} facets={data?.facets} onPick={(c) => update({ category: c })} dense />
+          </div>
+          <p aria-live="polite" className="m-0 text-sm font-semibold text-ink-2 md:max-w-[40%] md:flex-none md:truncate md:text-[13px]" data-testid="result-count">
+            {data ? (
+              <>
+                <strong className="text-ink md:font-semibold">{plural(data.total, 'job')}</strong>
+                <span className="hidden md:inline"> {scopeText(filters, catName)}</span>
+              </>
+            ) : (
+              <span>{catalog.isError ? '' : 'Loading…'}</span>
+            )}
+          </p>
         </div>
 
-        <div className="flex flex-col gap-6 md:flex-row md:flex-wrap md:items-start">
-          <aside aria-label="Filters" className="hidden min-w-0 max-w-full flex-[1_1_240px] rounded-card border border-border bg-surface p-5 md:block dark:border-night-border dark:bg-night-surface">
+        <div className="flex flex-col gap-6 md:flex-row md:flex-wrap md:items-start md:gap-4">
+          <aside aria-label="Filters" className="hidden min-w-0 max-w-full flex-[1_1_220px] rounded-card border border-border bg-surface p-4 md:block dark:border-night-border dark:bg-night-surface">
             <FilterPanel filters={filters} facets={data?.facets} onChange={(p) => update(p)} variant="aside" idPrefix="f" />
           </aside>
 
-          <section aria-labelledby="results-heading" className="flex min-w-0 flex-col gap-3.5 md:flex-[999_1_560px]">
+          <section aria-labelledby="results-heading" className="flex min-w-0 flex-col gap-3.5 md:flex-[999_1_480px] md:gap-3">
             <h2 id="results-heading" className="sr-only">
               Search results
             </h2>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p aria-live="polite" className="m-0 text-sm font-semibold text-ink-2 md:text-[15px]" data-testid="result-count">
-                {data ? (
-                  <>
-                    <strong className="text-ink md:font-semibold">{plural(data.total, 'job')}</strong>
-                    <span className="hidden md:inline"> {scopeText(filters, catName)}</span>
-                  </>
-                ) : (
-                  <span>{catalog.isError ? '' : 'Loading…'}</span>
-                )}
-              </p>
-              <label className="hidden items-center gap-2 text-sm text-ink-2 md:flex">
-                Sort
-                <select
-                  value={filters.sort}
-                  onChange={(e) => update({ sort: e.target.value as CatalogFilters['sort'] })}
-                  className="h-10 rounded-control border border-input-border bg-surface px-2.5 text-sm text-ink"
-                >
-                  {SORT_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
             <Results
               slug={slug}
               filters={filters}
@@ -186,7 +186,7 @@ export function CatalogPage() {
               isFetching={catalog.isFetching}
               onRetry={() => void catalog.refetch()}
               onClear={clearAll}
-              paging={{ hasNextPage: !!catalog.hasNextPage, loadingMore: catalog.isFetchingNextPage, failed: catalog.nextPageFailed, onLoadMore: () => void catalog.fetchNextPage() }}
+              onPage={(page) => update({ page })}
             />
 
           </section>
@@ -257,7 +257,7 @@ function SearchBox({
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
-      {icon && <Search size={20} strokeWidth={2.2} className="pointer-events-none absolute left-4 top-3 text-muted" aria-hidden="true" />}
+      {icon && <Search size={16} strokeWidth={2.2} className="pointer-events-none absolute left-3 top-3 text-muted" aria-hidden="true" />}
       <input
         id={id}
         type="search"
@@ -267,8 +267,8 @@ function SearchBox({
         autoComplete="off"
         enterKeyHint="search"
         className={cx(
-          'w-full rounded-control border border-input-border bg-surface text-base text-ink placeholder:text-muted',
-          compact ? 'h-12 px-3.5' : 'h-11 pl-[46px] pr-4',
+          'w-full rounded-control border border-input-border bg-surface text-ink placeholder:text-muted',
+          compact ? 'h-12 px-3.5 text-base' : 'h-10 pl-9 pr-3 text-sm',
         )}
       />
     </form>
@@ -280,27 +280,33 @@ function CategoryChips({
   facets,
   onPick,
   compact,
+  dense,
 }: {
   filters: CatalogFilters;
   facets: CatalogFacets | undefined;
   onPick: (slug: string) => void;
   compact?: boolean;
+  dense?: boolean;
 }) {
   return (
     <div
       role="group"
       aria-label="Job category"
-      className={cx(compact ? 'scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5' : 'flex flex-wrap gap-2')}
+      className={cx(compact ? 'scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5' : dense ? 'scrollbar-none flex gap-1.5 overflow-x-auto' : 'flex flex-wrap gap-2')}
     >
-      <Chip compact={compact} pressed={!filters.category} onClick={() => onPick('')}>
+      <Chip compact={compact} dense={dense} pressed={!filters.category} onClick={() => onPick('')}>
         All
       </Chip>
       {facets
-        ? facets.categories.map((c) => (
-            <Chip key={c.slug} compact={compact} pressed={filters.category === c.slug} onClick={() => onPick(c.slug)}>
-              {c.name}
-            </Chip>
-          ))
+        ? facets.categories
+            // No jobs yet: no chip. It appears by itself once the category has a published mock. A category opened by
+            // link keeps its chip, so the visitor can see what is selected.
+            .filter((c) => c.count > 0 || c.slug === filters.category)
+            .map((c) => (
+              <Chip key={c.slug} compact={compact} dense={dense} pressed={filters.category === c.slug} onClick={() => onPick(c.slug)}>
+                {c.name}
+              </Chip>
+            ))
         : null}
     </div>
   );
@@ -315,7 +321,7 @@ function Results({
   isFetching,
   onRetry,
   onClear,
-  paging,
+  onPage,
 }: {
   slug: string;
   filters: CatalogFilters;
@@ -325,7 +331,7 @@ function Results({
   isFetching: boolean;
   onRetry: () => void;
   onClear: () => void;
-  paging: { hasNextPage: boolean; loadingMore: boolean; failed: boolean; onLoadMore: () => void };
+  onPage: (page: number) => void;
 }) {
   const [requesting, setRequesting] = useState(false);
   if (!data) {
@@ -368,50 +374,12 @@ function Results({
   return (
     <>
       {isError && <QueryError error={error} what="the jobs" onRetry={onRetry} retrying={isFetching} />}
-      <div className={cx('flex flex-col gap-3 md:gap-3.5', isFetching && 'opacity-60')} aria-busy={isFetching}>
+      <div className={cx('flex flex-col gap-2.5', isFetching && 'opacity-60')} aria-busy={isFetching}>
         {data.results.map((j) => (
           <JobResultCard key={j.examId} slug={slug} job={j} />
         ))}
       </div>
-      <LoadMore total={data.total} shown={data.results.length} paging={paging} itemLabel="job" />
+      <Pagination page={data.page} pageSize={data.pageSize} total={data.total} itemLabel="job" onPage={onPage} />
     </>
-  );
-}
-
-/** Load more, the loading-more state and the end of the list (C31; not drawn: the plainest controls in the existing style). */
-export function LoadMore({
-  total,
-  shown,
-  paging,
-  itemLabel = 'mock test',
-}: {
-  total: number;
-  shown: number;
-  paging: { hasNextPage: boolean; loadingMore: boolean; failed: boolean; onLoadMore: () => void };
-  itemLabel?: string;
-}) {
-  if (paging.hasNextPage || paging.loadingMore) {
-    return (
-      <div className="flex flex-col items-center gap-2.5 pt-1" data-testid="load-more">
-        <p role="status" className="m-0 text-sm text-ink-2">
-          {paging.loadingMore ? `Loading more ${itemLabel}s…` : `Showing ${shown} of ${total}`}
-        </p>
-        {paging.failed && !paging.loadingMore && (
-          <p role="alert" className="m-0 text-sm font-semibold text-incorrect">
-            We could not load more {itemLabel}s. Check your connection and try again.
-          </p>
-        )}
-        <Button variant="secondary" size="lg" loading={paging.loadingMore} onClick={paging.onLoadMore}>
-          {paging.failed ? 'Try again' : 'Load more'}
-        </Button>
-      </div>
-    );
-  }
-  // One page only: nothing to say. More than one page loaded: the list ended.
-  if (shown <= CATALOG_PAGE_SIZE) return null;
-  return (
-    <p className="m-0 pt-1 text-center text-sm text-ink-2" data-testid="end-of-list">
-      That is all {total} {itemLabel}s.
-    </p>
   );
 }

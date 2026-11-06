@@ -11,9 +11,9 @@ import { countryPath, useCountryDetail } from '../country/hooks';
 import { accessCardView, type BadgeTone } from './dashboardModel';
 
 const badgeTone: Record<BadgeTone, string> = {
-  soft: 'bg-soft text-ink-2',
-  amber: 'bg-flagged-bg text-flagged-ink',
-  green: 'bg-free-bg text-free',
+  soft: 'border-border-strong bg-surface text-ink-2 dark:border-night-border dark:bg-night-surface',
+  amber: 'border-flagged-line bg-flagged-bg text-flagged-ink',
+  green: 'border-free/40 bg-free-bg text-free',
 };
 
 const time = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -51,27 +51,27 @@ export function MyAccessCard({ d, slug, className }: { d: DashboardResponse; slu
   const ctaTo = view.cta?.target === 'check' && pendingId ? `${checkout}?payment=${encodeURIComponent(pendingId)}&check=1` : checkout;
 
   return (
-    <section aria-labelledby="ma-t" className={cx('flex min-w-0 flex-col gap-3 rounded-card border border-border bg-surface p-5 dark:border-night-border dark:bg-night-surface', className)}>
+    <section aria-labelledby="ma-t" className={cx('flex min-w-0 flex-col gap-2 rounded-card border border-border bg-surface p-4 dark:border-night-border dark:bg-night-surface', className)}>
       <div className="flex items-center justify-between gap-2">
         <h2 id="ma-t" className="m-0 text-base font-bold text-heading dark:text-night-heading">
           My access
         </h2>
-        <span className={cx('rounded-pill px-2.5 py-[3px] text-xs font-semibold', badgeTone[view.badge.tone])}>{view.badge.text}</span>
+        <span className={cx('rounded-[4px] border px-2 py-[3px] text-[11px] font-bold uppercase tracking-[0.04em]', badgeTone[view.badge.tone])}>{view.badge.text}</span>
       </div>
-      <p className="m-0 text-[17px] font-semibold text-heading dark:text-night-heading">{view.title}</p>
-      <p className="m-0 text-[15px] leading-normal text-ink-2 dark:text-night-ink">{view.body}</p>
+      <p className="m-0 text-[15px] font-semibold text-heading dark:text-night-heading">{view.title}</p>
+      <p className="m-0 text-[13px] leading-snug text-ink-2 dark:text-night-ink">{view.body}</p>
       {view.bar && (
-        <div aria-hidden="true" className="h-2 overflow-hidden rounded-pill bg-soft">
-          <div className="h-2" style={{ width: `${view.bar.percent}%`, background: view.bar.amber ? '#8A5300' : '#164A7A' }} />
+        <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-soft">
+          <div className="h-1.5" style={{ width: `${view.bar.percent}%`, background: view.bar.amber ? '#8A5300' : '#164A7A' }} />
         </div>
       )}
       {view.cta && (
-        <Link to={ctaTo} className={buttonClasses({ variant: 'primary', size: 'lg' })}>
+        <Link to={ctaTo} className={buttonClasses({ variant: 'primary', size: 'lg', className: 'md:!min-h-[36px] md:!text-sm' })}>
           {view.cta.label}
         </Link>
       )}
       {view.link?.target === 'catalog' && (
-        <Link to={countryPath(slug, 'tests')} className="link py-1.5 text-[15px] font-semibold">
+        <Link to={countryPath(slug, 'tests')} className="link text-sm font-semibold">
           {view.link.label}
         </Link>
       )}

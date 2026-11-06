@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { PhoneBackHeader } from '../../components/layout/Header';
 import { SiteShell } from '../../components/layout/SiteLayout';
+import { cx } from '../../lib/cx';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import type { TocItem } from './legalModel';
 
@@ -11,8 +12,8 @@ import type { TocItem } from './legalModel';
  * Not drawn; built from the existing header, card and type styles.
  */
 export function InfoPage({
-  title, updated, notice, toc, children, footer,
-}: { title: string; updated?: string | null; notice?: ReactNode; toc: TocItem[]; children: ReactNode; footer?: ReactNode }) {
+  title, updated, notice, toc, children, footer, wide,
+}: { title: string; updated?: string | null; notice?: ReactNode; toc: TocItem[]; children: ReactNode; footer?: ReactNode; wide?: boolean }) {
   const slug = useActiveCountrySlug();
   return (
     <SiteShell>
@@ -28,9 +29,9 @@ export function InfoPage({
             ))}
           </nav>
         )}
-        <div className="flex min-w-0 max-w-[70ch] flex-1 flex-col gap-4">
+        <div className={cx('flex min-w-0 flex-1 flex-col gap-4', !wide && 'max-w-[70ch]')}>
           <div className="flex flex-col gap-1.5">
-            <h1 className="m-0 text-2xl leading-[1.2] tracking-tight md:text-[32px]">{title}</h1>
+            <h1 className={cx('m-0 text-2xl leading-[1.2] tracking-tight md:text-[32px]', wide && 'font-bold text-heading')}>{title}</h1>
             {updated && <p className="m-0 text-sm text-muted">{updated}</p>}
           </div>
           {notice}

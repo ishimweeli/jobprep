@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { DashboardResponse } from '../../api/types';
 import {
-  accessCardView, accessState, chartAria, chartPoints, DESKTOP_CHART, getGreeting, greeting, headline, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta,
+  accessCardView, accessState, chartAria, chartPoints, DESKTOP_CHART, getGreeting, greeting, headline, heroStats, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta,
   visibleSections, type AccessCardInput,
 } from './dashboardModel';
 
@@ -14,6 +14,29 @@ describe('dashboard model', () => {
   it('progress width is answered / total', () => {
     expect(progressWidth(18, 40)).toBe(45);
     expect(progressWidth(0, 0)).toBe(0);
+  });
+
+  describe('heroStats', () => {
+    const base = { scoreHistory: [], goal: null };
+
+    it('a brand-new account with no goal shows only Tests completed (0) and Overall progress (0%)', () => {
+      expect(heroStats(base, null)).toEqual([{ icon: 'completed', label: 'Tests completed', value: '0' }, { icon: 'progress', label: 'Overall progress', value: '0%' }]);
+    });
+
+    it('includes "Mock tests available" only when a count is passed in, and "Preparing for" only with a goal', () => {
+      const d = { ...base, goal: { categoryId: 'c1', slug: 'accounting-finance', name: 'Accounting & finance' } };
+      expect(heroStats(d, 30)).toEqual([
+        { icon: 'tests', label: 'Mock tests available', value: '30' },
+        { icon: 'completed', label: 'Tests completed', value: '0' },
+        { icon: 'progress', label: 'Overall progress', value: '0%' },
+        { icon: 'goal', label: 'Preparing for', value: 'Accounting & finance' },
+      ]);
+    });
+
+    it('averages only scored attempts, and counts them for "Tests completed"', () => {
+      const d = { ...base, scoreHistory: [{ attemptId: '1', submittedAt: null, percent: 80, title: '' }, { attemptId: '2', submittedAt: null, percent: 60, title: '' }, { attemptId: '3', submittedAt: null, percent: null, title: '' }] };
+      expect(heroStats(d, null)).toEqual(expect.arrayContaining([{ icon: 'completed', label: 'Tests completed', value: '2' }, { icon: 'progress', label: 'Overall progress', value: '70%' }]));
+    });
   });
 
   it('chart points: evenly spread, 0 % on the baseline, higher scores higher up', () => {

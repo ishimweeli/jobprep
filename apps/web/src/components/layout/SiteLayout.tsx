@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useMatches, useParams } from 'react-router-dom';
 import { useSession } from '../../features/auth/session';
 import { setStoredCountry } from '../../lib/country';
+import { cx } from '../../lib/cx';
 import { countryPath, useCountries } from '../../features/country/hooks';
 import { CountryNotOpen, WrongCountry } from '../../features/country/CountryGate';
 import { NotFoundPage } from '../../features/system/SystemPage';
@@ -23,6 +24,8 @@ export interface RouteHandle {
   title?: string;
   /** Exam-detail-only: the desktop top bar shows a back arrow to this (country-relative) path + `title` instead of a plain title. */
   backTo?: string;
+  /** The page sets its own small desktop sizes, so the site-wide `ui-scaled` step must not shrink it a second time. */
+  dense?: boolean;
 }
 
 /**
@@ -35,6 +38,7 @@ export function SiteShell({ children, landing }: { children: React.ReactNode; la
   const matches = useMatches();
   const { user } = useSession();
   const chrome = !!user && matches.some((m) => (m.handle as RouteHandle | undefined)?.tabs);
+  const pageClass = cx('flex flex-1 flex-col', !matches.some((m) => (m.handle as RouteHandle | undefined)?.dense) && 'ui-scaled');
   useDocumentTheme();
 
   const skipLink = (
@@ -51,12 +55,12 @@ export function SiteShell({ children, landing }: { children: React.ReactNode; la
       <div className="flex min-h-screen flex-col md:flex-row dark:bg-night-page dark:text-night-ink">
         {skipLink}
         <Sidebar />
-        <div className="flex min-h-screen flex-1 flex-col dark:bg-night-page">
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col dark:bg-night-page">
           <PhoneTopBar />
           <div className="hidden md:block">
             <TopBar />
           </div>
-          <div className="flex flex-1 flex-col">{children}</div>
+          <div className={pageClass}>{children}</div>
           {landing && <Footer />}
         </div>
       </div>
@@ -67,7 +71,7 @@ export function SiteShell({ children, landing }: { children: React.ReactNode; la
     <div className="flex min-h-screen flex-col">
       {skipLink}
       <DesktopHeader />
-      <div className="flex flex-1 flex-col">{children}</div>
+      <div className={pageClass}>{children}</div>
       {landing && <Footer />}
     </div>
   );

@@ -2,10 +2,10 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { CatalogFacets, CatalogResponse, TestCard } from '../../api/types';
-import { EMPTY_FILTERS } from '../../lib/catalogFilters';
+import { EMPTY_FILTERS, pageItems } from '../../lib/catalogFilters';
 import { renderWithProviders } from '../../test/utils';
-import { LoadMore } from './CatalogPage';
 import { FilterPanel, SORT_OPTIONS } from './FilterPanel';
+import { Pagination } from './Pagination';
 import { mergePages } from './queries';
 
 const card = (n: number): TestCard => ({
@@ -26,47 +26,40 @@ describe('catalog pagination (C31)', () => {
     expect(mergePages([])).toBeUndefined();
   });
 
-  it('Load more shows how many are shown and asks for the next page', async () => {
-    const onLoadMore = vi.fn();
+  it('says which jobs are showing, marks the current page and moves with Previous, Next and the numbers', async () => {
+    const onPage = vi.fn();
     const u = userEvent.setup();
-    renderWithProviders(<LoadMore total={45} shown={20} paging={{ hasNextPage: true, loadingMore: false, failed: false, onLoadMore }} />);
-    expect(screen.getByText('Showing 20 of 45')).toBeInTheDocument();
-    await u.click(screen.getByRole('button', { name: 'Load more' }));
-    expect(onLoadMore).toHaveBeenCalled();
+    renderWithProviders(<Pagination page={2} pageSize={7} total={22} itemLabel="job" onPage={onPage} />);
+    expect(screen.getByText('Showing 8–14 of 22 jobs')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+    await u.click(screen.getByRole('button', { name: 'Next' }));
+    expect(onPage).toHaveBeenLastCalledWith(3);
+    await u.click(screen.getByRole('button', { name: 'Previous' }));
+    expect(onPage).toHaveBeenLastCalledWith(1);
+    await u.click(screen.getByRole('button', { name: 'Page 4' }));
+    expect(onPage).toHaveBeenLastCalledWith(4);
   });
 
-  it('the loading-more state disables the button and says so', () => {
-    renderWithProviders(<LoadMore total={45} shown={20} paging={{ hasNextPage: true, loadingMore: true, failed: false, onLoadMore: vi.fn() }} />);
-    expect(screen.getByRole('status')).toHaveTextContent('Loading more mock tests…');
-    expect(screen.getByRole('button', { name: 'Load more' })).toBeDisabled();
-  });
-
-  it('a failed page offers Try again and keeps what was loaded', () => {
-    renderWithProviders(<LoadMore total={45} shown={20} paging={{ hasNextPage: true, loadingMore: false, failed: true, onLoadMore: vi.fn() }} />);
-    expect(screen.getByRole('alert')).toHaveTextContent('We could not load more mock tests.');
-    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
-  });
-
-  it('the end of the list says so only after more than one page; a single page says nothing', () => {
-    const none = { hasNextPage: false, loadingMore: false, failed: false, onLoadMore: vi.fn() };
-    const { unmount } = renderWithProviders(<LoadMore total={45} shown={45} paging={none} />);
-    expect(screen.getByTestId('end-of-list')).toHaveTextContent('That is all 45 mock tests.');
+  it('Previous is off on the first page, Next on the last, and the last page counts only what is left', () => {
+    const { unmount } = renderWithProviders(<Pagination page={1} pageSize={7} total={22} itemLabel="job" onPage={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
     unmount();
-    renderWithProviders(<LoadMore total={12} shown={12} paging={none} />);
-    expect(screen.queryByTestId('end-of-list')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('load-more')).not.toBeInTheDocument();
+    renderWithProviders(<Pagination page={4} pageSize={7} total={22} itemLabel="job" onPage={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(screen.getByText('Showing 22–22 of 22 jobs')).toBeInTheDocument();
   });
 
-  it('itemLabel swaps the copy (the job-grouped catalog uses "job")', () => {
-    renderWithProviders(<LoadMore total={45} shown={20} paging={{ hasNextPage: true, loadingMore: true, failed: true, onLoadMore: vi.fn() }} itemLabel="job" />);
-    expect(screen.getByRole('status')).toHaveTextContent('Loading more jobs…');
-    const { unmount } = renderWithProviders(
-      <LoadMore total={45} shown={45} paging={{ hasNextPage: false, loadingMore: false, failed: false, onLoadMore: vi.fn() }} itemLabel="job" />,
-    );
-    expect(screen.getByTestId('end-of-list')).toHaveTextContent('That is all 45 jobs.');
-    unmount();
-    renderWithProviders(<LoadMore total={45} shown={20} paging={{ hasNextPage: true, loadingMore: false, failed: true, onLoadMore: vi.fn() }} itemLabel="job" />);
-    expect(screen.getByRole('alert')).toHaveTextContent('We could not load more jobs.');
+  it('draws nothing when every job fits on one page', () => {
+    renderWithProviders(<Pagination page={1} pageSize={7} total={7} itemLabel="job" onPage={vi.fn()} />);
+    expect(screen.queryByTestId('pagination')).not.toBeInTheDocument();
+  });
+
+  it('page numbers: every page when few, otherwise first, last and neighbours with gaps', () => {
+    expect(pageItems(1, 4)).toEqual([1, 2, 3, 4]);
+    expect(pageItems(5, 9)).toEqual([1, null, 4, 5, 6, null, 9]);
+    expect(pageItems(1, 9)).toEqual([1, 2, null, 9]);
+    expect(pageItems(9, 9)).toEqual([1, null, 8, 9]);
   });
 });
 

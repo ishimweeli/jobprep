@@ -78,7 +78,7 @@ test.describe('Web: dashboard / My progress', () => {
       await expect(tabs.getByRole('link', { name: 'Progress' })).toHaveAttribute('aria-current', 'page');
     } else {
       await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'My progress' })).toHaveAttribute('aria-current', 'page');
-      await expect(page.getByRole('link', { name: 'Browse mock tests' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Browse all mock tests' })).toBeVisible();
     }
     w.expectClean();
   });

@@ -45,9 +45,9 @@ test.describe('Web: dashboard for a new user and "My access" states (C16)', () =
     await expect(access.getByRole('link', { name: 'Get Full Access' })).toHaveAttribute('href', '/rw/checkout');
 
     if (isPhone(info)) {
-      // phone order: Start here, My access, Score history, More for your goal
-      const order = await page.locator('main section').evaluateAll((els) => els.map((e) => e.getAttribute('aria-labelledby')));
-      expect(order).toEqual(['st-t', 'ma-t', 'sh-t', 'sg-t']);
+      // phone order: Continue learning (with Start here inside it), Quick actions, categories, My access, Score history, More for your goal
+      const order = await page.locator('main section[aria-labelledby]').evaluateAll((els) => els.map((e) => e.getAttribute('aria-labelledby')));
+      expect(order).toEqual(['learn', 'qa', 'cats', 'ma-t', 'sh-t', 'sg-t']);
     }
     await expectNoHorizontalScroll(page);
 

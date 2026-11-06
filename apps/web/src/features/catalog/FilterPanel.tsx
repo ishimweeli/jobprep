@@ -84,15 +84,15 @@ function RadioGroup({
 /** A plain `<select>`, the desktop filter row's look for Subject / Difficulty / Language — compact, one line, not a stack of bordered radio rows. */
 function SelectField({ id, legend, value, options, onChange }: { id: string; legend: string; value: string; options: Option[]; onChange: (v: string) => void }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-[15px] font-semibold text-heading dark:text-night-heading">
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-semibold text-heading dark:text-night-heading">
         {legend}
       </label>
       <select
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-11 rounded-control border border-input-border bg-surface px-3 text-[15px] text-ink dark:border-night-border dark:bg-night-surface dark:text-night-ink"
+        className="h-9 rounded-control border border-input-border bg-surface px-2 text-sm text-ink dark:border-night-border dark:bg-night-surface dark:text-night-ink"
       >
         {options.map((o) => (
           <option key={o.value || 'any'} value={o.value}>
@@ -111,8 +111,8 @@ function SelectField({ id, legend, value, options, onChange }: { id: string; leg
 function SegmentedGroup({ legend, name, value, options, onPick }: { legend: string; name: string; value: string; options: Option[]; onPick: (v: string) => void }) {
   return (
     <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
-      <legend className="mb-2 p-0 text-[15px] font-semibold text-heading dark:text-night-heading">{legend}</legend>
-      <div role="radiogroup" aria-label={legend} className="inline-flex rounded-control border border-input-border bg-surface p-[3px] dark:border-night-border dark:bg-night-surface">
+      <legend className="mb-1.5 p-0 text-sm font-semibold text-heading dark:text-night-heading">{legend}</legend>
+      <div role="radiogroup" aria-label={legend} className="inline-flex rounded-control border border-input-border bg-surface p-0.5 dark:border-night-border dark:bg-night-surface">
         {options.map((o) => {
           const on = o.value === value;
           return (
@@ -124,7 +124,7 @@ function SegmentedGroup({ legend, name, value, options, onPick }: { legend: stri
               name={name}
               onClick={() => onPick(o.value)}
               className={cx(
-                'min-h-[38px] flex-1 cursor-pointer whitespace-nowrap rounded-[8px] border-0 px-3 text-[13px] font-semibold transition-colors',
+                'min-h-8 flex-1 cursor-pointer whitespace-nowrap rounded-[6px] border-0 px-2 text-[13px] font-semibold transition-colors',
                 on ? 'bg-brand-soft text-brand' : 'bg-transparent text-ink-2 hover:bg-soft dark:text-night-ink dark:hover:bg-night-soft',
               )}
             >
@@ -186,7 +186,7 @@ export function FilterPanel({ filters, facets, onChange, variant, idPrefix }: Pr
   );
 
   return (
-    <div className={cx('flex flex-col', sheet ? 'gap-4' : 'gap-5')}>
+    <div className={cx('flex flex-col', sheet ? 'gap-4' : 'gap-3.5')}>
       {subject}
       {sheet ? (
         <RadioGroup legend="Price" name={`${idPrefix}-price`} value={filters.price} options={priceOptions} variant={variant} onPick={(v) => onChange({ price: v as CatalogFilters['price'] })} />

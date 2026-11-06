@@ -36,19 +36,23 @@ test.describe('Web: catalog (C10, C31, C32)', () => {
     await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
   });
 
-  test('Load more appends the next page and the list ends with a line; the sort offers Free first', async ({ page }, info) => {
-    await page.route('**/api/countries/rw/mock-tests**', async (route) => {
+  test('Next opens the next page of jobs and Back returns; the sort offers Free first', async ({ page }, info) => {
+    await page.route(/\/api\/countries\/rw\/jobs(\?|$)/, async (route) => {
       const url = new URL(route.request().url());
-      url.searchParams.set('pageSize', '5');
+      url.searchParams.set('pageSize', '2');
       const res = await route.fetch({ url: url.toString() });
       await route.fulfill({ response: res });
     });
     await page.goto('/rw/tests');
-    const cards = page.getByRole('link', { name: 'View test' });
-    await expect(cards.first()).toBeVisible();
-    const first = await cards.count();
-    await page.getByRole('button', { name: 'Load more' }).click();
-    await expect.poll(() => cards.count()).toBeGreaterThan(first);
+    const cards = page.locator('main article');
+    await expect(cards).toHaveCount(2);
+    const firstJob = await cards.first().locator('h2').innerText();
+    await page.getByRole('button', { name: 'Next' }).click();
+    await expect(page).toHaveURL(/page=2/);
+    await expect(page.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+    await expect(cards.first().locator('h2')).not.toHaveText(firstJob);
+    await page.goBack();
+    await expect(cards.first().locator('h2')).toHaveText(firstJob);
     if (!isPhone(info)) await expect(page.getByLabel('Sort')).toContainText('Free first');
     await expectNoHorizontalScroll(page);
   });

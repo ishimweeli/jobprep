@@ -36,6 +36,13 @@
 }
 
 @layer utilities {
+  /* Desktop page content one size smaller, so people scroll less. Most text here has a fixed px size, which a smaller
+     root font would not reach. Phones keep full size for touch; exam pages, the sidebar and the top bar sit outside this. */
+  @media (min-width: 768px) {
+    .ui-scaled {
+      zoom: 0.9;
+    }
+  }
   .tabular {
     font-variant-numeric: tabular-nums;
   }

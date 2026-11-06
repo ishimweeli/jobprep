@@ -17,14 +17,14 @@ function Where() {
   return <div data-testid="where">{useLocation().pathname}</div>;
 }
 
-function jobsResponse(): JobCatalogResponse {
+function jobsResponse(categories: JobCatalogResponse['facets']['categories'] = []): JobCatalogResponse {
   return {
     total: 1,
     page: 1,
     pageSize: 20,
     empty: false,
     canRequestExam: false,
-    facets: { categories: [], subjects: [], difficulties: [], languages: [] },
+    facets: { categories, subjects: [], difficulties: [], languages: [] },
     results: [
       {
         examId: 'ex1', jobSlug: 'rw-cpd-coordination-officer', jobName: 'CPD Coordination Officer',
@@ -36,8 +36,8 @@ function jobsResponse(): JobCatalogResponse {
   };
 }
 
-function render(route = '/rw/tests') {
-  mockFetch((url) => (url.startsWith('/api/countries/rw/jobs') ? { body: jobsResponse() } : undefined));
+function render(route = '/rw/tests', categories?: JobCatalogResponse['facets']['categories']) {
+  mockFetch((url) => (url.startsWith('/api/countries/rw/jobs') ? { body: jobsResponse(categories) } : undefined));
   return renderWithProviders(
     <>
       <Routes>
@@ -56,6 +56,24 @@ describe('catalog page (job-first)', () => {
     expect(await screen.findByText('CPD Coordination Officer')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /View 2 exams/ })).toBeInTheDocument();
     expect(screen.queryByText('JOB PAGE')).not.toBeInTheDocument();
+  });
+
+  const categories = [
+    { slug: 'government-administration', name: 'Government administration', count: 30 },
+    { slug: 'procurement', name: 'Procurement', count: 0 },
+  ];
+
+  it('a category with no jobs gets no chip; one with jobs does', async () => {
+    render('/rw/tests', categories);
+    await screen.findByText('CPD Coordination Officer');
+    expect(screen.getAllByRole('button', { name: 'Government administration' }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: 'Procurement' })).not.toBeInTheDocument();
+  });
+
+  it('an empty category opened by link keeps its chip, shown as selected', async () => {
+    render('/rw/tests?category=procurement', categories);
+    await screen.findByText('CPD Coordination Officer');
+    for (const chip of screen.getAllByRole('button', { name: 'Procurement' })) expect(chip).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('a guest with a saved job is redirected straight to its page', async () => {

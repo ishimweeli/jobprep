@@ -77,6 +77,13 @@ export function activeSheetFilterCount(f: CatalogFilters): number {
   return [f.price, f.difficulty, f.language, f.subject, f.sort].filter(Boolean).length;
 }
 
+/** The page numbers to draw: all of them when few, else the first, the last and the current page's neighbours. `null` marks a gap ("…"). */
+export function pageItems(current: number, totalPages: number): (number | null)[] {
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = [...new Set([1, current - 1, current, current + 1, totalPages])].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+  return pages.flatMap((p, i) => (i > 0 && p - pages[i - 1]! > 1 ? [null, p] : [p]));
+}
+
 /** Changing any filter (other than page) returns to page 1. */
 export function applyFilterChange(current: CatalogFilters, patch: Partial<CatalogFilters>): CatalogFilters {
   const next = { ...current, ...patch };

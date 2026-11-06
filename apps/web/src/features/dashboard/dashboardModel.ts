@@ -8,6 +8,31 @@ export function greeting(countryCode: string, firstName: string): string {
 
 export const progressWidth = (answered: number, total: number) => (total <= 0 ? 0 : Math.min(100, Math.round((answered / total) * 100)));
 
+export type HeroStatIcon = 'tests' | 'completed' | 'progress' | 'goal';
+
+export interface HeroStat {
+  icon: HeroStatIcon;
+  label: string;
+  value: string;
+}
+
+/**
+ * The dashboard hero's 4-tile stat row. Every value comes from real data: `mockTestsAvailable` is the chosen
+ * goal's mock-test count (from the categories list, looked up by the caller — not part of `DashboardResponse`
+ * itself, hence the separate parameter rather than reaching for it internally). The "Mock tests available"
+ * and "Preparing for" tiles are left out when there's no chosen goal, rather than show a 0 or a placeholder.
+ */
+export function heroStats(d: Pick<DashboardResponse, 'scoreHistory' | 'goal'>, mockTestsAvailable: number | null): HeroStat[] {
+  const scored = d.scoreHistory.filter((h): h is typeof h & { percent: number } => h.percent !== null);
+  const avg = scored.length > 0 ? Math.round(scored.reduce((sum, h) => sum + h.percent, 0) / scored.length) : 0;
+  const tiles: HeroStat[] = [];
+  if (mockTestsAvailable !== null) tiles.push({ icon: 'tests', label: 'Mock tests available', value: String(mockTestsAvailable) });
+  tiles.push({ icon: 'completed', label: 'Tests completed', value: String(scored.length) });
+  tiles.push({ icon: 'progress', label: 'Overall progress', value: `${avg}%` });
+  if (d.goal) tiles.push({ icon: 'goal', label: 'Preparing for', value: d.goal.name });
+  return tiles;
+}
+
 export interface ChartGeometry {
   width: number;
   height: number;
