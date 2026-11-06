@@ -27,7 +27,7 @@ const linkClass = 'link text-sm no-underline';
  * `?reason=admin_stale` keeps the screen open although a session exists ("Please sign in again to use the admin area").
  */
 export function SignInPage() {
-  useDocumentTitle('Sign in');
+  useDocumentTitle('Sign in', 'Sign in to JobPrep to continue your recruitment exam practice and see your progress.');
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [params] = useSearchParams();

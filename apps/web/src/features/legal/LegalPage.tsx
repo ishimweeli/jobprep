@@ -23,7 +23,7 @@ export function LegalPage({ slug: forced }: { slug?: string }) {
 function LegalBody({ slug }: { slug: 'terms' | 'privacy' | 'refund' | 'cookies' }) {
   const country = useActiveCountrySlug();
   const q = useQuery({ queryKey: legalKeys.page(slug, country), queryFn: () => getLegalPage(slug, country), staleTime: 5 * 60_000, retry: false });
-  useDocumentTitle(q.data?.title ?? LEGAL_LINK_LABEL[slug]);
+  useDocumentTitle(q.data?.title ?? LEGAL_LINK_LABEL[slug], `${q.data?.title ?? LEGAL_LINK_LABEL[slug]} for JobPrep, the independent recruitment exam practice platform.`);
   const d = q.data;
 
   if (q.isError) {

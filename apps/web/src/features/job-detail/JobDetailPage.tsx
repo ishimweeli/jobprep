@@ -22,7 +22,10 @@ export function JobDetailPage() {
   const { jobSlug = '' } = useParams();
   const q = useQuery({ queryKey: catalogKeys.jobDetail(slug, jobSlug), queryFn: () => getJob(slug, jobSlug), staleTime: 30_000 });
   const job = q.data;
-  useDocumentTitle(job?.exam.name);
+  useDocumentTitle(
+    job ? `${job.exam.name} exam preparation` : null,
+    job ? `Prepare for the ${job.exam.name} recruitment exam (${job.category.name}). ${job.totalMockTests} timed mock tests${job.freeCount > 0 ? `, ${job.freeCount} free` : ''}, with an explanation for every answer.` : null,
+  );
 
   const setPreferred = useSetPreferredJob();
   useEffect(() => {

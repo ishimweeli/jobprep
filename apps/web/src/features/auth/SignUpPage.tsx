@@ -22,7 +22,7 @@ import { useSession } from './session';
  * `?next=` is kept all the way; when it leads to payment for a test, the blue note names the test (`fromPaid`).
  */
 export function SignUpPage() {
-  useDocumentTitle('Create your account');
+  useDocumentTitle('Create your account', 'Create a free JobPrep account to practise MIFOTRA and Rwanda public-service recruitment exams and track your scores.');
   const navigate = useNavigate();
   const next = safeNext(useSearchParams()[0].get('next'));
   const { user, isLoading } = useSession();

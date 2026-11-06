@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Outlet, useNavigationType, type RouteObject } from 'react-router-dom';
+import { Outlet, useLocation, useNavigationType, type RouteObject } from 'react-router-dom';
+import { useRouteSeo } from './lib/useDocumentTitle';
 import { SignedOutNotice } from './components/layout/SignedOutNotice';
 import { CountryLayout } from './components/layout/SiteLayout';
 import { SkeletonList } from './components/states';
@@ -17,6 +18,7 @@ import type { LegalSlug } from './api/types';
 function RootLayout() {
   const system = useSystemState();
   const navigationType = useNavigationType();
+  useRouteSeo(useLocation().pathname);
   // Tracked for CatalogPage's preferred-job redirect: a fresh load and the browser's Back button both report
   // as POP, so it also needs to know whether an in-app PUSH happened first (see lib/navigationHistory.ts).
   useEffect(() => {

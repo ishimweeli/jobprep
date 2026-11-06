@@ -10,6 +10,7 @@ import { QueryError, SkeletonList } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate, languageList, languageListShort, plural } from '../../lib/format';
 import { useT } from '../../lib/i18n';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug, useCountries } from '../country/hooks';
 import { HeroPreview } from './HeroPreview';
@@ -40,6 +41,10 @@ export function LandingPage() {
   const freeTest = data ? [...data.featuredTests, ...data.recentlyAdded].find((x) => x.isFree) : undefined;
   const freeHref = freeTest ? countryPath(slug, 'tests', freeTest.slug) : `${countryPath(slug, 'tests')}?price=free`;
   const [headA, headB] = splitHeadline(t('landing.headline'));
+  useDocumentTitle(
+    countryName ? `${countryName} job exam practice: MIFOTRA mock tests` : null,
+    countryName ? `Practise for ${countryName} public-service recruitment exams. Timed MIFOTRA-style mock tests for every job, with an explanation for every answer. Start free.` : null,
+  );
 
   return (
     <div className="bg-surface">

@@ -16,6 +16,7 @@ import { countriesRouter } from './routes/countries';
 import { meRouter } from './routes/me';
 import { paymentsRouter } from './routes/payments';
 import { publicRouter } from './routes/public';
+import { sitemapRouter } from './routes/sitemap';
 import { testSupportRouter } from './routes/test-support';
 import { createProviderRegistry, type ProviderRegistry } from './payments/registry';
 import type { FetchLike } from './payments/types';
@@ -116,6 +117,7 @@ export function createApp(deps: AppDeps) {
     // The id is what the error page shows as "Reference"; it is also in the server log line above.
     res.status(500).json({ error: 'internal_error', requestId: req.id });
   };
+  app.use(sitemapRouter(ctx)); // /sitemap.xml: before serveWeb, which 404s any path with a file extension
   if (config.WEB_DIST_DIR) serveWeb(app, config.WEB_DIST_DIR);
 
   app.use(onError);

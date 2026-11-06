@@ -18,6 +18,7 @@ import {
 import { cx } from '../../lib/cx';
 import { plural } from '../../lib/format';
 import { hasPushedThisSession } from '../../lib/navigationHistory';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { FilterPanel, SORT_OPTIONS } from './FilterPanel';
 import { JobResultCard } from './JobResultCard';
@@ -75,6 +76,10 @@ export function CatalogPage() {
   };
   const sheetCount = activeSheetFilterCount(filters);
   const catName = data?.facets.categories.find((c) => c.slug === filters.category)?.name;
+  useDocumentTitle(
+    catName ? `${catName} mock tests` : 'MIFOTRA mock tests and past-paper practice',
+    `Browse timed mock tests for ${catName ?? 'Rwanda public-service'} job exams. Pick your MIFOTRA position, practise real exam formats and review every answer.`,
+  );
 
   // A saved job (server-side for a signed-in user, localStorage for a guest) opens straight to its page;
   // "Change job" there is what brings someone back here. See `usePreferredJob.ts`. Browser Back out of that

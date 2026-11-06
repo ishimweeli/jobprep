@@ -28,7 +28,7 @@ export function fullAccessFeatures(days: number): string[] {
 
 export function PricingPage() {
   const slug = useActiveCountrySlug();
-  useDocumentTitle('Pricing');
+  useDocumentTitle('Pricing', 'Try free mock tests first, then unlock every job exam practice test with one simple plan. Pay with mobile money.');
   const q = useQuery({ queryKey: catalogKeys.pricing(slug), queryFn: () => getPricing(slug), staleTime: 60_000 });
   const detail = useCountryDetail(slug);
   const { user } = useSession();

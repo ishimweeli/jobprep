@@ -33,7 +33,10 @@ export function ExamDetailPage() {
   });
   const exam = q.data;
   const inProgress = useInProgress();
-  useDocumentTitle(exam?.title);
+  useDocumentTitle(
+    exam?.title,
+    exam ? `${exam.title}: ${exam.questionCount} questions in ${exam.durationMinutes} minutes. Timed mock test with an explanation for every answer.` : null,
+  );
 
   if (q.isError) {
     return (

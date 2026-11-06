@@ -13,7 +13,7 @@ import { HELP_TOPICS, SUPPORT_MISSING_NOTE, SUPPORT_PLACEHOLDER_NOTE, supportRow
  * The topics below it are plain links to screens that already exist.
  */
 export function HelpPage() {
-  useDocumentTitle('Help and support');
+  useDocumentTitle('Help and support', 'Get help with JobPrep mock tests, your account and payments. Contact the support team.');
   const slug = useActiveCountrySlug();
   const countries = useCountries();
   const code = (countries.data?.find((c) => c.slug === slug)?.code ?? slug).toUpperCase();

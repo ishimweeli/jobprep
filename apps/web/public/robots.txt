@@ -1,2 +1,19 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /account
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /verify-email
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /auth/
+Disallow: /setup/
+Disallow: /*/exam/
+Disallow: /*/review/
+Disallow: /*/results/
+Disallow: /*/checkout
+Disallow: /*/progress
+
+Sitemap: https://jobprep.nexvecta.com/sitemap.xml
