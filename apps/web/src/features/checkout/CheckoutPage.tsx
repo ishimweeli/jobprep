@@ -8,7 +8,7 @@ import { meKeys } from '../../api/me';
 import { createPayment, getCheckout, getPayment, paymentKeys, resendPayment } from '../../api/payments';
 import type { CheckoutSummary, PaymentView } from '../../api/types';
 import { buttonClasses } from '../../components/Button';
-import { QueryError, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
 import { formatDate, mmss } from '../../lib/format';
@@ -89,7 +89,7 @@ export function CheckoutPage() {
   if (!summaryQ.data) {
     return (
       <Frame back={back}>
-        <SkeletonList count={2} label="Loading checkout…" />
+        <Loader label="Loading checkout…" />
       </Frame>
     );
   }

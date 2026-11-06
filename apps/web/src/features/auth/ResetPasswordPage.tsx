@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { checkResetToken, resetPassword } from '../../api/auth';
 import { ApiError } from '../../api/client';
 import { Button, LinkButton } from '../../components/Button';
-import { ErrorState, SkeletonList } from '../../components/states';
+import { ErrorState, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { getStoredCountry } from '../../lib/country';
@@ -64,7 +64,7 @@ export function ResetPasswordPage() {
     return (
       <AuthFrame homeTo={home} backHome>
         <AuthHeading title="Choose a new password" />
-        <SkeletonList count={1} label="Checking your link…" />
+        <Loader label="Checking your link…" />
       </AuthFrame>
     );
   }

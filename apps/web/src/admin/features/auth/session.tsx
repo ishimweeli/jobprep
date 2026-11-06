@@ -7,7 +7,7 @@ import type { AdminMe, Permission } from '../../api/types';
 import { meKeys } from '../../../api/me';
 import { clearSessionHint } from '../../../lib/sessionHint';
 import { signInAgainPath, signInPath } from '../../../lib/next';
-import { ErrorBox, Skeleton } from '../../components/states';
+import { ErrorBox, Loader } from '../../components/states';
 import { AccessDenied } from '../../components/AccessDenied';
 import { firstAllowedPath } from '../../lib/permissions';
 import { NoAccess } from './NoAccess';
@@ -64,7 +64,7 @@ export function RequireAdmin() {
   if (me.isPending || reason) {
     return (
       <div className="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <Skeleton className="w-full" />
+        <Loader className="w-full" />
       </div>
     );
   }

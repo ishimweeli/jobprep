@@ -5,7 +5,7 @@ import { getExams } from '../../api/admin';
 import { contentKeys, getImportTemplate, runImport, type ColumnMap, type ImportOutcome, type ImportReportBody } from '../../api/content';
 import { AdminShell } from '../../components/AdminShell';
 import { Field, CONTROL, edge } from '../../components/forms';
-import { ErrorBox, SaveStatus, Skeleton } from '../../components/states';
+import { ErrorBox, SaveStatus, Loader } from '../../components/states';
 import { Btn, LinkButton } from '../../components/ui';
 import { useAdminCountry } from '../../lib/adminCountry';
 import { cx } from '../../lib/cx';
@@ -380,7 +380,7 @@ export function ImportPage() {
       </section>
     );
   } else {
-    body = <Skeleton label="Loading…" />;
+    body = <Loader label="Loading…" />;
   }
 
   return (

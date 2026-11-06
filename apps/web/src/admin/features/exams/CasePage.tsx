@@ -9,7 +9,7 @@ import type { ExamCase } from '../../../api/types';
 import { ActionDialog } from '../../components/ActionDialog';
 import { AdminShell } from '../../components/AdminShell';
 import { SelectField } from '../../components/forms';
-import { EmptyState, ErrorBox, SaveStatus, Skeleton, type SaveState } from '../../components/states';
+import { EmptyState, ErrorBox, SaveStatus, Loader, type SaveState } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { Btn, LinkButton, Pill } from '../../components/ui';
 import { cx } from '../../lib/cx';
@@ -45,7 +45,7 @@ export function CasePage() {
           <span className="text-sm text-muted">{test.data?.mockTest.title ?? ' '}</span>
         </div>
       )}
-      {test.isError ? <ErrorBox error={test.error} onRetry={() => void test.refetch()} /> : test.isPending ? <Skeleton label="Loading the mock test…" /> : caseId ? (
+      {test.isError ? <ErrorBox error={test.error} onRetry={() => void test.refetch()} /> : test.isPending ? <Loader label="Loading the mock test…" /> : caseId ? (
         <CaseEditor key={caseId} testId={testId} caseId={caseId} languages={test.data.mockTest.languages} />
       ) : (
         <CaseList testId={testId} />
@@ -65,7 +65,7 @@ function CaseList({ testId }: { testId: string }) {
         {hint ? <Btn kind="primary" size="sm" whyDisabled={hint}>+ New case study</Btn> : <LinkButton to={`/admin/exams/${testId}/cases/new`} kind="primary" size="sm">+ New case study</LinkButton>}
       </div>
       <p className="m-0 text-[13px] text-muted">A case study is a passage with tables and notes that several questions share. Candidates read it beside each question.</p>
-      {list.isPending ? <Skeleton label="Loading case studies…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : list.data.length === 0 ? (
+      {list.isPending ? <Loader label="Loading case studies…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : list.data.length === 0 ? (
         <EmptyState title="No case studies yet" hint="Add one, then attach the questions that use it." />
       ) : (
         <ul className="m-0 flex list-none flex-col p-0">
@@ -89,7 +89,7 @@ type Tab = 'case' | 'questions' | 'preview' | 'translations';
 function CaseEditor({ testId, caseId, languages }: { testId: string; caseId: string; languages: string[] }) {
   const creating = caseId === 'new';
   const q = useQuery({ queryKey: contentKeys.caseFull(caseId), queryFn: () => getCaseFull(caseId), enabled: !creating });
-  if (!creating && q.isPending) return <Skeleton label="Loading the case study…" />;
+  if (!creating && q.isPending) return <Loader label="Loading the case study…" />;
   if (!creating && q.isError) return <ErrorBox error={q.error} onRetry={() => void q.refetch()} />;
   return <EditorBody testId={testId} data={q.data} languages={languages} />;
 }
@@ -305,7 +305,7 @@ function AttachPanel({ testId, caseData, canWrite, hint, onChanged }: { testId: 
       <section aria-labelledby="cs-pick" className="flex flex-col gap-2">
         <h3 id="cs-pick" className="m-0 text-[15px]">Attach more questions</h3>
         <p className="m-0 text-[13px] text-muted">Only single-answer questions of this test can use a case study.</p>
-        {test.isPending ? <Skeleton label="Loading the questions…" /> : test.isError ? <ErrorBox error={test.error} onRetry={() => void test.refetch()} /> : free.length === 0 ? (
+        {test.isPending ? <Loader label="Loading the questions…" /> : test.isError ? <ErrorBox error={test.error} onRetry={() => void test.refetch()} /> : free.length === 0 ? (
           <p className="m-0 text-sm text-muted">Every single-answer question of this test is already attached.</p>
         ) : (
           <fieldset className="m-0 flex max-h-[320px] flex-col overflow-y-auto border-0 p-0">

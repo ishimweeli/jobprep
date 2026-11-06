@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { getAudit, getCountries, getCountry, getSettings, keys, putSettings } from '../../api/admin';
 import type { AdminSettings, AuditEntry, CountryDetail, SettingsPatch } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { ErrorBox, Skeleton } from '../../components/states';
+import { ErrorBox, Loader } from '../../components/states';
 import { Btn, Pill } from '../../components/ui';
 import type { CountryDetailX } from '../../api/governance';
 import { SetPriceDialog } from '../countries/CountryDialogs';
@@ -239,7 +239,7 @@ export function SettingsPage() {
     return (
       <AdminShell title="Settings">
         {!phone && <h1 className="m-0 text-[28px] tracking-[-0.02em]">Settings</h1>}
-        <Skeleton label="Loading settings…" />
+        <Loader label="Loading settings…" />
       </AdminShell>
     );
   }
@@ -281,7 +281,7 @@ export function SettingsPage() {
           {teamCard}
           {can('audit:read') && (
             <Card id="st-log" title="Audit log" phone={false} aside={<Link to="/admin/settings/audit" className="text-sm font-semibold">View all</Link>}>
-              {audit.isPending ? <Skeleton label="Loading the audit log…" /> : audit.isError ? <ErrorBox error={audit.error} onRetry={() => void audit.refetch()} /> : <AuditList items={audit.data.results} />}
+              {audit.isPending ? <Loader label="Loading the audit log…" /> : audit.isError ? <ErrorBox error={audit.error} onRetry={() => void audit.refetch()} /> : <AuditList items={audit.data.results} />}
             </Card>
           )}
         </div>

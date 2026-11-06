@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getCountries, getCountry, keys } from '../../api/admin';
 import type { CountryDetailX } from '../../api/governance';
 import { AdminShell } from '../../components/AdminShell';
-import { ErrorBox, Skeleton } from '../../components/states';
+import { ErrorBox, Loader } from '../../components/states';
 import { Btn, LinkButton, Pill } from '../../components/ui';
 import { COUNTRY_TONE } from '../../lib/badges';
 import { cx } from '../../lib/cx';
@@ -54,7 +54,7 @@ export function CountriesPage() {
     </section>
   );
 
-  const state = list.isPending ? <Skeleton label="Loading countries…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : null;
+  const state = list.isPending ? <Loader label="Loading countries…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : null;
 
   if (!isDesktop) {
     return (
@@ -84,7 +84,7 @@ export function CountriesPage() {
       {state ?? (
         <div className="flex flex-wrap items-start gap-[18px]">
           {cards}
-          {detail.isPending && code ? <Skeleton className="min-w-0 flex-[999_1_560px]" label="Loading this country…" /> : detail.isError ? <ErrorBox error={detail.error} onRetry={() => void detail.refetch()} className="min-w-0 flex-[999_1_560px]" /> : detail.data && <CountryDetailPanel d={detail.data as CountryDetailX} phone={false} />}
+          {detail.isPending && code ? <Loader className="min-w-0 flex-[999_1_560px]" label="Loading this country…" /> : detail.isError ? <ErrorBox error={detail.error} onRetry={() => void detail.refetch()} className="min-w-0 flex-[999_1_560px]" /> : detail.data && <CountryDetailPanel d={detail.data as CountryDetailX} phone={false} />}
         </div>
       )}
     </AdminShell>

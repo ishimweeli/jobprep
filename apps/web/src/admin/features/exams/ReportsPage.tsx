@@ -5,7 +5,7 @@ import { closeQuestionReports, getClosedReports, getGroupedReports, reportsKey, 
 import type { ReportStatus } from '../../api/types';
 import { ActionDialog } from '../../components/ActionDialog';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { Btn, FilterChips, LinkButton, Pager } from '../../components/ui';
 import { useAdminCountry } from '../../lib/adminCountry';
@@ -63,7 +63,7 @@ export function ReportsPage() {
     </>
   );
 
-  const state = list.isPending ? <TableSkeleton label="Loading reports…" /> : list.isError ? <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div> : null;
+  const state = list.isPending ? <Loader label="Loading reports…" /> : list.isError ? <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div> : null;
   const none = data && data.results.length === 0 ? <EmptyState title={empty.title} hint={empty.hint} /> : null;
 
   const dialog = pending && (

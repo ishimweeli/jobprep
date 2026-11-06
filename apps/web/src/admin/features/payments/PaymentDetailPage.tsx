@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { getPayment, keys } from '../../api/admin';
 import type { PaymentDetail } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { ErrorBox, Skeleton } from '../../components/states';
+import { ErrorBox, Loader } from '../../components/states';
 import { Btn, Pill } from '../../components/ui';
 import { paymentTone } from '../../lib/badges';
 import { cx } from '../../lib/cx';
@@ -78,7 +78,7 @@ export function PaymentDetailPage() {
   const back = '/admin/payments';
 
   let body: ReactNode;
-  if (q.isPending) body = <Skeleton label="Loading this payment…" />;
+  if (q.isPending) body = <Loader label="Loading this payment…" />;
   else if (q.isError) body = <ErrorBox error={q.error} onRetry={() => void q.refetch()} />;
   else body = <Body d={q.data} desktop={isDesktop} />;
 

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { ErrorState, SkeletonList } from '../../components/states';
+import { ErrorState, Loader } from '../../components/states';
 import { resolveInitialCountry } from '../../lib/country';
 import { useSession } from '../auth/session';
 import { countryPath, useCountries } from './hooks';
@@ -13,7 +13,7 @@ export function RootRedirect() {
   if (sessionLoading || countries.isLoading) {
     return (
       <div className="mx-auto max-w-[640px] p-6">
-        <SkeletonList count={2} label="Loading…" />
+        <Loader label="Loading…" />
       </div>
     );
   }

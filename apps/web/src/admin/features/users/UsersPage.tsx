@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getOverview, getUsers, keys } from '../../api/admin';
 import type { UserFilter, UserRow } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { Avatar, Btn, FilterChips, Pager, Pill } from '../../components/ui';
 import { ACCESS_TONE } from '../../lib/badges';
 import { cx } from '../../lib/cx';
@@ -96,7 +96,7 @@ export function UsersPage() {
     />
   );
   const body = list.isPending ? (
-    <TableSkeleton label="Loading users…" />
+    <Loader label="Loading users…" />
   ) : list.isError ? (
     <ErrorBox error={list.error} onRetry={() => void list.refetch()} />
   ) : null;

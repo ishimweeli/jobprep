@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { onSignInRequired } from './api/client';
-import { Skeleton } from './components/states';
+import { Loader } from './components/states';
 import { ToastProvider } from './components/Toast';
 import { goToSignIn, RequireAdmin, RequirePermission, useAdmin } from './features/auth/session';
 import { firstAllowedPath } from './lib/permissions';
@@ -41,7 +41,7 @@ function Fallback() {
 
 const Loading = () => (
   <div className="mx-auto flex min-h-screen max-w-md items-center px-4">
-    <Skeleton className="w-full" />
+    <Loader className="w-full" />
   </div>
 );
 

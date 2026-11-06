@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { downloadCsv, getWaitingList, notifyWaitingList, waitingListExportUrl, waitingListKey, type DownloadState, type WaitingCountry } from '../../api/questions-demand';
 import { ActionDialog } from '../../components/ActionDialog';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { Btn, LinkButton, Pager, Pill } from '../../components/ui';
 import { COUNTRY_TONE } from '../../lib/badges';
@@ -83,7 +83,7 @@ export function WaitingListPage() {
     </section>
   );
 
-  const state = list.isPending ? <TableSkeleton label="Loading the waiting list…" /> : list.isError ? <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div> : null;
+  const state = list.isPending ? <Loader label="Loading the waiting list…" /> : list.isError ? <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div> : null;
 
   const detail = chosen ? (
     <section aria-labelledby="wl-t" className="flex min-w-0 flex-[999_1_560px] flex-col gap-3.5 rounded-[16px] border border-border bg-white p-[22px]">

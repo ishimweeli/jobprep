@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { getLegalPage, legalKeys } from '../../api/legal';
-import { QueryError, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { formatDate } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useActiveCountrySlug } from '../country/hooks';
@@ -36,7 +36,7 @@ function LegalBody({ slug }: { slug: 'terms' | 'privacy' | 'refund' | 'cookies' 
   if (!d) {
     return (
       <InfoPage title={LEGAL_LINK_LABEL[slug]} toc={[]}>
-        <SkeletonList count={3} label="Loading…" />
+        <Loader label="Loading…" />
       </InfoPage>
     );
   }

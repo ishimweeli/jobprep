@@ -5,7 +5,7 @@ import type { ExamDetail } from '../../api/types';
 import { Badge, AccessBadge } from '../../components/Badge';
 import { buttonClasses } from '../../components/Button';
 import { PhoneBackHeader } from '../../components/layout/Header';
-import { QueryError, SkeletonBar, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { attemptScore, formatDate, languageList, passMarkDisplay } from '../../lib/format';
 import { useSession } from '../auth/session';
 import { formatClock } from '../exam/timer';
@@ -54,11 +54,7 @@ export function ExamDetailPage() {
       <div>
         {!user && <PhoneBackHeader to={countryPath(slug, 'tests')} label="Back to mock tests" title="Mock tests" />}
         <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6 md:py-7">
-          <div className="mb-5 flex flex-col gap-3" aria-hidden="true">
-            <SkeletonBar className="h-6 w-1/3" />
-            <SkeletonBar className="h-9 w-4/5 bg-border" />
-          </div>
-          <SkeletonList count={3} label="Loading mock test…" />
+          <Loader label="Loading mock test…" />
         </main>
       </div>
     );

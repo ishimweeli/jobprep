@@ -5,7 +5,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { attemptKeys, getDashboard } from '../../api/attempts';
 import type { DashboardResponse } from '../../api/types';
 import { ActionLink, buttonClasses } from '../../components/Button';
-import { QueryError, SkeletonBar, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate } from '../../lib/format';
 import { signInPath } from '../../lib/next';
@@ -43,11 +43,7 @@ export function DashboardPage() {
     </main>
   ) : !q.data ? (
     <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6 md:py-7">
-      <div className="mb-5 flex flex-col gap-3" aria-hidden="true">
-        <SkeletonBar className="h-8 w-1/2 bg-border" />
-        <SkeletonBar className="h-4 w-2/3" />
-      </div>
-      <SkeletonList count={3} label="Loading your progress…" />
+      <Loader label="Loading your progress…" />
     </main>
   ) : (
     <DashboardView d={q.data} slug={slug} />

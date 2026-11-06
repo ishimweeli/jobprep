@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { createMockTest, getCatalogOptions, keys, patchMockTest } from '../../api/admin';
 import { contentKeys, getCountryOptions, getMockTestEx, type CountryOption } from '../../api/content';
 import { AdminShell } from '../../components/AdminShell';
-import { ErrorBox, SaveStatus, Skeleton, type SaveState } from '../../components/states';
+import { ErrorBox, SaveStatus, Loader, type SaveState } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { Btn, LinkButton, Pill } from '../../components/ui';
 import { TEST_TONE } from '../../lib/badges';
@@ -37,7 +37,7 @@ export function MockTestFormPage() {
   const back = testId ? `/admin/exams/${testId}` : '/admin/exams';
 
   let body: ReactNode;
-  if (!creating && detail.isPending) body = <Skeleton label="Loading the mock test…" />;
+  if (!creating && detail.isPending) body = <Loader label="Loading the mock test…" />;
   else if (!creating && detail.isError) body = <ErrorBox error={detail.error} onRetry={() => void detail.refetch()} />;
   else body = <FormBody key={testId ?? 'new'} testId={testId} detail={detail.data} desktop={isDesktop} />;
 

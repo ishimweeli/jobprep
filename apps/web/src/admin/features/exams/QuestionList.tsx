@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMockTestFull, keys } from '../../api/admin';
 import { reorderQuestions } from '../../api/questions-demand';
-import { EmptyState, SaveStatus, Skeleton, type SaveState } from '../../components/states';
+import { EmptyState, SaveStatus, Loader, type SaveState } from '../../components/states';
 import { ErrorBox } from '../../components/states';
 import { LinkButton, Pill } from '../../components/ui';
 import { TEST_TONE } from '../../lib/badges';
@@ -87,7 +87,7 @@ export function QuestionList({ testId, activeId, phone }: { testId: string; acti
   );
 
   const content = test.isPending ? (
-    <Skeleton label="Loading the questions…" />
+    <Loader label="Loading the questions…" />
   ) : test.isError ? (
     <ErrorBox error={test.error} onRetry={() => void test.refetch()} />
   ) : questions.length === 0 ? (

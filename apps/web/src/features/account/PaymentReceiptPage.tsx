@@ -5,7 +5,7 @@ import { getMyPayment, paymentsKeys } from '../../api/me';
 import { checkPayment } from '../../api/payments';
 import { Button } from '../../components/Button';
 import { PhoneBackHeader } from '../../components/layout/Header';
-import { QueryError, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { formatDate } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -44,7 +44,7 @@ export function PaymentReceiptPage() {
         {q.isError ? (
           <QueryError error={q.error} what="this payment" onRetry={() => void q.refetch()} retrying={q.isFetching} />
         ) : !p ? (
-          <SkeletonList count={2} label="Loading the receipt…" />
+          <Loader label="Loading the receipt…" />
         ) : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-border bg-surface p-4">

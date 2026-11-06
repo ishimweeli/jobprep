@@ -101,7 +101,7 @@ await expect(page.getByRole('article').first()).toContainText('Foundation');
     await expect(page.getByRole('article').first()).toBeVisible();
   });
 
-  test('loading skeleton, then an error with Try again when the API fails', async ({ page }) => {
+  test('loading spinner, then an error with Try again when the API fails', async ({ page }) => {
     let fail = true;
     await page.route('**/api/countries/rw/mock-tests*', async (route) => {
       if (fail) await route.abort();

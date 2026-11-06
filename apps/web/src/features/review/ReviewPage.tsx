@@ -4,7 +4,7 @@ import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { attemptKeys, getReview } from '../../api/attempts';
 import { isApiError } from '../../api/client';
 import type { ExamCase, ReviewFilter, ReviewItem, ReviewResponse } from '../../api/types';
-import { QueryError, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { translationNote, useLocale, useT } from '../../lib/i18n';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -39,7 +39,7 @@ export function ReviewPage() {
   if (!q.data) {
     return (
       <main id="main-content" className="mx-auto w-full max-w-[1200px] px-4 py-8 md:px-6">
-        <SkeletonList count={3} label="Loading your answers…" />
+        <Loader label="Loading your answers…" />
       </main>
     );
   }

@@ -13,7 +13,7 @@ const DESKTOP_NOTE =
 
 /**
  * `/choose-country`. Phone: a full page (CountryPickerPhone). Desktop: the picker modal over a dimmed page
- * skeleton (CountryPicker). Both use the same body, so behaviour is identical.
+ * background (CountryPicker). Both use the same body, so behaviour is identical.
  * A signed-in user's country is locked: choosing a live country opens Change exam country (ChangeCountry.dc) with it selected.
  */
 export function ChooseCountryPage() {

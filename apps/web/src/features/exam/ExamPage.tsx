@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { attemptKeys, getAttempt, saveAnswers, submitAttempt } from '../../api/attempts';
-import { ErrorState, SkeletonList } from '../../components/states';
+import { ErrorState, Loader } from '../../components/states';
 import { useLocale } from '../../lib/i18n';
 import { useActiveCountrySlug } from '../country/hooks';
 import { PracticeRunner } from '../practice/PracticeRunner';
@@ -58,7 +58,7 @@ export function ExamPage() {
   if (!data || !boot) {
     return (
       <main id="main-content" className="mx-auto max-w-[640px] px-4 py-10">
-        <SkeletonList count={3} label="Loading your exam…" />
+        <Loader label="Loading your exam…" />
       </main>
     );
   }

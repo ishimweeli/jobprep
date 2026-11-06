@@ -5,7 +5,7 @@ import { getStatusImpact, type CountryDetailX } from '../../api/governance';
 import type { ProviderMode } from '../../api/types';
 import { ActionDialog } from '../../components/ActionDialog';
 import { CheckField, FieldGroup, TextField } from '../../components/forms';
-import { Skeleton } from '../../components/states';
+import { Loader } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { amountFromLabel, plural } from '../../lib/format';
 import { COUNTRY_ERRORS, exponentFor, liveWarning, MODE_CHOICES, parsePrice, priceConsequence, priceError } from './countryActions';
@@ -129,7 +129,7 @@ export function MoveBackDialog({ open, onClose, d }: { open: boolean; onClose: (
     >
       <p className="m-0">Candidates will no longer see {d.country.name} or its mock tests, and nobody can pay there. People who already have Full Access keep it.</p>
       {impact.isPending ? (
-        <Skeleton label="Counting who is affected…" />
+        <Loader label="Counting who is affected…" />
       ) : i ? (
         <ul className="m-0 list-disc pl-5 text-sm">
           <li>{plural(i.users, 'person', 'people')} registered in {d.country.name}</li>

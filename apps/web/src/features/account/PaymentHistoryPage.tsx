@@ -7,7 +7,7 @@ import { checkPayment } from '../../api/payments';
 import type { PaymentRow } from '../../api/types';
 import { Button } from '../../components/Button';
 import { PhoneBackHeader } from '../../components/layout/Header';
-import { EmptyState, QueryError, SkeletonList } from '../../components/states';
+import { EmptyState, QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { formatDate } from '../../lib/format';
@@ -46,7 +46,7 @@ export function PaymentHistoryPage() {
         {q.isError ? (
           <QueryError error={q.error} what="your payments" onRetry={() => void q.refetch()} retrying={q.isFetching} />
         ) : !q.data ? (
-          <SkeletonList count={3} label="Loading your payments…" />
+          <Loader label="Loading your payments…" />
         ) : rows.length === 0 ? (
           <EmptyState title="No payments yet" message="When you buy Full Access, the payment and its receipt appear here.">
             <Link to={countryPath(slug, 'pricing')} className="link py-2.5 text-[15px] font-semibold">

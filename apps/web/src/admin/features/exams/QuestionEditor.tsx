@@ -6,7 +6,7 @@ import { deleteTranslation, getQuestionX, putTranslation, type QuestionDetailX }
 import type { Difficulty, MockTestDetailFull, QuestionType } from '../../api/types';
 import { ActionDialog } from '../../components/ActionDialog';
 import { AdminDialog } from '../../components/AdminDialog';
-import { ErrorBox, SaveStatus, Skeleton, type SaveState } from '../../components/states';
+import { ErrorBox, SaveStatus, Loader, type SaveState } from '../../components/states';
 import { Btn } from '../../components/ui';
 import { useToast } from '../../components/Toast';
 import { TEST_TONE } from '../../lib/badges';
@@ -52,9 +52,9 @@ export function QuestionEditor({ testId, questionId, phone }: { testId: string; 
   const test = useQuery({ queryKey: keys.mockTest(testId), queryFn: () => getMockTestFull(testId) });
   const catalog = useQuery({ queryKey: keys.catalog, queryFn: getCatalogOptions, staleTime: 5 * 60_000 });
 
-  if (!isNew && q.isPending) return <Skeleton label="Loading the question…" className={fill} />;
+  if (!isNew && q.isPending) return <Loader label="Loading the question…" className={fill} />;
   if (!isNew && q.isError) return <ErrorBox error={q.error} onRetry={() => void q.refetch()} className={fill} />;
-  if (test.isPending) return <Skeleton label="Loading the mock test…" className={fill} />;
+  if (test.isPending) return <Loader label="Loading the mock test…" className={fill} />;
   if (test.isError) return <ErrorBox error={test.error} onRetry={() => void test.refetch()} className={fill} />;
 
   const categoryId = test.data.mockTest.category.id;

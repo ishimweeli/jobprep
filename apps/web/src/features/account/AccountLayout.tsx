@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { SiteShell } from '../../components/layout/SiteLayout';
-import { SkeletonList } from '../../components/states';
+import { Loader } from '../../components/states';
 import { signInPath } from '../../lib/next';
 import { useSession } from '../auth/session';
 
@@ -12,7 +12,7 @@ export function AccountLayout() {
     return (
       <SiteShell>
         <div className="mx-auto w-full max-w-[640px] p-6">
-          <SkeletonList count={2} label="Loading…" />
+          <Loader label="Loading…" />
         </div>
       </SiteShell>
     );

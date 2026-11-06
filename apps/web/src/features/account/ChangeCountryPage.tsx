@@ -6,7 +6,7 @@ import { countriesKeys, getCountry } from '../../api/countries';
 import { meKeys, patchOnboarding } from '../../api/me';
 import type { CountrySummary, MeResponse } from '../../api/types';
 import { Button } from '../../components/Button';
-import { ErrorState, SkeletonList } from '../../components/states';
+import { ErrorState, Loader } from '../../components/states';
 import { setStoredCountry } from '../../lib/country';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { formatDate } from '../../lib/format';
@@ -94,7 +94,7 @@ function ChangeCountry({ session }: { session: MeResponse }) {
       {countries.isError ? (
         <ErrorState title="We could not load the countries" onRetry={() => void countries.refetch()} />
       ) : countries.isLoading ? (
-        <SkeletonList count={3} label="Loading countries…" />
+        <Loader label="Loading countries…" />
       ) : (
         <ChoiceList label="Exam country" items={rows} value={currentCode} onChange={setPicked} />
       )}

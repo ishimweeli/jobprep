@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { getCountries, getCountry, getPayments, keys } from '../../api/admin';
 import type { PaymentRow, PaymentTab } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { Btn, FilterChips, Pager, Pill } from '../../components/ui';
 import { paymentNote, paymentTone } from '../../lib/badges';
 import { denyHint } from '../../lib/permissions';
@@ -121,7 +121,7 @@ export function PaymentsPage() {
   );
   const pick = (v: string) => setQuery({ status: v as PaymentTab, stuck: false });
 
-  const state = list.isPending ? <TableSkeleton label="Loading payments…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : null;
+  const state = list.isPending ? <Loader label="Loading payments…" /> : list.isError ? <ErrorBox error={list.error} onRetry={() => void list.refetch()} /> : null;
 
   if (!isDesktop) {
     return (

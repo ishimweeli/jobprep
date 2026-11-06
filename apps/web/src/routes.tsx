@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigationType, type RouteObject } from 'react-
 import { useRouteSeo } from './lib/useDocumentTitle';
 import { SignedOutNotice } from './components/layout/SignedOutNotice';
 import { CountryLayout } from './components/layout/SiteLayout';
-import { SkeletonList } from './components/states';
+import { Loader } from './components/states';
 import { AccountLayout } from './features/account/AccountLayout';
 import { RootRedirect } from './features/country/RootRedirect';
 import { MaintenanceWatcher } from './features/system/MaintenanceWatcher';
@@ -38,7 +38,7 @@ function RootLayout() {
 function RootFallback() {
   return (
     <div className="mx-auto max-w-[640px] p-6">
-      <SkeletonList count={2} label="Loading…" />
+      <Loader label="Loading…" />
     </div>
   );
 }

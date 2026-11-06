@@ -7,7 +7,7 @@ import { countriesKeys, listCategories } from '../../api/countries';
 import { meKeys, patchOnboarding, type OnboardingInput } from '../../api/me';
 import type { MeResponse } from '../../api/types';
 import { Button } from '../../components/Button';
-import { ErrorState, SkeletonList } from '../../components/states';
+import { ErrorState, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { getStoredCountry, resolveInitialCountry, setStoredCountry } from '../../lib/country';
 import { authErrorMessage } from '../../lib/errorCopy';
@@ -121,7 +121,7 @@ function CountryStep({ session }: { session: MeResponse }) {
         {countries.isError ? (
           <ErrorState title="We could not load the countries" onRetry={() => void countries.refetch()} />
         ) : countries.isLoading ? (
-          <SkeletonList count={3} label="Loading countries…" />
+          <Loader label="Loading countries…" />
         ) : (
           <ChoiceList label="Country" items={rows} value={chosen && rows.some((r) => r.id === chosen.slug) ? chosen.slug : null} onChange={setPicked} />
         )}
@@ -180,7 +180,7 @@ function CategoryStep({ session }: { session: MeResponse }) {
         {cats.isError ? (
           <ErrorState title="We could not load the job categories" onRetry={() => void cats.refetch()} />
         ) : cats.isLoading ? (
-          <SkeletonList count={3} label="Loading job categories…" />
+          <Loader label="Loading job categories…" />
         ) : (
           <ChoiceList label="Job category" items={rows} value={current} onChange={setPicked} />
         )}

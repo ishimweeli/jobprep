@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getTeam, keys } from '../../api/admin';
 import type { TeamMember, TeamMemberRole } from '../../api/types';
-import { EmptyState, ErrorBox, Skeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { Btn, Pill } from '../../components/ui';
 import { cx } from '../../lib/cx';
 import { formatLastActive } from '../../lib/format';
@@ -57,7 +57,7 @@ export function TeamPanel({ phone }: { phone: boolean }) {
         {!phone && <Btn kind="outline-brand" size="sm" onClick={() => setInvite(true)}>Invite</Btn>}
       </div>
       {team.isPending ? (
-        <Skeleton label="Loading the team…" />
+        <Loader label="Loading the team…" />
       ) : team.isError ? (
         <ErrorBox error={team.error} onRetry={() => void team.refetch()} />
       ) : team.data.length === 0 ? (

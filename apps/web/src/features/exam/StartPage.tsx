@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { attemptKeys, startAttempt } from '../../api/attempts';
 import { ApiError } from '../../api/client';
-import { ErrorState, SkeletonList } from '../../components/states';
+import { ErrorState, Loader } from '../../components/states';
 import { addGuestToken } from '../../lib/guestTokens';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
@@ -70,7 +70,7 @@ export function StartPage() {
           }}
         />
       ) : (
-        <SkeletonList count={2} label="Starting your test…" />
+        <Loader label="Starting your test…" />
       )}
     </main>
   );

@@ -4,7 +4,7 @@ import { attemptKeys, getResult } from '../../api/attempts';
 import { isApiError } from '../../api/client';
 import type { ResultResponse } from '../../api/types';
 import { ActionLink, Button, buttonClasses } from '../../components/Button';
-import { QueryError, SkeletonBar, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate } from '../../lib/format';
 import { signUpPath } from '../../lib/next';
@@ -53,11 +53,7 @@ export function ResultsPage() {
   if (!q.data) {
     return (
       <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6 md:py-7">
-        <div className="mb-5 flex flex-col gap-3" aria-hidden="true">
-          <SkeletonBar className="h-4 w-1/2" />
-          <SkeletonBar className="h-9 w-2/5 bg-border" />
-        </div>
-        <SkeletonList count={3} label="Loading your results…" />
+        <Loader label="Loading your results…" />
       </main>
     );
   }

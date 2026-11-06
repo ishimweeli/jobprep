@@ -6,7 +6,7 @@ import { examRequestsKey, getCountryOptions, getExamRequests, markExamRequestDon
 import { ActionDialog } from '../../components/ActionDialog';
 import { AdminShell } from '../../components/AdminShell';
 import { CheckField, SelectField, TextAreaField } from '../../components/forms';
-import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { Btn, FilterChips, LinkButton, Pager, Pill } from '../../components/ui';
 import { useAdminCountry } from '../../lib/adminCountry';
@@ -119,7 +119,7 @@ export function RequestsPage() {
     </>
   );
 
-  const state = list.isPending ? <TableSkeleton label="Loading requests…" /> : list.isError ? <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div> : null;
+  const state = list.isPending ? <Loader label="Loading requests…" /> : list.isError ? <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div> : null;
   const none = list.data && rows.length === 0 ? (
     <EmptyState
       title={open ? (query.q ? 'No open request matches this search.' : 'No open exam requests.') : 'Nothing is marked done yet.'}

@@ -7,7 +7,7 @@ import { countriesKeys, listCategories } from '../../api/countries';
 import { meKeys, patchMe } from '../../api/me';
 import type { MeResponse } from '../../api/types';
 import { Button } from '../../components/Button';
-import { ErrorState, SkeletonList } from '../../components/states';
+import { ErrorState, Loader } from '../../components/states';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { plural } from '../../lib/format';
 import { safeNext } from '../../lib/next';
@@ -78,7 +78,7 @@ function ChangeGoal({ session }: { session: MeResponse }) {
       {cats.isError ? (
         <ErrorState title="We could not load the job categories" onRetry={() => void cats.refetch()} />
       ) : cats.isLoading ? (
-        <SkeletonList count={3} label="Loading job categories…" />
+        <Loader label="Loading job categories…" />
       ) : (
         <ChoiceList label="Job category" items={rows} value={current} onChange={setPicked} />
       )}

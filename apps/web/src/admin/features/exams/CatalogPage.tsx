@@ -7,7 +7,7 @@ import type { CategoryRow, TopicRow } from '../../api/types';
 import { ActionDialog } from '../../components/ActionDialog';
 import { AdminShell } from '../../components/AdminShell';
 import { CheckField, SelectField, TextField } from '../../components/forms';
-import { EmptyState, ErrorBox, TableSkeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { Btn, Pill } from '../../components/ui';
 import { allowedCountryCodes, useAdminCountry } from '../../lib/adminCountry';
@@ -88,7 +88,7 @@ export function CatalogPage() {
       </div>
       <p className="m-0 text-[13px] text-muted">Categories are the job areas candidates choose from. The order here is the order they see. One category per country can be featured.</p>
       <p role="status" className="sr-only">{live}</p>
-      {cats.isPending ? <TableSkeleton rows={4} label="Loading categories…" className="-mx-5" /> : cats.isError ? <ErrorBox error={cats.error} onRetry={() => void cats.refetch()} /> : order.length === 0 ? (
+      {cats.isPending ? <Loader label="Loading categories…" className="-mx-5" /> : cats.isError ? <ErrorBox error={cats.error} onRetry={() => void cats.refetch()} /> : order.length === 0 ? (
         <EmptyState title="No categories yet" hint="Add the first category of this country." />
       ) : (
         <ol className="m-0 flex list-none flex-col p-0">
@@ -223,7 +223,7 @@ function TopicsCard({ categories, categoryId, onCategory, hint }: { categories: 
         {categories.length === 0 && <option value="">No categories</option>}
         {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
       </SelectField>
-      {!categoryId ? <EmptyState title="Choose a category" hint="Topics belong to a category." /> : topics.isPending ? <TableSkeleton rows={4} label="Loading topics…" className="-mx-5" /> : topics.isError ? <ErrorBox error={topics.error} onRetry={() => void topics.refetch()} /> : topics.data.length === 0 ? (
+      {!categoryId ? <EmptyState title="Choose a category" hint="Topics belong to a category." /> : topics.isPending ? <Loader label="Loading topics…" className="-mx-5" /> : topics.isError ? <ErrorBox error={topics.error} onRetry={() => void topics.refetch()} /> : topics.data.length === 0 ? (
         <EmptyState title="No topics yet" hint="Questions need a topic, so add one before writing questions." />
       ) : (
         <ul className="m-0 flex list-none flex-col p-0">

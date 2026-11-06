@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getCandidateView, upKeys, type CandidateView } from '../../api/users-payments';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyState, ErrorBox, Skeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { Pill } from '../../components/ui';
 import { paymentTone } from '../../lib/badges';
 import { formatDateTime, formatDayYear, plural } from '../../lib/format';
@@ -58,7 +58,7 @@ export function CandidateViewPage() {
   );
 
   let body: ReactNode;
-  if (q.isPending) body = <Skeleton label="Loading the candidate’s view…" />;
+  if (q.isPending) body = <Loader label="Loading the candidate’s view…" />;
   else if (q.isError) body = <ErrorBox error={q.error} onRetry={() => void q.refetch()} />;
   else body = <View v={q.data} />;
 

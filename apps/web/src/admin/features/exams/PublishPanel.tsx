@@ -6,7 +6,7 @@ import { contentKeys, duplicateTest, getChecklist, getConsequences, publishTest,
 import type { TestStatus } from '../../api/types';
 import { ActionDialog } from '../../components/ActionDialog';
 import { TextField } from '../../components/forms';
-import { ErrorBox, Skeleton } from '../../components/states';
+import { ErrorBox, Loader } from '../../components/states';
 import { useToast } from '../../components/Toast';
 import { Btn, Pill } from '../../components/ui';
 import { TEST_TONE } from '../../lib/badges';
@@ -102,7 +102,7 @@ export function PublishPanel({ testId, title, status, dirty }: { testId: string;
       {status === 'DRAFT' && (
         <>
           <p className="m-0 text-sm text-ink-2">A draft is hidden from candidates. Check the list, then publish.</p>
-          {checklist.isPending ? <Skeleton label="Checking what is missing…" /> : checklist.isError ? <ErrorBox error={checklist.error} onRetry={() => void checklist.refetch()} /> : <ChecklistList checklist={checklist.data} />}
+          {checklist.isPending ? <Loader label="Checking what is missing…" /> : checklist.isError ? <ErrorBox error={checklist.error} onRetry={() => void checklist.refetch()} /> : <ChecklistList checklist={checklist.data} />}
           {publishError.length > 0 && (
             <div role="alert" className="flex flex-col gap-0.5 rounded-[10px] border border-incorrect-line bg-incorrect-bg px-3.5 py-3 text-sm font-semibold text-incorrect">
               {publishError.map((m) => <span key={m}>{m}</span>)}

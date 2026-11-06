@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { countriesKeys, getCountry } from '../../api/countries';
 import type { CountrySummary } from '../../api/types';
 import { Button } from '../../components/Button';
-import { SkeletonList, ErrorState } from '../../components/states';
+import { Loader, ErrorState } from '../../components/states';
 import { LANGUAGE_KEY } from '../../lib/country';
 import { languageName } from '../../lib/format';
 import { plural } from '../../lib/format';
@@ -49,7 +49,7 @@ export function CountryPickerBody({ currentSlug, onContinue, continueLabel, show
   const methodsFor = (i: number) => details[i]?.data?.paymentMethods.map((m) => m.label).join(', ');
   const testCounts = useTestCounts(desktop ? list : []);
 
-  if (countries.isLoading) return <SkeletonList count={4} label="Loading…" />;
+  if (countries.isLoading) return <Loader label="Loading…" />;
   if (countries.isError || !selected) return <ErrorState title="We could not load the countries" onRetry={() => void countries.refetch()} />;
 
   const live = selected.status === 'LIVE';

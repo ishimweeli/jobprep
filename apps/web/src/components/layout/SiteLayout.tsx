@@ -6,7 +6,7 @@ import { countryPath, useCountries } from '../../features/country/hooks';
 import { CountryNotOpen, WrongCountry } from '../../features/country/CountryGate';
 import { NotFoundPage } from '../../features/system/SystemPage';
 import { useDocumentTheme } from '../../lib/theme';
-import { SkeletonList } from '../states';
+import { Loader } from '../states';
 import { Footer } from './Footer';
 import { DesktopHeader } from './Header';
 import { PhoneTopBar } from './PhoneTopBar';
@@ -102,7 +102,7 @@ export function CountryLayout() {
     return (
       <SiteShell>
         <div className="mx-auto w-full max-w-[640px] p-6">
-          <SkeletonList count={2} label="Loading…" />
+          <Loader label="Loading…" />
         </div>
       </SiteShell>
     );

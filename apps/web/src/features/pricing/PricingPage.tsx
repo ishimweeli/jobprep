@@ -5,7 +5,7 @@ import type { PricingResponse } from '../../api/types';
 import { ActionLink, LinkButton } from '../../components/Button';
 import { ROUTES_READY } from '../../lib/routesReady';
 import { PhoneBackHeader } from '../../components/layout/Header';
-import { QueryError, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
@@ -41,7 +41,7 @@ export function PricingPage() {
         {q.isError ? (
           <QueryError error={q.error} what="the pricing" onRetry={() => void q.refetch()} retrying={q.isFetching} />
         ) : !data ? (
-          <SkeletonList count={3} label="Loading pricing…" />
+          <Loader label="Loading pricing…" />
         ) : (
           <PricingBody slug={slug} data={data} disclaimer={detail.data?.disclaimer ?? null} signedIn={!!user} />
         )}

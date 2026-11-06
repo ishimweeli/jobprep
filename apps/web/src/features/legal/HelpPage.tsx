@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { getSupport, supportKeys } from '../../api/countries';
-import { QueryError, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useActiveCountrySlug, useCountries } from '../country/hooks';
 import { InfoPage, PlaceholderBox } from './InfoPage';
@@ -35,7 +35,7 @@ export function HelpPage() {
         {q.isError ? (
           <QueryError error={q.error} what="the support contact" onRetry={() => void q.refetch()} retrying={q.isFetching} />
         ) : !contact ? (
-          <SkeletonList count={1} label="Loading…" />
+          <Loader label="Loading…" />
         ) : state === 'missing' ? (
           <p className="m-0 text-base leading-normal text-ink-2">{SUPPORT_MISSING_NOTE}</p>
         ) : (

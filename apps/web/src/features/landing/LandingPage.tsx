@@ -6,7 +6,7 @@ import { Badge } from '../../components/Badge';
 import { buttonClasses } from '../../components/Button';
 import { CategoryIcon } from '../../components/CategoryIcon';
 import { PhoneBrandHeader } from '../../components/layout/Header';
-import { QueryError, SkeletonList } from '../../components/states';
+import { QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
 import { formatDate, languageList, languageListShort, plural } from '../../lib/format';
 import { useT } from '../../lib/i18n';
@@ -97,7 +97,7 @@ export function LandingPage() {
           </div>
         ) : !data ? (
           <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
-            <SkeletonList count={3} label="Loading mock tests…" />
+            <Loader label="Loading mock tests…" />
           </div>
         ) : (
           <>

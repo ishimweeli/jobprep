@@ -5,7 +5,7 @@ import type { CatalogFacets, JobCatalogResponse } from '../../api/types';
 import { Button } from '../../components/Button';
 import { Chip } from '../../components/Chip';
 import { Dialog } from '../../components/Dialog';
-import { EmptyState, QueryError, SkeletonList } from '../../components/states';
+import { EmptyState, QueryError, Loader } from '../../components/states';
 import { useSession } from '../auth/session';
 import {
   activeSheetFilterCount,
@@ -85,7 +85,7 @@ export function CatalogPage() {
   // "Change job" there is what brings someone back here. See `usePreferredJob.ts`. Browser Back out of that
   // job page is also a POP landing here, so it's excluded too — otherwise Back would just bounce right back.
   const isBackNavigation = navigationType === 'POP' && hasPushedThisSession();
-  if (user && (sessionLoading || preferredLoading)) return <SkeletonList count={2} label="Loading…" />;
+  if (user && (sessionLoading || preferredLoading)) return <Loader label="Loading…" />;
   if (preferredSlug && !isBackNavigation) return <Navigate to={countryPath(slug, 'tests', 'jobs', preferredSlug)} replace />;
 
   return (
@@ -332,7 +332,7 @@ function Results({
     return isError ? (
       <QueryError error={error} what="the jobs" onRetry={onRetry} retrying={isFetching} />
     ) : (
-      <SkeletonList count={4} label="Loading jobs…" />
+      <Loader label="Loading jobs…" />
     );
   }
   if (data.empty) {

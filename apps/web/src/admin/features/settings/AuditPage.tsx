@@ -8,7 +8,7 @@ import type { AuditEntry } from '../../api/types';
 import { AdminDialog } from '../../components/AdminDialog';
 import { AdminShell } from '../../components/AdminShell';
 import { SelectField, TextField } from '../../components/forms';
-import { EmptyState, ErrorBox, Skeleton, TableSkeleton } from '../../components/states';
+import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { Btn, Pager } from '../../components/ui';
 import { COUNTRY_NAMES, formatCount, formatDateTime } from '../../lib/format';
 import { allowedCountryCodes } from '../../lib/adminCountry';
@@ -28,7 +28,7 @@ function EntryDialog({ id, onClose }: { id: string | null; onClose: () => void }
   return (
     <AdminDialog open={!!id} onClose={onClose} title="Audit entry" wide>
       {q.isPending ? (
-        <Skeleton label="Loading the entry…" />
+        <Loader label="Loading the entry…" />
       ) : q.isError || !e ? (
         <ErrorBox error={q.error} onRetry={() => void q.refetch()} />
       ) : (
@@ -140,7 +140,7 @@ export function AuditPage() {
   );
 
   const body = list.isPending && !range ? (
-    <TableSkeleton rows={8} label="Loading the audit log…" />
+    <Loader label="Loading the audit log…" />
   ) : list.isError ? (
     <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div>
   ) : rows.length === 0 ? (

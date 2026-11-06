@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getCountries, getOverview, keys } from '../../api/admin';
 import type { Overview } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { ErrorBox, Skeleton } from '../../components/states';
+import { ErrorBox, Loader } from '../../components/states';
 import { Btn, LinkButton, Pill } from '../../components/ui';
 import { denyHint } from '../../lib/permissions';
 import { ACCESS_TAG, paymentTone } from '../../lib/badges';
@@ -105,7 +105,7 @@ export function OverviewPage() {
       {!isDesktop && <span className="text-[13px] text-muted">{formatLongDate(o?.asOf ?? new Date())}</span>}
 
       {q.isPending ? (
-        <Skeleton label="Loading the overview…" />
+        <Loader label="Loading the overview…" />
       ) : q.isError ? (
         <ErrorBox error={q.error} onRetry={() => void q.refetch()} />
       ) : (

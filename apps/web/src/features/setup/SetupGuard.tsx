@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import type { MeResponse, SetupStep } from '../../api/types';
-import { SkeletonList } from '../../components/states';
+import { Loader } from '../../components/states';
 import { safeNext, setupPath, signInPath } from '../../lib/next';
 import { AuthFrame } from '../auth/AuthShell';
 import { useSession } from '../auth/session';
@@ -22,7 +22,7 @@ export function SetupGuard({ step, children }: { step?: SetupStep; children: (se
   if (isLoading) {
     return (
       <AuthFrame homeTo={countryPath(getStoredCountry() ?? 'rw')}>
-        <SkeletonList count={2} label="Loading…" />
+        <Loader label="Loading…" />
       </AuthFrame>
     );
   }

@@ -3,7 +3,7 @@ import { Link, useMatch, useParams, useSearchParams } from 'react-router-dom';
 import { getCatalogOptions, getExams, getMockTest, keys } from '../../api/admin';
 import type { ExamRow, MockTestDetail } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
-import { EmptyLine, ErrorBox, Skeleton } from '../../components/states';
+import { EmptyLine, ErrorBox, Loader } from '../../components/states';
 import { Pill } from '../../components/ui';
 import { TEST_TONE } from '../../lib/badges';
 import { cx } from '../../lib/cx';
@@ -116,7 +116,7 @@ export function ExamsPage() {
     <section aria-label="Mock tests" className="min-w-0 flex-[1_1_420px] overflow-hidden rounded-[16px] border border-border bg-white">
       {search}
       {list.isPending ? (
-        <div className="p-4"><Skeleton label="Loading mock tests…" /></div>
+        <div className="p-4"><Loader label="Loading mock tests…" /></div>
       ) : list.isError ? (
         <div className="p-4"><ErrorBox error={list.error} onRetry={() => void list.refetch()} /></div>
       ) : (
@@ -131,7 +131,7 @@ export function ExamsPage() {
   let editor = null;
   if (selectedTest) {
     if (test.isError) editor = <ErrorBox error={test.error} onRetry={() => void test.refetch()} className="min-w-0 flex-[999_1_560px]" />;
-    else if (!qid) editor = test.data ? <EmptyLine className="min-w-0 flex-[999_1_560px] rounded-[16px] border border-border bg-white">This mock test has no questions yet.</EmptyLine> : <Skeleton label="Loading the mock test…" className="min-w-0 flex-[999_1_560px]" />;
+    else if (!qid) editor = test.data ? <EmptyLine className="min-w-0 flex-[999_1_560px] rounded-[16px] border border-border bg-white">This mock test has no questions yet.</EmptyLine> : <Loader label="Loading the mock test…" className="min-w-0 flex-[999_1_560px]" />;
     else editor = <QuestionEditor testId={selectedTest} questionId={qid} phone={!isDesktop} />;
   }
 

@@ -5,35 +5,9 @@ import { isServerError } from '../features/system/systemModel';
 import { cx } from '../lib/cx';
 import { Button } from './Button';
 
-/* Shared system states (design: States.dc.html) — loading skeletons, empty, error with retry. */
+/* Shared system states (design: States.dc.html) — loading (a spinner, never grey placeholder bars), empty, error with retry. */
 
-/** A subtle pulse, not a shimmer sweep — simpler, and `motion-safe:` keeps it off entirely for reduced-motion users. */
-export function SkeletonBar({ className }: { className?: string }) {
-  return <span aria-hidden="true" className={cx('block rounded-md bg-soft motion-safe:animate-pulse dark:bg-night-soft', className)} />;
-}
-
-export function CardSkeleton({ className }: { className?: string }) {
-  return (
-    <div aria-hidden="true" className={cx('flex flex-col gap-2.5 rounded-tiles border border-border bg-surface p-4 dark:border-night-border dark:bg-night-surface', className)}>
-      <SkeletonBar className="h-3 w-2/5" />
-      <SkeletonBar className="h-4 w-[85%] bg-border dark:bg-night-border" />
-      <SkeletonBar className="h-3 w-3/5" />
-    </div>
-  );
-}
-
-export function SkeletonList({ count = 3, label = 'Loading…', className }: { count?: number; label?: string; className?: string }) {
-  return (
-    <div className={cx('flex flex-col gap-3', className)} data-testid="skeleton-list">
-      {Array.from({ length: count }, (_, i) => (
-        <CardSkeleton key={i} />
-      ))}
-      <p role="status" className="m-0 text-sm text-muted">
-        {label}
-      </p>
-    </div>
-  );
-}
+export { Loader } from './Loader';
 
 interface EmptyStateProps {
   title: ReactNode;

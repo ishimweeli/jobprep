@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { getUser, keys } from '../../api/admin';
 import type { UserDetail as UserDetailData } from '../../api/types';
-import { ErrorBox, Skeleton } from '../../components/states';
+import { ErrorBox, Loader } from '../../components/states';
 import { Avatar, Btn, LinkButton, Pill } from '../../components/ui';
 import { ACCESS_TONE, accessSummary, historySentence, paymentTone } from '../../lib/badges';
 import { formatDateTime, formatDay, formatLastActive, formatDayYear, initials, languageName } from '../../lib/format';
@@ -80,7 +80,7 @@ function Rows({ children, empty }: { children: ReactNode[]; empty?: string }) {
 
 export function UserDetailView({ id, phone }: { id: string; phone: boolean }) {
   const q = useQuery({ queryKey: keys.user(id), queryFn: () => getUser(id) });
-  if (q.isPending) return <Skeleton label="Loading this user…" />;
+  if (q.isPending) return <Loader label="Loading this user…" />;
   if (q.isError) return <ErrorBox error={q.error} onRetry={() => void q.refetch()} />;
   return <UserBody d={q.data} phone={phone} />;
 }
