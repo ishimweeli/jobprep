@@ -14,6 +14,7 @@ import { countryPath } from '../country/hooks';
 import { AlertBox, AuthCard, AuthField, AuthFrame, AuthHeading, GoogleButton, GoogleNotice, OrDivider, PaidNote } from './AuthShell';
 import { PASSWORD_HINT, PASSWORD_MIN_LENGTH, postAuthPath, signUpPaidText } from './authModel';
 import { useGoogleButton, usePaidTestTitle } from './hooks';
+import { LEGAL_URL, NEW_TAB } from '../legal/legalModel';
 import { useSession } from './session';
 
 /**
@@ -111,13 +112,13 @@ export function SignUpPage() {
       </p>
       <p className="m-0 text-center text-[13px] text-muted">
         By continuing you agree to the{' '}
-        <Link to="/terms" target="_blank" rel="noreferrer" aria-label="Terms (opens in a new tab)" className="link">
+        <a href={LEGAL_URL.terms} {...NEW_TAB} aria-label="Terms (opens in a new tab)" className="link">
           Terms
-        </Link>{' '}
+        </a>{' '}
         and{' '}
-        <Link to="/privacy" target="_blank" rel="noreferrer" aria-label="Privacy policy (opens in a new tab)" className="link">
+        <a href={LEGAL_URL.privacy} {...NEW_TAB} aria-label="Privacy policy (opens in a new tab)" className="link">
           Privacy policy
-        </Link>
+        </a>
         .
       </p>
     </AuthFrame>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { ExamQuestion } from '../../api/types';
 import { Dialog } from '../../components/Dialog';
 import { cx } from '../../lib/cx';
-import { cellState, chooseCountLabel, type CellState, type ExamCounts } from './examModel';
+import { cellState, chooseCountLabel, sectionGroups, type CellState, type ExamCounts } from './examModel';
 import type { LocalAnswers } from './queue';
 
 /* Shared building blocks of the exam screens (Exam.dc, ExamMobile.dc, CaseExam.dc, CaseExamPhone.dc, TimeUp.dc). */
@@ -138,7 +138,7 @@ export function AnswerOptions({
                   </svg>
                 </span>
                 <span className="w-[18px] font-semibold text-ink-2">{o.key}</span>
-                <span className={cx('text-base leading-[1.4] md:text-lg', numeric && 'tabular')}>{o.text}</span>
+                <span className={cx('text-base leading-[1.45]', numeric && 'tabular')}>{o.text}</span>
               </button>
             );
           })}
@@ -161,7 +161,7 @@ export function AnswerOptions({
             aria-disabled={disabled || undefined}
             onClick={() => !disabled && onPick(o.key)}
             className={cx(
-              'flex min-h-[56px] cursor-pointer items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-left text-ink md:min-h-[60px] md:gap-3.5 md:px-4 md:py-3',
+              'flex min-h-[52px] cursor-pointer items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-left text-ink md:gap-3.5 md:px-4',
               on ? 'border-2 border-brand bg-brand-softer' : 'border border-border-strong bg-surface',
             )}
           >
@@ -173,7 +173,7 @@ export function AnswerOptions({
             >
               {o.key}
             </span>
-            <span className={cx('text-[17px] leading-[1.4] md:text-[18px] md:leading-[1.45]', numeric && 'tabular')}>{o.text}</span>
+            <span className={cx('text-base leading-[1.45]', numeric && 'tabular')}>{o.text}</span>
           </button>
         );
       })}
@@ -237,10 +237,28 @@ export function NavCell({ cell, onGo, size, className }: { cell: CellState; onGo
   );
 }
 
+/** The number cells, under each section's name when the exam has more than one section. */
+function SectionedCells({
+  questions, gridClass, renderCell,
+}: { questions: ExamQuestion[]; gridClass: string; renderCell: (q: ExamQuestion, index: number) => ReactNode }) {
+  const groups = sectionGroups(questions);
+  if (groups.length < 2) return <div className={gridClass}>{questions.map((q, i) => renderCell(q, i))}</div>;
+  return (
+    <div className="flex flex-col gap-3">
+      {groups.map((g) => (
+        <div key={`${g.name}-${g.items[0]!.index}`} className="flex flex-col gap-1.5">
+          <p className="m-0 text-[13px] font-semibold leading-snug text-ink-2">{g.name}</p>
+          <div className={gridClass}>{g.items.map(({ question, index }) => renderCell(question, index))}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** Desktop navigator card ("Question navigator" aside). */
 export function NavigatorAside({
-  questions, answers, currentId, counts, onGo, waitingIds = [],
-}: { questions: ExamQuestion[]; answers: LocalAnswers; currentId: string | undefined; counts: ExamCounts; onGo: (index: number) => void; waitingIds?: string[] }) {
+  questions, answers, currentId, counts, onGo, waitingIds = [], onSubmit,
+}: { questions: ExamQuestion[]; answers: LocalAnswers; currentId: string | undefined; counts: ExamCounts; onGo: (index: number) => void; waitingIds?: string[]; onSubmit?: () => void }) {
   const legend: { label: ReactNode; box: string }[] = [
     { label: 'Answered', box: 'bg-brand' },
     { label: 'Not answered', box: 'border border-input-border bg-surface' },
@@ -255,11 +273,11 @@ export function NavigatorAside({
           {counts.answered} of {counts.total} answered
         </span>
       </div>
-      <div className="grid grid-cols-7 gap-1.5">
-        {questions.map((q, i) => (
-          <NavCell key={q.id} cell={cellState(q, answers, currentId, true, waitingIds)} onGo={() => onGo(i)} size="aside" />
-        ))}
-      </div>
+      <SectionedCells
+        questions={questions}
+        gridClass="grid grid-cols-7 gap-1.5"
+        renderCell={(q, i) => <NavCell key={q.id} cell={cellState(q, answers, currentId, true, waitingIds)} onGo={() => onGo(i)} size="aside" />}
+      />
       {waitingIds.length > 0 && (
         <p className="m-0 flex items-center gap-2 text-[13px] text-flagged-ink">
           <span aria-hidden="true" className="h-3.5 w-3.5 rounded border-2 border-dashed border-flagged" />
@@ -274,6 +292,11 @@ export function NavigatorAside({
           </li>
         ))}
       </ul>
+      {onSubmit && (
+        <button type="button" onClick={onSubmit} className="min-h-[44px] cursor-pointer rounded-control border border-input-border bg-surface px-4 text-[15px] font-semibold text-ink">
+          Submit exam
+        </button>
+      )}
     </aside>
   );
 }
@@ -282,9 +305,9 @@ export function NavigatorAside({
 
 /** Phone "All questions" bottom sheet. A real dialog: focus trap, Esc, focus returns to the opener. */
 export function NavSheet({
-  open, onClose, questions, answers, currentId, counts, onGo,
+  open, onClose, questions, answers, currentId, counts, onGo, onSubmit,
 }: {
-  open: boolean; onClose: () => void; questions: ExamQuestion[]; answers: LocalAnswers; currentId: string | undefined; counts: ExamCounts; onGo: (index: number) => void;
+  open: boolean; onClose: () => void; questions: ExamQuestion[]; answers: LocalAnswers; currentId: string | undefined; counts: ExamCounts; onGo: (index: number) => void; onSubmit?: () => void;
 }) {
   return (
     <Dialog
@@ -305,11 +328,18 @@ export function NavSheet({
         <span>{counts.unanswered} left</span>
         <span>{counts.flagged} flagged</span>
       </div>
-      <div className="grid grid-cols-6 gap-2 overflow-y-auto">
-        {questions.map((q, i) => (
-          <NavCell key={q.id} cell={cellState(q, answers, currentId, false)} onGo={() => onGo(i)} size="sheet" />
-        ))}
+      <div className="overflow-y-auto">
+        <SectionedCells
+          questions={questions}
+          gridClass="grid grid-cols-6 gap-2"
+          renderCell={(q, i) => <NavCell key={q.id} cell={cellState(q, answers, currentId, false)} onGo={() => onGo(i)} size="sheet" />}
+        />
       </div>
+      {onSubmit && (
+        <button type="button" onClick={onSubmit} className="min-h-[48px] flex-none cursor-pointer rounded-control border border-input-border bg-surface text-base font-semibold text-ink">
+          Submit exam
+        </button>
+      )}
     </Dialog>
   );
 }
@@ -329,6 +359,11 @@ export function SubmitDialog({
       desktopPanelClassName="md:max-w-[480px] md:rounded-[20px] md:p-7"
       panelClassName="flex flex-col gap-3.5 !pt-[22px] !pb-6 md:gap-[18px] md:!pt-7"
     >
+      {counts.unanswered === 0 && (
+        <p role="note" data-testid="all-answered" className="m-0 rounded-control bg-correct-bg p-3 text-[15px] font-semibold text-correct">
+          You have answered all {counts.total} questions. Submit to see your score.
+        </p>
+      )}
       <p className="m-0 hidden text-base text-ink-2 md:block">
         You still have <strong className="text-ink">{clock}</strong>. After submitting you cannot change your answers.
       </p>

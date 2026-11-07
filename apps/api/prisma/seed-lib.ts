@@ -52,6 +52,7 @@ import {
 import {
   hcsdMock1, hcsdMock2, hcsdMock3, hcsdMock4, hcsdMock5,
 } from './seed-data/tests-human-capital-social-dev';
+import { PSYCHOMETRIC_PREP_MOCKS } from './seed-data/tests-psychometric-prep';
 
 /** Password of the dev admins (system.admin@, content.editor@, support@, multi.role@jobprep.test). Never set in production. */
 export const DEV_PASSWORD = 'Password123!';
@@ -155,6 +156,8 @@ const ALL_TESTS: TestDef[] = [
   cpdCoordinationMock1, cpdCoordinationMock2, postgraduateCoordinationMock1, postgraduateCoordinationMock2,
 
   hcsdMock1, hcsdMock2, hcsdMock3, hcsdMock4, hcsdMock5,
+
+  ...PSYCHOMETRIC_PREP_MOCKS,
 ];
 
 export { ALL_TESTS };

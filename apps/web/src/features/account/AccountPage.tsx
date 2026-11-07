@@ -17,6 +17,7 @@ import { useOfferedLanguages } from '../../lib/i18n';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { countryPath } from '../country/hooks';
+import { LEGAL_URL, NEW_TAB } from '../legal/legalModel';
 import { accessSummaryView, goalName, goalRowLine, tidyName, validateName } from './accountModel';
 import { useSignOut } from './useSignOut';
 
@@ -123,8 +124,8 @@ function AccountView({ session }: { session: MeResponse }) {
         <nav aria-label="More" className="rounded-[14px] border border-border bg-surface p-1">
           <MoreLink to="/account/payments" label="Payment history" />
           <MoreLink to="/help" label="Help and support" />
-          <MoreLink to="/terms" label="Terms of use" />
-          <MoreLink to="/privacy" label="Privacy policy" />
+          <MoreLink to={LEGAL_URL.terms} label="Terms of use" />
+          <MoreLink to={LEGAL_URL.privacy} label="Privacy policy" />
         </nav>
 
         <button
@@ -143,10 +144,20 @@ function AccountView({ session }: { session: MeResponse }) {
 }
 
 function MoreLink({ to, label }: { to: string; label: string }) {
-  return (
-    <Link to={to} className="flex min-h-[48px] items-center justify-between rounded-[10px] px-3 text-[15px] font-semibold text-ink no-underline hover:bg-soft hover:text-ink md:min-h-[44px]">
+  const cls = 'flex min-h-[48px] items-center justify-between rounded-[10px] px-3 text-[15px] font-semibold text-ink no-underline hover:bg-soft hover:text-ink md:min-h-[44px]';
+  const body = (
+    <>
       {label}
       <ChevronRight size={16} aria-hidden="true" className="text-muted" />
+    </>
+  );
+  return to.startsWith('https://') ? (
+    <a href={to} {...NEW_TAB} className={cls}>
+      {body}
+    </a>
+  ) : (
+    <Link to={to} className={cls}>
+      {body}
     </Link>
   );
 }

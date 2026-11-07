@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CheckoutSummary } from '../../api/types';
 import {
-  canPay, checkoutCopy, displayNumber, LATE_SUCCESS_WINDOW_MS, notCompletedMessage, phaseFor, priceText, receiptNumber, shouldPoll, startLabel, toMsisdn,
+  nextExam, canPay, checkoutCopy, displayNumber, LATE_SUCCESS_WINDOW_MS, notCompletedMessage, phaseFor, priceText, receiptNumber, shouldPoll, startLabel, toMsisdn,
 } from './checkoutModel';
 
 const rw: CheckoutSummary = {
@@ -103,5 +103,17 @@ describe('states copy', () => {
     expect(startLabel('Accountant (Public Institution) — Mock 1')).toBe('Start Mock 1 now');
     expect(startLabel('Teacher quiz')).toBe('Start mock test');
     expect(startLabel(undefined)).toBe('Start mock test');
+    expect(startLabel('IDP Management Specialist (MINALOC) — Mock Exam 2')).toBe('Start Mock Exam 2 now');
+  });
+
+  it('after paying with no test in mind: the first paid exam not taken yet, then any not taken, then the first', () => {
+    const free = { slug: 'm1', isFree: true, myAttempts: { count: 1 } };
+    const two = { slug: 'm2', isFree: false, myAttempts: null };
+    const three = { slug: 'm3', isFree: false };
+    expect(nextExam([free, two, three])?.slug).toBe('m2');
+    expect(nextExam([{ slug: 'm1', isFree: true }, { slug: 'm2', isFree: false, myAttempts: { count: 2 } }])?.slug).toBe('m1');
+    expect(nextExam([free])?.slug).toBe('m1');
+    expect(nextExam([])).toBeUndefined();
+    expect(nextExam(undefined)).toBeUndefined();
   });
 });

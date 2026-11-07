@@ -45,11 +45,11 @@ describe('exam access card', () => {
     const view = accessView(base, 'ke');
     expect(view.getFullAccessLabel).toBe('Get Full Access · KES 1,234');
     expect(view.checkoutPath).toBe('/ke/checkout');
-    expect(view.samplePath).toBe('/ke/tests/accountant-free-sample/start');
+    expect(view.samplePath).toBeNull();
     renderCard(base);
     expect(screen.getByRole('link', { name: 'Get Full Access · KES 1,234' })).toBeInTheDocument();
     expect(screen.getByText('Full Access · 45 days')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Try the free 6-question sample' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /free 6-question sample/ })).not.toBeInTheDocument();
     expect(screen.getByText('Pay with M-Pesa')).toBeInTheDocument();
     expect(screen.queryByText(/RWF/)).not.toBeInTheDocument();
   });
@@ -57,12 +57,21 @@ describe('exam access card', () => {
   it('actions are real links now that checkout and the exam exist; checkout remembers the test', () => {
     renderCard(base);
     expect(screen.getByRole('link', { name: /Get Full Access/ })).toHaveAttribute('href', '/ke/checkout?test=accountant-mock-1');
-    expect(screen.getByRole('link', { name: /free 6-question sample/ })).toHaveAttribute('href', '/ke/tests/accountant-free-sample/start');
   });
 
-  it('locked test with no price set offers no purchase button', () => {
+  it('a locked test shows the best score on this job and what paying opens; with no score, only what paying opens', () => {
+    const best = { ...base, jobProgress: { lockedCount: 4, attempts: 2, best: { percent: 64.6, title: 'IDP Management Specialist (MINALOC) — Mock Exam 1', slug: 'x' } } };
+    expect(accessView(best, 'ke').progressLine).toBe('Your best score so far: 65% on Mock Exam 1. Unlock the 4 locked mock exams for KES 1,234 to keep improving.');
+    renderCard(best);
+    expect(screen.getByTestId('progress-line')).toHaveTextContent('Your best score so far: 65%');
+    expect(accessView({ ...base, jobProgress: { lockedCount: 1, attempts: 0, best: null } }, 'ke').progressLine).toBe('Unlock the locked mock exam for this job for KES 1,234.');
+    expect(accessView(base, 'ke').progressLine).toBeNull();
+  });
+
+  it('locked test with no price set offers no purchase button, so the free sample is still there', () => {
     renderCard({ ...base, pricing: { priceLabel: null, durationDays: null, checkoutAvailable: false, paymentMethods: [] } });
     expect(screen.queryByRole('link', { name: /Get Full Access/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Try the free 6-question sample' })).toHaveAttribute('href', '/ke/tests/accountant-free-sample/start');
   });
 
   it('free test: Get started, no account needed', () => {

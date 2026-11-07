@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useActiveCountrySlug, useCountryDetail } from '../../features/country/hooks';
 import { useT } from '../../lib/i18n';
+import { LEGAL_URL, NEW_TAB } from '../../features/legal/legalModel';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
 const footLink = 'inline-flex min-h-[44px] items-center text-muted underline hover:text-ink';
@@ -24,15 +25,15 @@ export function Footer() {
       </div>
       <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-5 gap-y-1 px-4 pb-6 text-[13px] md:px-6 md:text-sm">
         <nav aria-label="Legal and help" className="flex flex-wrap gap-x-4">
-          <Link to="/terms" className={footLink}>
+          <a href={LEGAL_URL.terms} {...NEW_TAB} className={footLink}>
             {t('footer.terms')}
-          </Link>
-          <Link to="/privacy" className={footLink}>
+          </a>
+          <a href={LEGAL_URL.privacy} {...NEW_TAB} className={footLink}>
             {t('footer.privacy')}
-          </Link>
-          <Link to="/refund" className={footLink}>
+          </a>
+          <a href={LEGAL_URL.refund} {...NEW_TAB} className={footLink}>
             {t('footer.refund')}
-          </Link>
+          </a>
           <Link to="/help" className={footLink}>
             {t('footer.help')}
           </Link>

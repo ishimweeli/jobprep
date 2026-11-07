@@ -2,6 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Apply the saved theme before the first paint, so a dark-mode user never sees a flash of light.
+      (function () {
+        try {
+          var saved = localStorage.getItem('jobprep.theme');
+          var dark = saved === 'dark' || (saved !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark && location.pathname.indexOf('/admin') !== 0) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#164A7A" />
     <title>JobPrep Rwanda — MIFOTRA Job Exam Practice &amp; Mock Tests</title>

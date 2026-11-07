@@ -6,6 +6,16 @@ export const LEGAL_SLUGS: LegalSlug[] = ['terms', 'privacy', 'refund', 'cookies'
 
 export const isLegalSlug = (s: string | undefined): s is LegalSlug => !!s && (LEGAL_SLUGS as string[]).includes(s);
 
+/** Terms, privacy and refunds are Nexvecta's own policies: JobPrep links to them instead of keeping a copy. */
+export const LEGAL_URL = {
+  terms: 'https://nexvecta.com/terms',
+  privacy: 'https://nexvecta.com/privacy',
+  refund: 'https://nexvecta.com/refund',
+} as const;
+
+/** Policy links leave JobPrep, so they open in a new tab and the visitor keeps their place. */
+export const NEW_TAB = { target: '_blank', rel: 'noreferrer' } as const;
+
 /** The short names used in links. The page's own title comes from the API. */
 export const LEGAL_LINK_LABEL: Record<LegalSlug, string> = { terms: 'Terms of use', privacy: 'Privacy policy', refund: 'Refund policy', cookies: 'Cookie notice' };
 
@@ -60,6 +70,6 @@ export function supportState(c: SupportContact | null | undefined): 'ready' | 'p
 export const HELP_TOPICS: { id: string; heading: string; body: string; to: (slug: string) => string; link: string }[] = [
   { id: 'payments', heading: 'Payments and Full Access', body: 'See what you paid, download a receipt, or check a payment that is still waiting.', to: () => '/account/payments', link: 'Payment history' },
   { id: 'pricing', heading: 'Prices and what Full Access covers', body: 'One price unlocks every mock test in your country for a set time. No auto-renew.', to: (s) => `/${s}/pricing`, link: 'See pricing' },
-  { id: 'refunds', heading: 'Refunds', body: 'Read when a payment can be refunded.', to: () => '/refund', link: 'Refund policy' },
-  { id: 'privacy', heading: 'Your data', body: 'Read how your details and results are used.', to: () => '/privacy', link: 'Privacy policy' },
+  { id: 'refunds', heading: 'Refunds', body: 'Read when a payment can be refunded.', to: () => LEGAL_URL.refund, link: 'Refund policy' },
+  { id: 'privacy', heading: 'Your data', body: 'Read how your details and results are used.', to: () => LEGAL_URL.privacy, link: 'Privacy policy' },
 ];

@@ -9,7 +9,10 @@ import { jobDeadlineLabel, plural } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useClearPreferredJob, useSetPreferredJob } from '../catalog/usePreferredJob';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
+import { AlsoIncluded } from './AlsoIncluded';
+import { ExamSourceNote } from './ExamSourceNote';
 import { JobMockTestRow } from './JobMockTestRow';
+import { PsychometricCard } from './PsychometricCard';
 
 /**
  * One job's page (`/:country/tests/jobs/:jobSlug`): every mock test under it. Landing here is what *picks* this
@@ -29,7 +32,8 @@ export function JobDetailPage() {
 
   const setPreferred = useSetPreferredJob();
   useEffect(() => {
-    if (job) setPreferred({ examId: job.exam.id, slug: job.exam.slug });
+    // The psychometric section is extra practice, not the job someone is applying for: visiting it keeps their job.
+    if (job && !job.isPsychometricPrep) setPreferred({ examId: job.exam.id, slug: job.exam.slug });
     // Only re-run when the loaded job itself changes, not on every render of a stable setter.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job?.exam.id]);
@@ -57,6 +61,7 @@ export function JobDetailPage() {
   }
 
   const deadlineLabel = jobDeadlineLabel(job.jobDeadlineAt);
+  const someLocked = job.mockTests.some((t) => t.access.state === 'LOCKED');
 
   return (
     <div className="flex flex-1 flex-col">
@@ -96,6 +101,10 @@ export function JobDetailPage() {
             <JobMockTestRow key={t.id} slug={slug} test={t} />
           ))}
         </div>
+
+        {job.psychometricPrep && <PsychometricCard slug={slug} prep={job.psychometricPrep} />}
+        <ExamSourceNote jobName={job.exam.name} psychometric={job.isPsychometricPrep} countrySlug={slug} />
+        {someLocked && <AlsoIncluded slug={slug} currentJobSlug={job.exam.slug} title="Full Access also opens" />}
       </main>
     </div>
   );

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { API, isPhone, watchErrors } from './web-helpers';
 import {
   attemptIdFromUrl, choose, clockSeconds, expectSaved, flagButton, FREE_SLUG, FREE_TITLE, guestTokens, nextButton, optionButtons, prevButton,
-  questionHeading, saveStatus, serverState, serverTimer, startFreeExam, submitButton,
+  questionHeading, saveStatus, serverState, serverTimer, startFreeExam, openSubmitDialog, submitButton,
 } from './web-exam-helpers';
 
 test.describe('Web: Flow A (no account) — landing to review to another test', () => {
@@ -45,7 +45,7 @@ test.describe('Web: Flow A (no account) — landing to review to another test', 
     await expect.poll(async () => (await serverState(request, id, tokens)).counts).toEqual({ total: 20, answered: 4, flagged: 1 });
 
     // Submit: confirmation dialog with the counts; "Keep working" closes it
-    await submitButton(page, info).click();
+    await openSubmitDialog(page, info);
     const dialog = page.getByRole('dialog', { name: 'Submit your exam?' });
     await expect(dialog).toBeVisible();
     if (isPhone(info)) await expect(dialog).toContainText('16 unanswered and 1 flagged');
@@ -56,16 +56,16 @@ test.describe('Web: Flow A (no account) — landing to review to another test', 
     await expect(dialog).toContainText('You still have');
     await dialog.getByRole('button', { name: 'Keep working' }).click();
     await expect(dialog).toBeHidden();
-    await expect(submitButton(page, info)).toBeFocused(); // focus returns to the opener
+    if (!isPhone(info)) await expect(submitButton(page, info)).toBeFocused(); // focus returns to the opener
 
     // "Go to first unanswered": question 5
     await nextButton(page, info).click(); // -> 6
-    await submitButton(page, info).click();
+    await openSubmitDialog(page, info);
     await page.getByRole('dialog').getByRole('button', { name: /^Go to (first )?unanswered/ }).click();
     await expect(questionHeading(page)).toHaveText('Question 5 of 20');
 
     // Submit now -> results
-    await submitButton(page, info).click();
+    await openSubmitDialog(page, info);
     await page.getByRole('dialog').getByRole('button', { name: 'Submit now' }).click();
     await expect(page).toHaveURL(new RegExp(`/rw/results/${id}$`));
     await expect(page.getByRole('heading', { level: 1, name: 'Your results' })).toBeVisible();
@@ -276,9 +276,6 @@ test.describe('Web: exam engine', () => {
     test.skip(isPhone(info), 'keyboard run is the desktop layout');
     const id = await startFreeExam(page);
     expect(id).toBeTruthy();
-    // header: Submit exam is first in the tab order after the (non-focusable) clock
-    await page.keyboard.press('Tab'); // Submit exam
-    await expect(submitButton(page, info)).toBeFocused();
     await page.keyboard.press('Tab'); // Flag for review
     await expect(flagButton(page)).toBeFocused();
     await page.keyboard.press('Enter');
@@ -385,11 +382,12 @@ test.describe('Web: exam engine', () => {
     await expect(page.getByRole('region', { name: 'You have a test in progress' })).toHaveCount(0);
   });
 
-  test('"Save my result" opens sign-up carrying the guest token and returns to the results', async ({ page }) => {
+  test('"Save my result" opens sign-up carrying the guest token and returns to the results', async ({ page }, info) => {
     const id = await startFreeExam(page);
     const tokens = await guestTokens(page);
     await page.goto(`/rw/exam/${id}`);
-    await page.getByRole('button', { name: /^(Submit|Submit exam)$/ }).first().click();
+    if (isPhone(info)) await page.getByRole('button', { name: /^All questions/ }).click();
+    await page.getByRole('button', { name: 'Submit exam', exact: true }).click();
     await page.getByRole('button', { name: 'Submit now' }).click();
     await expect(page).toHaveURL(new RegExp(`/results/${id}$`));
     await page.getByRole('link', { name: 'Save my result' }).click();

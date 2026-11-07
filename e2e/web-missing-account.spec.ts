@@ -134,7 +134,7 @@ test.describe('Web: payment history and receipt (C21)', () => {
 });
 
 test.describe('Web: legal and help pages (C25 / C36)', () => {
-  for (const path of ['/terms', '/privacy', '/refund', '/cookies']) {
+  for (const path of ['/cookies']) {
     test(`${path}: title, last updated, sections; placeholder text is marked as a placeholder`, async ({ page }, info) => {
       const w = watchErrors(page);
       await page.goto(path);
@@ -161,15 +161,15 @@ test.describe('Web: legal and help pages (C25 / C36)', () => {
 
   test('the sign-up copy links to the real Terms and Privacy policy', async ({ page }) => {
     await page.goto('/sign-up');
-    await expect(page.getByRole('link', { name: 'Terms (opens in a new tab)' })).toHaveAttribute('href', '/terms');
-    await expect(page.getByRole('link', { name: 'Privacy policy (opens in a new tab)' })).toHaveAttribute('href', '/privacy');
+    await expect(page.getByRole('link', { name: 'Terms (opens in a new tab)' })).toHaveAttribute('href', 'https://nexvecta.com/terms');
+    await expect(page.getByRole('link', { name: 'Privacy policy (opens in a new tab)' })).toHaveAttribute('href', 'https://nexvecta.com/privacy');
   });
 
   test('the landing footer carries the legal links and the account menu "Help and support" opens /help', async ({ page }, info) => {
     await signUpViaApi(page, 'Aline Uwase');
     await page.goto('/rw');
     const footer = page.getByRole('navigation', { name: 'Legal and help' });
-    await expect(footer.getByRole('link', { name: 'Terms of use' })).toHaveAttribute('href', '/terms');
+    await expect(footer.getByRole('link', { name: 'Terms of use' })).toHaveAttribute('href', 'https://nexvecta.com/terms');
     await expect(footer.getByRole('link', { name: 'Help and support' })).toHaveAttribute('href', '/help');
     if (!isPhone(info)) {
       await page.getByRole('button', { name: /account menu for/i }).click();

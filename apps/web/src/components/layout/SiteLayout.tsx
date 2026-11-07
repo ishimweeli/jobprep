@@ -6,7 +6,6 @@ import { cx } from '../../lib/cx';
 import { countryPath, useCountries } from '../../features/country/hooks';
 import { CountryNotOpen, WrongCountry } from '../../features/country/CountryGate';
 import { NotFoundPage } from '../../features/system/SystemPage';
-import { useDocumentTheme } from '../../lib/theme';
 import { Loader } from '../states';
 import { Footer } from './Footer';
 import { DesktopHeader } from './Header';
@@ -39,7 +38,6 @@ export function SiteShell({ children, landing }: { children: React.ReactNode; la
   const { user } = useSession();
   const chrome = !!user && matches.some((m) => (m.handle as RouteHandle | undefined)?.tabs);
   const pageClass = cx('flex flex-1 flex-col', !matches.some((m) => (m.handle as RouteHandle | undefined)?.dense) && 'ui-scaled');
-  useDocumentTheme();
 
   const skipLink = (
     <a

@@ -108,8 +108,15 @@ export function notCompletedMessage(p: Pick<PaymentView, 'status' | 'providerLab
   return `The ${p.providerLabel} request ${what}. You were not charged.`;
 }
 
-/** "Start Mock 1 now" from the test title, else "Start mock test". */
+/** "Start Mock Exam 2 now" from the test title, else "Start mock test". */
 export function startLabel(title: string | undefined): string {
-  const m = title?.match(/Mock\s+\d+/i);
+  const m = title?.match(/Mock(?:\s+Exam)?\s+\d+/i);
   return m ? `Start ${m[0]} now` : 'Start mock test';
+}
+
+/** The exam to open after paying when no test was remembered: the first one on their job they have not taken yet, paid ones first. */
+export function nextExam<T extends { isFree: boolean; myAttempts?: null | { count: number } }>(tests: T[] | undefined): T | undefined {
+  if (!tests || tests.length === 0) return undefined;
+  const untaken = tests.filter((t) => !t.myAttempts || t.myAttempts.count === 0);
+  return untaken.find((t) => !t.isFree) ?? untaken[0] ?? tests[0];
 }

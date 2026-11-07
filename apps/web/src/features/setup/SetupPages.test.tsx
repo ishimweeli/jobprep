@@ -11,7 +11,7 @@ const rwanda = { code: 'RW', slug: 'rw', name: 'Rwanda', status: 'LIVE', dialCod
 const kenya = { code: 'KE', slug: 'ke', name: 'Kenya', status: 'LIVE', dialCode: '+254', currencyCode: 'KES', languages: ['en'], selectable: true };
 const uganda = { code: 'UG', slug: 'ug', name: 'Uganda', status: 'PREPARING', dialCode: '+256', currencyCode: 'UGX', languages: ['en'], selectable: false };
 const categories = [
-  { id: 'c1', slug: 'teaching', name: 'Teaching positions', description: null, icon: null, featured: true, mockTestCount: 38 },
+  { id: 'c1', slug: 'teaching-positions', name: 'Teaching positions', description: null, icon: null, featured: true, mockTestCount: 38 },
   { id: 'c2', slug: 'procurement', name: 'Procurement', description: null, icon: null, featured: false, mockTestCount: 6 },
 ];
 
@@ -142,13 +142,42 @@ describe('setup 2 of 3: job category (OnboardCategory.dc)', () => {
   });
 });
 
+describe('setup 3 of 3 follows the category from step 2', () => {
+  const nonTeaching = testSession({ goalCategoryId: 'gov', onboarding: { done: false, nextStep: 'goal' } });
+  const job = { examId: 'e1', jobSlug: 'rw-accountant', jobName: 'Accountant', mockTestCount: 5 };
+  const stub = () =>
+    mockFetch((url, init) => {
+      if (url === '/api/me/onboarding' && init?.method === 'PATCH') return { body: { user: { ...nonTeaching.user, onboarding: { done: true, nextStep: null } } } };
+      if (url === '/api/me' && init?.method === 'PATCH') return { body: { user: nonTeaching.user, preferredJob: { examId: 'e1', slug: 'rw-accountant', name: 'Accountant' } } };
+      if (url === '/api/me') return { body: nonTeaching };
+      if (url === '/api/countries') return { body: { countries: [rwanda, kenya, uganda] } };
+      if (url === '/api/countries/rw/categories') return { body: { categories: [{ id: 'gov', slug: 'government-administration', name: 'Government administration', description: '', icon: 'x', featured: false, mockTestCount: 35 }] } };
+      if (url.startsWith('/api/countries/rw/jobs')) return { body: { total: 1, results: [job] } };
+      return undefined;
+    });
+
+  it('a non-teaching category offers its own jobs, never level or subject, and saves the job picked', async () => {
+    const { calls } = stub();
+    const u = userEvent.setup();
+    renderAt('/setup/goal');
+    await u.click(await screen.findByRole('button', { name: 'Accountant' }));
+    expect(screen.queryByRole('button', { name: 'Primary' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Teaching profession only' })).not.toBeInTheDocument();
+    await u.click(screen.getByRole('button', { name: 'Finish setup' }));
+    await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('/rw/progress'));
+    expect(patchBody(calls)).toEqual({ examDate: null, finish: true });
+    expect(calls.some((c) => c.url === '/api/me' && c.init?.method === 'PATCH' && String(c.init.body).includes('e1'))).toBe(true);
+  });
+});
+
 describe('setup 3 of 3: level, subject, exam date (OnboardGoal.dc)', () => {
-  const at3 = testSession({ onboarding: { done: false, nextStep: 'goal' } });
+  const at3 = testSession({ goalCategoryId: 'c1', onboarding: { done: false, nextStep: 'goal' } });
 
   it('draws the level and subject chips and the optional date', async () => {
     server({ session: at3 });
     renderAt('/setup/goal');
     expect(await screen.findByRole('heading', { name: 'Which position?' })).toBeInTheDocument();
+    await screen.findByRole('button', { name: 'Primary' });
     for (const l of ['Primary', 'Secondary (S1–S3)', 'Secondary (S4–S6)', 'TVET']) expect(screen.getByRole('button', { name: l })).toHaveAttribute('aria-pressed', 'false');
     for (const s of ['Mathematics', 'English', 'Kinyarwanda', 'Physics', 'Chemistry', 'Biology', 'ICT', 'Teaching profession only']) {
       expect(screen.getByRole('button', { name: s })).toBeInTheDocument();

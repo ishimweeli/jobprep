@@ -6,7 +6,7 @@ import { QueryError, Loader } from '../../components/states';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useActiveCountrySlug, useCountries } from '../country/hooks';
 import { InfoPage } from './InfoPage';
-import { HELP_TOPICS, SUPPORT_MISSING_NOTE, SUPPORT_PLACEHOLDER_NOTE, supportRows, supportState, type SupportRow } from './legalModel';
+import { HELP_TOPICS, NEW_TAB, SUPPORT_MISSING_NOTE, SUPPORT_PLACEHOLDER_NOTE, supportRows, supportState, type SupportRow } from './legalModel';
 
 const CHANNEL_ICON: Record<SupportRow['kind'], LucideIcon> = { phone: Phone, whatsapp: MessageCircle, email: Mail };
 const TOPIC_ICON: Record<string, LucideIcon> = { payments: Receipt, pricing: CreditCard, refunds: RotateCcw, privacy: ShieldCheck };
@@ -105,13 +105,7 @@ export function HelpPage() {
                     {t.heading}
                   </h3>
                   <p className="m-0 text-[15px] leading-normal text-ink-2">{t.body}</p>
-                  <Link
-                    to={t.to(slug)}
-                    className="mt-1.5 inline-flex items-center gap-1 self-start text-[15px] font-semibold text-brand no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:text-brand"
-                  >
-                    {t.link}
-                    <ChevronRight size={16} strokeWidth={2.2} aria-hidden="true" />
-                  </Link>
+                  <TopicLink to={t.to(slug)} label={t.link} />
                 </div>
               </section>
             );
@@ -119,5 +113,25 @@ export function HelpPage() {
         </div>
       </section>
     </InfoPage>
+  );
+}
+
+/** A topic's link: inside the app, or a policy on nexvecta.com in a new tab. The whole card is its tap target. */
+function TopicLink({ to, label }: { to: string; label: string }) {
+  const cls = "mt-1.5 inline-flex items-center gap-1 self-start text-[15px] font-semibold text-brand no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:text-brand";
+  const body = (
+    <>
+      {label}
+      <ChevronRight size={16} strokeWidth={2.2} aria-hidden="true" />
+    </>
+  );
+  return to.startsWith('https://') ? (
+    <a href={to} {...NEW_TAB} className={cls}>
+      {body}
+    </a>
+  ) : (
+    <Link to={to} className={cls}>
+      {body}
+    </Link>
   );
 }

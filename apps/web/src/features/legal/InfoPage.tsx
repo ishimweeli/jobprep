@@ -4,7 +4,7 @@ import { PhoneBackHeader } from '../../components/layout/Header';
 import { SiteShell } from '../../components/layout/SiteLayout';
 import { cx } from '../../lib/cx';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
-import type { TocItem } from './legalModel';
+import { LEGAL_URL, NEW_TAB, type TocItem } from './legalModel';
 
 /**
  * The page template of the legal and help pages (C25): title, last-updated line, a table of contents on desktop and a
@@ -42,17 +42,17 @@ export function InfoPage({
               Help and support
             </Link>
             {' · '}
-            <Link to="/terms" className="link">
+            <a href={LEGAL_URL.terms} {...NEW_TAB} className="link">
               Terms of use
-            </Link>
+            </a>
             {' · '}
-            <Link to="/privacy" className="link">
+            <a href={LEGAL_URL.privacy} {...NEW_TAB} className="link">
               Privacy policy
-            </Link>
+            </a>
             {' · '}
-            <Link to="/refund" className="link">
+            <a href={LEGAL_URL.refund} {...NEW_TAB} className="link">
               Refund policy
-            </Link>
+            </a>
           </p>
         </div>
       </main>

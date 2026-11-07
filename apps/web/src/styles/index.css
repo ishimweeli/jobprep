@@ -4,6 +4,51 @@
 @tailwind utilities;
 
 @layer base {
+  /* Dark mode. These sit before the utilities, so an explicit dark: class on an element still wins. */
+  .dark .text-flagged,
+  .dark .text-flagged-ink { color: #e9b872; }
+  .dark .bg-flagged-bg { background-color: #3b2d14; }
+  .dark .border-flagged-line { border-color: #6b5222; }
+  .dark .text-correct,
+  .dark .text-free { color: #7fd3a0; }
+  .dark .bg-correct-bg,
+  .dark .bg-free-bg { background-color: #15331f; }
+  .dark .border-correct-line { border-color: #2a5c3c; }
+  .dark .text-incorrect { color: #f19a8e; }
+  .dark .bg-incorrect-bg { background-color: #3a1c18; }
+  .dark .border-incorrect-line { border-color: #6e3027; }
+  .dark .text-partial { color: #f5b184; }
+  .dark .bg-partial-bg { background-color: #3a2415; }
+  .dark body {
+    background-color: #12161d;
+    color: #e8eaed;
+  }
+  .dark h1,
+  .dark h2,
+  .dark h3 {
+    color: #f2f4f7;
+  }
+  .dark .bg-surface { background-color: #1f242e; }
+  .dark .bg-page { background-color: #12161d; }
+  .dark .bg-soft,
+  .dark .bg-surface-subtle { background-color: #242a35; }
+  .dark .bg-brand-soft,
+  .dark .bg-brand-softer,
+  .dark .bg-brand-light { background-color: #1e3a54; }
+  .dark .text-ink,
+  .dark .text-ink-2 { color: #e8eaed; }
+  .dark .text-heading { color: #f2f4f7; }
+  .dark .text-muted { color: #9ba3b0; }
+  .dark .text-brand,
+  .dark .text-brand-hover,
+  .dark .text-link,
+  .dark .link { color: #5b9bd9; }
+  .dark .border-border,
+  .dark .border-soft { border-color: #2a2f3a; }
+  .dark .border-border-strong,
+  .dark .border-input-border,
+  .dark .border-brand-light { border-color: #333b48; }
+  .dark input::placeholder { color: #9ba3b0; }
   html {
     -webkit-text-size-adjust: 100%;
   }
@@ -62,3 +107,10 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Dark mode, hover states: these must beat the hover utilities, which would otherwise bring back the light colours. */
+.dark .hover\:bg-soft:hover { background-color: #242a35; }
+.dark .hover\:text-ink:hover { color: #e8eaed; }
+.dark .hover\:text-heading:hover { color: #f2f4f7; }
+.dark .hover\:text-link-hover:hover,
+.dark .hover\:text-brand:hover { color: #7db3e6; }

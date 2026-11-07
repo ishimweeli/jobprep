@@ -152,7 +152,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
           <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-soft">
             <div className="h-1.5 bg-brand" style={{ width: `${practiceProgress(s.index, questions.length)}%` }} />
           </div>
-          <p className="m-0 text-lg font-semibold leading-normal md:text-[22px]">
+          <p className="m-0 text-[17px] font-medium leading-[26px]">
             {q.stem}
             {choose ? <strong className="font-semibold"> Choose {choose}.</strong> : null}
           </p>

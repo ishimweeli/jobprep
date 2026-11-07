@@ -102,6 +102,9 @@ function buildMockTestWhere(countryCode: string, f: z.infer<typeof listQuery>): 
   };
 }
 
+/** The job that holds the general psychometric practice exams. */
+export const psychometricExamSlug = (countryCode: string) => `${countryCode.toLowerCase()}-psychometric-test-preparation`;
+
 /** One card per job (`Exam`): every row below shares one `examId`, already filtered to this country + PUBLISHED. */
 function jobCard(rows: CardRow[], now: Date) {
   const first = rows[0]!; // callers only ever pass a non-empty group (grouped by examId from at least one row)
@@ -129,6 +132,13 @@ function jobCard(rows: CardRow[], now: Date) {
 export function catalogRouter(ctx: Ctx) {
   const router = Router({ mergeParams: true });
   const { prisma } = ctx;
+
+  /** The psychometric section, or null until it has a published mock in this country. */
+  async function psychometricPrep(countryCode: string) {
+    const jobSlug = psychometricExamSlug(countryCode);
+    const rows = await prisma.mockTest.findMany({ where: { countryCode, ...PUBLISHED, exam: { slug: jobSlug } }, select: { isFree: true } });
+    return rows.length === 0 ? null : { jobSlug, mockTestCount: rows.length, freeCount: rows.filter((r) => r.isFree).length };
+  }
 
   /** Resolve the :code param to a live country the viewer is allowed to browse. */
   async function liveCountry(req: Request): Promise<Country> {
@@ -159,7 +169,7 @@ export function catalogRouter(ctx: Ctx) {
     const country = await liveCountry(req);
     const base = { countryCode: country.code, ...PUBLISHED };
 
-    const [categories, featuredCategory, recent, plan, popularSetting] = await Promise.all([
+    const [categories, featuredCategory, recent, plan, popularSetting, catalogRows, psychometric] = await Promise.all([
       prisma.category.findMany({
         where: { countryCode: country.code },
         orderBy: { sortOrder: 'asc' },
@@ -174,6 +184,8 @@ export function catalogRouter(ctx: Ctx) {
       }),
       planFor(country.code),
       prisma.setting.findUnique({ where: { key: `landing.popularSearches:${country.code}` } }),
+      prisma.mockTest.findMany({ where: base, select: { examId: true, exam: { select: { slug: true } } } }),
+      psychometricPrep(country.code),
     ]);
 
     const featured = featuredCategory
@@ -202,6 +214,9 @@ export function catalogRouter(ctx: Ctx) {
     res.json({
       country: { code: country.code, name: country.name, disclaimer: country.disclaimer, languages: country.languages },
       popularSearches: popular,
+      // The psychometric section is practice, not a role someone is hired into, so it is not counted as a job.
+      stats: { mockTests: catalogRows.length, jobs: new Set(catalogRows.filter((r) => r.exam.slug !== psychometricExamSlug(country.code)).map((r) => r.examId)).size },
+      psychometricPrep: psychometric,
       categories: categories.map((c) => ({
         id: c.id, slug: c.slug, name: c.name, description: c.description, icon: c.icon,
         featured: c.featured, mockTestCount: c._count.mockTests,
@@ -278,7 +293,7 @@ export function catalogRouter(ctx: Ctx) {
     const where = buildMockTestWhere(country.code, f);
     const words = (f.q ?? '').split(/\s+/).filter(Boolean).slice(0, 6);
 
-    const [rows, facetCats, facetTopics, facetRows] = await Promise.all([
+    const [rows, facetCats, facetTopics, facetRows, psychometric] = await Promise.all([
       // Unpaginated: one country's whole catalog, grouped in JS below (same pattern as the facet queries).
       prisma.mockTest.findMany({ where, include: mockTestInclude }),
       prisma.category.findMany({
@@ -292,6 +307,7 @@ export function catalogRouter(ctx: Ctx) {
       prisma.mockTest.findMany({
         where: { countryCode: country.code, ...PUBLISHED }, select: { languages: true, difficulty: true },
       }),
+      psychometricPrep(country.code),
     ]);
 
     const byExam = new Map<string, CardRow[]>();
@@ -322,6 +338,7 @@ export function catalogRouter(ctx: Ctx) {
       hasMore: f.page * f.pageSize < total,
       nextPage: f.page * f.pageSize < total ? f.page + 1 : null,
       results: page,
+      psychometricPrep: psychometric,
       // Shown in the empty state: "No jobs for “Veterinary officer” yet — Request this exam".
       empty: total === 0,
       canRequestExam: total === 0 && words.length > 0,
@@ -358,8 +375,20 @@ export function catalogRouter(ctx: Ctx) {
       countryCode: g.countryCode, startsAt: g.startsAt, endsAt: g.endsAt, status: g.status,
     }));
 
+    const myAttempts = req.user
+      ? await prisma.attempt.groupBy({
+          by: ['mockTestId'],
+          where: { userId: req.user.id, kind: 'FULL', status: { not: 'IN_PROGRESS' }, submittedAt: { not: null }, mockTestId: { in: mockTests.map((t) => t.id) } },
+          _count: { _all: true },
+          _max: { percent: true },
+        })
+      : [];
+    const mine = new Map(myAttempts.map((a) => [a.mockTestId, a]));
+
     res.json({
       exam: { id: exam.id, slug: exam.slug, name: exam.name },
+      isPsychometricPrep: exam.slug === psychometricExamSlug(country.code),
+      psychometricPrep: exam.slug === psychometricExamSlug(country.code) ? null : await psychometricPrep(country.code),
       category: exam.profession.category,
       profession: { name: exam.profession.name },
       jobDeadlineAt: deriveJobDeadline(mockTests.map((t) => t.jobDeadlineAt), ctx.now()),
@@ -370,6 +399,9 @@ export function catalogRouter(ctx: Ctx) {
         const accessEnd = coveredUntil(grantLikes, country.code, ctx.now());
         return {
           ...card(t),
+          myAttempts: mine.has(t.id)
+            ? { count: mine.get(t.id)!._count._all, bestPercent: mine.get(t.id)!._max.percent === null ? null : Number(mine.get(t.id)!._max.percent) }
+            : null,
           access: {
             state: decision.allowed ? (decision.reason === 'free' ? 'FREE' : 'GRANTED') : 'LOCKED',
             canStart: decision.allowed,
@@ -473,6 +505,24 @@ export function catalogRouter(ctx: Ctx) {
     const priceLabel = plan ? formatMoney(plan.priceMinor, plan.currencyCode, country.currencyExponent) : null;
     const needsPurchase = !decision.allowed && decision.reason === 'needs_full_access';
 
+    let jobProgress: null | { lockedCount: number; attempts: number; best: null | { percent: number; title: string; slug: string } } = null;
+    if (needsPurchase) {
+      const paidInJob = await prisma.mockTest.count({ where: { examId: test.examId, countryCode: country.code, ...PUBLISHED, isFree: false } });
+      const taken = req.user
+        ? await prisma.attempt.findMany({
+            where: { userId: req.user.id, kind: 'FULL', status: { not: 'IN_PROGRESS' }, submittedAt: { not: null }, percent: { not: null }, mockTest: { examId: test.examId, countryCode: country.code } },
+            orderBy: [{ percent: 'desc' }, { submittedAt: 'desc' }],
+            select: { percent: true, mockTest: { select: { title: true, slug: true } } },
+          })
+        : [];
+      const top = taken[0];
+      jobProgress = {
+        lockedCount: paidInJob,
+        attempts: taken.length,
+        best: top ? { percent: Number(top.percent), title: top.mockTest.title, slug: top.mockTest.slug } : null,
+      };
+    }
+
     res.json({
       ...card(test),
       summary: test.summary,
@@ -509,6 +559,7 @@ export function catalogRouter(ctx: Ctx) {
         remainingSeconds: Math.max(0, Math.ceil((running.deadlineAt.getTime() - ctx.now().getTime()) / 1000)),
       },
       freeSample: sample && { slug: sample.slug, title: sample.title, questionCount: sample._count.questions },
+      jobProgress,
       attemptStats: {
         count: attemptAgg?._count._all ?? 0,
         bestPercent: attemptAgg?._max.percent == null ? null : Number(attemptAgg._max.percent),

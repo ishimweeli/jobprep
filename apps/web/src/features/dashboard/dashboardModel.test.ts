@@ -1,9 +1,36 @@
 import { describe, expect, it } from 'vitest';
 import type { DashboardResponse } from '../../api/types';
 import {
-  accessCardView, accessState, chartAria, chartPoints, DESKTOP_CHART, getGreeting, greeting, headline, heroStats, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta,
+  categoryTile, resumeView, accessCardView, accessState, chartAria, chartPoints, DESKTOP_CHART, getGreeting, greeting, headline, heroStats, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta,
   visibleSections, type AccessCardInput,
 } from './dashboardModel';
+
+describe('the Continue card (a practice set is not the full exam)', () => {
+  const mockTest = { slug: 'x', title: 'Mock Exam 1', countryCode: 'RW' };
+  it('a practice set says so and shows no timer, whatever its safety limit is', () => {
+    const v = resumeView({ kind: 'PRACTICE', answered: 0, total: 15, mockTest }, '717:14');
+    expect(v.meta).toBe('0 of 15 answered · Untimed');
+    expect(v.meta).not.toContain('717');
+    expect(v.title).toBe('Practice set from Mock Exam 1');
+    expect(v.action).toBe('Continue practice');
+  });
+  it('a full exam shows its answers and its timer', () => {
+    const v = resumeView({ kind: 'FULL', answered: 12, total: 100, mockTest }, '110:05');
+    expect(v.meta).toBe('12 of 100 answered · 110:05 left on the timer');
+    expect(v.action).toBe('Resume test');
+  });
+});
+
+describe('category tiles', () => {
+  it('highlights the goal, not the featured category', () => {
+    expect(categoryTile({ id: 'teach', featured: true, mockTestCount: 3 }, 'gov')).toEqual({ active: false, mostPractised: true });
+    expect(categoryTile({ id: 'gov', featured: false, mockTestCount: 35 }, 'gov')).toEqual({ active: true, mostPractised: false });
+    expect(categoryTile({ id: 'teach', featured: true, mockTestCount: 3 }, null).active).toBe(false);
+  });
+  it('"Most practised" never sits on a category with no mock tests', () => {
+    expect(categoryTile({ id: 'teach', featured: true, mockTestCount: 0 }, null).mostPractised).toBe(false);
+  });
+});
 
 describe('dashboard model', () => {
   it('greets in Kinyarwanda for Rwanda', () => {

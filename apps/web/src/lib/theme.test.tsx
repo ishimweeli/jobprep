@@ -29,6 +29,18 @@ afterEach(() => {
   document.documentElement.classList.remove('dark');
 });
 
+describe('the admin area', () => {
+  it('stays light even when dark is chosen', () => {
+    setStoredTheme('dark');
+    const Admin = () => {
+      useDocumentTheme(false);
+      return null;
+    };
+    render(<Admin />);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+  });
+});
+
 describe('theme store (getStoredTheme / setStoredTheme)', () => {
   it('starts with nothing stored', () => {
     expect(getStoredTheme()).toBeNull();

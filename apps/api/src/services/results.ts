@@ -38,7 +38,7 @@ export async function buildResult(ctx: Ctx, a: AttemptWithTest, reviewFirstLimit
   const { prisma } = ctx;
   const questions = await prisma.question.findMany({
     where: a.questionIds.length > 0 ? { id: { in: a.questionIds } } : { mockTestId: a.mockTestId, status: 'PUBLISHED' },
-    orderBy: { sortOrder: 'asc' },
+    orderBy: [{ section: { sortOrder: 'asc' } }, { sortOrder: 'asc' }],
     include: { topic: { select: { id: true, name: true } } },
   });
   const answers = await prisma.attemptAnswer.findMany({ where: { attemptId: a.id } });
@@ -140,7 +140,7 @@ export async function buildReview(ctx: Ctx, a: AttemptWithTest, filter: ReviewFi
   const { prisma } = ctx;
   const questions = await prisma.question.findMany({
     where: a.questionIds.length > 0 ? { id: { in: a.questionIds } } : { mockTestId: a.mockTestId, status: 'PUBLISHED' },
-    orderBy: { sortOrder: 'asc' },
+    orderBy: [{ section: { sortOrder: 'asc' } }, { sortOrder: 'asc' }],
     include: { topic: { select: { id: true, name: true } }, mockTest: { select: { isFree: true } } },
   });
   const answers = new Map((await prisma.attemptAnswer.findMany({ where: { attemptId: a.id } })).map((x) => [x.questionId, x]));

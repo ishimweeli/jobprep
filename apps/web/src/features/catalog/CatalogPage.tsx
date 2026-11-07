@@ -24,6 +24,7 @@ import { FilterPanel, SORT_OPTIONS } from './FilterPanel';
 import { JobResultCard } from './JobResultCard';
 import { useJobCatalog } from './jobQueries';
 import { Pagination } from './Pagination';
+import { PsychometricCard } from '../job-detail/PsychometricCard';
 import { RequestExamDialog } from './RequestExamDialog';
 import { usePreferredJobSlug } from './usePreferredJob';
 
@@ -167,6 +168,8 @@ export function CatalogPage() {
             )}
           </p>
         </div>
+
+        {data?.psychometricPrep && <PsychometricCard slug={slug} prep={data.psychometricPrep} compact />}
 
         <div className="flex flex-col gap-6 md:flex-row md:flex-wrap md:items-start md:gap-4">
           <aside aria-label="Filters" className="hidden min-w-0 max-w-full flex-[1_1_220px] rounded-card border border-border bg-surface p-4 md:block dark:border-night-border dark:bg-night-surface">

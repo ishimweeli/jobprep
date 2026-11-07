@@ -25,7 +25,7 @@ import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { useRemaining } from '../exam/useRemaining';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import {
-  chartAria, chartPoints, DESKTOP_CHART, headline, heroStats, longDate, PHONE_CHART, practiceLine, progressWidth, startHereLine, suggestedMeta, visibleSections,
+  categoryTile, chartAria, chartPoints, DESKTOP_CHART, headline, heroStats, longDate, PHONE_CHART, practiceLine, progressWidth, resumeView, startHereLine, suggestedMeta, visibleSections,
   type ChartGeometry, type HeroStat, type HeroStatIcon,
 } from './dashboardModel';
 
@@ -168,16 +168,19 @@ function LearnRow({ icon: Icon, eyebrow, title, meta, progress, action }: { icon
 
 function ResumeRow({ resume, slug }: { resume: NonNullable<DashboardResponse['resume']>; slug: string }) {
   const left = useRemaining(resume.remainingSeconds);
+  const view = resumeView(resume, formatClock(left));
+  // A practice set reopens as itself: the start page would open the full exam instead.
+  const to = resume.kind === 'PRACTICE' ? countryPath(slug, 'exam', resume.id) : countryPath(slug, 'tests', resume.mockTest.slug, 'start');
   return (
     <LearnRow
       icon={ClipboardList}
-      eyebrow="Continue where you stopped"
-      title={resume.mockTest.title}
-      meta={`${resume.answered} of ${resume.total} answered · ${formatClock(left)} left on the timer`}
+      eyebrow={view.eyebrow}
+      title={view.title}
+      meta={view.meta}
       progress={progressWidth(resume.answered, resume.total)}
       action={
-        <ActionLink ready={ROUTES_READY.resume} to={countryPath(slug, 'tests', resume.mockTest.slug, 'start')} variant="primary" block className={shortBtn}>
-          Resume test
+        <ActionLink ready={ROUTES_READY.resume} to={to} variant="primary" block className={shortBtn}>
+          {view.action}
         </ActionLink>
       }
     />
@@ -284,7 +287,7 @@ const CATEGORY_TINTS = [
 ];
 
 /** The dashboard's own compact category tiles, full width. The landing page keeps its larger list. */
-function DashboardCategories({ slug, categories }: { slug: string; categories: Category[] }) {
+function DashboardCategories({ slug, categories, goalCategoryId }: { slug: string; categories: Category[]; goalCategoryId: string | null }) {
   return (
     <section aria-labelledby="cats" className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-3">
@@ -296,29 +299,33 @@ function DashboardCategories({ slug, categories }: { slug: string; categories: C
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 md:grid-cols-3 2xl:grid-cols-6">
-        {categories.map((c, i) => (
+        {categories.map((c, i) => {
+          const tile = categoryTile(c, goalCategoryId);
+          return (
           <Link
             key={c.id}
             to={`${countryPath(slug, 'tests')}?category=${encodeURIComponent(c.slug)}`}
+            aria-current={tile.active ? 'true' : undefined}
             className={cx(
               'flex min-w-0 items-center gap-2.5 rounded-card border p-2.5 no-underline transition-shadow hover:shadow-search',
-              c.featured
+              tile.active
                 ? 'border-brand bg-brand-softer dark:border-night-brand dark:bg-night-brand-soft'
                 : 'border-border bg-surface dark:border-night-border dark:bg-night-surface',
             )}
           >
-            <span className={cx('flex h-9 w-9 flex-none items-center justify-center rounded-control', c.featured ? 'bg-brand text-white' : CATEGORY_TINTS[i % CATEGORY_TINTS.length])}>
+            <span className={cx('flex h-9 w-9 flex-none items-center justify-center rounded-control', tile.active ? 'bg-brand text-white' : CATEGORY_TINTS[i % CATEGORY_TINTS.length])}>
               <CategoryIcon name={c.icon} size={18} />
             </span>
             <span className="flex min-w-0 flex-col">
               <span className="text-sm font-bold leading-tight text-heading dark:text-night-heading">{c.name}</span>
               <span className="text-xs text-ink-2 dark:text-night-muted">
                 {plural(c.mockTestCount, 'mock test')}
-                {c.featured && <span className="font-semibold text-brand dark:text-night-brand"> · Most practised</span>}
+                {tile.active ? <span className="font-semibold text-brand dark:text-night-brand"> · Your goal</span> : tile.mostPractised && <span className="font-semibold text-brand dark:text-night-brand"> · Most practised</span>}
               </span>
             </span>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -383,7 +390,7 @@ function DashboardView({ d, slug }: { d: DashboardResponse; slug: string }) {
         <QuickActionsCard d={d} slug={slug} practice={practice} />
       </div>
 
-      {landing.data && <DashboardCategories slug={slug} categories={landing.data.categories} />}
+      {landing.data && <DashboardCategories slug={slug} categories={landing.data.categories} goalCategoryId={d.goal?.categoryId ?? null} />}
 
       {fresh ? (
         <FreshView d={d} slug={slug} />

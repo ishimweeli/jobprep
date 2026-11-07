@@ -6,7 +6,8 @@ import { countryPath } from '../country/hooks';
 /**
  * What the CTA area shows for an exam. Pure data -> view model so the rules are unit-testable:
  *  - price / duration / currency only ever come from the API (`pricing.priceLabel`, `pricing.durationDays`)
- *  - FREE and GRANTED tests start directly; LOCKED tests offer Full Access + the free sample
+ *  - FREE and GRANTED tests start directly; LOCKED tests offer Full Access only, because a free way out at the moment of
+ *    deciding sends people away. The free sample is offered only when nothing can be bought here.
  * Copy is the artboards' (ExamDetail.dc / ExamDetailPhone.dc / States.dc "Unlocked · N days left").
  */
 export interface AccessView {
@@ -22,6 +23,8 @@ export interface AccessView {
   checkoutTo: string;
   samplePath: string | null;
   sampleLabel: string | null;
+  /** Locked: this person's progress on the job and what paying opens. */
+  progressLine: string | null;
   /** Desktop note under the buttons ("Pay with MTN MoMo or Airtel Money", "No account needed…"). */
   footNote: string | null;
   /** Locked, but the country has no sellable price: no purchase button is shown. */
@@ -37,6 +40,7 @@ export function accessView(exam: ExamDetail, slug: string, opts: { signedIn?: bo
     checkoutTo: `${countryPath(slug, 'checkout')}?test=${encodeURIComponent(exam.slug)}`,
     samplePath: null,
     sampleLabel: null,
+    progressLine: null,
     footNote: null,
     canBuy: false,
     getFullAccessLabel: null,
@@ -64,6 +68,7 @@ export function accessView(exam: ExamDetail, slug: string, opts: { signedIn?: bo
   }
   const p = exam.pricing;
   const price = p?.priceLabel ?? null;
+  const canBuy = !!p && p.checkoutAvailable && !!price;
   return {
     ...base,
     kind: 'locked',
@@ -71,12 +76,27 @@ export function accessView(exam: ExamDetail, slug: string, opts: { signedIn?: bo
     // A live country whose price is not set yet (C24): no number, no pay button.
     headline: price ?? 'Price coming soon',
     note: price ? 'One payment. Every mock test in every category, unlimited attempts.' : 'Full Access has no price in this country yet. You can still try the free sample.',
-    samplePath: exam.freeSample ? countryPath(slug, 'tests', exam.freeSample.slug, 'start') : null,
-    sampleLabel: exam.freeSample ? `Try the free ${exam.freeSample.questionCount}-question sample` : null,
+    samplePath: !canBuy && exam.freeSample ? countryPath(slug, 'tests', exam.freeSample.slug, 'start') : null,
+    sampleLabel: !canBuy && exam.freeSample ? `Try the free ${exam.freeSample.questionCount}-question sample` : null,
+    progressLine: canBuy ? progressLine(exam, price) : null,
     footNote: p && p.paymentMethods.length > 0 ? `Pay with ${p.paymentMethods.join(' or ')}` : null,
-    canBuy: !!p && p.checkoutAvailable && !!price,
+    canBuy,
     getFullAccessLabel: price ? `Get Full Access · ${price}` : null,
   };
+}
+
+/** "Mock Exam 1" out of "IDP Management Specialist (MINALOC) — Mock Exam 1". */
+export function shortMockTitle(title: string): string {
+  return title.match(/Mock(?:\s+Exam)?\s+\d+/i)?.[0] ?? title;
+}
+
+/** Personal when there is a score to show, and always plain about what the payment opens for this job. */
+export function progressLine(exam: Pick<ExamDetail, 'jobProgress'>, price: string | null): string | null {
+  const jp = exam.jobProgress;
+  if (!jp || !price || jp.lockedCount < 1) return null;
+  const locked = jp.lockedCount === 1 ? 'the locked mock exam' : `the ${jp.lockedCount} locked mock exams`;
+  if (!jp.best) return `Unlock ${locked} for this job for ${price}.`;
+  return `Your best score so far: ${Math.round(jp.best.percent)}% on ${shortMockTitle(jp.best.title)}. Unlock ${locked} for ${price} to keep improving.`;
 }
 
 /**
@@ -107,6 +127,11 @@ export function AccessCard({ view, onBuy }: { view: AccessView; onBuy?: () => vo
         <span className="text-3xl font-bold">{view.headline}</span>
         {view.note && <span className="text-sm text-ink-2">{view.note}</span>}
       </div>
+      {view.progressLine && (
+        <p data-testid="progress-line" className="m-0 rounded-control bg-brand-soft p-3 text-sm font-semibold leading-snug text-ink">
+          {view.progressLine}
+        </p>
+      )}
       {view.kind === 'locked' ? (
         <>
           {view.canBuy && (
@@ -139,6 +164,7 @@ export function PhoneCtaBar({ view, onBuy }: { view: AccessView; onBuy?: () => v
         <span className="text-sm text-muted">{view.label}</span>
         <span className="text-lg font-semibold">{view.headline}</span>
       </div>
+      {view.progressLine && <p className="m-0 text-[13px] font-semibold leading-snug text-ink">{view.progressLine}</p>}
       {view.kind === 'locked' ? (
         <>
           {view.canBuy && (

@@ -162,6 +162,8 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
     setIdx(Math.max(0, Math.min(questions.length - 1, i)));
     setView('question');
     setDialog(null);
+    // The navigator can be taller than the screen: a jump from low down must still show the question and the timer.
+    if (desktop) window.scrollTo({ top: 0 });
   };
   const pick = (key: string) => {
     if (frozen) return;
@@ -176,7 +178,11 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
     setAnswers((a) => ({ ...a, [q.id]: { selected: a[q.id]?.selected ?? [], flagged: next } }));
     engine.enqueue({ questionId: q.id, flagged: next });
   };
-  const onNext = () => (last ? setDialog('confirm') : go(idx + 1));
+  const openSubmit = () => {
+    setSubmitError(null);
+    setDialog('confirm');
+  };
+  const onNext = () => (last ? openSubmit() : go(idx + 1));
   const goUnanswered = () => {
     const i = firstUnansweredIndex(questions, answers);
     go(i >= 0 ? i : 0);
@@ -254,24 +260,6 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               </span>
               <span>{clock}</span>
             </div>
-            {frozen ? (
-              <span className="hidden min-h-[44px] items-center rounded-control bg-disabled px-[18px] text-[15px] font-semibold text-white md:inline-flex">Submit exam</span>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setSubmitError(null);
-                  setDialog('confirm');
-                }}
-                className={cx(
-                  'min-h-[44px] cursor-pointer rounded-[10px] border border-dark bg-dark px-3 text-sm font-semibold text-white md:inline-flex md:items-center md:rounded-control md:px-[18px] md:text-[15px]',
-                  offline ? 'hidden' : 'inline-flex items-center',
-                )}
-              >
-                <span className="md:hidden">Submit</span>
-                <span className="hidden md:inline">Submit exam</span>
-              </button>
-            )}
           </div>
           {kase && (
             <div role="group" aria-label="View" className="grid grid-cols-2 rounded-control bg-soft p-1 md:hidden">
@@ -323,10 +311,10 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
                     <>
                       Case question {pos.index} of {pos.total}
                       <span className="md:hidden"> · {marksLabel(q.marks)}</span>
-                      <span className="hidden md:inline"> · {q.topic.name}</span>
+                      <span className="hidden md:inline"> · {q.sectionName}</span>
                     </>
                   ) : (
-                    q.topic.name
+                    q.sectionName
                   )}
                 </span>
                 <h1 className="m-0 text-[17px] font-bold md:text-xl">
@@ -372,7 +360,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               </button>
             )}
 
-            <p className={cx('m-0 text-[19px] font-semibold leading-normal md:max-w-[40em] md:text-[22px]', kase && 'text-[18px] md:text-[21px]')}>{q.stem}
+            <p className="m-0 text-[17px] font-medium leading-[26px] md:max-w-[40em]">{q.stem}
               {q.multiple && q.choose ? <strong className="font-semibold"> Choose {q.choose}.</strong> : null}
             </p>
 
@@ -380,7 +368,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
 
             {offline && <p className="m-0 text-[13px] text-muted md:hidden">The timer keeps running while offline, exactly as it would in the exam room.</p>}
 
-            <div className="mt-auto hidden flex-wrap justify-between gap-3 border-t border-border pt-2 md:flex">
+            <div className="mt-auto hidden flex-wrap items-center justify-between gap-3 border-t border-border pt-2 md:flex">
               <button
                 type="button"
                 onClick={() => go(idx - 1)}
@@ -389,6 +377,11 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
               >
                 ← Previous
               </button>
+              {kase && !frozen && (
+                <button type="button" onClick={openSubmit} className="min-h-[44px] cursor-pointer rounded-control border border-input-border bg-surface px-5 text-[15px] font-semibold text-ink">
+                  Submit exam
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onNext}
@@ -402,7 +395,7 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
 
         {!kase && (
           <div className="hidden md:contents">
-            <NavigatorAside questions={questions} answers={answers} currentId={q.id} counts={counts} onGo={go} waitingIds={offline ? snap.pendingIds : []} />
+            <NavigatorAside questions={questions} answers={answers} currentId={q.id} counts={counts} onGo={go} waitingIds={offline ? snap.pendingIds : []} onSubmit={frozen ? undefined : openSubmit} />
           </div>
         )}
       </div>
@@ -439,15 +432,15 @@ export function ExamRunner({ state, engine, initialAnswers, slug }: Props) {
           <button
             type="button"
             onClick={onNext}
-            aria-label="Next question"
+            aria-label={last ? 'Finish exam' : 'Next question'}
             className="h-12 w-[84px] cursor-pointer rounded-control border border-brand bg-brand text-base font-semibold text-white"
           >
-            Next
+            {last ? 'Finish' : 'Next'}
           </button>
         </nav>
       )}
 
-      <NavSheet open={dialog === 'nav'} onClose={() => setDialog(null)} questions={questions} answers={answers} currentId={q.id} counts={counts} onGo={go} />
+      <NavSheet open={dialog === 'nav'} onClose={() => setDialog(null)} questions={questions} answers={answers} currentId={q.id} counts={counts} onGo={go} onSubmit={frozen || offline ? undefined : openSubmit} />
       <SubmitDialog
         open={dialog === 'confirm'}
         onClose={() => setDialog(null)}

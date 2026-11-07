@@ -17,6 +17,7 @@ import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useIsDesktop } from '../../lib/useMediaQuery';
 import { countryPath, useActiveCountry } from '../country/hooks';
 import { AccessCard, accessView, PhoneCtaBar } from './AccessCard';
+import { HOW_WE_BUILD_PATH, sourceLine } from '../job-detail/ExamSourceNote';
 import { ResumePrompt, useInProgress } from '../exam/ResumePrompt';
 
 const sectionCard = 'flex flex-col gap-1 rounded-[14px] border border-border bg-surface p-4 md:gap-3 md:rounded-card md:p-[22px] dark:border-night-border dark:bg-night-surface';
@@ -122,8 +123,21 @@ function Header({ exam }: { exam: ExamDetail }) {
       </div>
       <h1 className="m-0 text-[22px] font-bold leading-[1.2] tracking-[-0.02em] text-heading md:text-2xl md:leading-[1.15] dark:text-night-heading">{exam.title}</h1>
       {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2 md:text-[17px]">{exam.summary}</p>}
+      <SourceLine exam={exam} />
       <EnglishOnlyNote languages={exam.languages} />
     </div>
+  );
+}
+
+/** Where the topics below come from. */
+function SourceLine({ exam }: { exam: ExamDetail }) {
+  return (
+    <p data-testid="source-line" className="m-0 max-w-[44em] text-sm leading-normal text-muted">
+      {sourceLine(exam.profession, exam.slug.startsWith('psychometric-test-preparation'))}{' '}
+      <Link to={HOW_WE_BUILD_PATH} className="link font-semibold">
+        How we build our exams
+      </Link>
+    </p>
   );
 }
 
@@ -335,6 +349,7 @@ function UnlockedDetails({ exam, slug }: { exam: ExamDetail; slug: string }) {
               </div>
               <h1 className="m-0 text-[22px] font-bold leading-[1.15] tracking-[-0.02em] text-heading md:text-2xl dark:text-night-heading">{exam.title}</h1>
               {exam.summary && <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2">{exam.summary}</p>}
+              <SourceLine exam={exam} />
               <EnglishOnlyNote languages={exam.languages} />
             </div>
             <Facts exam={exam} />

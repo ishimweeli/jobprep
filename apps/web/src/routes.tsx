@@ -13,12 +13,15 @@ import { PhoneBrandHeader } from './components/layout/Header';
 import { markPushNavigation } from './lib/navigationHistory';
 import { useSystemState } from './lib/systemState';
 import type { LegalSlug } from './api/types';
+import { useDocumentTheme } from './lib/theme';
 
 /** Root: the system pages (maintenance, session expired) replace everything; the signed-out notice floats above. */
 function RootLayout() {
   const system = useSystemState();
   const navigationType = useNavigationType();
-  useRouteSeo(useLocation().pathname);
+  const { pathname } = useLocation();
+  useRouteSeo(pathname);
+  useDocumentTheme(!pathname.startsWith('/admin'));
   // Tracked for CatalogPage's preferred-job redirect: a fresh load and the browser's Back button both report
   // as POP, so it also needs to know whether an in-app PUSH happened first (see lib/navigationHistory.ts).
   useEffect(() => {
@@ -57,7 +60,18 @@ function CountryNotFound() {
   );
 }
 
-/** A legal page route: `/terms`, `/privacy`, `/refund`, `/cookies`. */
+/** The old address of a policy that now lives on nexvecta.com: sends the visitor on, so old links keep working. */
+function legalRedirect(path: string, slug: 'terms' | 'privacy' | 'refund'): RouteObject {
+  return {
+    path,
+    lazy: async () => {
+      const { LegalRedirect } = await import('./features/legal/LegalRedirect');
+      return { Component: () => <LegalRedirect slug={slug} /> };
+    },
+  };
+}
+
+/** A legal page route served by JobPrep itself: `/cookies`. */
 function legalRoute(path: string, slug: LegalSlug): RouteObject {
   return {
     path,
@@ -99,10 +113,11 @@ export const routes: RouteObject[] = [
       // Change goal / Choose your goal (C15, built without a design; same frame as Change exam country)
       { path: '/account/goal', lazy: async () => ({ Component: (await import('./features/account/ChangeGoalPage')).ChangeGoalPage }) },
       // Terms, Privacy, Refund, Cookies and Help (C25 / C36, built without a design; text and contact come from the API)
-      legalRoute('/terms', 'terms'),
-      legalRoute('/privacy', 'privacy'),
-      legalRoute('/refund', 'refund'),
+      legalRedirect('/terms', 'terms'),
+      legalRedirect('/privacy', 'privacy'),
+      legalRedirect('/refund', 'refund'),
       legalRoute('/cookies', 'cookies'),
+      { path: '/how-we-build-exams', lazy: async () => ({ Component: (await import('./features/legal/HowWeBuildPage')).HowWeBuildPage }) },
       { path: '/help', lazy: async () => ({ Component: (await import('./features/legal/HelpPage')).HelpPage }) },
       // The admin screens (apps/web/src/admin): signed-in people who hold a role. No candidate chrome here.
       { path: '/admin/*', element: <Suspense fallback={<RootFallback />}><AdminApp /></Suspense> },

@@ -1,4 +1,5 @@
 import { Check, ChevronRight, Search } from 'lucide-react';
+import { PsychometricCard } from '../job-detail/PsychometricCard';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Landing, TestCard } from '../../api/types';
@@ -78,6 +79,12 @@ export function LandingPage() {
                 <span className="hidden md:inline"> and practice that targets your weak topics</span>.
               </p>
               <HeroSearch slug={slug} popular={data?.popularSearches ?? []} loading={landing.isLoading} />
+              {data?.stats && data.stats.mockTests > 0 && (
+                <p data-testid="catalog-stats" className="m-0 text-[15px] font-semibold text-ink-2">
+                  {plural(data.stats.mockTests, 'mock exam')} across {plural(data.stats.jobs, 'government role')}
+                </p>
+              )}
+              {data?.psychometricPrep && <PsychometricCard slug={slug} prep={data.psychometricPrep} />}
               <p className="m-0 hidden items-center gap-2 text-[15px] text-ink-2 md:flex">
                 <Check size={18} strokeWidth={2.4} className="text-correct" aria-hidden="true" />
                 {user ? 'Free sample tests — start any time, no payment.' : 'Free sample tests — start without an account or payment.'}
@@ -197,7 +204,7 @@ export function Categories({ slug, data }: { slug: string; data: Landing }) {
       <SectionHead id="cats" title="Browse by job category" linkTo={countryPath(slug, 'tests')} linkText="See all mock tests" />
       <div className="flex flex-col gap-3.5 md:grid md:grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] md:gap-4">
         {data.categories.map((c) => {
-          const featured = c.featured;
+          const featured = c.featured && c.mockTestCount > 0;
           return (
             <Link
               key={c.id}

@@ -109,6 +109,6 @@ describe('help page (C25 / C36)', () => {
   it('links to the payment history and the policies', async () => {
     run(support({}));
     expect(await screen.findByRole('link', { name: 'Payment history' })).toHaveAttribute('href', '/account/payments');
-    expect(screen.getAllByRole('link', { name: 'Refund policy' })[0]).toHaveAttribute('href', '/refund');
+    expect(screen.getAllByRole('link', { name: 'Refund policy' })[0]).toHaveAttribute('href', 'https://nexvecta.com/refund');
   });
 });

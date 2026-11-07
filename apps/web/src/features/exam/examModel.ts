@@ -1,3 +1,14 @@
+/** Questions grouped by their section, in exam order, keeping each question's place in the whole exam. */
+export function sectionGroups<Q extends { sectionName: string }>(questions: Q[]): { name: string; items: { question: Q; index: number }[] }[] {
+  const groups: { name: string; items: { question: Q; index: number }[] }[] = [];
+  questions.forEach((question, index) => {
+    const last = groups[groups.length - 1];
+    if (last && last.name === question.sectionName) last.items.push({ question, index });
+    else groups.push({ name: question.sectionName, items: [{ question, index }] });
+  });
+  return groups;
+}
+
 import type { ExamCase, ExamQuestion } from '../../api/types';
 import { plural } from '../../lib/format';
 import type { LocalAnswers } from './queue';

@@ -57,7 +57,12 @@ export const nextButton = (page: Page, info: TestInfo) =>
   isPhone(info) ? page.getByRole('button', { name: 'Next question' }) : page.getByRole('button', { name: /^(Next →|Finish)$/ });
 export const prevButton = (page: Page, info: TestInfo) =>
   isPhone(info) ? page.getByRole('button', { name: 'Previous question' }) : page.getByRole('button', { name: '← Previous' });
-export const submitButton = (page: Page, info: TestInfo) => page.getByRole('button', { name: isPhone(info) ? 'Submit' : 'Submit exam', exact: true });
+export const submitButton = (page: Page, _info: TestInfo) => page.getByRole('button', { name: 'Submit exam', exact: true });
+/** Opens the "Submit your exam?" dialog. On a phone, Submit lives in the All questions sheet. */
+export const openSubmitDialog = async (page: Page, info: TestInfo) => {
+  if (isPhone(info)) await page.getByRole('button', { name: /^All questions/ }).click();
+  await submitButton(page, info).click();
+};
 export const flagButton = (page: Page) => page.getByRole('button', { name: 'Flag for review' });
 
 /** The header's save line: "All answers saved" / "Saved" (phone) / "N answers waiting to save". */

@@ -71,7 +71,7 @@ async function scopeQuestions(db: Tx | PrismaClient, attempt: Pick<Attempt, 'moc
       // An explicit question list (a practice set, which may span several tests) is authoritative.
       ...(attempt.questionIds.length > 0 ? { id: { in: attempt.questionIds } } : { mockTestId: attempt.mockTestId }),
     },
-    orderBy: { sortOrder: 'asc' },
+    orderBy: [{ section: { sortOrder: 'asc' } }, { sortOrder: 'asc' }],
     include: questionInclude,
   });
 }

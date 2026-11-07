@@ -2,10 +2,9 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { readStorage, writeStorage } from './storage';
 
 /**
- * Dark mode (the top bar's moon toggle). No dark palette was in the design — only the toggle control was drawn —
- * so the dark values are derived (see tokens.ts `darkColors`). Scope: candidate signed-in chrome (sidebar, top bar,
- * phone drawer) and the Dashboard / Mock tests / Exam detail / Pricing / Account pages; everywhere else keeps the
- * light palette regardless of this setting, because nothing else uses the `dark:` classes.
+ * Dark mode (the top bar's moon toggle). The choice is kept in localStorage and applied on every candidate screen,
+ * before the first paint (see the small script in index.html). The admin area stays light. Colours: tokens.ts
+ * `darkColors`, applied to the shared colour classes in styles/index.css.
  *
  * Same store shape as `lib/i18n.ts`'s locale: localStorage + a subscriber set, read with `useSyncExternalStore`.
  */
@@ -64,9 +63,9 @@ export function useSetTheme() {
 }
 
 /** Keeps `<html class="dark">` in step with the theme. Rendered once in the root layout. */
-export function useDocumentTheme(): void {
+export function useDocumentTheme(enabled = true): void {
   const theme = useTheme();
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
+    document.documentElement.classList.toggle('dark', enabled && theme === 'dark');
+  }, [theme, enabled]);
 }

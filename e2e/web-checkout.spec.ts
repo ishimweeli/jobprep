@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { API, fillPayerNumber, finishSetupThroughUi, isPhone, randomNational, signUpThroughUi as signUpScreens, signUpViaApi, watchErrors } from './web-helpers';
 import {
-  ACCOUNTANT_SLUG, choose, expectSaved, nextButton, questionHeading, simulatePayment, submitButton,
+  ACCOUNTANT_SLUG, choose, expectSaved, nextButton, questionHeading, simulatePayment, openSubmitDialog, submitButton,
 } from './web-exam-helpers';
 
 /** Sign up through the real screens (create account, emailed code, the three setup steps). Returns the account's email. */
@@ -119,7 +119,7 @@ test.describe('Web: Flow B — sign up, find a paid test, pay with MTN MoMo, tak
     await expectSaved(page, info);
 
     // submit -> results
-    await submitButton(page, info).click();
+    await openSubmitDialog(page, info);
     const dialog = page.getByRole('dialog', { name: 'Submit your exam?' });
     await expect(dialog).toBeVisible();
     await dialog.getByRole('button', { name: 'Submit now' }).click();

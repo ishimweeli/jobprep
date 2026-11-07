@@ -83,9 +83,19 @@ export interface TestCard {
   jobDeadlineAt: string | null;
 }
 
+/** The general psychometric practice section, once it has published exams. */
+export interface PsychometricPrepInfo {
+  jobSlug: string;
+  mockTestCount: number;
+  freeCount: number;
+}
+
 export interface Landing {
   country: { code: string; name: string; disclaimer: string | null; languages: string[] };
   popularSearches: string[];
+  /** Live counts of what is published, for the line under the hero. */
+  stats?: { mockTests: number; jobs: number };
+  psychometricPrep?: PsychometricPrepInfo | null;
   categories: Category[];
   featuredCategory: { slug: string; name: string } | null;
   featuredTests: TestCard[];
@@ -144,6 +154,7 @@ export interface JobCatalogResponse {
   hasMore?: boolean;
   nextPage?: number | null;
   totalPages?: number;
+  psychometricPrep?: PsychometricPrepInfo | null;
 }
 
 export interface JobMockTestCard {
@@ -158,6 +169,8 @@ export interface JobMockTestCard {
   questionCount: number;
   jobDeadlineAt: string | null;
   publishedAt: string | null;
+  /** This person's finished attempts of this mock; `null` when they have none (or are not signed in). */
+  myAttempts?: null | { count: number; bestPercent: number | null };
   access: {
     state: 'FREE' | 'GRANTED' | 'LOCKED';
     canStart: boolean;
@@ -169,6 +182,9 @@ export interface JobMockTestCard {
 
 export interface JobDetail {
   exam: { id: string; slug: string; name: string };
+  /** This job is the general psychometric section itself. */
+  isPsychometricPrep?: boolean;
+  psychometricPrep?: PsychometricPrepInfo | null;
   category: { slug: string; name: string };
   profession: { name: string };
   jobDeadlineAt: string | null;
@@ -232,6 +248,8 @@ export interface ExamDetail extends TestCard {
     paymentMethods: string[];
   };
   freeSample: null | { slug: string; title: string; questionCount: number };
+  /** On a locked mock: how many are locked for this job, and this person's best score on it so far. */
+  jobProgress?: null | { lockedCount: number; attempts: number; best: null | { percent: number; title: string; slug: string } };
   previousAttempts: PreviousAttempt[];
   /** Finished full attempts of this test by the signed-in user (practice sets are not counted). */
   attemptStats?: AttemptStats;

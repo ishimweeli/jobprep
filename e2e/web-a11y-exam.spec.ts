@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { fillPayerNumber, isPhone, signUpViaApi } from './web-helpers';
 import {
-  ACCOUNTANT_SLUG, choose, simulatePayment, completeViaApi, FREE_SLUG, nextButton, questionHeading, startFreeExam, submitButton,
+  ACCOUNTANT_SLUG, choose, simulatePayment, completeViaApi, FREE_SLUG, nextButton, questionHeading, startFreeExam, openSubmitDialog, submitButton,
 } from './web-exam-helpers';
 
 async function expectNoViolations(page: Page) {
@@ -16,7 +16,7 @@ test.describe('Web: accessibility of the exam, results, review, dashboard and ch
     await startFreeExam(page);
     await choose(page, 'B');
     await expectNoViolations(page);
-    await submitButton(page, info).click();
+    await openSubmitDialog(page, info);
     await expect(page.getByRole('dialog', { name: 'Submit your exam?' })).toBeVisible();
     await expectNoViolations(page);
     await page.keyboard.press('Escape');
@@ -32,7 +32,7 @@ test.describe('Web: accessibility of the exam, results, review, dashboard and ch
     await choose(page, 'A');
     await nextButton(page, info).click();
     await choose(page, 'C');
-    await submitButton(page, info).click();
+    await openSubmitDialog(page, info);
     await page.getByRole('button', { name: 'Submit now' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Your results' })).toBeVisible();
     await page.waitForLoadState('networkidle');

@@ -6,6 +6,24 @@ export function greeting(countryCode: string, firstName: string): string {
   return `${countryCode === 'RW' ? 'Muraho' : 'Hello'}, ${firstName}`;
 }
 
+/** What the Continue card says about the unfinished attempt. A practice set is untimed (its clock is only a safety limit), so it never shows a timer. */
+export function resumeView(r: Pick<DashboardResponse['resume'] & object, 'kind' | 'answered' | 'total' | 'mockTest'>, clock: string) {
+  if (r.kind === 'PRACTICE') {
+    return {
+      eyebrow: 'Continue your practice',
+      title: `Practice set from ${r.mockTest.title}`,
+      meta: `${r.answered} of ${r.total} answered · Untimed`,
+      action: 'Continue practice',
+    };
+  }
+  return { eyebrow: 'Continue where you stopped', title: r.mockTest.title, meta: `${r.answered} of ${r.total} answered · ${clock} left on the timer`, action: 'Resume test' };
+}
+
+/** The category tile: your goal is the highlighted one, and "Most practised" never sits on a category with nothing in it. */
+export function categoryTile(c: { id: string; featured: boolean; mockTestCount: number }, goalCategoryId: string | null | undefined) {
+  return { active: c.id === goalCategoryId, mostPractised: c.featured && c.mockTestCount > 0 };
+}
+
 export const progressWidth = (answered: number, total: number) => (total <= 0 ? 0 : Math.min(100, Math.round((answered / total) * 100)));
 
 export type HeroStatIcon = 'tests' | 'completed' | 'progress' | 'goal';

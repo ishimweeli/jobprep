@@ -1,12 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import type { ExamCase, ExamQuestion } from '../../api/types';
-import { casePosition, caseRange, cellState, countsOf, firstUnansweredIndex, marksLabel, pickOption, chooseCountLabel, progressPercent, savedLabel } from './examModel';
+import { sectionGroups, casePosition, caseRange, cellState, countsOf, firstUnansweredIndex, marksLabel, pickOption, chooseCountLabel, progressPercent, savedLabel } from './examModel';
 
 const q = (n: number, extra: Partial<ExamQuestion> = {}): ExamQuestion => ({
   id: `q${n}`, number: n, sectionName: 'S', topic: { id: 't', name: 'Topic' }, type: 'SINGLE_CHOICE', multiple: false, stem: 's',
   options: [{ key: 'A', text: 'a' }, { key: 'B', text: 'b' }], marks: 1, caseId: null, choose: null, ...extra,
 });
 const questions = [q(1), q(2), q(3), q(4)];
+
+describe('sections', () => {
+  it('keeps each question in its section and its place in the whole exam', () => {
+    const groups = sectionGroups([q(1, { sectionName: 'A' }), q(2, { sectionName: 'A' }), q(3, { sectionName: 'B' })]);
+    expect(groups.map((g) => [g.name, g.items.map((i) => i.index)])).toEqual([['A', [0, 1]], ['B', [2]]]);
+    expect(sectionGroups([])).toEqual([]);
+  });
+});
 
 describe('counts and progress', () => {
   const answers = { q1: { selected: ['A'], flagged: false }, q2: { selected: [], flagged: true }, q3: { selected: ['B'], flagged: true } };

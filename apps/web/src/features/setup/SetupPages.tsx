@@ -3,6 +3,7 @@ import { Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../../api/client';
+import { catalogKeys, listJobs } from '../../api/catalog';
 import { countriesKeys, listCategories } from '../../api/countries';
 import { meKeys, patchOnboarding, type OnboardingInput } from '../../api/me';
 import type { MeResponse } from '../../api/types';
@@ -14,6 +15,7 @@ import { authErrorMessage } from '../../lib/errorCopy';
 import { plural } from '../../lib/format';
 import { paidTestFromNext, safeNext, setupPath } from '../../lib/next';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { useSetPreferredJob } from '../catalog/usePreferredJob';
 import { countryPath, useCountries } from '../country/hooks';
 import { AlertBox, AuthCard, AuthFrame, AuthHeading, authTextLink, BackLink, PaidNote, StepDots } from '../auth/AuthShell';
 import {
@@ -48,6 +50,9 @@ function useStepSaver() {
 }
 
 const home = () => countryPath(getStoredCountry() ?? 'rw');
+
+/** Level and subject only mean something for teaching jobs. */
+export const TEACHING_CATEGORY_SLUG = 'teaching-positions';
 
 // ───────────────────────── 1 of 3: country (OnboardCountry.dc, OnboardCountryPhone.dc)
 
@@ -156,7 +161,8 @@ function CategoryStep({ session }: { session: MeResponse }) {
   const cats = useQuery({ queryKey: countriesKeys.categories(user.countryCode), queryFn: () => listCategories(user.countryCode) });
   const { save, error, busy } = useStepSaver();
   const [picked, setPicked] = useState<string | null>(null);
-  const list = cats.data ?? [];
+  // A category with nothing to practise is not offered, unless it is the goal this person already has.
+  const list = (cats.data ?? []).filter((c) => c.mockTestCount > 0 || c.id === user.goalCategoryId);
   const current = picked ?? (list.some((c) => c.id === user.goalCategoryId) ? user.goalCategoryId : (list[0]?.id ?? null));
   const rows: Choice[] = list.map((c) => ({
     id: c.id,
@@ -271,6 +277,22 @@ function GoalStep({ session }: { session: MeResponse }) {
   const [subjects, setSubjects] = useState<string[]>(() => splitSubjects(user.subject));
   const [date, setDate] = useState(formatExamDate(user.examDate));
   const [dateError, setDateError] = useState<string | null>(null);
+  const [jobSlug, setJobSlug] = useState<string | null>(null);
+  const setPreferredJob = useSetPreferredJob();
+
+  // Step 3 follows the category from step 2: teaching asks for level and subject, every other category offers its own jobs.
+  const cats = useQuery({ queryKey: countriesKeys.categories(user.countryCode), queryFn: () => listCategories(user.countryCode) });
+  const category = cats.data?.find((c) => c.id === user.goalCategoryId);
+  const teaching = category?.slug === TEACHING_CATEGORY_SLUG;
+  const countrySlug = user.countryCode.toLowerCase();
+  const jobsQuery = { category: category?.slug, pageSize: 50 };
+  const jobs = useQuery({
+    queryKey: catalogKeys.jobList(countrySlug, jobsQuery),
+    queryFn: () => listJobs(countrySlug, jobsQuery),
+    enabled: !!category && !teaching,
+  });
+  const jobRows = jobs.data?.results ?? [];
+  const byName = new Map(jobRows.map((j) => [j.jobName, j]));
 
   const toggleSubject = (o: string) => setSubjects((prev) => (prev.includes(o) ? prev.filter((s) => s !== o) : [...prev, o]));
 
@@ -282,9 +304,11 @@ function GoalStep({ session }: { session: MeResponse }) {
       return;
     }
     setDateError(null);
-    const subject = subjects.length ? subjects.join(', ') : null;
+    const subject = teaching && subjects.length ? subjects.join(', ') : null;
+    const job = jobRows.find((j) => j.jobSlug === jobSlug);
+    if (job) setPreferredJob({ examId: job.examId, slug: job.jobSlug });
     void save(
-      { ...(level ? { level } : {}), ...(subject ? { subject } : {}), examDate, finish: true },
+      { ...(teaching && level ? { level } : {}), ...(subject ? { subject } : {}), examDate, finish: true },
       () => navigate(afterSetupPath(user, next), { replace: true }),
     );
   };
@@ -294,12 +318,25 @@ function GoalStep({ session }: { session: MeResponse }) {
     <AuthFrame homeTo={home()}>
       <StepDots step={3} />
       <AuthHeading title="Which position?" back={<BackLink to={setupPath('category', next)} />}>
-        We’ll recommend your first mock test.
+        {category && !teaching ? 'Pick your job and we’ll open its mock exams first. You can change this anytime.' : 'We’ll recommend your first mock test.'}
       </AuthHeading>
       <form onSubmit={finish} noValidate className="flex flex-col gap-5 md:gap-[22px]">
         <AuthCard>
-          <Chips legend="Level" options={LEVELS} value={level} onPick={setLevel} />
-          <MultiChips legend="Subject" options={SUBJECTS} value={subjects} onToggle={toggleSubject} />
+          {teaching ? (
+            <>
+              <Chips legend="Level" options={LEVELS} value={level} onPick={setLevel} />
+              <MultiChips legend="Subject" options={SUBJECTS} value={subjects} onToggle={toggleSubject} />
+            </>
+          ) : (
+            jobRows.length > 0 && (
+              <Chips
+                legend="Which job? (optional)"
+                options={jobRows.map((j) => j.jobName)}
+                value={jobRows.find((j) => j.jobSlug === jobSlug)?.jobName ?? null}
+                onPick={(name) => setJobSlug(name ? (byName.get(name)?.jobSlug ?? null) : null)}
+              />
+            )
+          )}
           <div className="flex min-w-0 flex-col gap-1.5">
             <label htmlFor="od" className="text-sm font-semibold">
               Exam date (optional)

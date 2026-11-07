@@ -77,7 +77,7 @@ export async function buildDashboard(ctx: Ctx, user: User, categorySlug?: string
   );
 
   const inProgress = await listInProgress(ctx, viewer);
-  const unfinished = inProgress[0] ?? null;
+  const unfinished = inProgress.find((a) => a.kind === 'FULL') ?? inProgress[0] ?? null;
 
   // A free test to start with, plus more tests for their goal, ranked by their subject and level (see services/recommend).
   const cardOf = (t: { slug: string; title: string; isFree: boolean; durationMinutes: number; questionCount: number }) => ({

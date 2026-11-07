@@ -13,6 +13,7 @@ import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
 import { formatDate, mmss } from '../../lib/format';
 import { signInPath } from '../../lib/next';
+import { AlsoIncluded } from '../job-detail/AlsoIncluded';
 import { formatPhone } from '../../lib/phone';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
@@ -148,6 +149,8 @@ function CheckoutFlow({
 
   useEffect(() => {
     if (payment?.status === 'SUCCESSFUL') {
+      // Locked mocks are open now: nothing cached may still say otherwise.
+      void qc.invalidateQueries({ queryKey: ['catalog'] });
       void qc.invalidateQueries({ queryKey: meKeys.session });
       void qc.invalidateQueries({ queryKey: ['me', 'dashboard'] });
     }
@@ -310,6 +313,8 @@ function CheckoutFlow({
         </div>
         <p className="m-0 border-t border-border pt-2.5 text-[13px] text-muted">{copy.note}</p>
       </section>
+
+      {phase === 'form' && <AlsoIncluded slug={slug} title="Included in Full Access" />}
 
       {phase === 'form' && (
         <form id="pay-form" onSubmit={submit} noValidate className="flex flex-col gap-4">

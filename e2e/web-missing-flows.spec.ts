@@ -71,10 +71,11 @@ test.describe('Web: catalog (C10, C31, C32)', () => {
 });
 
 test.describe('Web: results and practice (C2, C6, C9, C18, C1)', () => {
-  test('a guest result: no auto-submitted line; Save my result returns with "Saved."', async ({ page }) => {
+  test('a guest result: no auto-submitted line; Save my result returns with "Saved."', async ({ page }, info) => {
     const id = await startFreeExam(page);
     await page.goto(`/rw/exam/${id}`);
-    await page.getByRole('button', { name: /^(Submit|Submit exam)$/ }).first().click();
+    if (isPhone(info)) await page.getByRole('button', { name: /^All questions/ }).click();
+    await page.getByRole('button', { name: 'Submit exam', exact: true }).click();
     await page.getByRole('button', { name: 'Submit now' }).click();
     await expect(page).toHaveURL(new RegExp(`/rw/results/${id}$`));
     // blank exam: the zero-answered line
@@ -159,7 +160,8 @@ test.describe('Web: exam offline banner (phone)', () => {
     await context.setOffline(false);
     await expect(page.getByText('Back online.')).toBeVisible();
     expect(attemptIdFromUrl(page).length).toBeGreaterThan(0);
-    await expect(submitButton(page, info)).toBeVisible();
+    if (isPhone(info)) await expect(page.getByRole('button', { name: /^All questions/ })).toBeVisible();
+    else await expect(submitButton(page, info)).toBeVisible();
   });
 });
 
