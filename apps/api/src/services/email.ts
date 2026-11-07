@@ -5,6 +5,19 @@ export interface EmailMessage {
   to: string;
   subject: string;
   text: string;
+  /** Optional HTML part; sent alongside `text` (multipart), which mail filters trust more than text alone. */
+  html?: string;
+}
+
+/** The verification-code email as simple, inline-styled HTML. `code` is six digits, so nothing needs escaping. */
+export function codeEmailHtml(code: string, minutes: number): string {
+  return `<!doctype html><html><body style="margin:0;padding:24px;background:#f4f6f9;font-family:Arial,Helvetica,sans-serif;color:#1b2330">
+<div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;padding:28px">
+<p style="margin:0 0 8px;font-size:18px;font-weight:bold">Your JobPrep verification code</p>
+<p style="margin:0 0 20px;font-size:15px;color:#4a5363">Enter this code to verify your email address.</p>
+<p style="margin:0 0 20px;font-size:34px;font-weight:bold;letter-spacing:8px;color:#164A7A">${code}</p>
+<p style="margin:0;font-size:13px;color:#5e6573">It works for ${minutes} minutes. Never share it with anyone. If you did not create a JobPrep account, ignore this email.</p>
+</div></body></html>`;
 }
 
 export interface EmailProvider {
@@ -73,6 +86,6 @@ export class SmtpEmailProvider implements EmailProvider {
   }
 
   async send(message: EmailMessage) {
-    await this.transport.sendMail({ from: this.from, to: message.to, subject: message.subject, text: message.text });
+    await this.transport.sendMail({ from: this.from, to: message.to, subject: message.subject, text: message.text, ...(message.html ? { html: message.html } : {}) });
   }
 }

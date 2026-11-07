@@ -33,6 +33,7 @@ const CATALOGUE: Record<string, Entry> = {
   }),
   otp_hourly_limit: { message: 'You have asked for too many codes. Please try again in about an hour.', action: 'wait' },
   account_exists: { message: 'This email address already has an account.', action: 'sign_in' },
+  email_not_sent: { message: 'We could not send the email just now. Please try again in a minute, or continue with Google.', action: 'retry' },
   invalid_email: { message: INVALID_EMAIL_MESSAGE, action: 'retry' },
   invalid_credentials: { message: 'The email or password is not right. Check them and try again.', action: 'retry' },
   email_not_verified: { message: 'This email address has not been confirmed yet. Check your inbox for the code.', action: 'retry' },

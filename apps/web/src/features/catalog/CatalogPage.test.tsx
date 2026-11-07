@@ -54,7 +54,9 @@ describe('catalog page (job-first)', () => {
   it('shows one card per job when no preferred job is saved', async () => {
     render();
     expect(await screen.findByText('CPD Coordination Officer')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /View 2 exams/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View exams: CPD Coordination Officer' })).toBeInTheDocument();
+    expect(screen.getByText('Free to try')).toBeInTheDocument();
+    expect(screen.queryByText(/100 questions/)).not.toBeInTheDocument();
     expect(screen.queryByText('JOB PAGE')).not.toBeInTheDocument();
   });
 

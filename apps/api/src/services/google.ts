@@ -25,13 +25,16 @@ export function safeNext(next: unknown): string {
   return next;
 }
 
-export interface StatePayload { n: string; next: string; cc: string | null; exp: number }
+/** Which button was pressed. `null` (no intent given) keeps the combined "find or create" behaviour. */
+export type GoogleIntent = 'sign_in' | 'sign_up';
+
+export interface StatePayload { n: string; next: string; cc: string | null; i?: GoogleIntent | null; exp: number }
 
 const sign = (secret: string, body: string) => createHmac('sha256', secret).update(`google-state|${body}`).digest('base64url');
 
-export function createState(secret: string, input: { next: string; countryCode: string | null }, now: Date) {
+export function createState(secret: string, input: { next: string; countryCode: string | null; intent?: GoogleIntent | null }, now: Date) {
   const nonce = randomBytes(18).toString('base64url');
-  const payload: StatePayload = { n: nonce, next: input.next, cc: input.countryCode, exp: now.getTime() + GOOGLE_STATE_TTL_SECONDS * 1000 };
+  const payload: StatePayload = { n: nonce, next: input.next, cc: input.countryCode, i: input.intent ?? null, exp: now.getTime() + GOOGLE_STATE_TTL_SECONDS * 1000 };
   const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
   return { nonce, state: `${body}.${sign(secret, body)}` };
 }

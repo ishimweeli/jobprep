@@ -11,10 +11,15 @@ export function useGoogleAvailable(): boolean {
   return q.data?.google === true;
 }
 
-/** Leave for Google; it comes back to `/auth/callback?next=`. */
-export function startGoogle(next: string | null): void {
+export type GoogleIntent = 'sign_in' | 'sign_up';
+
+/**
+ * Leave for Google; it comes back to `/auth/callback?next=`. `sign_in` never creates an account (an unknown Google
+ * account lands on Sign up with a notice); `sign_up` with an existing account signs in to it and says so.
+ */
+export function startGoogle(next: string | null, intent: GoogleIntent): void {
   const country = getStoredCountry();
-  window.location.assign(googleStartUrl({ next, countryCode: country }));
+  window.location.assign(googleStartUrl({ next, countryCode: country, intent }));
 }
 
 export const GOOGLE_UNAVAILABLE = 'Google sign-in isn’t available yet. Use your email instead.';
@@ -23,13 +28,13 @@ export const GOOGLE_UNAVAILABLE = 'Google sign-in isn’t available yet. Use you
  * The designed "Continue with Google" button is always drawn. Pressed, it leaves for Google when the server has it set up;
  * otherwise it stays here and `notice` says so.
  */
-export function useGoogleButton(next: string | null) {
+export function useGoogleButton(next: string | null, intent: GoogleIntent) {
   const available = useGoogleAvailable();
   const [notice, setNotice] = useState<string | null>(null);
   return {
     notice,
     onClick: () => {
-      if (available) startGoogle(next);
+      if (available) startGoogle(next, intent);
       else setNotice(GOOGLE_UNAVAILABLE);
     },
   };

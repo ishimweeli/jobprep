@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 /** One-shot notice shown after an action that moves the user to another page ("You’re signed out. Sign in again"). */
-export type NoticeKind = 'signed_out';
+export type NoticeKind = 'signed_out' | 'account_exists';
 
 let current: NoticeKind | null = null;
 const listeners = new Set<() => void>();

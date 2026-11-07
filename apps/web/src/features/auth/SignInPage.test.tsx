@@ -85,7 +85,7 @@ describe('sign-in screen (SignIn.dc)', () => {
     await screen.findByRole('button', { name: 'Continue with Google' });
     await waitFor(async () => {
       await u.click(screen.getByRole('button', { name: 'Continue with Google' }));
-      expect(assign).toHaveBeenCalledWith('/api/auth/google/start?next=%2Frw%2Ftests');
+      expect(assign).toHaveBeenCalledWith('/api/auth/google/start?next=%2Frw%2Ftests&intent=sign_in');
     });
   });
 

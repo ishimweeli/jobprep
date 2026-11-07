@@ -12,7 +12,7 @@ import { safeNext, signInPathFor, verifyEmailPath } from '../../lib/next';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath } from '../country/hooks';
 import { AlertBox, AuthCard, AuthField, AuthFrame, AuthHeading, GoogleButton, GoogleNotice, OrDivider, PaidNote } from './AuthShell';
-import { PASSWORD_HINT, PASSWORD_MIN_LENGTH, postAuthPath, signUpPaidText } from './authModel';
+import { GOOGLE_NO_ACCOUNT, PASSWORD_HINT, PASSWORD_MIN_LENGTH, postAuthPath, signUpPaidText } from './authModel';
 import { useGoogleButton, usePaidTestTitle } from './hooks';
 import { LEGAL_URL, NEW_TAB } from '../legal/legalModel';
 import { useSession } from './session';
@@ -25,9 +25,11 @@ import { useSession } from './session';
 export function SignUpPage() {
   useDocumentTitle('Create your account', 'Create a free JobPrep account to practise MIFOTRA and Rwanda public-service recruitment exams and track your scores.');
   const navigate = useNavigate();
-  const next = safeNext(useSearchParams()[0].get('next'));
+  const [params] = useSearchParams();
+  const next = safeNext(params.get('next'));
+  const googleNoAccount = params.get('notice') === 'google_no_account';
   const { user, isLoading } = useSession();
-  const google = useGoogleButton(next);
+  const google = useGoogleButton(next, 'sign_up');
   const paidTitle = usePaidTestTitle(next);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -71,6 +73,7 @@ export function SignUpPage() {
       <AuthHeading title="Create your account">Free to start. Free sample tests need no account at all.</AuthHeading>
       {paidTitle && <PaidNote>{signUpPaidText(paidTitle)}</PaidNote>}
       <AuthCard onSubmit={submit}>
+        {googleNoAccount && <AlertBox title={GOOGLE_NO_ACCOUNT.title} body={GOOGLE_NO_ACCOUNT.body} />}
         <GoogleButton onClick={google.onClick} />
         {google.notice && <GoogleNotice>{google.notice}</GoogleNotice>}
         <OrDivider />

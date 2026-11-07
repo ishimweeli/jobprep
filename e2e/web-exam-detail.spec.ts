@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { API, FREE_SLUG, PAID_SLUG, isPhone, watchErrors } from './web-helpers';
 
-const NO_PASS_MARK = 'No official pass mark is published for this examination, so JobPrep shows your score and percentage only.';
+const NO_PASS_MARK = 'No official pass mark is published for this examination. JobPrep counts 80% or more as a pass.';
 
 /** Serve the real API response with a patch applied (to exercise states the seed data does not contain). */
 async function patchDetail(page: Page, slug: string, patch: (b: Record<string, unknown>) => void) {

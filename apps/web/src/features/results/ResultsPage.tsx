@@ -15,7 +15,7 @@ import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { StartPracticeLink } from '../practice/StartPracticeLink';
 import { useStartPractice } from '../practice/useStartPractice';
 import {
-  answerText, AUTO_SUBMITTED_LINE, barHeight, deltaHeadline, historyLabel, marksLabel, NOT_SAVED_BANNER, percentLabel, PRACTICE_NOTE, resultsFlags, resultsSummaryLine,
+  answerText, AUTO_SUBMITTED_LINE, barHeight, deltaHeadline, historyLabel, JOBPREP_PASS_MARK, marksLabel, NOT_SAVED_BANNER, passVerdict, percentLabel, PRACTICE_NOTE, resultsFlags, resultsSummaryLine,
   ringDash, SAVED_BANNER, timeSpent, timeSpentChange, topicBarColor,
 } from './resultsModel';
 
@@ -76,6 +76,7 @@ function ResultsView({ r, slug, attemptId, justSaved }: { r: ResultResponse; slu
   const flags = resultsFlags(r);
   const practice = useStartPractice(slug);
   const summaryLine = resultsSummaryLine(flags);
+  const verdict = flags.isPractice ? null : passVerdict(r.score, r.passMark);
   const headline = flags.showComparison ? deltaHeadline(r.comparison?.deltaPoints ?? null) : null;
   const submitted = formatDate(r.attempt.submittedAt, true);
   const reviewTo = countryPath(slug, 'review', attemptId);
@@ -162,6 +163,18 @@ function ResultsView({ r, slug, attemptId, justSaved }: { r: ResultResponse; slu
             </div>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-4 md:flex-[1_1_420px]">
+            {verdict && (
+              <div
+                data-testid="pass-verdict"
+                className={cx('flex flex-col gap-1 rounded-control border px-3.5 py-3 text-left', verdict.passed ? 'border-correct-line bg-correct-bg' : 'border-incorrect-line bg-incorrect-bg')}
+              >
+                <strong className={cx('flex items-center gap-2 text-xl md:text-[22px]', verdict.passed ? 'text-correct' : 'text-incorrect')}>
+                  <span aria-hidden="true">{verdict.passed ? '✓' : '✗'}</span>
+                  {verdict.title}
+                </strong>
+                <span className="text-[15px] text-ink-2">{verdict.line}</span>
+              </div>
+            )}
             {summaryLine && (
               <p className="m-0 text-base leading-normal md:text-lg" data-testid="results-summary-line">
                 {summaryLine}
@@ -207,8 +220,7 @@ function ResultsView({ r, slug, attemptId, justSaved }: { r: ResultResponse; slu
               </p>
             ) : (
               <p className="m-0 text-xs text-muted md:text-[13px]" data-testid="no-pass-mark">
-                <span className="md:hidden">No official pass mark is published for this exam.</span>
-                <span className="hidden md:inline">No official pass mark is published for this examination, so none is shown.</span>
+                No official pass mark is published for this exam, so JobPrep uses {JOBPREP_PASS_MARK}%.
               </p>
             )}
           </div>

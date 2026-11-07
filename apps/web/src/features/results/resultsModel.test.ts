@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { answerText, barHeight, deltaHeadline, historyLabel, marksLabel, percentLabel, RING_CIRCUMFERENCE, ringDash, timeSpent, timeSpentChange, topicBarColor } from './resultsModel';
+import { answerText, barHeight, JOBPREP_PASS_MARK, passVerdict, deltaHeadline, historyLabel, marksLabel, percentLabel, RING_CIRCUMFERENCE, ringDash, timeSpent, timeSpentChange, topicBarColor } from './resultsModel';
 
 describe('score ring', () => {
   it('uses the artboard geometry: 72% is "244.3 339.3"', () => {
@@ -55,5 +55,24 @@ describe('topics', () => {
     expect(answerText(['A', 'B'])).toBe('A, B');
     expect(answerText([])).toBeNull();
     expect(answerText(null)).toBeNull();
+  });
+});
+
+describe('pass verdict', () => {
+  const score = (percent: number) => ({ marks: percent, totalMarks: 100, percent });
+
+  it('uses the JobPrep 80% when no official pass mark is set', () => {
+    expect(JOBPREP_PASS_MARK).toBe(80);
+    expect(passVerdict(score(80), null)).toMatchObject({ passed: true, passMark: 80, official: false, title: 'Passed' });
+    expect(passVerdict(score(84), null).line).toBe('You scored 84%, at or above the 80% JobPrep pass mark.');
+    const fail = passVerdict(score(67.5), null);
+    expect(fail).toMatchObject({ passed: false, title: 'Not passed' });
+    expect(fail.line).toBe('You scored 68%. The JobPrep pass mark is 80%: 13% more to pass.');
+  });
+
+  it('an official pass mark replaces it and is named as official', () => {
+    const v = passVerdict(score(55), { percent: 50, source: 'MIFOTRA notice' });
+    expect(v).toMatchObject({ passed: true, passMark: 50, official: true });
+    expect(v.line).toContain('50% official pass mark');
   });
 });

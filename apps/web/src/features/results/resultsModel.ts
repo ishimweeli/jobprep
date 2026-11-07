@@ -71,6 +71,36 @@ export const PRACTICE_NOTE = 'Practice answers do not change your mock test scor
 export const SAVED_BANNER = { title: 'Saved.', body: 'Find this result under My progress.' };
 export const NOT_SAVED_BANNER = { title: 'This result is not in your account.', body: 'It belongs to another person or another country, so it could not be added. Your own results are under My progress.' };
 
+/** Used when no admin has entered an official pass mark for the test (product decision, 2026-11-07). */
+export const JOBPREP_PASS_MARK = 80;
+
+export interface PassVerdict {
+  passed: boolean;
+  passMark: number;
+  official: boolean;
+  /** "Passed" / "Not passed". */
+  title: string;
+  /** "You scored 84%, above the 80% JobPrep pass mark." */
+  line: string;
+}
+
+/** Passed or not against the official pass mark when one is set, otherwise against JobPrep's own. */
+export function passVerdict(score: ResultResponse['score'], official: ResultResponse['passMark']): PassVerdict {
+  const passMark = official ? official.percent : JOBPREP_PASS_MARK;
+  const passed = score.percent >= passMark;
+  const which = official ? 'official' : 'JobPrep';
+  const pct = percentLabel(score.percent);
+  return {
+    passed,
+    passMark,
+    official: !!official,
+    title: passed ? 'Passed' : 'Not passed',
+    line: passed
+      ? `You scored ${pct}, at or above the ${percentLabel(passMark)} ${which} pass mark.`
+      : `You scored ${pct}. The ${which} pass mark is ${percentLabel(passMark)}: ${Math.ceil(passMark - score.percent)}% more to pass.`,
+  };
+}
+
 export interface ResultsFlags {
   isPractice: boolean;
   autoSubmitted: boolean;

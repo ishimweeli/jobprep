@@ -77,6 +77,8 @@ export function codeErrorBox(e: unknown, expiresInSeconds: number): ErrorBox {
       return { ...base, title: 'Too many codes', body: hourlyCopy(e.retryAfterSeconds), tone: 'amber', waitSeconds: e.retryAfterSeconds ?? undefined };
     case 'account_suspended':
       return { ...base, title: 'This account is suspended', body: 'Please contact support.', tone: 'red' };
+    case 'email_not_sent':
+      return { ...base, title: 'The email could not be sent', body: 'Nothing was sent to you this time. Please tap Send a new code again in a minute.', tone: 'amber' };
     case 'network_error':
       return { ...base, title: 'You seem to be offline', body: 'Check your connection, then tap Verify again.', tone: 'amber' };
     case 'rate_limited':

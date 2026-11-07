@@ -41,7 +41,7 @@ Node.js + Express + TypeScript API, PostgreSQL with Prisma, React (Vite) web app
 ## Business rules
 - One paid tier per country: **Full Access** (Rwanda: RWF 2,000, one-time, 30 days, all mock tests in that country). Price, currency and duration live in config/DB (`PlanConfig`) — never hardcoded in components.
 - Every category has at least one free sample test, playable without an account or payment.
-- Never show or invent a pass mark. Only display an official threshold if an admin enters one with a source.
+- Results say Passed / Not passed. The threshold is the official pass mark when an admin enters one with a source; otherwise JobPrep's own 80%, always labelled as JobPrep's, never as official (changed 2026-11-07 after user testing).
 - Never call questions "official" or "real".
 - Support different formats per exam: question count, time limit, marks per question, sections, case-based question groups, languages (English, Kinyarwanda, Kiswahili).
 - No negative marking unless configured per exam.

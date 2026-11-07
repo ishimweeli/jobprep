@@ -13,10 +13,11 @@ export const authKeys = { providers: ['auth', 'providers'] as const };
 export const getProviders = () => api<AuthProviders>('/auth/providers');
 
 /** Browser navigation target of "Continue with Google": the API redirects to Google and comes back to `/auth/callback?next=`. */
-export function googleStartUrl(opts: { next?: string | null; countryCode?: string | null }): string {
+export function googleStartUrl(opts: { next?: string | null; countryCode?: string | null; intent?: 'sign_in' | 'sign_up' }): string {
   const params = new URLSearchParams();
   if (opts.next) params.set('next', opts.next);
   if (opts.countryCode) params.set('countryCode', opts.countryCode.toUpperCase());
+  if (opts.intent) params.set('intent', opts.intent);
   const qs = params.toString();
   return `/api/auth/google/start${qs ? `?${qs}` : ''}`;
 }

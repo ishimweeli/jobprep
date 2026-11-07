@@ -224,10 +224,11 @@ export function authRouter(ctx: Ctx) {
   // ── Continue with Google.
   router.get('/google/start', (req, res) => {
     if (!googleConfigured(config)) throw notFound('google_not_configured');
-    const q = z.object({ next: z.string().optional(), countryCode: z.string().length(2).optional() }).safeParse(req.query);
+    const q = z.object({ next: z.string().optional(), countryCode: z.string().length(2).optional(), intent: z.enum(['sign_in', 'sign_up']).optional() }).safeParse(req.query);
     const next = safeNext(q.success ? q.data.next : undefined);
     const cc = q.success && q.data.countryCode ? q.data.countryCode.toUpperCase() : null;
-    const { nonce, state } = createState(config.SESSION_SECRET, { next, countryCode: cc }, ctx.now());
+    const intent = q.success ? (q.data.intent ?? null) : null;
+    const { nonce, state } = createState(config.SESSION_SECRET, { next, countryCode: cc, intent }, ctx.now());
     res.cookie(GOOGLE_STATE_COOKIE, nonce, {
       httpOnly: true, sameSite: 'lax', secure: config.NODE_ENV === 'production', path: googleCookiePath, maxAge: GOOGLE_STATE_TTL_SECONDS * 1000,
     });
@@ -249,29 +250,39 @@ export function authRouter(ctx: Ctx) {
       if (!payload || !cookieNonce || !equalStrings(cookieNonce, payload.n)) return fail();
 
       const identity = await exchangeCode(config, ctx.fetch ?? (fetch as unknown as FetchLike), code, ctx.now());
-      const user = await userForGoogle(identity, payload.cc);
+      const next = encodeURIComponent(safeNext(payload.next));
+      const found = await existingUserForGoogle(identity);
+      if (found === 'other_google') return fail();
+      // "Sign in" with a Google account that has no JobPrep account: nothing is created; Sign up says so.
+      if (!found && payload.i === 'sign_in') {
+        res.clearCookie(GOOGLE_STATE_COOKIE, { path: googleCookiePath });
+        return res.redirect(302, `${web}/sign-up?notice=google_no_account&next=${next}`);
+      }
+      const user = found ?? (await createUserForGoogle(identity, payload.cc));
       if (!user || user.status !== 'ACTIVE') return fail();
 
       const at = ctx.now();
       await prisma.user.update({ where: { id: user.id }, data: { lastSeenAt: at, failedSignIns: 0, signInLockedUntil: null } });
       await startSession(req, res, user, true);
       res.clearCookie(GOOGLE_STATE_COOKIE, { path: googleCookiePath });
-      res.redirect(302, `${web}/auth/callback?next=${encodeURIComponent(safeNext(payload.next))}`);
+      // "Create an account" with an address that already has one: signed in to it, and the next page says so.
+      const notice = found && payload.i === 'sign_up' ? '&notice=account_exists' : '';
+      res.redirect(302, `${web}/auth/callback?next=${next}${notice}`);
     } catch (e) {
       if (!(e instanceof GoogleError) && e instanceof Error) console.error(`[${req.id}] google sign-in failed:`, e.message);
       fail();
     }
   });
 
-  /** Find by Google id, else by (Google-verified) email and link, else create a verified account without a password. */
-  async function userForGoogle(identity: GoogleIdentity, stateCountry: string | null): Promise<User | null> {
+  /** Find by Google id, else by (Google-verified) email and link. `null` when the person has no account yet. */
+  async function existingUserForGoogle(identity: GoogleIdentity): Promise<User | 'other_google' | null> {
     const at = ctx.now();
     const byGoogle = await prisma.user.findUnique({ where: { googleId: identity.sub } });
     if (byGoogle) return byGoogle;
 
     const byEmail = await prisma.user.findUnique({ where: { email: identity.email } });
     if (byEmail) {
-      if (byEmail.googleId && byEmail.googleId !== identity.sub) return null; // that address is tied to another Google account
+      if (byEmail.googleId && byEmail.googleId !== identity.sub) return 'other_google'; // that address is tied to another Google account
       return prisma.user.update({
         where: { id: byEmail.id },
         data: {
@@ -282,7 +293,12 @@ export function authRouter(ctx: Ctx) {
         },
       });
     }
+    return null;
+  }
 
+  /** A verified account without a password, in the country the person chose (else the home country). */
+  async function createUserForGoogle(identity: GoogleIdentity, stateCountry: string | null): Promise<User | null> {
+    const at = ctx.now();
     const wanted = stateCountry ? await prisma.country.findUnique({ where: { code: stateCountry } }) : null;
     const country = wanted?.status === 'LIVE' ? wanted : await prisma.country.findUnique({ where: { code: HOME_COUNTRY } });
     if (!country) return null;

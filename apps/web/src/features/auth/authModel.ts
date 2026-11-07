@@ -75,6 +75,15 @@ export function signInError(e: unknown): SignInError {
 /** `/sign-in?error=google_failed`: Google sent the person back without signing them in (no artboard; MISSING_DESIGNS E4). */
 export const GOOGLE_FAILED = { title: 'Google sign-in did not work', body: 'Please try again, or sign in with your email and password.' } as const;
 
+/** Sign up, after "Sign in" → Google with an account JobPrep does not know. Nothing was created. */
+export const GOOGLE_NO_ACCOUNT = {
+  title: 'No JobPrep account found for that Google account',
+  body: 'Create one below: press Continue with Google again, or use your email.',
+} as const;
+
+/** Toast after "Create an account" → Google with an address that already had an account. */
+export const ACCOUNT_EXISTS_NOTICE = 'You already had a JobPrep account with this Google address, so we signed you in.';
+
 // ───────────────────────── Where to go after signing in
 
 /** The person's own dashboard (`/rw/progress`). */

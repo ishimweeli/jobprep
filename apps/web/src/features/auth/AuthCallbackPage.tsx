@@ -7,6 +7,7 @@ import type { MeResponse } from '../../api/types';
 import { getStoredCountry } from '../../lib/country';
 import { readGuestTokens } from '../../lib/guestTokens';
 import { safeNext, signInPathFor } from '../../lib/next';
+import { setNotice } from '../../lib/notice';
 import { clearSessionHint, setSessionHint } from '../../lib/sessionHint';
 import { setSystemState } from '../../lib/systemState';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -23,7 +24,9 @@ export function AuthCallbackPage() {
   useDocumentTitle('Signing you in');
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const next = safeNext(useSearchParams()[0].get('next'));
+  const [params] = useSearchParams();
+  const next = safeNext(params.get('next'));
+  const accountExists = params.get('notice') === 'account_exists';
   const ran = useRef(false);
 
   useEffect(() => {
@@ -40,13 +43,14 @@ export function AuthCallbackPage() {
         setSystemState(null);
         qc.removeQueries({ queryKey: ['admin'] });
         qc.setQueryData(meKeys.session, session);
+        if (accountExists) setNotice('account_exists');
         navigate(postAuthPath(session.user, next), { replace: true });
       } catch {
         clearSessionHint();
         navigate(signInPathFor(next, { error: 'google_failed' }), { replace: true });
       }
     })();
-  }, [navigate, next, qc]);
+  }, [accountExists, navigate, next, qc]);
 
   return (
     <AuthFrame homeTo={countryPath(getStoredCountry() ?? 'rw')}>

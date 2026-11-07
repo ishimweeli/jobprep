@@ -27,7 +27,7 @@ export const en: Messages = {
   'exam.allSaved': 'All answers saved',
   'exam.waitingToSave': '{count} answers waiting to save',
   'exam.timeIsUp': 'Time is up',
-  'exam.noPassMark': 'No official pass mark is published for this examination, so JobPrep shows your score and percentage only.',
+  'exam.noPassMark': 'No official pass mark is published for this examination. JobPrep counts 80% or more as a pass.',
   'access.getFull': 'Get Full Access · {price}',
   'access.trySample': 'Try the free sample',
   'results.saveMyResult': 'Save my result',

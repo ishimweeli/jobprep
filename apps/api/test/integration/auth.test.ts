@@ -64,6 +64,31 @@ describe('GET /api/auth/providers', () => {
 });
 
 describe('sign-up', () => {
+  it('when the email cannot be sent (tried twice) it says so and does not hold the person to the resend cooldown', async () => {
+    let tries = 0;
+    let down = true;
+    const flaky = { send: async (m: Parameters<typeof mail.send>[0]) => { tries++; if (down) throw new Error('smtp down'); await mail.send(m); } };
+    const broken = createApp({ prisma, config: testConfig(), email: flaky, now: () => clock });
+    const email = nextEmail();
+    const first = await signUpRaw(request.agent(broken), email);
+    expect([first.status, first.body.error]).toEqual([503, 'email_not_sent']);
+    expect(tries).toBe(2);
+    expect(await prisma.otpCode.count({ where: { email } })).toBe(0);
+
+    down = false;
+    const again = await signUpRaw(request.agent(broken), email);
+    expect(again.status).toBe(201);
+    expect(mail.lastCode(email)).toMatch(/^\d{6}$/);
+  });
+
+  it('the code email has an HTML part as well as text', async () => {
+    const email = nextEmail();
+    await signUpRaw(request.agent(app), email);
+    const sent = mail.lastTo(email)!;
+    expect(sent.html).toContain(mail.lastCode(email)!);
+    expect(sent.text).toContain(mail.lastCode(email)!);
+  });
+
   it('creates an UNVERIFIED account, emails a 6-digit code, and signs nobody in', async () => {
     const email = nextEmail();
     const agent = request.agent(app);
@@ -782,6 +807,36 @@ describe('Continue with Google', () => {
     return { a, res: await callback(a, stateOf(s)) };
   }
 
+  it('"Sign in" with an unknown Google account creates nothing and sends the person to Sign up with a notice', async () => {
+    const g = withClaims(goodClaims({ email: 'nobody.yet@example.com', sub: 'google-sub-new' }));
+    const { a, res } = await fullFlow(g, { next: '/dashboard', intent: 'sign_in' });
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('http://localhost:5173/sign-up?notice=google_no_account&next=%2Fdashboard');
+    expect(String(res.headers['set-cookie'] ?? '')).not.toMatch(/jp_session=[^;]/);
+    expect(await prisma.user.findUnique({ where: { email: 'nobody.yet@example.com' } })).toBeNull();
+    expect((await a.get('/api/me')).status).toBe(401);
+  });
+
+  it('"Sign in" with a known Google account signs in as before', async () => {
+    await makeUser({ email: 'known.google@example.com', googleId: 'google-sub-known' });
+    const { res } = await fullFlow(withClaims(goodClaims({ email: 'known.google@example.com', sub: 'google-sub-known' })), { intent: 'sign_in' });
+    expect(res.headers.location).toBe('http://localhost:5173/auth/callback?next=%2F');
+  });
+
+  it('"Create an account" with an existing address signs in to it and says the account already existed', async () => {
+    await makeUser({ email: 'already.here@example.com' });
+    const { a, res } = await fullFlow(withClaims(goodClaims({ email: 'already.here@example.com', sub: 'google-sub-here' })), { intent: 'sign_up' });
+    expect(res.headers.location).toBe('http://localhost:5173/auth/callback?next=%2F&notice=account_exists');
+    expect((await a.get('/api/me')).body.user.email).toBe('already.here@example.com');
+    expect(await prisma.user.count({ where: { email: 'already.here@example.com' } })).toBe(1);
+  });
+
+  it('"Create an account" with a new Google account creates it with no notice', async () => {
+    const { res } = await fullFlow(withClaims(goodClaims({ email: 'brand.new@example.com', sub: 'google-sub-brand' })), { intent: 'sign_up' });
+    expect(res.headers.location).toBe('http://localhost:5173/auth/callback?next=%2F');
+    expect(await prisma.user.findUnique({ where: { email: 'brand.new@example.com' } })).not.toBeNull();
+  });
+
   it('start is 404 when Google is not configured', async () => {
     const r = await request(app).get('/api/auth/google/start').redirects(0);
     expect([r.status, r.body.error]).toEqual([404, 'google_not_configured']);
@@ -1148,7 +1203,7 @@ describe('setup (onboarding)', () => {
     const { agent } = await signUp(nextEmail());
     const me = (await agent.get('/api/me')).body.user;
     expect(Object.keys(me).sort()).toEqual([
-      'countryCode', 'email', 'emailVerified', 'examDate', 'goalCategoryId', 'id', 'language', 'level', 'name', 'onboarding', 'roles', 'subject',
+      'countryCode', 'email', 'emailVerified', 'examDate', 'goalCategoryId', 'id', 'language', 'level', 'name', 'onboarding', 'preferredExamId', 'roles', 'subject',
     ]);
   });
 });

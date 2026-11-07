@@ -1,8 +1,19 @@
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import type { OtpPurpose, PrismaClient } from '@prisma/client';
 import type { Config } from '../config';
-import { badRequest, tooMany } from '../http/errors';
-import type { EmailProvider } from './email';
+import { badRequest, HttpError, tooMany } from '../http/errors';
+import { codeEmailHtml, type EmailMessage, type EmailProvider } from './email';
+
+function verificationEmail(to: string, code: string, minutes: number): EmailMessage {
+  return {
+    to,
+    subject: `Your JobPrep verification code: ${code}`,
+    text: `Your JobPrep verification code is ${code}.
+
+It works for ${minutes} minutes. Enter it to verify your email address. Never share it with anyone. If you did not create a JobPrep account, ignore this email.`,
+    html: codeEmailHtml(code, minutes),
+  };
+}
 
 export interface OtpDeps {
   prisma: PrismaClient;
@@ -56,7 +67,7 @@ export async function requestOtp(
   await assertOtpAllowed(deps, input);
 
   const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
-  await prisma.otpCode.create({
+  const row = await prisma.otpCode.create({
     data: {
       email: input.email,
       purpose: input.purpose,
@@ -67,13 +78,19 @@ export async function requestOtp(
     },
   });
   if (input.deliver !== false) {
-    await email.send({
-      to: input.email,
-      subject: `Your JobPrep verification code: ${code}`,
-      text: `Your JobPrep verification code is ${code}.
-
-It works for ${Math.round(config.OTP_TTL_SECONDS / 60)} minutes. Enter it to verify your email address. Never share it with anyone. If you did not create a JobPrep account, ignore this email.`,
-    });
+    const message = verificationEmail(input.email, code, Math.round(config.OTP_TTL_SECONDS / 60));
+    try {
+      await email.send(message);
+    } catch {
+      try {
+        await email.send(message);
+      } catch (e) {
+        // The code never left: drop it so the cooldown does not block an immediate retry.
+        await prisma.otpCode.delete({ where: { id: row.id } }).catch(() => undefined);
+        console.error('verification email failed:', e instanceof Error ? e.message : 'error');
+        throw new HttpError(503, 'email_not_sent');
+      }
+    }
   }
   return { cooldownSeconds: config.OTP_RESEND_COOLDOWN_SECONDS, expiresInSeconds: config.OTP_TTL_SECONDS };
 }

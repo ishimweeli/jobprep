@@ -35,7 +35,7 @@ export function SignInPage() {
   const adminStale = params.get('reason') === ADMIN_STALE_REASON;
   const googleFailed = params.get('error') === 'google_failed';
   const { user, isLoading } = useSession();
-  const google = useGoogleButton(next);
+  const google = useGoogleButton(next, 'sign_in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
