@@ -359,7 +359,6 @@ export async function seedDatabase(prisma: PrismaClient) {
       { key: 'payments.requestTtlMinutes', value: 3 },
       { key: 'free.showExplanationsOnResults', value: true },
       { key: 'results.showPassMarks', value: true }, // only ever renders where an official source is entered
-      { key: 'landing.popularSearches:RW', value: ['Secondary Mathematics', 'Primary teacher', 'Headteacher', 'Accountant', 'Executive Secretary'] },
       // Dev placeholders for the Help page. Clearly flagged; a production seed never writes them (the owner enters real ones).
       ...(process.env.NODE_ENV === 'production' ? [] : [
         { key: 'support.contact:RW', value: { phone: '+250 700 000 000', whatsapp: '+250 700 000 000', email: 'support@example.invalid', hours: 'Mon to Fri, 08:00 to 17:00', placeholder: true } },

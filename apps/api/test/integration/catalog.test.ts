@@ -81,23 +81,11 @@ describe('landing', () => {
     expect(res.body.recentlyAdded).toHaveLength(4);
   });
 
-  it('uses the curated popular searches, and the price summary comes from the database', async () => {
+  it('suggests active jobs from the live catalog, and the price summary comes from the database', async () => {
     const res = await request(app).get('/api/countries/RW/landing');
-    expect(res.body.popularSearches).toEqual(['Secondary Mathematics', 'Primary teacher', 'Headteacher', 'Accountant', 'Executive Secretary']);
+    expect(res.body.popularSearches.length).toBeGreaterThan(0);
+    expect(res.body.popularSearches.length).toBeLessThanOrEqual(5);
     expect(res.body.plan).toMatchObject({ priceLabel: 'RWF 2,000', durationDays: 30, autoRenew: false, checkoutAvailable: true });
-  });
-
-  it('falls back to computed popular searches when none are curated', async () => {
-    await prisma.setting.delete({ where: { key: 'landing.popularSearches:RW' } });
-    try {
-      const res = await request(app).get('/api/countries/RW/landing');
-      expect(res.body.popularSearches).toHaveLength(5);
-      expect(res.body.popularSearches).toContain('Secondary Mathematics Teacher');
-    } finally {
-      await prisma.setting.create({
-        data: { key: 'landing.popularSearches:RW', value: ['Secondary Mathematics', 'Primary teacher', 'Headteacher', 'Accountant', 'Executive Secretary'] },
-      });
-    }
   });
 
   it('does not count or show draft tests', async () => {

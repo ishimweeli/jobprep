@@ -3,7 +3,7 @@ import type { Country, Difficulty, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { canStartMockTest, coveredUntil, daysLeft, type GrantLike } from '../domain/access';
 import { emailInput } from '../domain/email';
-import { deriveJobDeadline } from '../domain/jobDeadline';
+import { activeJobSearches, deriveJobDeadline } from '../domain/jobDeadline';
 import { formatMoney, isSellable } from '../domain/pricing';
 import { normalizeQuery } from '../services/demand';
 import { HttpError, notFound } from '../http/errors';
@@ -169,7 +169,7 @@ export function catalogRouter(ctx: Ctx) {
     const country = await liveCountry(req);
     const base = { countryCode: country.code, ...PUBLISHED };
 
-    const [categories, featuredCategory, recent, plan, popularSetting, catalogRows, psychometric] = await Promise.all([
+    const [categories, featuredCategory, recent, plan, catalogRows, psychometric] = await Promise.all([
       prisma.category.findMany({
         where: { countryCode: country.code },
         orderBy: { sortOrder: 'asc' },
@@ -183,8 +183,7 @@ export function catalogRouter(ctx: Ctx) {
         include: mockTestInclude,
       }),
       planFor(country.code),
-      prisma.setting.findUnique({ where: { key: `landing.popularSearches:${country.code}` } }),
-      prisma.mockTest.findMany({ where: base, select: { examId: true, exam: { select: { slug: true } } } }),
+      prisma.mockTest.findMany({ where: base, select: { examId: true, jobDeadlineAt: true, exam: { select: { slug: true, name: true } } } }),
       psychometricPrep(country.code),
     ]);
 
@@ -197,25 +196,15 @@ export function catalogRouter(ctx: Ctx) {
         })
       : [];
 
-    let popular: string[] = Array.isArray(popularSetting?.value) ? (popularSetting.value as string[]) : [];
-    if (popular.length === 0) {
-      // No curated list: fall back to the professions with the most published tests.
-      const professions = await prisma.profession.findMany({
-        where: { category: { countryCode: country.code }, exams: { some: { mockTests: { some: PUBLISHED } } } },
-        include: { exams: { include: { _count: { select: { mockTests: { where: PUBLISHED } } } } } },
-      });
-      popular = professions
-        .map((p) => ({ name: p.name, n: p.exams.reduce((s, e) => s + e._count.mockTests, 0) }))
-        .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name))
-        .slice(0, 5)
-        .map((p) => p.name);
-    }
+    // Worked out from the live catalog on every request, so a suggestion can never point at a job that is gone or closed.
+    const realJobs = catalogRows.filter((r) => r.exam.slug !== psychometricExamSlug(country.code));
+    const popular = activeJobSearches(realJobs.map((r) => ({ examId: r.examId, examName: r.exam.name, jobDeadlineAt: r.jobDeadlineAt })), ctx.now());
 
     res.json({
       country: { code: country.code, name: country.name, disclaimer: country.disclaimer, languages: country.languages },
       popularSearches: popular,
       // The psychometric section is practice, not a role someone is hired into, so it is not counted as a job.
-      stats: { mockTests: catalogRows.length, jobs: new Set(catalogRows.filter((r) => r.exam.slug !== psychometricExamSlug(country.code)).map((r) => r.examId)).size },
+      stats: { mockTests: catalogRows.length, jobs: new Set(realJobs.map((r) => r.examId)).size },
       psychometricPrep: psychometric,
       categories: categories.map((c) => ({
         id: c.id, slug: c.slug, name: c.name, description: c.description, icon: c.icon,

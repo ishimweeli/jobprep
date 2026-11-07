@@ -10,3 +10,29 @@ export function deriveJobDeadline(deadlines: (Date | null)[], now: Date): Date |
   if (upcoming.length > 0) return upcoming[0]!;
   return known.reduce((latest, d) => (d.getTime() > latest.getTime() ? d : latest), known[0]!);
 }
+
+export interface SearchableMock {
+  examId: string;
+  examName: string;
+  jobDeadlineAt: Date | null;
+}
+
+/**
+ * The suggested searches on the home page: jobs that are still open, the ones closing soonest first, then jobs with no
+ * deadline (the most mock exams first). A job whose deadline has passed is left out, so a suggestion always leads to a
+ * job someone can still apply for.
+ */
+export function activeJobSearches(mocks: SearchableMock[], now: Date, limit = 5): string[] {
+  const byJob = new Map<string, SearchableMock[]>();
+  for (const m of mocks) byJob.set(m.examId, [...(byJob.get(m.examId) ?? []), m]);
+  const jobs = [...byJob.values()].map((rows) => ({
+    name: rows[0]!.examName,
+    deadline: deriveJobDeadline(rows.map((r) => r.jobDeadlineAt), now),
+    mocks: rows.length,
+  }));
+  return jobs
+    .filter((j) => j.deadline === null || j.deadline.getTime() >= now.getTime())
+    .sort((a, b) => (a.deadline?.getTime() ?? Infinity) - (b.deadline?.getTime() ?? Infinity) || b.mocks - a.mocks || a.name.localeCompare(b.name))
+    .slice(0, limit)
+    .map((j) => j.name);
+}

@@ -123,6 +123,12 @@ function splitHeadline(h: string): [string, string | null] {
   return m ? [m[1]!, m[2]!] : [h, null];
 }
 
+/** The example in the search box is a real open job: the shortest name, so it fits on a phone. */
+export function searchExample(popular: string[]): string {
+  const shortest = [...popular].sort((a, b) => a.length - b.length)[0];
+  return shortest ? `e.g. ${shortest}` : 'Search for your job';
+}
+
 function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[]; loading: boolean }) {
   const t = useT();
   const [q, setQ] = useState('');
@@ -157,7 +163,7 @@ function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="e.g. Secondary Mathematics teacher, Accountant"
+            placeholder={searchExample(popular)}
             autoComplete="off"
             className="h-12 min-w-0 rounded-control border border-input-border bg-surface px-3.5 text-base text-ink placeholder:text-muted md:h-11 md:flex-[1_1_260px] md:px-4"
           />
@@ -167,13 +173,15 @@ function HeroSearch({ slug, popular, loading }: { slug: string; popular: string[
           </button>
         </div>
         {/* Desktop: chips live inside the search card. */}
-        <div className="hidden flex-wrap items-center gap-2 text-sm md:flex" aria-label="Popular searches" role="group">
-          <span className="text-muted">Popular:</span>
-          {loading ? <span aria-hidden="true" className="h-8 w-48 rounded-pill bg-soft" /> : chips}
-        </div>
+        {(loading || chips.length > 0) && (
+          <div className="hidden flex-wrap items-center gap-2 text-sm md:flex" aria-label="Active jobs" role="group">
+            <span className="text-muted">Active jobs:</span>
+            {loading ? <span aria-hidden="true" className="h-8 w-48 rounded-pill bg-soft" /> : chips}
+          </div>
+        )}
       </form>
       {/* Phone: chips scroll sideways under the card. */}
-      <div role="group" aria-label="Popular searches" className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5 md:hidden">
+      <div role="group" aria-label="Active jobs" className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5 md:hidden">
         {loading ? <span aria-hidden="true" className="h-11 w-full rounded-pill bg-soft" /> : chips}
       </div>
     </>
