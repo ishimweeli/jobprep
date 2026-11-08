@@ -4,7 +4,7 @@ import type { ConsoleEmailProvider } from '../src/services/email';
 import type { Config } from '../src/config';
 import { loadConfig } from '../src/config';
 import { hashPassword } from '../src/services/password';
-import { DEV_PASSWORD, seedDatabase, truncateAll } from '../prisma/seed-lib';
+import { BASE_TESTS, DEV_PASSWORD, seedDatabase, truncateAll } from '../prisma/seed-lib';
 
 export function testPrisma() {
   const url = process.env.TEST_DATABASE_URL;
@@ -24,10 +24,13 @@ export function testConfig(over: Record<string, string> = {}): Config {
   });
 }
 
-/** Fresh seeded database for a test file. */
-export async function resetAndSeed(prisma: PrismaClient) {
+/**
+ * Fresh seeded database for a test file: the small fixed catalogue (BASE_TESTS), so tests can state exact counts.
+ * Pass `{ full: true }` for the whole production catalogue.
+ */
+export async function resetAndSeed(prisma: PrismaClient, opts: { full?: boolean } = {}) {
   await truncateAll(prisma);
-  await seedDatabase(prisma);
+  await seedDatabase(prisma, opts.full ? undefined : BASE_TESTS);
 }
 
 let devHash: Promise<string> | undefined;

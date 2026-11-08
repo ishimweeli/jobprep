@@ -6,7 +6,8 @@ import { resetAndSeed, testPrisma } from '../helpers';
 
 const prisma = testPrisma();
 
-beforeAll(() => resetAndSeed(prisma));
+// The whole catalogue: this test is about content that is in seed-data but removed or re-worded on a live database.
+beforeAll(() => resetAndSeed(prisma, { full: true }));
 afterAll(() => prisma.$disconnect());
 
 describe('revise-content (taking questions out of a live mock)', () => {

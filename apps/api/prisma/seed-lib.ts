@@ -118,11 +118,20 @@ const KE_CATEGORIES: CategoryDef[] = [
   { slug: 'other-professional', name: 'Other professional exams', icon: 'layout-grid', description: 'ICT, health, engineering and more' },
 ];
 
-const ALL_TESTS: TestDef[] = [
+/**
+ * The original small catalogue (12 Rwanda + 2 Kenya mocks). The integration tests seed only this, so their expectations
+ * ("12 published tests", "2 accountant mocks", …) describe a fixed fixture and don't change whenever content is added.
+ */
+const BASE_TESTS: TestDef[] = [
   secondaryMathsS1S3, secondaryMathsS4S6, primaryTeacherGeneral, teachingProfessionCbc,
-  headteacherMock1, executiveSecretaryFree, executiveSecretaryMock2, executiveSecretaryMock3, sedoLocalEconomicDevelopmentMock1,
+  headteacherMock1, executiveSecretaryFree, executiveSecretaryMock2,
   accountantMock1, accountantFreeSample, procurementFree, procurementMock1, ictOfficerFree,
   keTeachingSample, keAccountantMock,
+];
+
+const ALL_TESTS: TestDef[] = [
+  ...BASE_TESTS,
+  executiveSecretaryMock3, sedoLocalEconomicDevelopmentMock1,
 
   // ───────────────────────── MIFOTRA-linked mocks (job-specific, jobDeadlineAt set) — added in bulk below
   executiveSecretaryFullMock1, executiveSecretaryFullMock2, executiveSecretaryFullMock3, executiveSecretaryFullMock4, executiveSecretaryFullMock5,
@@ -164,7 +173,7 @@ const ALL_TESTS: TestDef[] = [
   ...AUTO_MOCKS,
 ];
 
-export { ALL_TESTS };
+export { ALL_TESTS, BASE_TESTS };
 
 export const slugify = (s: string) =>
   s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -191,7 +200,7 @@ export async function truncateAll(prisma: PrismaClient) {
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`);
 }
 
-export async function seedDatabase(prisma: PrismaClient) {
+export async function seedDatabase(prisma: PrismaClient, tests: TestDef[] = ALL_TESTS) {
   if ((await prisma.country.count()) > 0) {
     throw new Error('Database already seeded. Run `npm run db:reset` for a fresh start.');
   }
@@ -263,7 +272,7 @@ export async function seedDatabase(prisma: PrismaClient) {
   const examId = new Map<string, string>();
   const topicId = new Map<string, string>();
 
-  for (const t of ALL_TESTS) {
+  for (const t of tests) {
     const catKey = `${t.country}:${t.category}`;
     const catId = categoryId.get(catKey);
     if (!catId) throw new Error(`Unknown category ${catKey} for ${t.slug}`);
