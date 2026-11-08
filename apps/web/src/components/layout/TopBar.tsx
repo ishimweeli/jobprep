@@ -15,7 +15,7 @@ import type { RouteHandle } from './SiteLayout';
 const iconButton =
   'flex h-10 w-10 flex-none cursor-pointer items-center justify-center rounded-[10px] border border-border bg-surface text-ink hover:bg-soft dark:border-night-border dark:bg-night-surface dark:text-night-ink dark:hover:bg-night-soft';
 
-function DarkModeToggle() {
+export function DarkModeToggle() {
   const { theme, toggle } = useSetTheme();
   return (
     <button type="button" aria-label="Dark mode" aria-pressed={theme === 'dark'} onClick={toggle} className={iconButton}>
@@ -24,7 +24,8 @@ function DarkModeToggle() {
   );
 }
 
-function LanguageButton() {
+/** `menuAbove` opens the list upwards (the floating control sits at the bottom); `compact` shows just "EN" / "RW". */
+export function LanguageButton({ menuAbove, compact }: { menuAbove?: boolean; compact?: boolean } = {}) {
   const offered = useOfferedLanguages().filter(isLocale);
   const locale = useLocale();
   const { setLocale, pending } = useSetLocale();
@@ -57,12 +58,13 @@ function LanguageButton() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
+        aria-label={compact ? `Language: ${languageOwnName(locale)}` : undefined}
         onClick={() => setOpen((v) => !v)}
         disabled={pending}
         className="flex h-10 flex-none cursor-pointer items-center gap-1.5 rounded-[10px] border border-border bg-surface px-3 text-[13px] font-medium text-ink hover:bg-soft dark:border-night-border dark:bg-night-surface dark:text-night-ink dark:hover:bg-night-soft"
       >
         <StrokeIcon name="country" size={16} />
-        {languageOwnName(locale)}
+        {compact ? locale.toUpperCase() : languageOwnName(locale)}
         <ChevronDown size={14} strokeWidth={2.2} aria-hidden="true" />
       </button>
       {open && (
@@ -70,7 +72,10 @@ function LanguageButton() {
           id={menuId}
           role="menu"
           aria-label="Language"
-          className="absolute right-0 top-[calc(100%+6px)] z-40 flex min-w-[160px] flex-col gap-0.5 rounded-[10px] border border-border bg-surface p-1.5 shadow-[0_16px_40px_rgba(20,30,50,0.16)] dark:border-night-border dark:bg-night-surface"
+          className={cx(
+            'absolute right-0 z-40 flex min-w-[160px] flex-col gap-0.5 rounded-[10px] border border-border bg-surface p-1.5 shadow-[0_16px_40px_rgba(20,30,50,0.16)] dark:border-night-border dark:bg-night-surface',
+            menuAbove ? 'bottom-[calc(100%+6px)]' : 'top-[calc(100%+6px)]',
+          )}
         >
           {offered.map((l) => (
             <button

@@ -5,7 +5,6 @@ import { AccountMenu } from '../../features/account/AccountMenu';
 import { GuestMenuSheet } from './GuestMenuSheet';
 import { countryPath, useActiveCountrySlug } from '../../features/country/hooks';
 import { useSession } from '../../features/auth/session';
-import { LanguageSwitcher } from '../LanguageSwitcher';
 import { Logo } from '../Logo';
 import { cx } from '../../lib/cx';
 import { useT } from '../../lib/i18n';
@@ -45,7 +44,6 @@ export function DesktopHeader() {
           )}
         </nav>
         <div className="flex items-center gap-2.5">
-          <LanguageSwitcher variant="header" />
           <CountryChip />
           {isLoading ? (
             <span aria-hidden="true" className="inline-block h-11 w-20" />

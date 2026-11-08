@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Outlet, useLocation, useNavigationType, type RouteObject } from 'react-router-dom';
 import { useRouteSeo } from './lib/useDocumentTitle';
 import { SignedOutNotice } from './components/layout/SignedOutNotice';
+import { AppearanceControls } from './components/layout/AppearanceControls';
 import { CountryLayout } from './components/layout/SiteLayout';
 import { Loader } from './components/states';
 import { AccountLayout } from './features/account/AccountLayout';
@@ -32,6 +33,7 @@ function RootLayout() {
       <MaintenanceWatcher />
       <SystemGate />
       {!system && <Outlet />}
+      <AppearanceControls />
       <SignedOutNotice />
     </>
   );
