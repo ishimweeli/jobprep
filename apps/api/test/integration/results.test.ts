@@ -270,7 +270,7 @@ describe('answer review', () => {
 
   it('case-based reviews carry the case passage and tables', async () => {
     const { agent, userId } = await signedInAgent(app, mail, nextEmail());
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: clock, endsAt: new Date(clock.getTime() + 864e5 * 9), source: 'MANUAL', reason: 't' } });
     const start = await agent.post(startPath('accountant-public-institution-mock-1')).send({});
     const cl = agentClient(agent);
@@ -365,7 +365,7 @@ describe('practice weak areas', () => {
 
   it('with Full Access the pool includes paid tests as well', async () => {
     const { agent, userId } = await signedInAgent(app, mail, nextEmail());
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: clock, endsAt: new Date(clock.getTime() + 864e5 * 9), source: 'MANUAL', reason: 't' } });
     const ped = await prisma.topic.findFirstOrThrow({ where: { slug: 'pedagogy-and-cbc', category: { countryCode: 'RW' } } });
     const res = await agent.post('/api/countries/RW/practice').send({ topicId: ped.id });
@@ -434,7 +434,7 @@ describe('dashboard', () => {
     const live = (await agent.post(startPath(primary)).send({})).body.attemptId;
     await play(c, live, primary, range(0, 1, 'right'));
 
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: clock, endsAt: new Date(clock.getTime() + 864e5 * 22.5), source: 'MANUAL', reason: 't' } });
 
     const b = (await c.get('/api/me/dashboard')).body;

@@ -73,7 +73,7 @@ describe('jobs: grouped catalog', () => {
 
   it('a signed-in user’s grant unlocks every mock test under the job, not just one', async () => {
     const { agent, userId } = await signedInAgent(app, mail, 'jobs.one@example.com');
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({
       data: { userId, countryCode: 'RW', planId: plan.id, startsAt: new Date(Date.now() - 86_400_000), endsAt: new Date(Date.now() + 10 * 86_400_000), source: 'MANUAL', reason: 'test' },
     });

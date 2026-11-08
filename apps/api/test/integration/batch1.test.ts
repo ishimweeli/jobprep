@@ -25,7 +25,7 @@ beforeEach(() => { clock = new Date('2026-11-02T10:00:00Z'); mail.clear(); });
 afterAll(() => prisma.$disconnect());
 
 async function grant(userId: string, startOffsetDays: number, endOffsetDays: number, status: 'ACTIVE' | 'SUSPENDED' = 'ACTIVE') {
-  const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+  const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
   return prisma.accessGrant.create({
     data: {
       userId, countryCode: 'RW', planId: plan.id, source: 'MANUAL', reason: 'test', status,

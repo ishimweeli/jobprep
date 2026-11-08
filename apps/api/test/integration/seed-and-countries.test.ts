@@ -181,7 +181,7 @@ async function resetAndSeedAgainWithoutTruncate() {
 
 describe('database constraints that protect money and access', () => {
   it('a payment can have at most one access grant (duplicate callbacks cannot double-grant)', async () => {
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     const user = await prisma.user.create({ data: { countryCode: 'RW', email: 'constraint.user@example.com', name: 'T' } });
     const payment = await prisma.payment.create({
       data: {

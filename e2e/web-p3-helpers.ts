@@ -29,7 +29,7 @@ export async function me(page: Page): Promise<MeInfo> {
 
 /** A grant of Full Access with the given start / end, in days from now (negative = past). Removed by `cleanUser`. */
 export async function addGrant(userId: string, startDays: number, endDays: number) {
-  const plan = await prisma().planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+  const plan = await prisma().planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
   return prisma().accessGrant.create({
     data: {
       userId, countryCode: 'RW', planId: plan.id, source: 'MANUAL', reason: 'e2e', status: 'ACTIVE',

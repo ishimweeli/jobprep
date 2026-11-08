@@ -313,7 +313,7 @@ describe('exam details', () => {
     const { agent, userId } = await signedInAgent(app, mail, 'cat.three@example.com');
     expect((await get('accountant-public-institution-mock-1', agent)).body.access.state).toBe('LOCKED');
 
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({
       data: { userId, countryCode: 'RW', planId: plan.id, startsAt: new Date(Date.now() - 86_400_000), endsAt: new Date(Date.now() + 22.5 * 86_400_000), source: 'MANUAL', reason: 'test' },
     });
@@ -324,7 +324,7 @@ describe('exam details', () => {
 
   it('an expired or suspended grant does not unlock', async () => {
     const { agent, userId } = await signedInAgent(app, mail, 'cat.four@example.com');
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({
       data: { userId, countryCode: 'RW', planId: plan.id, startsAt: new Date(Date.now() - 40 * 86_400_000), endsAt: new Date(Date.now() - 86_400_000), source: 'MANUAL', reason: 'old' },
     });
@@ -383,12 +383,12 @@ describe('exam details', () => {
   });
 
   it('shows no price when a country has not set one, and no checkout', async () => {
-    await prisma.planConfig.updateMany({ where: { countryCode: 'RW' }, data: { priceMinor: null } });
+    await prisma.planConfig.updateMany({ where: { countryCode: 'RW', code: 'FULL_ACCESS' }, data: { priceMinor: null } });
     try {
       const b = (await get('accountant-public-institution-mock-1')).body;
       expect(b.pricing).toMatchObject({ priceLabel: null, checkoutAvailable: false });
     } finally {
-      await prisma.planConfig.updateMany({ where: { countryCode: 'RW' }, data: { priceMinor: 2000 } });
+      await prisma.planConfig.updateMany({ where: { countryCode: 'RW', code: 'FULL_ACCESS' }, data: { priceMinor: 2000 } });
     }
   });
 

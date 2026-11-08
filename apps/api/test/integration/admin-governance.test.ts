@@ -67,14 +67,14 @@ describe('price (Full Access plan)', () => {
     for (const body of [{ priceMinor: 3000 }, { priceMinor: 3000, reason: 'no' }, { priceMinor: 0, reason: 'free for everyone' }, { priceMinor: -5, reason: 'negative price' }, { priceMinor: 12.5, reason: 'fractional amount' }]) {
       expect((await system.patch('/api/admin/countries/RW/plan').send(body)).status).toBe(400);
     }
-    expect((await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } })).priceMinor).toBe(2000);
+    expect((await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } })).priceMinor).toBe(2000);
   });
 
   it('changes the price for NEW payments only: open payments keep their price, active access is untouched; it is audited with before and after', async () => {
     const c = await signedInAgent(app, mail, 'gov.price@example.com');
     const open = await c.agent.post('/api/payments').send({ provider: 'MTN_MOMO', msisdn: '+250788620001' });
     expect(open.body.priceLabel).toBe('RWF 2,000');
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({ data: { userId: c.userId, countryCode: 'RW', planId: plan.id, source: 'MANUAL', startsAt: new Date(clock.getTime() - 5 * 86_400_000), endsAt: new Date(clock.getTime() + 20 * 86_400_000) } });
 
     const res = await system.patch('/api/admin/countries/RW/plan').send({ priceMinor: 3000, reason: 'launch price review' });

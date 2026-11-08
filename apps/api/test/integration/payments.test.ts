@@ -108,24 +108,24 @@ describe('creating a payment', () => {
 
   it('reads the price on the server and snapshots it: a later price change never alters an open payment', async () => {
     const u = await pending();
-    await prisma.planConfig.updateMany({ where: { countryCode: 'RW' }, data: { priceMinor: 5000 } });
+    await prisma.planConfig.updateMany({ where: { countryCode: 'RW', code: 'FULL_ACCESS' }, data: { priceMinor: 5000 } });
     try {
       await simulate(u.id, 'success');
       const view = (await u.agent.get(`/api/payments/${u.id}`)).body;
       expect(view).toMatchObject({ status: 'SUCCESSFUL', amountMinor: 2000, priceLabel: 'RWF 2,000' });
       expect(mail.lastTo(u.email)!.text).toContain('RWF 2,000');
     } finally {
-      await prisma.planConfig.updateMany({ where: { countryCode: 'RW' }, data: { priceMinor: 2000 } });
+      await prisma.planConfig.updateMany({ where: { countryCode: 'RW', code: 'FULL_ACCESS' }, data: { priceMinor: 2000 } });
     }
   });
 
   it('refuses when the country has no price set, and when the method is switched off', async () => {
     const { agent } = await newUser();
-    await prisma.planConfig.updateMany({ where: { countryCode: 'RW' }, data: { priceMinor: null } });
+    await prisma.planConfig.updateMany({ where: { countryCode: 'RW', code: 'FULL_ACCESS' }, data: { priceMinor: null } });
     try {
       expect((await pay(agent)).body.error).toBe('checkout_unavailable');
     } finally {
-      await prisma.planConfig.updateMany({ where: { countryCode: 'RW' }, data: { priceMinor: 2000 } });
+      await prisma.planConfig.updateMany({ where: { countryCode: 'RW', code: 'FULL_ACCESS' }, data: { priceMinor: 2000 } });
     }
     await prisma.paymentMethodConfig.updateMany({ where: { countryCode: 'RW', provider: 'AIRTEL_MONEY' }, data: { mode: 'DISABLED' } });
     try {

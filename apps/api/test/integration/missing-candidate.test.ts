@@ -362,7 +362,7 @@ describe('payment history and receipts', () => {
   it('lists only my payments, newest first and paged, with Check payment on pending ones; a receipt only for successful ones', async () => {
     const u = await newUser();
     const stranger = await newUser();
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     const mk = (userId: string, key: string, status: 'PENDING' | 'SUCCESSFUL' | 'DECLINED' | 'EXPIRED', minutesAgo: number, extra: Record<string, unknown> = {}) =>
       prisma.payment.create({
         data: {

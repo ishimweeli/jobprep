@@ -38,7 +38,7 @@ async function candidate(name = 'Test Candidate') {
   return { ...c, email, msisdn, name };
 }
 async function grant(userId: string, startDays: number, endDays: number) {
-  const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+  const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
   return prisma.accessGrant.create({
     data: { userId, countryCode: 'RW', planId: plan.id, source: 'MANUAL', reason: 'seed', startsAt: new Date(clock.getTime() + startDays * DAY), endsAt: new Date(clock.getTime() + endDays * DAY) },
   });

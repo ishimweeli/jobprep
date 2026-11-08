@@ -233,6 +233,15 @@ export async function seedDatabase(prisma: PrismaClient, tests: TestDef[] = ALL_
         durationDays: 30, autoRenew: false, active: true,
       },
     });
+    // Full Access + Interview prep (production gets this row from the interview_prep migration).
+    if (c.code === 'RW') {
+      await prisma.planConfig.create({
+        data: {
+          countryCode: c.code, code: 'FULL_ACCESS_INTERVIEW', name: 'Full Access + Interview prep',
+          priceMinor: 3000, currencyCode: c.currencyCode, durationDays: 30, autoRenew: false, active: true, interviewMinutes: 300,
+        },
+      });
+    }
   }
   for (const a of devAdmins) {
     await prisma.user.create({

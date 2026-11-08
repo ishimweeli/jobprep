@@ -9,6 +9,7 @@ import { attachUser, type Ctx } from './http/context';
 import { createLimiter } from './http/rate-limit';
 import { HttpError } from './http/errors';
 import { adminRouter } from './routes/admin';
+import { interviewsRouter } from './routes/interviews';
 import { attemptsRouter } from './routes/attempts';
 import { authRouter } from './routes/auth';
 import { catalogRouter } from './routes/catalog';
@@ -83,6 +84,11 @@ export function createApp(deps: AppDeps) {
   app.post('/api/payments/webhooks/:slug', limit({ name: 'webhooks', windowSeconds: 60, max: 600 }));
   app.post(['/api/countries/:code/exam-requests', '/api/countries/:code/waiting-list'], limit({ name: 'requests', windowSeconds: 3600, max: 10 }));
   app.post(['/api/countries/:code/mock-tests/:slug/attempts', '/api/countries/:code/practice', '/api/attempts/:id/practice'], limit({ name: 'attempt-start', windowSeconds: 60, max: 30 }));
+  // Interview prep calls paid AI services: limit per account (falls back to the IP when signed out).
+  const perUser = (req: express.Request) => req.user?.id ?? req.ip ?? 'unknown';
+  app.post(['/api/interviews/jobs', '/api/interviews/jobs/upload', '/api/interviews/jobs/from-exam'], limit({ name: 'interview-jd', windowSeconds: 3600, max: 30, key: perUser }));
+  app.post('/api/interviews/sessions/:id/turns', limit({ name: 'interview-turn', windowSeconds: 60, max: 20, key: perUser }));
+  app.post(['/api/interviews/sessions', '/api/interviews/sessions/:id/practice'], limit({ name: 'interview-session', windowSeconds: 3600, max: 40, key: perUser }));
 
   app.get('/api/health', async (_req, res) => {
     try {
@@ -100,6 +106,7 @@ export function createApp(deps: AppDeps) {
   app.use('/api', paymentsRouter(ctx)); // before /api/me so /api/me/checkout is handled here
   app.use('/api/me', meRouter(ctx));
   app.use('/api/admin', adminRouter(ctx));
+  app.use('/api/interviews', interviewsRouter(ctx));
   app.use('/api', attemptsRouter(ctx));
   if (config.ENABLE_TEST_ENDPOINTS) app.use('/api/test', testSupportRouter(ctx));
 
@@ -122,6 +129,7 @@ export function createApp(deps: AppDeps) {
       });
     }
     if (err instanceof SyntaxError && 'body' in err) return res.status(400).json({ error: 'invalid_json', requestId: req.id });
+    if ((err as { type?: string }).type === 'entity.too.large') return res.status(413).json({ error: 'payload_too_large', requestId: req.id });
     console.error(`[${req.id}]`, err);
     // The id is what the error page shows as "Reference"; it is also in the server log line above.
     res.status(500).json({ error: 'internal_error', requestId: req.id });

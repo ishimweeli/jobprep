@@ -107,6 +107,58 @@ enum AdminRoleName {
   SUPPORT
 }
 
+/// PURCHASE: the plan's own price and a new 30-day window. UPGRADE: Full Access -> Full Access + Interview prep
+/// for the difference in price, covering the buyer's current window only.
+enum PaymentKind {
+  PURCHASE
+  UPGRADE
+}
+
+/// REAL: a professional interviewer, no hints. PRACTICE: the interviewer coaches and gives hints.
+enum InterviewMode {
+  REAL
+  PRACTICE
+}
+
+enum InterviewKind {
+  MIXED
+  TECHNICAL
+  BEHAVIORAL
+}
+
+enum InterviewLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+/// READY (configured, not started) -> ACTIVE <-> PAUSED -> ENDED -> EVALUATED (or FAILED when evaluation gives up).
+enum InterviewStatus {
+  READY
+  ACTIVE
+  PAUSED
+  ENDED
+  EVALUATED
+  FAILED
+}
+
+enum InterviewJobSource {
+  PASTE
+  UPLOAD
+  JOBPREP
+}
+
+enum InterviewRole {
+  INTERVIEWER
+  CANDIDATE
+}
+
+enum MinuteSource {
+  TRIAL
+  PURCHASE
+  ADMIN
+}
+
 // ───────────────────────── Countries & catalogue ─────────────────────────
 
 model Country {
@@ -196,6 +248,7 @@ model Exam {
 
   mockTests MockTest[]
   preferredByUsers User[]
+  interviewJobs InterviewJob[]
 }
 
 model MockTest {
@@ -385,6 +438,9 @@ model User {
   reportsResolved QuestionReport[] @relation("ResolvedBy")
   auditLogs    AuditLog[]
   passwordResets PasswordReset[]
+  interviewJobs     InterviewJob[]
+  interviewSessions InterviewSession[]
+  minuteBuckets     MinuteBucket[]
 
   @@index([countryCode])
   @@index([preferredExamId])
@@ -498,6 +554,8 @@ model PlanConfig {
   durationDays Int      @default(30)
   autoRenew    Boolean  @default(false)
   active       Boolean  @default(true)
+  /// AI interview minutes the plan includes (0 = none). They expire with the grant the payment creates.
+  interviewMinutes Int  @default(0)
   updatedAt    DateTime @updatedAt
 
   accessGrants AccessGrant[]
@@ -532,6 +590,7 @@ model Payment {
   msisdn       String // E.164 payer number — never a PIN
   amountMinor  Int // snapshot of the price at purchase time
   currencyCode String              @db.VarChar(3)
+  kind         PaymentKind         @default(PURCHASE)
   status       PaymentStatus       @default(PENDING)
   /// Provider-side transaction / request id.
   providerReference String?
@@ -588,6 +647,8 @@ model AccessGrant {
   reason      String?
   externalTransactionId String?
   createdAt   DateTime          @default(now())
+
+  minuteBucket MinuteBucket?
 
   @@index([userId, countryCode, endsAt])
   // One grant per successful payment — makes duplicate callbacks idempotent at the DB level.
@@ -693,6 +754,144 @@ model AuditLog {
 
   @@index([createdAt])
   @@index([entityType, entityId])
+}
+
+// ───────────────────────── AI interview preparation ─────────────────────────
+// Free text (job descriptions, transcripts, summaries, reports) is stored encrypted (`*Enc`, see services/crypto.ts).
+// Audio is never stored.
+
+/// A job someone prepares an interview for: pasted, uploaded, or one of JobPrep's own jobs.
+model InterviewJob {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  countryCode String
+  source      InterviewJobSource
+  examId      String?
+  exam        Exam?              @relation(fields: [examId], references: [id], onDelete: SetNull)
+  title       String
+  fileName    String?
+  /// The job description as given (encrypted).
+  textEnc     String
+  /// What the AI read from it, as the person corrected it: position, skills, competencies, topics, difficulty...
+  profile     Json
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  sessions InterviewSession[]
+
+  @@index([userId, createdAt])
+}
+
+model InterviewSession {
+  id                String          @id @default(cuid())
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId             String
+  job               InterviewJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  /// Practising weak areas: the interview this one follows up.
+  previousSessionId String?
+  previousSession   InterviewSession?  @relation("PracticeOf", fields: [previousSessionId], references: [id], onDelete: SetNull)
+  followUps         InterviewSession[] @relation("PracticeOf")
+  mode              InterviewMode   @default(REAL)
+  kind              InterviewKind   @default(MIXED)
+  level             InterviewLevel  @default(INTERMEDIATE)
+  durationMinutes   Int
+  language          String          @default("en")
+  /// Competencies to concentrate on (weakness practice).
+  focus             String[]
+  status            InterviewStatus @default(READY)
+  /// The topics to cover, in order, with the ones already covered.
+  plan              Json
+  /// Rolling summary of the turns that no longer fit the conversation window (encrypted).
+  summaryEnc        String?
+  /// Turns already folded into the summary.
+  summarizedThrough Int             @default(0)
+  startedAt         DateTime?
+  /// Last sign of life from the live interview; charged time is measured between beats.
+  lastBeatAt        DateTime?
+  activeSeconds     Int             @default(0)
+  endedAt           DateTime?
+  endReason         String?
+  reportEnc         String?
+  overallScore      Int?
+  evaluationAttempts Int            @default(0)
+  llmInputTokens    Int             @default(0)
+  llmOutputTokens   Int             @default(0)
+  sttSeconds        Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  turns  InterviewTurn[]
+  scores InterviewScore[]
+  debits MinuteDebit[]
+
+  @@index([userId, createdAt])
+  @@index([status, lastBeatAt])
+}
+
+model InterviewTurn {
+  id           String           @id @default(cuid())
+  sessionId    String
+  session      InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  seq          Int
+  role         InterviewRole
+  textEnc      String
+  topicId      String?
+  audioSeconds Int?
+  createdAt    DateTime         @default(now())
+
+  @@unique([sessionId, seq])
+}
+
+/// One rubric score of an evaluated interview (plain numbers, so progress can be compared across interviews).
+model InterviewScore {
+  id         String           @id @default(cuid())
+  sessionId  String
+  session    InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  competency String
+  label      String
+  score      Int
+
+  @@unique([sessionId, competency])
+}
+
+/// Interview minutes someone holds: the free trial, a purchase (one per access grant) or an admin gift.
+model MinuteBucket {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source           MinuteSource
+  /// Idempotency: `trial:<userId>`, `grant:<accessGrantId>`.
+  key              String        @unique
+  accessGrantId    String?       @unique
+  accessGrant      AccessGrant?  @relation(fields: [accessGrantId], references: [id], onDelete: SetNull)
+  seconds          Int
+  remainingSeconds Int
+  /// null = never expires (the trial).
+  expiresAt        DateTime?
+  createdAt        DateTime      @default(now())
+
+  debits MinuteDebit[]
+
+  @@index([userId, expiresAt])
+}
+
+/// The audit trail of interview time charged: one row per interview per bucket, increased as the interview runs.
+model MinuteDebit {
+  id        String            @id @default(cuid())
+  bucketId  String
+  bucket    MinuteBucket      @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+  userId    String
+  /// Kept when the interview is deleted: the time was used.
+  sessionId String?
+  session   InterviewSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  seconds   Int
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([bucketId, sessionId])
+  @@index([userId])
 }
 
 // ───────────────────────── Config ─────────────────────────

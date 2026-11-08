@@ -58,7 +58,14 @@ Names only; the values come from the providers or are generated.
 
 | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_STARTTLS`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | The same Alibaba DirectMail SMTP account lessonplan sends from. Port 465 uses TLS from the start; other ports use STARTTLS when `MAIL_STARTTLS=true`. `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` are required when `EMAIL_PROVIDER=smtp`. |
 
+| `INTERVIEW_PREP_ENABLED` | `true` turns on AI interview preparation (nav item, pages, the "Full Access + Interview prep" plan). Off by default. When on, the next three are required. |
+| `OPENROUTER_API_KEY` | The interviewer (Claude through OpenRouter). The same key the daily content run reads on Netcup. Optional: `INTERVIEW_MODEL` (default `anthropic/claude-haiku-5.5`). |
+| `GROQ_API_KEY` | Speech to text (Groq Whisper). |
+| `DATA_ENCRYPTION_KEY` | 32 random bytes, base64 (`openssl rand -base64 32`). Encrypts interview transcripts, job descriptions and reports. **Identical on both boxes, and never changed** once interviews exist (old ones could no longer be read). Keep a copy outside the servers. |
+
 `NODE_ENV`, `WEB_ORIGIN`, `PUBLIC_API_URL` and the port are set in the compose files.
+
+Check the interview providers from a machine with the keys in the repo-root `.env`: `npm run interview:smoke -w @jobprep/api -- <a short recording of spoken English>`.
 
 ## Daily content from MIFOTRA
 

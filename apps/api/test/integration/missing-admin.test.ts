@@ -562,7 +562,7 @@ describe('country actions: provider status, support contact, impact', () => {
 
   it('last payment times follow the payments', async () => {
     const u = await signedInAgent(app, mail, 'missing.provider@example.com');
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     const confirmed = new Date('2026-11-01T12:00:00Z');
     await prisma.payment.create({ data: { userId: u.userId, countryCode: 'RW', planId: plan.id, provider: 'AIRTEL_MONEY', msisdn: '+250788610001', amountMinor: 2000, currencyCode: 'RWF', idempotencyKey: 'prov-1', status: 'SUCCESSFUL', expiresAt: confirmed, confirmedAt: confirmed, createdAt: confirmed } });
     const airtel = (await system.get('/api/admin/countries/RW')).body.paymentMethods.find((m: { provider: string }) => m.provider === 'AIRTEL_MONEY');
@@ -730,7 +730,7 @@ describe('demand: waiting list', () => {
 describe('payments: accounting export and the detail flags', () => {
   it('exports CSV for a date range, country and status; masks the payer number; logs the export', async () => {
     const u = await signedInAgent(app, mail, 'missing.export@example.com');
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     const mk = (key: string, status: 'SUCCESSFUL' | 'DECLINED' | 'PENDING', when: string, extra: Record<string, unknown> = {}) =>
       prisma.payment.create({
         data: {
@@ -780,7 +780,7 @@ describe('payments: accounting export and the detail flags', () => {
 
   it('the payment detail says what the buttons may do', async () => {
     const u = await signedInAgent(app, mail, 'missing.detail@example.com');
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     const mk = (key: string, status: 'PENDING' | 'EXPIRED' | 'DECLINED' | 'SUCCESSFUL', minutesAgo: number, expiresInMs: number) =>
       prisma.payment.create({
         data: {
@@ -807,7 +807,7 @@ describe('candidate view and access preview (support)', () => {
     const u = await signedInAgent(app, mail, 'missing.viewas@example.com');
     const s = await u.agent.post('/api/countries/RW/mock-tests/secondary-mathematics-teacher-s1-s3-mock-1/attempts').send({});
     await u.agent.post(`/api/attempts/${s.body.attemptId}/submit`).send({});
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.payment.create({ data: { userId: u.userId, countryCode: 'RW', planId: plan.id, provider: 'MTN_MOMO', msisdn: '+250788610003', amountMinor: 2000, currencyCode: 'RWF', idempotencyKey: 'viewas-1', status: 'DECLINED', expiresAt: clock } });
 
     const before = await prisma.auditLog.count({ where: { action: 'user.view_as_candidate' } });
@@ -842,7 +842,7 @@ describe('candidate view and access preview (support)', () => {
 
   it('previews the window a grant would get, chained after running access', async () => {
     const u = await signedInAgent(app, mail, 'missing.preview@example.com');
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     const fresh = (await support.get(`/api/admin/users/${u.userId}/access-preview`)).body;
     expect(fresh).toMatchObject({ days: 30, currentEndsAt: null });
     expect(fresh.startsAt).toBe(clock.toISOString());

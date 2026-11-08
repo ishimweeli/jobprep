@@ -84,7 +84,7 @@ describe('starting an attempt', () => {
     expect(denied.status).toBe(402);
     expect(denied.body.error).toBe('full_access_required');
 
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({
       data: { userId, countryCode: 'RW', planId: plan.id, startsAt: at(-86400), endsAt: at(86400 * 20), source: 'MANUAL', reason: 'test' },
     });
@@ -96,7 +96,7 @@ describe('starting an attempt', () => {
 
   it('an expired or suspended grant does not unlock a paid test', async () => {
     const { agent, userId } = await signedInAgent(app, mail, nextEmail());
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.createMany({
       data: [
         { userId, countryCode: 'RW', planId: plan.id, startsAt: at(-86400 * 40), endsAt: at(-86400), source: 'MANUAL' as const, reason: 'old' },
@@ -157,7 +157,7 @@ describe('who can see an attempt', () => {
   it('a signed-in user resumes on another device (new session, same account)', async () => {
     const email = nextEmail();
     const { agent, userId } = await signedInAgent(app, mail, email);
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: at(-10), endsAt: at(86400 * 9), source: 'MANUAL', reason: 't' } });
     const start = await agent.post(startPath(ACCOUNTANT)).send({});
     const q = (await answerKey(ACCOUNTANT))[0]!;
@@ -478,7 +478,7 @@ describe('submitting', () => {
 describe('case-based exams', () => {
   it('the state carries the case passage and tables, with the question numbers that belong to it', async () => {
     const { agent, userId } = await signedInAgent(app, mail, nextEmail());
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({ data: { userId, countryCode: 'RW', planId: plan.id, startsAt: at(-10), endsAt: at(86400 * 9), source: 'MANUAL', reason: 't' } });
     const start = await agent.post(startPath(ACCOUNTANT)).send({});
     const s = (await agent.get(`/api/attempts/${start.body.attemptId}`)).body;

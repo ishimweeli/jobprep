@@ -1249,7 +1249,7 @@ describe('changing country', () => {
     const email = nextEmail();
     const { agent } = await signUp(email);
     const user = await prisma.user.findUniqueOrThrow({ where: { email } });
-    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW' } });
+    const plan = await prisma.planConfig.findFirstOrThrow({ where: { countryCode: 'RW', code: 'FULL_ACCESS' } });
     await prisma.accessGrant.create({
       data: {
         userId: user.id, countryCode: 'RW', planId: plan.id, startsAt: new Date(clock.getTime() - 7 * 86_400_000),

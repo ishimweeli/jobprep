@@ -5,8 +5,9 @@ import { requireUser, type Ctx } from '../http/context';
 import { accessSummary } from '../services/access-summary';
 import { badRequest, notFound } from '../http/errors';
 import {
-  createPayment, getOwnedPayment, handleCallback, InvalidCallbackError, paymentView, refreshPayment,
+  createPayment, getOwnedPayment, handleCallback, InvalidCallbackError, paymentView, quoteFor, refreshPayment,
 } from '../services/payments';
+import { PLAN_CODES } from '../domain/plans';
 
 const PROVIDERS = ['MTN_MOMO', 'AIRTEL_MONEY', 'MPESA'] as const;
 
@@ -15,7 +16,12 @@ const createSchema = z.object({
   msisdn: z.string().min(6).max(24),
   /** Optional: send the same key on a retry and you get the same payment back, never a second charge. */
   idempotencyKey: z.string().min(8).max(80).optional(),
+  /** Which tier: Full Access (default) or Full Access + Interview prep. */
+  plan: z.enum(['full_access', 'interview']).default('full_access'),
+  /** Interview tier: `upgrade` = pay the difference for the current period; `new` = full price, fresh 30 days. */
+  option: z.enum(['upgrade', 'new']).optional(),
 });
+const checkoutQuery = z.object({ plan: z.enum(['full_access', 'interview']).default('full_access'), option: z.enum(['upgrade', 'new']).optional() });
 const resendSchema = z.object({ msisdn: z.string().min(6).max(24).optional() });
 
 export function paymentsRouter(ctx: Ctx) {
@@ -48,27 +54,43 @@ export function paymentsRouter(ctx: Ctx) {
   /** Order summary for the checkout screen: price, duration and the country's payment methods. */
   router.get('/me/checkout', async (req, res) => {
     const user = req.user!;
+    const q = checkoutQuery.parse(req.query);
     const country = await prisma.country.findUniqueOrThrow({ where: { code: user.countryCode } });
     // Accounts have no phone number any more: offer the number this person paid with last time.
     const lastPayer = await prisma.payment.findFirst({ where: { userId: user.id }, orderBy: { createdAt: 'desc' }, select: { msisdn: true } });
-    const [plan, methods] = await Promise.all([
-      prisma.planConfig.findFirst({ where: { countryCode: country.code, code: 'FULL_ACCESS', active: true } }),
+    const [quote, fallbackPlan, methods] = await Promise.all([
+      quoteFor(ctx, user, country.code, q.plan, q.option),
+      prisma.planConfig.findFirst({ where: { countryCode: country.code, code: PLAN_CODES[q.plan], active: true } }),
       prisma.paymentMethodConfig.findMany({ where: { countryCode: country.code, mode: { not: 'DISABLED' } }, orderBy: { sortOrder: 'asc' } }),
     ]);
+    const plan = quote?.plan ?? (q.plan === 'interview' && !ctx.config.INTERVIEW_PREP_ENABLED ? null : fallbackPlan);
+    const money = (minor: number | null) => formatMoney(minor, country.currencyCode, country.currencyExponent);
     // Buying while active adds the days after the current end date: tell the payer when access will now run until.
+    // An upgrade adds no days: access keeps its end date and the minutes run until then.
     const access = await accessSummary(ctx, user.id, country.code);
     const base = access.current?.endsAt ?? ctx.now();
+    const upgrade = quote?.kind === 'UPGRADE';
     res.json({
       country: { code: country.code, name: country.name, dialCode: country.dialCode, currencyCode: country.currencyCode },
       currentAccess: access.current,
-      newAccessEndsAt: plan ? new Date(base.getTime() + plan.durationDays * 86_400_000) : null,
+      newAccessEndsAt: !plan ? null : upgrade ? (access.current?.endsAt ?? null) : new Date(base.getTime() + plan.durationDays * 86_400_000),
       plan: plan && {
+        code: q.plan,
         name: plan.name,
-        priceMinor: plan.priceMinor,
-        priceLabel: formatMoney(plan.priceMinor, plan.currencyCode, country.currencyExponent),
+        priceMinor: quote?.amountMinor ?? plan.priceMinor,
+        priceLabel: money(quote?.amountMinor ?? plan.priceMinor),
         durationDays: plan.durationDays,
         paidOnce: !plan.autoRenew,
-        checkoutAvailable: country.status === 'LIVE' && isSellable(plan),
+        checkoutAvailable: country.status === 'LIVE' && !!quote && isSellable(plan),
+        interviewMinutes: plan.interviewMinutes,
+        kind: quote?.kind ?? 'PURCHASE',
+      },
+      // Interview tier: the options to choose between (an upgrade for the current period, and/or the full price).
+      interviewOptions: quote?.interview && {
+        upgrade: quote.interview.upgrade && { priceLabel: money(quote.interview.upgrade.amountMinor), minutesExpireAt: quote.interview.upgrade.minutesExpireAt },
+        full: { priceLabel: money(quote.interview.full.amountMinor), accessEndsAt: quote.interview.full.accessEndsAt, minutesExpireAt: quote.interview.full.minutesExpireAt },
+        showFull: quote.interview.showFull,
+        selected: quote.kind === 'UPGRADE' ? 'upgrade' : 'new',
       },
       paymentMethods: methods.map((m) => ({ provider: m.provider, label: m.label, hint: m.hint })),
       prefillPhone: lastPayer?.msisdn ?? null,
@@ -130,7 +152,9 @@ export function paymentsRouter(ctx: Ctx) {
   /** "Pay RWF 2,000": send the request-to-pay. The payer approves on their phone. */
   router.post('/payments', async (req, res) => {
     const body = createSchema.parse(req.body);
-    const out = await createPayment(ctx, { user: req.user!, provider: body.provider, msisdn: body.msisdn, idempotencyKey: body.idempotencyKey });
+    const out = await createPayment(ctx, {
+      user: req.user!, provider: body.provider, msisdn: body.msisdn, idempotencyKey: body.idempotencyKey, plan: body.plan, option: body.option,
+    });
     res.status(out.created ? 201 : 200).json(await paymentView(ctx, out.payment));
   });
 
@@ -150,8 +174,11 @@ export function paymentsRouter(ctx: Ctx) {
   router.post('/payments/:id/resend', async (req, res) => {
     const body = resendSchema.parse(req.body ?? {});
     const old = await getOwnedPayment(ctx, String(req.params.id), req.user!);
+    // Same tier and the same option (upgrade or full price) as the request being replaced.
+    const oldPlan = await prisma.planConfig.findUniqueOrThrow({ where: { id: old.planId } });
     const out = await createPayment(ctx, {
       user: req.user!, provider: old.provider as (typeof PROVIDERS)[number], msisdn: body.msisdn ?? old.msisdn, replacePaymentId: old.id,
+      plan: oldPlan.code === PLAN_CODES.interview ? 'interview' : 'full_access', option: old.kind === 'UPGRADE' ? 'upgrade' : oldPlan.code === PLAN_CODES.interview ? 'new' : undefined,
     });
     res.status(out.created ? 201 : 200).json(await paymentView(ctx, out.payment));
   });

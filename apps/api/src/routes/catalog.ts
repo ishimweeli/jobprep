@@ -5,6 +5,7 @@ import { canStartMockTest, coveredUntil, daysLeft, type GrantLike } from '../dom
 import { emailInput } from '../domain/email';
 import { activeJobSearches, deriveJobDeadline, deriveJobPostedAt } from '../domain/jobDeadline';
 import { formatMoney, isSellable } from '../domain/pricing';
+import { PLAN_CODES } from '../domain/plans';
 import { normalizeQuery } from '../services/demand';
 import { HttpError, notFound } from '../http/errors';
 import type { Ctx } from '../http/context';
@@ -574,8 +575,11 @@ export function catalogRouter(ctx: Ctx) {
 
   router.get('/pricing', async (req, res) => {
     const country = await liveCountry(req);
-    const [plan, methods, total, free] = await Promise.all([
+    const [plan, interviewPlan, methods, total, free] = await Promise.all([
       planFor(country.code),
+      ctx.config.INTERVIEW_PREP_ENABLED
+        ? prisma.planConfig.findFirst({ where: { countryCode: country.code, code: PLAN_CODES.interview, active: true } })
+        : Promise.resolve(null),
       prisma.paymentMethodConfig.findMany({
         where: { countryCode: country.code, mode: { not: 'DISABLED' } }, orderBy: { sortOrder: 'asc' },
       }),
@@ -595,6 +599,19 @@ export function catalogRouter(ctx: Ctx) {
         mockTestCount: total,
         checkoutAvailable: isSellable(plan),
       },
+      // Full Access + Interview prep: null while interview prep is switched off or the plan has no price.
+      interviewPrep: interviewPlan && isSellable(interviewPlan) ? {
+        name: interviewPlan.name,
+        priceMinor: interviewPlan.priceMinor,
+        priceLabel: formatMoney(interviewPlan.priceMinor, interviewPlan.currencyCode, country.currencyExponent),
+        durationDays: interviewPlan.durationDays,
+        interviewMinutes: interviewPlan.interviewMinutes,
+        mockTestCount: total,
+        // Someone who already has Full Access pays only the difference (for their current period).
+        upgradePriceLabel: plan?.priceMinor && interviewPlan.priceMinor! > plan.priceMinor
+          ? formatMoney(interviewPlan.priceMinor! - plan.priceMinor, interviewPlan.currencyCode, country.currencyExponent) : null,
+        checkoutAvailable: true,
+      } : null,
       paymentMethods: methods.map((m) => ({ provider: m.provider, label: m.label, hint: m.hint })),
     });
   });

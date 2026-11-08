@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { Payment, PaymentStatus, Prisma, PrismaClient, User } from '@prisma/client';
+import type { Payment, PaymentKind, PaymentStatus, PlanConfig, Prisma, PrismaClient, User } from '@prisma/client';
+import { creditGrantMinutes } from '../interview/wallet';
+import { PLAN_CODES, quoteInterview, type PlanKey } from '../domain/plans';
 import { coveredUntil, daysLeft, nextGrantWindow } from '../domain/access';
 import { normalizePhone } from '../domain/phone';
 import { formatMoney, isSellable } from '../domain/pricing';
@@ -87,7 +89,10 @@ export async function applySignal(ctx: PayCtx, paymentId: string, signal: Paymen
     let grant = null;
     if (t.grantAccess) {
       const existing = await tx.accessGrant.findMany({ where: { userId: payment.userId, countryCode: payment.countryCode } });
-      const window = nextGrantWindow(existing, payment.countryCode, payment.plan.durationDays, at);
+      // An upgrade covers the current access period only (no extra mock days); if that access ran out before the
+      // payment confirmed, the buyer gets a normal window rather than nothing.
+      const currentEnd = payment.kind === 'UPGRADE' ? coveredUntil(existing, payment.countryCode, at) : null;
+      const window = currentEnd ? { startsAt: at, endsAt: currentEnd } : nextGrantWindow(existing, payment.countryCode, payment.plan.durationDays, at);
       // The unique constraint on paymentId is the last line of defence against a double grant.
       grant = await tx.accessGrant.create({
         data: {
@@ -96,15 +101,17 @@ export async function applySignal(ctx: PayCtx, paymentId: string, signal: Paymen
           ...(meta.manual && { grantedById: meta.manual.adminId, reason: meta.manual.reason, externalTransactionId: meta.manual.transactionId }),
         },
       });
+      // Interview minutes come with the grant and expire with it (usable from now, even when the window is chained).
+      await creditGrantMinutes(tx, { userId: payment.userId, accessGrantId: grant.id, minutes: payment.plan.interviewMinutes, expiresAt: grant.endsAt });
     }
     if (meta.inTransaction) await meta.inTransaction(tx);
-    return { payment: updated, changed: true, grant };
+    return { payment: updated, changed: true, grant, plan: payment.plan };
   }, { timeout: 15_000 });
 
   // The receipt goes out after the commit, and a failing mail server never undoes a payment.
-  if (outcome.grant) {
+  if (outcome.grant && 'plan' in outcome) {
     try {
-      await sendReceipt(ctx, outcome.payment, outcome.grant.endsAt);
+      await sendReceipt(ctx, outcome.payment, outcome.plan, outcome.grant.endsAt);
     } catch (e) {
       console.error('receipt email failed for payment', paymentId, e);
     }
@@ -112,7 +119,7 @@ export async function applySignal(ctx: PayCtx, paymentId: string, signal: Paymen
   return outcome;
 }
 
-async function sendReceipt(ctx: PayCtx, payment: Payment, endsAt: Date) {
+async function sendReceipt(ctx: PayCtx, payment: Payment, plan: PlanConfig, endsAt: Date) {
   const [user, country, method] = await Promise.all([
     ctx.prisma.user.findUniqueOrThrow({ where: { id: payment.userId } }),
     ctx.prisma.country.findUniqueOrThrow({ where: { code: payment.countryCode } }),
@@ -126,7 +133,7 @@ async function sendReceipt(ctx: PayCtx, payment: Payment, endsAt: Date) {
     subject: `JobPrep receipt: ${amount}`,
     text: `We received ${amount} via ${method?.label ?? 'mobile money'}.
 
-Full Access is active until ${until}.
+${plan.name} is active until ${until}.${plan.interviewMinutes > 0 ? `\nYour ${plan.interviewMinutes} AI interview minutes can be used until then.` : ''}
 Reference: ${ref}
 
 Thank you for using JobPrep.`,
@@ -142,6 +149,44 @@ export interface CreatePaymentInput {
   idempotencyKey?: string;
   /** "Send again" / "Use a different number": close this pending request and start a fresh one. */
   replacePaymentId?: string;
+  /** Which tier (default Full Access). */
+  plan?: PlanKey;
+  /** Interview tier only: `upgrade` (pay the difference, current period) or `new` (full price, fresh 30 days). */
+  option?: 'upgrade' | 'new';
+}
+
+export interface PriceQuote {
+  plan: PlanConfig;
+  kind: PaymentKind;
+  amountMinor: number;
+  /** Interview tier only: both options, for the checkout screen. */
+  interview: ReturnType<typeof quoteInterview> | null;
+}
+
+/**
+ * What this person pays for a tier right now. The price always comes from here, never from the client.
+ * null = that tier cannot be bought (no price set, plan inactive, or interview prep switched off).
+ */
+export async function quoteFor(ctx: PayCtx, user: User, countryCode: string, planKey: PlanKey, option?: 'upgrade' | 'new'): Promise<PriceQuote | null> {
+  const { prisma } = ctx;
+  if (planKey === 'interview' && !ctx.config.INTERVIEW_PREP_ENABLED) return null;
+  const plan = await prisma.planConfig.findFirst({ where: { countryCode, code: PLAN_CODES[planKey], active: true } });
+  if (!plan || !isSellable(plan)) return null;
+  if (planKey === 'full_access') return { plan, kind: 'PURCHASE', amountMinor: plan.priceMinor!, interview: null };
+
+  const at = ctx.now();
+  const [fullPlan, grants, purchased] = await Promise.all([
+    prisma.planConfig.findFirst({ where: { countryCode, code: PLAN_CODES.full_access, active: true } }),
+    prisma.accessGrant.findMany({ where: { userId: user.id, countryCode } }),
+    prisma.minuteBucket.count({ where: { userId: user.id, source: 'PURCHASE', expiresAt: { gt: at } } }),
+  ]);
+  const q = quoteInterview({
+    interviewPriceMinor: plan.priceMinor!, fullAccessPriceMinor: fullPlan?.priceMinor ?? null, durationDays: plan.durationDays,
+    coveredUntil: coveredUntil(grants, countryCode, at), hasPurchasedMinutes: purchased > 0, now: at,
+  });
+  if (option === 'upgrade' && !q.upgrade) throw badRequest('upgrade_unavailable');
+  const kind: PaymentKind = option !== 'new' && q.upgrade ? 'UPGRADE' : 'PURCHASE';
+  return { plan, kind, amountMinor: kind === 'UPGRADE' ? q.upgrade!.amountMinor : plan.priceMinor!, interview: q };
 }
 
 export async function createPayment(ctx: PayCtx, input: CreatePaymentInput) {
@@ -151,9 +196,10 @@ export async function createPayment(ctx: PayCtx, input: CreatePaymentInput) {
 
   const country = await prisma.country.findUniqueOrThrow({ where: { code: user.countryCode } });
   if (country.status !== 'LIVE') throw badRequest('country_not_available');
-  const plan = await prisma.planConfig.findFirst({ where: { countryCode: country.code, code: 'FULL_ACCESS', active: true } });
+  const quote = await quoteFor(ctx, user, country.code, input.plan ?? 'full_access', input.option);
   // No price set → no checkout. The price is read here, never from the client.
-  if (!plan || !isSellable(plan)) throw conflict('checkout_unavailable');
+  if (!quote) throw conflict('checkout_unavailable');
+  const { plan } = quote;
   const method = await prisma.paymentMethodConfig.findUnique({ where: { countryCode_provider: { countryCode: country.code, provider: input.provider } } });
   if (!method || method.mode === 'DISABLED') throw badRequest('payment_method_unavailable');
   const msisdn = normalizePhone(input.msisdn, country.dialCode);
@@ -179,7 +225,7 @@ export async function createPayment(ctx: PayCtx, input: CreatePaymentInput) {
   } else {
     // Double-tapping "Pay" must not send two prompts: reuse a live pending request for the same number.
     const pending = await prisma.payment.findFirst({
-      where: { userId: user.id, provider: input.provider, msisdn, status: 'PENDING', expiresAt: { gt: at } },
+      where: { userId: user.id, provider: input.provider, msisdn, planId: plan.id, kind: quote.kind, status: 'PENDING', expiresAt: { gt: at } },
       orderBy: { createdAt: 'desc' },
     });
     if (pending) return { payment: pending, created: false };
@@ -189,8 +235,8 @@ export async function createPayment(ctx: PayCtx, input: CreatePaymentInput) {
   const payment = await prisma.payment.create({
     data: {
       userId: user.id, countryCode: country.code, planId: plan.id, provider: input.provider, msisdn,
-      amountMinor: plan.priceMinor!, // snapshot: a later price change never alters an open payment
-      currencyCode: plan.currencyCode, status: 'PENDING',
+      amountMinor: quote.amountMinor, // snapshot: a later price change never alters an open payment
+      currencyCode: plan.currencyCode, status: 'PENDING', kind: quote.kind,
       idempotencyKey: input.idempotencyKey ?? `auto_${randomUUID()}`,
       expiresAt: new Date(at.getTime() + ttlMinutes * 60_000), createdAt: at,
     },
@@ -200,7 +246,7 @@ export async function createPayment(ctx: PayCtx, input: CreatePaymentInput) {
   try {
     const { providerReference } = await provider.requestToPay({
       paymentId: payment.id, msisdn, amountMinor: payment.amountMinor, currencyCode: payment.currencyCode,
-      currencyExponent: country.currencyExponent, description: 'JobPrep Full Access',
+      currencyExponent: country.currencyExponent, description: `JobPrep ${plan.name}`,
       callbackUrl: providers.callbackUrl(input.provider),
     });
     return { payment: await prisma.payment.update({ where: { id: payment.id }, data: { providerReference } }), created: true };
