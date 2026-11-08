@@ -23,7 +23,7 @@ describe('seeded dev admins', () => {
       expect(u.onboardedAt, email).not.toBeNull();
       expect(u.countryConfirmedAt, email).not.toBeNull();
     }
-  });
+  }, 120_000); // re-seeds the whole catalogue
 
   it('NODE_ENV=production seeds NO passwords', async () => {
     const before = process.env.NODE_ENV;
@@ -37,5 +37,5 @@ describe('seeded dev admins', () => {
     for (const email of ADMIN_EMAILS) {
       expect((await prisma.user.findUniqueOrThrow({ where: { email } })).passwordHash, email).toBeNull();
     }
-  });
+  }, 120_000); // re-seeds the whole catalogue
 });

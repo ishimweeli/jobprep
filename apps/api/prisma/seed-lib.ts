@@ -336,7 +336,9 @@ export async function seedDatabase(prisma: PrismaClient) {
       caseId.set(c.key, created.id);
     }
 
+    // One batched insert per mock: inserting every question separately made seeding take over a minute.
     let qOrder = 0;
+    const rows: Prisma.QuestionCreateManyInput[] = [];
     for (const q of t.questions) {
       const tKey = `${catKey}:${q.topic}`;
       if (!topicId.has(tKey)) {
@@ -346,15 +348,14 @@ export async function seedDatabase(prisma: PrismaClient) {
         topicId.set(tKey, topic.id);
       }
       const { type, payload } = buildPayload(q);
-      await prisma.question.create({
-        data: {
-          mockTestId: mock.id, sectionId: sectionId.get(q.section)!, topicId: topicId.get(tKey)!,
-          caseId: q.caseKey ? caseId.get(q.caseKey)! : null,
-          type, stem: q.stem, payload: payload as unknown as Prisma.InputJsonValue,
-          explanation: q.explanation, marks: q.marks ?? 1, sortOrder: qOrder++, status: 'PUBLISHED',
-        },
+      rows.push({
+        mockTestId: mock.id, sectionId: sectionId.get(q.section)!, topicId: topicId.get(tKey)!,
+        caseId: q.caseKey ? caseId.get(q.caseKey)! : null,
+        type, stem: q.stem, payload: payload as unknown as Prisma.InputJsonValue,
+        explanation: q.explanation, marks: q.marks ?? 1, sortOrder: qOrder++, status: 'PUBLISHED',
       });
     }
+    await prisma.question.createMany({ data: rows });
   }
 
   // ── Settings (admin → Settings screen)

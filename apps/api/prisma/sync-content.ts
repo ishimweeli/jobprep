@@ -82,9 +82,13 @@ export async function syncContent(prisma: PrismaClient) {
       // A mock still short of its seed size (e.g. some questions never reached this database) also gets the seed
       // questions missing mid-list — but only up to the seed size, so a question an admin re-worded (same count,
       // different stem) is never added back as a duplicate.
+      // Seed questions an admin archived on purpose still count as handled, so they never create a gap to refill.
+      const seedStems = new Set(t.questions.map((q) => q.stem.trim()));
       const published = existing.filter((q) => q.status === 'PUBLISHED').length;
-      if (published + toAdd.length < t.questions.length) {
-        toAdd = t.questions.filter((q) => !existingStems.has(q.stem.trim())).slice(0, t.questions.length - published);
+      const archivedInSeed = existing.filter((q) => q.status !== 'PUBLISHED' && seedStems.has(q.stem.trim())).length;
+      const gap = t.questions.length - published - archivedInSeed;
+      if (toAdd.length < gap) {
+        toAdd = t.questions.filter((q) => !existingStems.has(q.stem.trim())).slice(0, gap);
       }
 
       if (toAdd.length === 0) {
