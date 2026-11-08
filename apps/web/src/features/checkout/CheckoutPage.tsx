@@ -6,7 +6,7 @@ import { getMockTest, catalogKeys } from '../../api/catalog';
 import { ApiError, isApiError } from '../../api/client';
 import { meKeys } from '../../api/me';
 import { createPayment, getCheckout, getPayment, paymentKeys, resendPayment } from '../../api/payments';
-import type { CheckoutSummary, PaymentView } from '../../api/types';
+import type { CheckoutSummary, InterviewOption, PaymentView, PlanKey } from '../../api/types';
 import { buttonClasses } from '../../components/Button';
 import { QueryError, Loader } from '../../components/states';
 import { authErrorMessage } from '../../lib/errorCopy';
@@ -20,7 +20,7 @@ import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { useRemaining } from '../exam/useRemaining';
 import {
-  canPay, checkoutCopy, displayNumber, notCompletedMessage, phaseFor, POLL_INTERVAL_MS, priceText, providerSwatch, receiptNumber, shouldPoll, toMsisdn,
+  canPay, checkoutCopy, checkoutHeading, displayNumber, notCompletedMessage, phaseFor, POLL_INTERVAL_MS, priceText, providerSwatch, receiptNumber, shouldPoll, toMsisdn,
   type CheckoutCopy,
 } from './checkoutModel';
 import {
@@ -32,7 +32,7 @@ import { PayDone } from './PayDone';
  * The checkout column. Phone: header with back arrow, content, sticky pay button. Desktop (CheckoutStates.dc): the site
  * header, then a 480 px column with the "Get Full Access" heading and the button inline.
  */
-function Frame({ back, chip, children, footer, heading }: { back: string; chip?: string; children: React.ReactNode; footer?: React.ReactNode; heading?: 'h1' | 'p' }) {
+function Frame({ back, chip, children, footer, heading, title = 'Get Full Access' }: { back: string; chip?: string; children: React.ReactNode; footer?: React.ReactNode; heading?: 'h1' | 'p'; title?: string }) {
   const H = heading ?? 'p';
   return (
     <div className="flex flex-1 flex-col bg-page">
@@ -41,11 +41,11 @@ function Frame({ back, chip, children, footer, heading }: { back: string; chip?:
           <Link to={back} aria-label="Back" className="inline-flex h-11 w-11 items-center justify-center text-ink no-underline hover:text-ink">
             <ArrowLeft size={22} aria-hidden="true" />
           </Link>
-          <span className="flex-1 text-[17px] font-semibold">Get Full Access</span>
+          <span className="flex-1 text-[17px] font-semibold">{title}</span>
           {chip && <span className="mr-2 rounded-md bg-soft px-2 py-1 text-xs font-semibold text-ink-2">{chip}</span>}
         </header>
         <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col gap-4 px-4 py-[18px] outline-none md:flex-none md:px-0 md:py-0">
-          <H className="m-0 hidden text-[26px] font-bold tracking-tight md:block md:pb-0">Get Full Access</H>
+          <H className="m-0 hidden text-[26px] font-bold tracking-tight md:block md:pb-0">{title}</H>
           {children}
         </main>
         {footer && (
@@ -57,14 +57,18 @@ function Frame({ back, chip, children, footer, heading }: { back: string; chip?:
 }
 
 export function CheckoutPage() {
-  useDocumentTitle('Get Full Access');
   const slug = useActiveCountrySlug();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const testSlug = params.get('test');
   const paymentParam = params.get('payment');
   const checkMode = params.get('check') === '1';
+  // ?plan=interview: Full Access + Interview prep; ?option=upgrade|new picks the upgrade or the full price.
+  const plan: PlanKey = params.get('plan') === 'interview' ? 'interview' : 'full_access';
+  const optionParam = params.get('option');
+  const option: InterviewOption | undefined = optionParam === 'upgrade' || optionParam === 'new' ? optionParam : undefined;
   const { user, isLoading } = useSession();
-  const summaryQ = useQuery({ queryKey: paymentKeys.checkout, queryFn: getCheckout, enabled: !!user, staleTime: 0, retry: false });
+  const summaryQ = useQuery({ queryKey: paymentKeys.checkout(plan, option), queryFn: () => getCheckout(plan, option), enabled: !!user, staleTime: 0, retry: false });
+  useDocumentTitle(summaryQ.data ? checkoutHeading(summaryQ.data) : plan === 'interview' ? 'Get interview prep' : 'Get Full Access');
   const testQ = useQuery({
     queryKey: catalogKeys.detail(slug, testSlug ?? ''),
     queryFn: () => getMockTest(slug, testSlug ?? ''),
@@ -73,13 +77,18 @@ export function CheckoutPage() {
     retry: false,
   });
 
-  const here = `${countryPath(slug, 'checkout')}${testSlug ? `?test=${encodeURIComponent(testSlug)}` : ''}`;
+  const here = `${countryPath(slug, 'checkout')}${params.toString() ? `?${params.toString()}` : ''}`;
   // A guest sees "This test is part of Full Access" (GuestPaid.dc) on the test; with no test, they sign in first.
   if (!isLoading && !user) {
     return <Navigate to={testSlug ? `${countryPath(slug, 'tests', testSlug)}?gate=paid` : signInPath(here)} replace />;
   }
 
-  const back = testSlug ? countryPath(slug, 'tests', testSlug) : countryPath(slug, 'pricing');
+  const back = testSlug ? countryPath(slug, 'tests', testSlug) : plan === 'interview' && params.get('from') === 'interview' ? countryPath(slug, 'interview') : countryPath(slug, 'pricing');
+  const chooseOption = (o: InterviewOption) => {
+    const next = new URLSearchParams(params);
+    next.set('option', o);
+    setParams(next, { replace: true });
+  };
   if (summaryQ.isError) {
     return (
       <Frame back={back}>
@@ -96,7 +105,9 @@ export function CheckoutPage() {
   }
   return (
     <CheckoutFlow
+      key={`${plan}:${summaryQ.data.plan?.kind ?? ''}`}
       summary={summaryQ.data}
+      onChooseOption={chooseOption}
       slug={slug}
       back={back}
       testSlug={testSlug}
@@ -108,13 +119,17 @@ export function CheckoutPage() {
 }
 
 function CheckoutFlow({
-  summary, slug, back, testSlug, testTitle, initialPaymentId, checkMode,
+  summary, onChooseOption, slug, back, testSlug, testTitle, initialPaymentId, checkMode,
 }: {
-  summary: CheckoutSummary; slug: string; back: string; testSlug: string | null; testTitle: string | undefined; initialPaymentId: string | null; checkMode: boolean;
+  summary: CheckoutSummary; onChooseOption: (o: InterviewOption) => void; slug: string; back: string; testSlug: string | null; testTitle: string | undefined; initialPaymentId: string | null; checkMode: boolean;
 }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const dial = summary.country.dialCode;
+  const title = checkoutHeading(summary);
+  const planKey: PlanKey = summary.plan?.code === 'interview' ? 'interview' : 'full_access';
+  // The interview tier pays for exactly what the summary shows: the upgrade or the full price.
+  const planBody = planKey === 'interview' ? { plan: planKey, option: summary.interviewOptions?.selected } : {};
   // Buying while access runs adds days after the current end: the API says when the new access ends.
   const until = formatDate(summary.newAccessEndsAt ?? new Date(Date.now() + (summary.plan?.durationDays ?? 30) * 86_400_000).toISOString(), true);
   const copy = checkoutCopy(summary, until);
@@ -153,6 +168,7 @@ function CheckoutFlow({
       void qc.invalidateQueries({ queryKey: ['catalog'] });
       void qc.invalidateQueries({ queryKey: meKeys.session });
       void qc.invalidateQueries({ queryKey: ['me', 'dashboard'] });
+      void qc.invalidateQueries({ queryKey: ['interviews'] });
     }
   }, [payment?.status, qc]);
 
@@ -180,7 +196,7 @@ function CheckoutFlow({
     mutationFn: (msisdn: string) =>
       paymentId && payment?.status === 'PENDING'
         ? resendPayment(paymentId, msisdn) // "Use a different number": closes the old request first
-        : createPayment({ provider, msisdn, idempotencyKey: idemKey.current }),
+        : createPayment({ provider, msisdn, idempotencyKey: idemKey.current, ...planBody }),
     onSuccess: adopt,
     onError,
   });
@@ -232,7 +248,8 @@ function CheckoutFlow({
   if (providerDown && !payment) card = resultCard('provider_unavailable', ctx);
   else if (phase === 'failed' && payment && settled) card = resultCard(settled, ctx);
   else if (phase === 'pending' && payment && checking) card = resultCard('waiting', ctx);
-  else if (phase === 'form' && !payment && !editing && summary.currentAccess && !summary.currentAccess.endingSoon) card = resultCard('already_has_access', ctx);
+  // "You already have Full Access" only applies to buying Full Access again (the interview tier is an upgrade).
+  else if (planKey === 'full_access' && phase === 'form' && !payment && !editing && summary.currentAccess && !summary.currentAccess.endingSoon) card = resultCard('already_has_access', ctx);
 
   const act = (action: ResultAction) => {
     switch (action) {
@@ -252,7 +269,7 @@ function CheckoutFlow({
         if (!msisdn) return backToForm();
         idemKey.current = crypto.randomUUID();
         setProvider(payment.provider);
-        return createPayment({ provider: payment.provider, msisdn, idempotencyKey: idemKey.current }).then(adopt, onError);
+        return createPayment({ provider: payment.provider, msisdn, idempotencyKey: idemKey.current, ...planBody }).then(adopt, onError);
       }
       case 'checkAgain':
         void pay.refetch();
@@ -264,8 +281,8 @@ function CheckoutFlow({
 
   if (card) {
     return (
-      <Frame back={back} chip={chip}>
-        <ResultSummary summary={summary} price={price} />
+      <Frame back={back} chip={chip} title={title}>
+        <ResultSummary summary={summary} price={price} title={copy.summaryTitle} line={copy.summaryLine} />
         <ResultCardView card={card} onAction={act} />
       </Frame>
     );
@@ -275,6 +292,7 @@ function CheckoutFlow({
     <Frame
       back={back}
       chip={chip}
+      title={title}
       heading={phase === 'form' ? 'h1' : 'p'}
       footer={
         phase === 'form' ? (
@@ -314,7 +332,11 @@ function CheckoutFlow({
         <p className="m-0 border-t border-border pt-2.5 text-[13px] text-muted">{copy.note}</p>
       </section>
 
-      {phase === 'form' && <AlsoIncluded slug={slug} title="Included in Full Access" />}
+      {phase === 'form' && summary.interviewOptions?.upgrade && summary.interviewOptions.showFull && (
+        <InterviewOptions options={summary.interviewOptions} onChoose={onChooseOption} />
+      )}
+
+      {phase === 'form' && <AlsoIncluded slug={slug} title={planKey === 'interview' ? 'Mock tests included' : 'Included in Full Access'} />}
 
       {phase === 'form' && (
         <form id="pay-form" onSubmit={submit} noValidate className="flex flex-col gap-4">
@@ -389,14 +411,49 @@ const TONE: Record<ResultCard['tone'], string> = {
   green: 'bg-free-bg text-free',
 };
 
+/**
+ * Interview tier near the end of Full Access: pay the difference (minutes until the current end date) or the full
+ * price for a fresh 30 days. Picking one reloads the summary for it.
+ */
+function InterviewOptions({ options, onChoose }: { options: NonNullable<CheckoutSummary['interviewOptions']>; onChoose: (o: InterviewOption) => void }) {
+  const rows: { key: InterviewOption; title: string; line: string; price: string | null }[] = [
+    { key: 'upgrade', title: 'Upgrade for the rest of your access', line: `Interview minutes until ${formatDate(options.upgrade!.minutesExpireAt, true)}`, price: options.upgrade!.priceLabel },
+    { key: 'new', title: 'A new 30 days', line: `Mock tests and interview minutes until ${formatDate(options.full.accessEndsAt, true)}`, price: options.full.priceLabel },
+  ];
+  return (
+    <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+      <legend className="mb-2.5 p-0 text-base font-semibold">Your access ends soon. Choose:</legend>
+      {rows.map((r) => {
+        const on = options.selected === r.key;
+        return (
+          <button
+            key={r.key}
+            type="button"
+            aria-pressed={on}
+            onClick={() => onChoose(r.key)}
+            className={cx('flex min-h-[60px] cursor-pointer items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-left text-ink', on ? 'border-2 border-brand bg-brand-softer' : 'border border-border-strong bg-surface')}
+          >
+            <span className="flex flex-1 flex-col">
+              <span className="text-base font-semibold">{r.title}</span>
+              <span className="text-[13px] text-muted">{r.line}</span>
+            </span>
+            {r.price && <span className="whitespace-nowrap font-semibold">{r.price}</span>}
+          </button>
+        );
+      })}
+    </fieldset>
+  );
+}
+
 /** The order summary above a result card (CheckoutStates.dc). */
-function ResultSummary({ summary, price }: { summary: CheckoutSummary; price: string | null }) {
+function ResultSummary({ summary, price, title, line }: { summary: CheckoutSummary; price: string | null; title: string; line: string }) {
+  const fullAccess = summary.plan?.code !== 'interview';
   return (
     <section aria-label="Order summary" className="flex justify-between gap-2.5 rounded-card border border-border bg-surface p-4">
       <span className="flex flex-col gap-0.5">
-        <span className="text-base font-semibold">JobPrep Full Access · {summary.country.name}</span>
+        <span className="text-base font-semibold">{fullAccess ? `JobPrep Full Access · ${summary.country.name}` : title}</span>
         <span className="text-sm text-ink-2">
-          Every {summary.country.name} mock test · {summary.plan?.durationDays ?? 30} days
+          {fullAccess ? `Every ${summary.country.name} mock test · ${summary.plan?.durationDays ?? 30} days` : line}
         </span>
       </span>
       {price && <span className="whitespace-nowrap text-base font-semibold tabular">{price}</span>}

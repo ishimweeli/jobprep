@@ -6,7 +6,7 @@ import { formatDate } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath } from '../country/hooks';
 import { useSession } from '../auth/session';
-import { nextExam, startLabel } from './checkoutModel';
+import { minutesLabel, nextExam, startLabel } from './checkoutModel';
 
 /** Payment confirmed (PayDone.dc). Phone layout; on desktop the same column is centred (C19). */
 export function PayDone({
@@ -24,8 +24,11 @@ export function PayDone({
   });
   const next = testSlug ? undefined : nextExam(job.data?.mockTests);
   const days = summary.plan?.durationDays ?? payment.access?.daysLeft ?? 30;
+  const interview = summary.plan?.code === 'interview';
+  const upgrade = interview && summary.plan?.kind === 'UPGRADE';
   const rows: [string, string][] = [
-    ['Package', `${summary.plan?.name ?? 'Full Access'} · ${days} days`],
+    ['Package', upgrade ? `${summary.plan!.name} (upgrade)` : `${summary.plan?.name ?? 'Full Access'} · ${days} days`],
+    ...(interview ? ([['Interview time', minutesLabel(summary.plan?.interviewMinutes ?? 300)]] as [string, string][]) : []),
     ['Amount', payment.priceLabel],
     ['Paid with', payment.providerLabel],
     ...(payment.access ? ([['Access until', formatDate(payment.access.endsAt, true)]] as [string, string][]) : []),
@@ -44,7 +47,11 @@ export function PayDone({
               </svg>
             </span>
             <h1 className="m-0 text-2xl tracking-tight">Payment confirmed</h1>
-            <p className="m-0 text-base leading-normal text-ink-2">Full Access is active. Every mock test on JobPrep is unlocked for {days} days.</p>
+            <p className="m-0 text-base leading-normal text-ink-2">
+              {interview
+                ? `Interview prep is active: ${minutesLabel(summary.plan?.interviewMinutes ?? 300)} of AI interview practice, and every mock test is unlocked.`
+                : `Full Access is active. Every mock test on JobPrep is unlocked for ${days} days.`}
+            </p>
           </div>
           <dl className="m-0 rounded-card border border-border bg-surface px-4 py-1">
             {rows.map(([k, v]) => (
@@ -57,9 +64,15 @@ export function PayDone({
           <p className="m-0 text-center text-[13px] text-muted">A receipt was sent to {user?.email ?? 'your email'}.</p>
         </main>
         <footer className="flex flex-col gap-2 border-t border-border bg-surface px-4 pb-4 pt-3">
-          <Link to={startTo} className="rounded-control bg-brand p-3 text-center text-[17px] font-semibold text-white no-underline hover:bg-brand-hover hover:text-white">
-            {targetSlug ? startLabel(testTitle ?? next?.title) : 'Choose a mock test'}
-          </Link>
+          {interview ? (
+            <Link to={countryPath(slug, 'interview')} className="rounded-control bg-brand p-3 text-center text-[17px] font-semibold text-white no-underline hover:bg-brand-hover hover:text-white">
+              Start an interview
+            </Link>
+          ) : (
+            <Link to={startTo} className="rounded-control bg-brand p-3 text-center text-[17px] font-semibold text-white no-underline hover:bg-brand-hover hover:text-white">
+              {targetSlug ? startLabel(testTitle ?? next?.title) : 'Choose a mock test'}
+            </Link>
+          )}
           <Link to={countryPath(slug, 'progress')} className="p-3 text-center text-[15px] font-semibold text-ink no-underline hover:text-ink">
             Go to My progress
           </Link>

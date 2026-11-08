@@ -23,6 +23,8 @@ export interface RouteHandle {
   title?: string;
   /** Exam-detail-only: the desktop top bar shows a back arrow to this (country-relative) path + `title` instead of a plain title. */
   backTo?: string;
+  /** Accessible name of that back arrow (default "Back to mock tests"). */
+  backLabel?: string;
   /** The page sets its own small desktop sizes, so the site-wide `ui-scaled` step must not shrink it a second time. */
   dense?: boolean;
 }

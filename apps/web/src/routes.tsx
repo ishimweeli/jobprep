@@ -137,6 +137,8 @@ export const routes: RouteObject[] = [
       { path: '/:country/exam/:attemptId', lazy: async () => ({ Component: (await import('./features/exam/ExamPage')).ExamPage }) },
       // Review.dc / ReviewPhone.dc
       { path: '/:country/review/:attemptId', lazy: async () => ({ Component: (await import('./features/review/ReviewPage')).ReviewPage }) },
+      // AI interview: the live interview is distraction-free too (built without a design; see docs/DECISIONS.md 105-109)
+      { path: '/:country/interview-live/:sessionId', lazy: async () => ({ Component: (await import('./features/interview/LiveInterviewPage')).LiveInterviewPage }) },
       {
         path: '/:country',
         element: <CountryLayout />,
@@ -150,6 +152,11 @@ export const routes: RouteObject[] = [
           { path: 'progress', handle: { tabs: true, title: 'Dashboard', dense: true }, lazy: async () => ({ Component: (await import('./features/dashboard/DashboardPage')).DashboardPage }) },
           { path: 'checkout', lazy: async () => ({ Component: (await import('./features/checkout/CheckoutPage')).CheckoutPage }) },
           { path: 'pricing', handle: { tabs: true, title: 'Pricing' }, lazy: async () => ({ Component: (await import('./features/pricing/PricingPage')).PricingPage }) },
+          // Interview preparation (signed in, and only while the feature is switched on)
+          { path: 'interview', handle: { tabs: true, title: 'Interview prep' }, lazy: async () => ({ Component: (await import('./features/interview/InterviewHomePage')).InterviewHomePage }) },
+          { path: 'interview/new', handle: { tabs: true, title: 'New interview', backTo: 'interview', backLabel: 'Back to interview preparation' }, lazy: async () => ({ Component: (await import('./features/interview/NewInterviewPage')).NewInterviewPage }) },
+          { path: 'interview/jobs/:jobId', handle: { tabs: true, title: 'Configure', backTo: 'interview', backLabel: 'Back to interview preparation' }, lazy: async () => ({ Component: (await import('./features/interview/JobReviewPage')).JobReviewPage }) },
+          { path: 'interview/sessions/:sessionId', handle: { tabs: true, title: 'Interview feedback', backTo: 'interview', backLabel: 'Back to interview preparation' }, lazy: async () => ({ Component: (await import('./features/interview/InterviewReportPage')).InterviewReportPage }) },
           { path: '*', element: <CountryNotFound /> },
         ],
       },

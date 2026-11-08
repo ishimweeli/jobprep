@@ -110,6 +110,94 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
   return body as T;
 }
 
+interface RawOptions {
+  /** JSON (stringified) or raw bytes (a file, a recording) sent with their own content type. */
+  body?: unknown;
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+}
+
+async function send(path: string, opts: RawOptions, accept: string): Promise<Response> {
+  const raw = opts.body instanceof Blob;
+  const headers: Record<string, string> = { ...requestHeaders(opts.body !== undefined && !raw), Accept: accept, ...opts.headers };
+  if (raw && !headers['Content-Type']) headers['Content-Type'] = (opts.body as Blob).type || 'application/octet-stream';
+  let res: Response;
+  try {
+    res = await fetch(buildUrl(path), {
+      method: 'POST', credentials: 'include', headers, signal: opts.signal,
+      body: opts.body === undefined ? undefined : raw ? (opts.body as Blob) : JSON.stringify(opts.body),
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') throw e;
+    throw new ApiError(0, 'network_error');
+  }
+  if (!res.ok) {
+    let body: unknown = null;
+    try { body = JSON.parse(await res.text()); } catch { body = null; }
+    const err = toApiError(res.status, body, res.headers.get('Retry-After'), res.headers.get('X-Request-Id'));
+    reportSystemCondition(path, err, body !== null);
+    throw err;
+  }
+  return res;
+}
+
+/** POST raw bytes (an uploaded file) and read a JSON answer. */
+export async function apiUpload<T>(path: string, file: Blob, headers: Record<string, string> = {}): Promise<T> {
+  const res = await send(path, { body: file, headers }, 'application/json');
+  return (await res.json()) as T;
+}
+
+/** One server-sent event. */
+export interface StreamEvent { event: string; data: Record<string, unknown> }
+
+/** Split a text/event-stream buffer into complete events and the unfinished rest. Exported for tests. */
+export function parseEvents(buffer: string): { events: StreamEvent[]; rest: string } {
+  const frames = buffer.split('\n\n');
+  const rest = frames.pop() ?? '';
+  const events: StreamEvent[] = [];
+  for (const f of frames) {
+    if (!f.trim()) continue;
+    const event = /^event: ?(.*)$/m.exec(f)?.[1]?.trim() ?? 'message';
+    const dataLine = /^data: ?(.*)$/m.exec(f)?.[1] ?? '{}';
+    try {
+      events.push({ event, data: JSON.parse(dataLine) as Record<string, unknown> });
+    } catch {
+      /* a malformed frame is skipped */
+    }
+  }
+  return { events, rest };
+}
+
+/**
+ * POST and read the answer as server-sent events, calling `onEvent` for each as it arrives. An `error` event from
+ * the server (after the stream started) rejects with an ApiError carrying its code.
+ */
+export async function apiStream(path: string, opts: RawOptions, onEvent: (e: StreamEvent) => void): Promise<void> {
+  const res = await send(path, opts, 'text/event-stream');
+  if (!res.body) throw new ApiError(0, 'network_error');
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (value) buffer += decoder.decode(value, { stream: true });
+      const parsed = parseEvents(done ? `${buffer}\n\n` : buffer);
+      buffer = parsed.rest;
+      for (const e of parsed.events) {
+        if (e.event === 'error') {
+          throw new ApiError(502, typeof e.data.error === 'string' ? e.data.error : 'stream_failed', {}, null, typeof e.data.requestId === 'string' ? e.data.requestId : null);
+        }
+        onEvent(e);
+      }
+      if (done) break;
+    }
+  } catch (e) {
+    if (e instanceof ApiError || (e instanceof DOMException && e.name === 'AbortError')) throw e;
+    throw new ApiError(0, 'network_error');
+  }
+}
+
 /**
  * Two failures replace the page instead of showing an inline error (SystemPages.dc): the service is down (503 or a
  * bare gateway error) and a 401 on a call that needs a session while this browser believes it is signed in.

@@ -13,6 +13,7 @@ import { AlsoIncluded } from './AlsoIncluded';
 import { ExamSourceNote } from './ExamSourceNote';
 import { JobMockTestRow } from './JobMockTestRow';
 import { PsychometricCard } from './PsychometricCard';
+import { InterviewCta } from '../interview/InterviewCta';
 
 /**
  * One job's page (`/:country/tests/jobs/:jobSlug`): every mock test under it. Landing here is what *picks* this
@@ -104,6 +105,7 @@ export function JobDetailPage() {
           ))}
         </div>
 
+        {!job.isPsychometricPrep && <InterviewCta slug={slug} jobSlug={job.exam.slug} jobName={job.exam.name} />}
         {job.psychometricPrep && <PsychometricCard slug={slug} prep={job.psychometricPrep} />}
         <ExamSourceNote jobName={job.exam.name} psychometric={job.isPsychometricPrep} countrySlug={slug} />
         {someLocked && <AlsoIncluded slug={slug} currentJobSlug={job.exam.slug} title="Full Access also opens" />}

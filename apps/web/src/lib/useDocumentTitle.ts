@@ -51,7 +51,7 @@ export function useDocumentTitle(title: string | null | undefined, description?:
 }
 
 /** Pages with nothing for a search engine to index: signed-in areas, auth flows, live exams. */
-const PRIVATE_PATH = /^\/(admin|account|sign-in|sign-up|verify-email|forgot-password|reset-password|auth|setup|choose-country)(\/|$)|^\/[^/]+\/(exam|review|results|checkout|progress)(\/|$)/;
+const PRIVATE_PATH = /^\/(admin|account|sign-in|sign-up|verify-email|forgot-password|reset-password|auth|setup|choose-country)(\/|$)|^\/[^/]+\/(exam|review|results|checkout|progress|interview|interview-live)(\/|$)/;
 
 /** Keeps the canonical URL, og:url and robots tag in step with the current route (query strings are not part of the URL). */
 export function useRouteSeo(pathname: string) {

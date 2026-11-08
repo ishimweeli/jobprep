@@ -276,6 +276,18 @@ export interface PricingResponse {
     mockTestCount: number;
     checkoutAvailable: boolean;
   };
+  /** Full Access + Interview prep; null while interview prep is switched off or has no price. */
+  interviewPrep?: null | {
+    name: string;
+    priceMinor: number | null;
+    priceLabel: string | null;
+    durationDays: number;
+    interviewMinutes: number;
+    mockTestCount: number;
+    /** What someone who already has Full Access pays (the difference), or null. */
+    upgradePriceLabel: string | null;
+    checkoutAvailable: boolean;
+  };
   paymentMethods: { provider: string; label: string; hint: string | null }[];
 }
 
@@ -317,6 +329,8 @@ export interface MeResponse {
   country: { code: string; name: string; currencyCode: string; languages: string[] };
   access: AccessSummary;
   preferredJob: PreferredJob | null;
+  /** Features switched on for this deployment. */
+  features?: { interviewPrep: boolean };
 }
 
 /** What a sign-up and a "send a new code" answer: how long until another code may be asked for, and how long this one works. */
@@ -606,17 +620,33 @@ export interface CheckoutSummary {
   currentAccess: null | { endsAt: string; daysLeft: number; endingSoon: boolean };
   newAccessEndsAt: string | null;
   plan: null | {
+    /** Which tier this summary is for. */
+    code?: PlanKey;
     name: string;
     priceMinor: number | null;
     priceLabel: string | null;
     durationDays: number;
     paidOnce: boolean;
     checkoutAvailable: boolean;
+    /** AI interview minutes included (0 for Full Access). */
+    interviewMinutes?: number;
+    /** UPGRADE = paying the difference for the current period (no extra days). */
+    kind?: 'PURCHASE' | 'UPGRADE';
+  };
+  /** Interview tier only: the upgrade (difference, current period) and/or the full price (fresh 30 days). */
+  interviewOptions?: null | {
+    upgrade: null | { priceLabel: string | null; minutesExpireAt: string };
+    full: { priceLabel: string | null; accessEndsAt: string; minutesExpireAt: string };
+    showFull: boolean;
+    selected: InterviewOption;
   };
   paymentMethods: { provider: string; label: string; hint: string | null }[];
   /** The payer number of the user's last payment, or null (accounts have no phone number). */
   prefillPhone: string | null;
 }
+
+export type PlanKey = 'full_access' | 'interview';
+export type InterviewOption = 'upgrade' | 'new';
 
 export interface PaymentView {
   id: string;

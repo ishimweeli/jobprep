@@ -63,6 +63,8 @@ export function meRouter(ctx: Ctx) {
       country: { code: country.code, name: country.name, currencyCode: country.currencyCode, languages: country.languages },
       access: await accessFor(user.id, user.countryCode),
       preferredJob: await preferredJobFor(user.preferredExamId),
+      // Features switched on for this deployment (the web app shows their entry points only when on).
+      features: { interviewPrep: ctx.config.INTERVIEW_PREP_ENABLED },
     });
   });
 

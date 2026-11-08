@@ -118,7 +118,7 @@ export function TopBar() {
       {handle?.backTo ? (
         <Link
           to={countryPath(slug, handle.backTo)}
-          aria-label="Back to mock tests"
+          aria-label={handle.backLabel ?? 'Back to mock tests'}
           className="flex h-8 items-center gap-2 text-[15px] font-semibold text-heading no-underline hover:text-heading dark:text-night-heading"
         >
           <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] border border-border bg-surface dark:border-night-border dark:bg-night-surface">

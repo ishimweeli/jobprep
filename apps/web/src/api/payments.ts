@@ -1,14 +1,16 @@
 import { api } from './client';
-import type { CheckoutSummary, PaymentView } from './types';
+import type { CheckoutSummary, InterviewOption, PaymentView, PlanKey } from './types';
 
 export const paymentKeys = {
-  checkout: ['me', 'checkout'] as const,
+  checkout: (plan: PlanKey = 'full_access', option?: InterviewOption) => ['me', 'checkout', plan, option ?? null] as const,
   payment: (id: string) => ['payment', id] as const,
 };
 
-export const getCheckout = () => api<CheckoutSummary>('/me/checkout');
+/** The order summary for a tier (default Full Access); `option` picks the interview tier's upgrade or full price. */
+export const getCheckout = (plan: PlanKey = 'full_access', option?: InterviewOption) =>
+  api<CheckoutSummary>('/me/checkout', { query: { plan: plan === 'full_access' ? undefined : plan, option } });
 
-export const createPayment = (input: { provider: string; msisdn: string; idempotencyKey?: string }) =>
+export const createPayment = (input: { provider: string; msisdn: string; idempotencyKey?: string; plan?: PlanKey; option?: InterviewOption }) =>
   api<PaymentView>('/payments', { method: 'POST', body: input });
 
 export const getPayment = (id: string) => api<PaymentView>(`/payments/${encodeURIComponent(id)}`);

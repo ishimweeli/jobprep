@@ -86,6 +86,7 @@ export function PhoneMenu({ open, onClose }: { open: boolean; onClose: () => voi
   const items: { to: string; label: string; icon: IconName }[] = [
     { to: countryPath(slug, 'progress'), label: 'Dashboard', icon: 'progress' },
     { to: countryPath(slug, 'tests'), label: 'Mock tests', icon: 'tests' },
+    ...(session?.features?.interviewPrep ? [{ to: countryPath(slug, 'interview'), label: 'Interview prep', icon: 'mic' as const }] : []),
     { to: countryPath(slug, 'pricing'), label: 'Pricing', icon: 'access' },
     { to: '/account', label: 'Account', icon: 'user' },
   ];

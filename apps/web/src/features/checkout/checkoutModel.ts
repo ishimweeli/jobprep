@@ -55,9 +55,35 @@ export interface CheckoutCopy {
   phoneHelp: (providerLabel: string) => string;
 }
 
+/** "5 hours" / "90 minutes" for a number of interview minutes. */
+export function minutesLabel(minutes: number): string {
+  if (minutes >= 60 && minutes % 60 === 0) return `${minutes / 60} hour${minutes === 60 ? '' : 's'}`;
+  return `${minutes} minutes`;
+}
+
+/** The page heading: which tier is being bought. */
+export const checkoutHeading = (summary: Pick<CheckoutSummary, 'plan'>): string =>
+  summary.plan?.code === 'interview' ? (summary.plan.kind === 'UPGRADE' ? 'Add interview prep' : 'Get interview prep') : 'Get Full Access';
+
 export function checkoutCopy(summary: CheckoutSummary, untilLabel: string): CheckoutCopy {
   const plan = summary.plan;
   const days = plan?.durationDays ?? 30;
+  if (plan?.code === 'interview') {
+    const hours = minutesLabel(plan.interviewMinutes ?? 300);
+    const upgrade = plan.kind === 'UPGRADE';
+    return {
+      variant: summary.country.code === 'RW' ? 'national' : 'prefix',
+      summaryTitle: upgrade ? 'Upgrade to Full Access + Interview prep' : 'JobPrep Full Access + Interview prep',
+      summaryLine: upgrade
+        ? `${hours} of AI interview practice, added to your Full Access`
+        : `Every mock test and ${hours} of AI interview practice · ${days} days`,
+      note: upgrade
+        ? `You pay only the difference. Your Full Access keeps its end date; the interview minutes can be used until ${untilLabel}.`
+        : `Starts once payment is confirmed · mock tests and interview minutes until ${untilLabel}`,
+      phoneLabel: (p) => (summary.country.code === 'RW' ? 'Mobile Money number' : `${p} phone number`),
+      phoneHelp: () => 'You will approve on this phone with your PIN. We never ask for your PIN.',
+    };
+  }
   if (summary.country.code === 'RW') {
     return {
       variant: 'national',

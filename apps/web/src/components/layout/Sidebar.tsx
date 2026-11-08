@@ -4,6 +4,7 @@ import { Logo } from '../Logo';
 import { StrokeIcon, type IconName } from '../StrokeIcon';
 import { cx } from '../../lib/cx';
 import { countryPath, useActiveCountry } from '../../features/country/hooks';
+import { useSession } from '../../features/auth/session';
 
 const navLink = ({ isActive }: { isActive: boolean }) =>
   cx(
@@ -23,9 +24,11 @@ export function Sidebar() {
   const code = (country?.code ?? slug).toUpperCase();
   const name = country?.name ?? code;
 
+  const { session } = useSession();
   const items: { to: string; label: string; icon: IconName; end?: boolean }[] = [
     { to: countryPath(slug, 'progress'), label: 'Dashboard', icon: 'progress' },
     { to: countryPath(slug, 'tests'), label: 'Mock tests', icon: 'tests' },
+    ...(session?.features?.interviewPrep ? [{ to: countryPath(slug, 'interview'), label: 'Interview prep', icon: 'mic' as const }] : []),
     { to: countryPath(slug, 'pricing'), label: 'Pricing', icon: 'access' },
     { to: '/account', label: 'Account', icon: 'user' },
   ];

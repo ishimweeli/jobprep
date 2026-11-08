@@ -7,6 +7,7 @@ import { ROUTES_READY } from '../../lib/routesReady';
 import { PhoneBackHeader } from '../../components/layout/Header';
 import { QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
+import { signInPath } from '../../lib/next';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug, useCountryDetail } from '../country/hooks';
@@ -114,6 +115,8 @@ function PricingBody({ slug, data, disclaimer, signedIn }: { slug: string; data:
             Find a free test
           </LinkButton>
         </section>
+
+        {data.interviewPrep && data.interviewPrep.priceLabel && <InterviewPlanCard slug={slug} plan={data.interviewPrep} signedIn={signedIn} />}
       </div>
 
       {methods.length > 0 && (
@@ -138,6 +141,36 @@ function PricingBody({ slug, data, disclaimer, signedIn }: { slug: string; data:
 
       <Faq days={days} disclaimer={disclaimer} />
     </>
+  );
+}
+
+/** Full Access + Interview prep (only while interview prep is switched on and priced). */
+function InterviewPlanCard({ slug, plan, signedIn }: { slug: string; plan: NonNullable<PricingResponse['interviewPrep']>; signedIn: boolean }) {
+  const hours = plan.interviewMinutes / 60;
+  const { session } = useSession();
+  const upgrade = !!session?.access.current && !!plan.upgradePriceLabel;
+  const to = `${countryPath(slug, 'checkout')}?plan=interview`;
+  return (
+    <section aria-labelledby="p-interview" className="order-3 flex flex-col gap-3.5 rounded-card border border-border bg-surface p-5 md:gap-4 md:rounded-[20px] md:p-7">
+      <h2 id="p-interview" className="m-0 text-[17px] font-bold">{plan.name} · {plan.durationDays} days</h2>
+      <p className="m-0 flex items-baseline gap-1.5 md:gap-2">
+        <span className="text-[34px] font-bold md:text-[40px] md:tracking-tight">{upgrade ? plan.upgradePriceLabel : plan.priceLabel}</span>
+        <span className="text-sm text-muted md:text-[15px]">{upgrade ? 'to upgrade your Full Access' : 'paid once'}</span>
+      </p>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px] text-ink-2 md:gap-2.5 md:text-base">
+        {[
+          'Everything in Full Access',
+          `${hours} hours with an AI interviewer that asks follow-up questions`,
+          'Upload or paste any job description',
+          'Scores and feedback on every answer',
+          'Practice focused on your weak areas',
+        ].map((f) => <Feature key={f} tone="brand">{f}</Feature>)}
+      </ul>
+      <LinkButton to={signedIn ? to : signInPath(to)} variant="primary" block className="mt-auto py-3 text-base md:py-[11px]">
+        {upgrade ? 'Upgrade' : 'Get interview prep'}
+      </LinkButton>
+      <p className="m-0 text-center text-[13px] text-muted">Minutes are used only during an interview and last as long as your access.</p>
+    </section>
   );
 }
 
