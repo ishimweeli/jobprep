@@ -60,6 +60,19 @@ Names only; the values come from the providers or are generated.
 
 `NODE_ENV`, `WEB_ORIGIN`, `PUBLIC_API_URL` and the port are set in the compose files.
 
+## Daily content from MIFOTRA
+
+`.github/workflows/daily-content.yml` runs every day at 06:00 Kigali. It reads the open MIFOTRA adverts, writes the
+missing mocks (5 per job, 50 questions each) with the Claude Agent SDK through OpenRouter, keeps only jobs that pass
+`prisma/pipeline/check.ts` in full, commits them to `main`, adds them to production with `sync-content`, and emails a
+status report to the address in the workflow's `REPORT_TO` (through the `MAIL_*` account in `/opt/jobprep/.env`).
+
+- Secret `OPENROUTER_API_KEY` (repository → Settings → Secrets → Actions).
+- Variable `DAILY_CONTENT_ENABLED` = `true` turns the schedule on (Settings → Variables). Without it only manual runs
+  happen; a manual run is a dry run by default (writes and checks, saves and publishes nothing, still emails).
+- Optional limits, as workflow env: `PIPELINE_MAX_JOBS` (4 per day), `PIPELINE_CONCURRENCY` (2),
+  `PIPELINE_JOB_BUDGET_USD` (25 per job), `PIPELINE_MODEL` (`claude-opus-5-5`).
+
 ## Gateway
 
 `deploy/gateway/jobprep.nginx.conf` holds the `jobprep_pool` upstream and the two server blocks.

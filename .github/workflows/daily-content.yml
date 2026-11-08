@@ -1,0 +1,107 @@
+name: Daily content from MIFOTRA
+
+# Every day at 06:00 Kigali (04:00 UTC): read the open MIFOTRA adverts, write the missing mocks with the Claude Agent
+# SDK (through OpenRouter), validate them with prisma/pipeline/check.ts, commit them to main, add them to production
+# and email a status report (see apps/api/prisma/pipeline/run-daily.ts).
+#
+# Switched on by the repository variable DAILY_CONTENT_ENABLED = true. Needs the secret OPENROUTER_API_KEY.
+# Run it by hand from the Actions tab; "dry run" (the default there) writes and checks but saves and publishes nothing.
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: write and check only, no commit and no production sync (the report is still emailed)'
+        type: boolean
+        default: true
+
+concurrency:
+  group: daily-content
+  cancel-in-progress: false
+
+env:
+  REPORT_TO: ishimweeliab0@gmail.com
+
+jobs:
+  write:
+    if: github.event_name == 'workflow_dispatch' || vars.DAILY_CONTENT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      dry_run: ${{ steps.mode.outputs.dry_run }}
+    steps:
+      - id: mode
+        run: echo "dry_run=${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Not --omit=optional: the Agent SDK ships its Claude Code binary as an optional dependency.
+      - run: npm ci
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - name: Scan MIFOTRA, write and check the missing mocks
+        working-directory: apps/api
+        env:
+          ANTHROPIC_BASE_URL: https://openrouter.ai/api
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ''
+          PIPELINE_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+        run: npx tsx prisma/pipeline/run-daily.ts "$RUNNER_TEMP/pipeline"
+      - name: Typecheck and lint the new content
+        if: steps.mode.outputs.dry_run != 'true'
+        run: npm run typecheck && npm run lint
+      - name: Commit and push
+        id: commit
+        if: steps.mode.outputs.dry_run != 'true'
+        run: |
+          if [ -z "$(git status --porcelain -- apps/api/prisma)" ]; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- apps/api/prisma
+          git commit -m "Daily content from MIFOTRA ($(date -u +%F))"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-report
+          path: ${{ runner.temp }}/pipeline/report.json
+          if-no-files-found: ignore
+
+  publish-and-report:
+    needs: write
+    if: always() && needs.write.result != 'skipped'
+    runs-on: [self-hosted, netcup]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: daily-report
+          path: report
+      - name: Build image
+        run: docker build -t jobprep:daily .
+      - name: Add the new content to production (additive only, see apps/api/prisma/sync-content.ts)
+        id: sync
+        if: needs.write.outputs.changed == 'true'
+        run: >
+          docker run --rm --add-host host.docker.internal:host-gateway
+          --env-file /opt/jobprep/migrate.env jobprep:daily npx tsx prisma/sync-content-cli.ts
+      - name: Email the status report
+        if: always()
+        run: >
+          docker run --rm --add-host host.docker.internal:host-gateway
+          --env-file /opt/jobprep/.env
+          -e REPORT_TO="$REPORT_TO"
+          -e SYNC_STATUS="${{ needs.write.outputs.changed == 'true' && steps.sync.outcome || 'skipped' }}"
+          -e WRITE_STATUS="${{ needs.write.result }}"
+          -v "$PWD/report:/report:ro"
+          jobprep:daily npx tsx prisma/pipeline/report.ts /report/report.json
