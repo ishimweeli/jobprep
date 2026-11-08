@@ -30,6 +30,7 @@ describe('job page parts', () => {
       const line = sourceLine(job, false);
       expect(usesPastPapers(job)).toBe(true);
       expect(line).toContain('real questions that candidates reported');
+      expect(line).toContain('later exams are practice questions we wrote');
       expect(line).toContain('cannot promise the same questions will appear');
       expect(line).not.toMatch(/experts?|mirror|guarantee|reviewed|actual exam/i);
     }

@@ -27,9 +27,10 @@ export function HowWeBuildPage() {
       <section className={sectionClass}>
         <h2 className={headingClass}>Real questions from earlier exams</h2>
         <p className={bodyClass}>
-          The Executive Secretary, Economic Development Officer and Human Capital &amp; Social Development Officer exams include real questions that candidates reported from earlier MIFOTRA written exams. We did not take the answers on trust:
+          The first Executive Secretary, Economic Development Officer and Human Capital &amp; Social Development Officer exams are mostly made of real questions that candidates reported from earlier MIFOTRA written exams. We did not take the answers on trust:
           each one was checked against the law or policy as it stands today. Where the reported answer was wrong or the law has changed, we use the correct answer, and a question that rests on a repealed law is reworded for the current one. Questions
-          whose answer we could not confirm from an official source are left out.
+          whose answer we could not confirm from an official source are left out. The later exams of these three jobs are practice questions we wrote from the same laws and policies, in the style of the real exam, on topics future exams may cover.
+          Each of them was written from an official text and checked against it by a second reader.
         </p>
       </section>
       <section className={sectionClass}>

@@ -23,7 +23,7 @@ export function usesPastPapers(jobName: string): boolean {
 export function sourceLine(jobName: string, psychometric: boolean): string {
   if (psychometric) return 'These are practice questions for general reasoning and public service judgment. They are not real or past exam papers.';
   if (usesPastPapers(jobName)) {
-    return `Many questions in the ${jobName} exams are real questions that candidates reported from earlier MIFOTRA written exams. We checked each answer against the law or policy as it stands today, and corrected it where the reported answer was wrong. The rest are practice questions written around the published job advert. We cannot promise the same questions will appear in your exam.`;
+    return `The first ${jobName} exams are mostly made of real questions that candidates reported from earlier MIFOTRA written exams. We checked each answer against the law or policy as it stands today, and corrected it where the reported answer was wrong. The later exams are practice questions we wrote from the same laws and policies, in the style of the real exam, on topics future exams may cover. We cannot promise the same questions will appear in your exam.`;
   }
   return `Questions are written around the duties and qualifications in the published job advert for ${jobName}. They are practice questions, not real or past exam papers.`;
 }
