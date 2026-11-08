@@ -17,6 +17,7 @@
     "NDERA HOSPITAL:social workers a0 in allied health sciences unit": "social-worker",
     "MINALOC:idp management specialist": "idp-management-specialist",
     "MINALOC:legal affairs specialist": "legal-affairs-specialist",
-    "MINALOC:lg capacity development specialist": "lg-capacity-development-specialist"
+    "MINALOC:lg capacity development specialist": "lg-capacity-development-specialist",
+    "REB:social and religious education teacher": "social-and-religious-education-teacher"
   }
 }
