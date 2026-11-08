@@ -3323,6 +3323,46 @@
   {
    "stem": "Since 2019, at what interest rate have VUP Financial Services loans been given to poor households through Umurenge SACCOs?",
    "source": "New Times, 'Interest rate on loans for vulnerable slashed to 2%' (2019); New Times, 'Rwf47 billion loaned out through VUP'"
+  },
+  {
+   "stem": "Which law determines the sources of revenue and property of decentralised entities in Rwanda?",
+   "source": "RRA, Basic Information on the Rwanda Taxation System (2025), list of laws, item 9"
+  },
+  {
+   "stem": "By which date must the trading licence tax, which is collected for districts, be paid for the tax year?",
+   "source": "RRA, Basic Information on the Rwanda Taxation System (2025), section 12.2(d) and section 3"
+  },
+  {
+   "stem": "Under Law N° 48/2018 on environment, a committee for the protection of the environment and climate change is established at which levels?",
+   "source": "Law N° 48/2018 of 13/08/2018 on environment, Article 41 (Official Gazette Special of 21/09/2018)"
+  },
+  {
+   "stem": "Under Law N° 48/2018 on environment, building in a swamp and its buffer zone is prohibited within how many metres of the swamp boundaries?",
+   "source": "Law N° 48/2018 of 13/08/2018 on environment, Article 42"
+  },
+  {
+   "stem": "The Digital Ambassadors Programme (DAP) of MINICT aims to raise digital literacy among how many citizens?",
+   "source": "MINICT, Digital Ambassadors Programme (minict.gov.rw/projects/digital-ambassadors-program)"
+  },
+  {
+   "stem": "What is Irembo in Rwanda's e-government system?",
+   "source": "MINICT, Digital Ambassadors Programme; New Times, 'Inside Rwanda's plan to move all government services online'"
+  },
+  {
+   "stem": "Which organ is the Sector-level disaster management committee created by Law N° 41/2015 relating to disaster management?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 7 (Official Gazette n° 05 of 01/02/2016)"
+  },
+  {
+   "stem": "For which period is the second District Development Strategy (DDS-2), aligned with NST2, prepared?",
+   "source": "Burera District Development Strategy (DDS-2) 2024–2029, executive summary"
+  },
+  {
+   "stem": "Which NISR operation counted 269,326 business establishments in Rwanda in 2023?",
+   "source": "NISR, Establishment Census 2023 (statistics.gov.rw), main results"
+  },
+  {
+   "stem": "Ejo Heza is a voluntary long-term savings scheme open to informal-sector workers. Which institution administers it?",
+   "source": "RSSB, Ejo Heza scheme page (rssb.rw/scheme/ejo-heza)"
   }
  ],
  "sedo-full-mock-2": [
@@ -3413,6 +3453,42 @@
   {
    "stem": "In the Vision 2050 Indicators Matrix, what is the 2050 target for agriculture's value-added contribution to GDP?",
    "source": "Vision 2050 Abridged Version (Dec 2020), Indicators Matrix, indicator 28"
+  },
+  {
+   "stem": "FONERWA, the Rwanda Green Fund established by Law N° 16/2012 of 22/05/2012, was created to finance what?",
+   "source": "Law N° 16/2012 of 22/05/2012 on the National Fund for Environment (FONERWA); Rwanda Green Fund, 'Who we are' (greenfund.rw)"
+  },
+  {
+   "stem": "According to Rwanda's 2019 forest cover mapping, about what share of the country's land was under forest?",
+   "source": "New Times coverage of the Rwanda Forest Cover Mapping Report 2019 (30.4%, 724,695 ha); World Bank forest area indicator"
+  },
+  {
+   "stem": "Under Law N° 41/2015, a disaster that occurs in a District and is managed with resources of the Ministry and its partners belongs to which category?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 4"
+  },
+  {
+   "stem": "Which of the following is a responsibility of SEDIMAC under Law N° 41/2015 on disaster management?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Articles 10 and 11"
+  },
+  {
+   "stem": "Under Law N° 065/2021 governing the District, which organ determines the charge rates levied in a District in accordance with the law?",
+   "source": "Law N° 065/2021 of 09/10/2021 governing the District, Article 10 (item 7)"
+  },
+  {
+   "stem": "By which year does the Rwanda Energy Group (REG) aim to give all Rwandans access to electricity, after the 2024 target was missed?",
+   "source": "REG news, 'REG reaffirms commitment to deliver reliable electricity access to all Rwandans'; AllAfrica (19 June 2024)"
+  },
+  {
+   "stem": "Under Law N° 41/2015, which instrument sets out how volunteers are mobilised and organised during disaster response?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 15"
+  },
+  {
+   "stem": "According to a District Development Strategy 2024–2029, how are its priorities implemented year by year?",
+   "source": "Burera District Development Strategy 2024–2029, sections 4.1 and 4.2"
+  },
+  {
+   "stem": "In which year was the YouthConnekt platform launched in Rwanda?",
+   "source": "UNDP Rwanda, 'YouthConnekt connects Rwandan youth to jobs and business opportunities'; New Times (2025)"
   }
  ],
  "sedo-full-mock-3": [
@@ -3507,6 +3583,74 @@
   {
    "stem": "Law N° 057/2024 governing cooperatives made board eligibility stricter. Which of the following is now prohibited for a member of a cooperative's Board of Directors?",
    "source": "ENS Africa, 'Rwanda in brief' (Legal500/Mondaq, 2024) on Law N° 057/2024"
+  },
+  {
+   "stem": "What share of rural households settled in integrated planned settlements does Vision 2050 target by 2024?",
+   "source": "Vision 2050 Abridged Version (Dec 2020), pillar 4 and Indicators Matrix, indicator 33"
+  },
+  {
+   "stem": "Besides Kigali, how many secondary cities are already planned under Vision 2050's urbanisation pillar?",
+   "source": "Vision 2050 Abridged Version (Dec 2020), pillar 4 'Urbanization and Agglomeration'"
+  },
+  {
+   "stem": "According to Vision 2050, efficient use of land across sectors is guided by which plan?",
+   "source": "Vision 2050 Abridged Version (Dec 2020), 'High quality and standards of life for Rwandans'"
+  },
+  {
+   "stem": "How often is the market value of immovable property determined for the purposes of immovable property tax?",
+   "source": "RRA, Basic Information on the Rwanda Taxation System (2025), section 12.1 (Law N° 048/2023)"
+  },
+  {
+   "stem": "Which of the following is NOT a tax levied for decentralised entities under Law N° 048/2023?",
+   "source": "RRA, Basic Information on the Rwanda Taxation System (2025), section 12 'Taxes and fees levied by decentralized entities'"
+  },
+  {
+   "stem": "Which organ provides strategic oversight and approves plans and budgets for implementing a District Development Strategy?",
+   "source": "Law N° 065/2021 of 09/10/2021 governing the District, Article 10; Burera DDS 2024–2029, section 4.3.1"
+  },
+  {
+   "stem": "Which of the following is a responsibility of the District Coordinating Committee under Law N° 065/2021?",
+   "source": "Law N° 065/2021 of 09/10/2021 governing the District, Articles 10 and 57"
+  },
+  {
+   "stem": "Which of the following is an obligation of the population under Article 40 of Law N° 48/2018 on environment?",
+   "source": "Law N° 48/2018 of 13/08/2018 on environment, Article 40"
+  },
+  {
+   "stem": "What does Law N° 17/2019 of 10/08/2019 prohibit?",
+   "source": "Law N° 17/2019 of 10/08/2019 on prohibition of plastic carry bags and single-use plastic items (FAOLEX; elaw.org)"
+  },
+  {
+   "stem": "On which e-procurement portal are public tenders published under Law N° 031/2022?",
+   "source": "Law N° 031/2022 of 21/11/2022 governing public procurement; RPPA / Umucyo e-procurement portal"
+  },
+  {
+   "stem": "In which year was the Digital Ambassadors Programme (DAP) officially launched?",
+   "source": "MINICT, 'How Digital Ambassadors Program (DAP) is increasing citizens' digital literacy'"
+  },
+  {
+   "stem": "Under Law N° 41/2015, which buildings must be covered by insurance against damage caused by disasters?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 14"
+  },
+  {
+   "stem": "Under Law N° 41/2015, who carries out the initial assessment of a disaster's character and consequences immediately after it occurs?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 18"
+  },
+  {
+   "stem": "According to a District Development Strategy 2024–2029, what do diverse actors contribute through the Joint Action Development Forum (JADF)?",
+   "source": "Burera District Development Strategy 2024–2029, section on stakeholders and JADF"
+  },
+  {
+   "stem": "In NISR's Establishment Census 2023, what share of workers in establishments were women?",
+   "source": "NISR, Establishment Census 2023 (statistics.gov.rw/data-sources/censuses/Establishment-Census/establishment-census-2023)"
+  },
+  {
+   "stem": "Aguka, launched in May 2023 by the Ministry of Youth with UNDP and the European Union, supports what?",
+   "source": "UNDP Rwanda press release on the launch of Aguka; New Times, 'Aguka Youth Fund, YouthConnekt Awards to propel young entrepreneurs' growth'"
+  },
+  {
+   "stem": "The Hanga Agritech Innovation Challenge Fund, announced in December 2023, supports which kind of enterprises?",
+   "source": "Afrik21, 'Kigali commits $2m to food security based on agricultural innovation'; The Founder Africa, Hanga Agritech Innovation Challenge Fund"
   }
  ],
  "sedo-full-mock-4": [
@@ -3629,6 +3773,62 @@
   {
    "stem": "Under Law N° 065/2021, which of the following is NOT a responsibility of the Vice Mayor in charge of Economic Development?",
    "source": "Law N° 065/2021 of 09/10/2021 governing the District, responsibilities of the Vice Mayor in charge of Economic Development; Article 59"
+  },
+  {
+   "stem": "On what basis is immovable property tax assessed?",
+   "source": "RRA, Basic Information on the Rwanda Taxation System (2025), section 12.1 (Law N° 048/2023)"
+  },
+  {
+   "stem": "How many categories of disasters does Law N° 41/2015 relating to disaster management define?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 4"
+  },
+  {
+   "stem": "What does DIDIMAC, created by Law N° 41/2015, stand for?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 7"
+  },
+  {
+   "stem": "Under Law N° 48/2018 on environment, a cattle kraal, slaughterhouse or cattle market may not be built within how many metres of lake banks?",
+   "source": "Law N° 48/2018 of 13/08/2018 on environment, Article 42 (item 6)"
+  },
+  {
+   "stem": "Under Law N° 48/2018 on environment, public organs in charge of housing and infrastructure must include what in master plans and individual construction plans?",
+   "source": "Law N° 48/2018 of 13/08/2018 on environment, Article 23"
+  },
+  {
+   "stem": "Law N° 031/2022 of 21/11/2022 governing public procurement replaced which earlier law?",
+   "source": "Law N° 031/2022 of 21/11/2022 governing public procurement (FAOLEX/NATLEX record); KT Press (2022)"
+  },
+  {
+   "stem": "Which body oversees public procurement in Rwanda and issues procurement guidelines and standard procedures?",
+   "source": "RPPA (rppa.gov.rw); Law N° 031/2022 of 21/11/2022 governing public procurement"
+  },
+  {
+   "stem": "Vision 2050 targets reducing the share of the urban population living in slums, informal settlements or inadequate housing to what level by 2050?",
+   "source": "Vision 2050 Abridged Version (Dec 2020), Indicators Matrix, indicator 30"
+  },
+  {
+   "stem": "Which of the following is a responsibility of decentralised administrative entities under Law N° 49/2018 on water resources?",
+   "source": "Law N° 49/2018 of 13/08/2018 determining the use and management of water resources, Article 11"
+  },
+  {
+   "stem": "Which management approach does the implementation of a District Development Strategy 2024–2029 adopt?",
+   "source": "Burera District Development Strategy 2024–2029, section 4.1"
+  },
+  {
+   "stem": "What does the implementation framework matrix of a District Development Strategy list to guide execution and monitoring?",
+   "source": "Burera District Development Strategy 2024–2029, section 4.1 (Implementation Framework Matrix)"
+  },
+  {
+   "stem": "Vision 2050 says Rwanda will continue its journey towards self-reliance through which growth model?",
+   "source": "Vision 2050 Abridged Version (Dec 2020), 'Rwanda's changing development context'"
+  },
+  {
+   "stem": "What kind of organ is the District Coordinating Committee under Law N° 065/2021?",
+   "source": "Law N° 065/2021 of 09/10/2021 governing the District, Article 56"
+  },
+  {
+   "stem": "In MIFOTRA's advert for Cell-level Economic Development Officers, to whom does the post report?",
+   "source": "MIFOTRA advert 2610000781 (Economic Development Officer, Cell level, Burera District)"
   }
  ],
  "sedo-full-mock-5": [
@@ -3735,6 +3935,58 @@
   {
    "stem": "Which of the following does Vision 2050 list among Rwanda's Home-Grown Solutions?",
    "source": "Vision 2050 Abridged Version (Dec 2020), 'Positive values supporting societal transformation'"
+  },
+  {
+   "stem": "Through what kind of system must every person carrying out a taxable activity issue invoices in Rwanda?",
+   "source": "RRA, Basic Information on the Rwanda Taxation System (2025), section 3 (obligations of using an electronic invoicing system)"
+  },
+  {
+   "stem": "RRA groups fees levied by decentralised entities into three categories. Which item falls under fees on the use of the State's public domain?",
+   "source": "RRA, Basic Information on the Rwanda Taxation System (2025), section 12.5; Presidential Order N° 075/01 of 04/12/2023"
+  },
+  {
+   "stem": "Under Law N° 41/2015, what must the Ministry and other disaster management organs develop in order to prevent disasters and reduce their effects?",
+   "source": "Law N° 41/2015 of 29/08/2015 relating to disaster management, Article 13"
+  },
+  {
+   "stem": "Which Presidential Order determines the mission, responsibilities, organisation and functioning of the Rwanda Forestry Authority?",
+   "source": "UNEP LEAP / FAOLEX, Presidential Order N° 034/01 of 06/05/2022 governing Rwanda Forestry"
+  },
+  {
+   "stem": "Under the Bonn Challenge, Rwanda has committed to restoring how many hectares of degraded land by 2030?",
+   "source": "New Times, 'A look at new efforts to expand Rwanda's forest cover, restore landscapes'; Bonn Challenge pledge for Rwanda"
+  },
+  {
+   "stem": "Under Law N° 48/2018 on environment, what must a project that may significantly affect the environment undergo during and after its implementation?",
+   "source": "Law N° 48/2018 of 13/08/2018 on environment, Article 32"
+  },
+  {
+   "stem": "Under Article 29 of Law N° 48/2018, the State promotes energy that can replace energy derived from which source?",
+   "source": "Law N° 48/2018 of 13/08/2018 on environment, Article 29"
+  },
+  {
+   "stem": "Under Law N° 49/2018 on water resources, a water resources management committee is established at which level?",
+   "source": "Law N° 49/2018 of 13/08/2018 determining the use and management of water resources, Article 10"
+  },
+  {
+   "stem": "How does Vision 2050 say rural settlements will grow?",
+   "source": "Vision 2050 Abridged Version (Dec 2020), pillar 4 'Urbanization and Agglomeration'"
+  },
+  {
+   "stem": "In Expanded Public Works targeting for single-person-responsible households without a grant, positive discrimination is given to which households?",
+   "source": "LODA, VUP Programme Document (Oct 2022), section 4.2.2 (item iv)"
+  },
+  {
+   "stem": "Under Article 12 of Law N° 065/2021, which of these persons does NOT sit on the District Council?",
+   "source": "Law N° 065/2021 of 09/10/2021 governing the District, Article 12"
+  },
+  {
+   "stem": "What does Article 73 of Law N° 031/2022 establish for Rwandan firms in public tenders?",
+   "source": "RPPA, 'Promotion of local products for sustainable development in public procurement'; Law N° 031/2022 of 21/11/2022, Article 73"
+  },
+  {
+   "stem": "Which Vision 2050 pillar lists integration within global value chains for higher-value products as a priority?",
+   "source": "Vision 2050 Abridged Version (Dec 2020), pillar 3 'Agriculture for Wealth Creation'"
   }
  ],
  "protection-specialist-minema-mock-exam-1": [
