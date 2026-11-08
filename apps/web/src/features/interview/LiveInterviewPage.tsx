@@ -76,7 +76,11 @@ function Live({ initial }: { initial: InterviewSessionView }) {
   /** `next` (defined after `answer`, which calls it): read through a ref so the two can refer to each other. */
   const nextRef = useRef<() => Promise<void>>(async () => {});
 
-  useEffect(() => () => { alive.current = false; }, []);
+  useEffect(() => {
+    // Set on mount too: StrictMode mounts, unmounts and mounts again in development.
+    alive.current = true;
+    return () => { alive.current = false; };
+  }, []);
 
   const finish = useCallback(() => {
     stopped.current = true;

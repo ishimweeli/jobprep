@@ -131,14 +131,49 @@ function safeJson(text: string): unknown {
   }
 }
 
-/**
- * Dev/test stand-in: answers from `handler`, recording every request. The default handler returns a short
- * interviewer line for turns and `{}` for JSON calls (tests set their own handler).
- */
+/** A scripted interview so the whole flow can be clicked through locally without an API key (tests set their own). */
+export function demoScript(req: LlmRequest): string {
+  const last = req.messages[req.messages.length - 1]?.content ?? '';
+  if (req.purpose === 'extract') {
+    const title = /Job title:\s*(.+)/i.exec(last)?.[1]?.trim() ?? /<job>\s*([^\n.]{3,80})/.exec(last)?.[1]?.trim() ?? 'The position';
+    return JSON.stringify({
+      position: title, organisation: '', experience: '', responsibilities: ['Deliver the main duties of the post'], qualifications: [],
+      technicalSkills: ['Job knowledge'], behavioralCompetencies: ['Communication', 'Teamwork', 'Integrity'],
+      topics: [
+        { name: 'Core job knowledge', kind: 'technical', priority: 'high' },
+        { name: 'Solving a work problem', kind: 'technical', priority: 'high' },
+        { name: 'Working with others', kind: 'behavioral', priority: 'medium' },
+      ],
+      recommendedLevel: 'INTERMEDIATE', recommendedKind: 'MIXED', recommendedDurationMinutes: 15,
+    });
+  }
+  if (req.purpose === 'evaluate') {
+    return JSON.stringify({
+      rubric: { technical_knowledge: 72, problem_solving: 65, communication: 80, answer_structure: 58, practical_examples: 60 },
+      topicScores: [{ topicId: 't1', score: 70 }, { topicId: 't2', score: 55 }],
+      strengths: ['Clear and polite answers', 'Relevant experience mentioned early'],
+      improvements: [{ title: 'Answer structure', detail: 'Use situation, task, action and result so each example has a clear outcome.' }],
+      questions: [{ question: 'Tell me about yourself.', answer: 'A short summary of the candidate’s background.', competencies: ['Communication'], score: 70, verdict: 'Good start', missing: ['A concrete result'], improvedAnswer: 'I have worked for three years in ... where I ...' }],
+      plan: [{ topic: 'Answer structure', priority: 'high', score: 58, practiceQuestions: 3 }],
+      comparison: 'This is a demo evaluation (no AI key is set).',
+    });
+  }
+  if (req.purpose === 'summary') return 'Demo notes of the interview so far.';
+  if (/TIME IS UP|about one minute left/.test(last)) return '[[topic:none]] Thank you for your time today. Your feedback report will be ready in a moment. [[end]]';
+  if (/The candidate has joined/.test(last)) return '[[topic:none]] Welcome, and thank you for joining. I am your interviewer today. Could you briefly introduce yourself and your experience for this role?';
+  const asked = req.messages.filter((m) => m.role === 'assistant').length;
+  const lines = [
+    '[[topic:t1]] Thank you. What do you see as the most important duty of this position, and why?',
+    '[[topic:t2]] Tell me about a difficult problem you solved at work. What did you do, step by step?',
+    '[[topic:t3]] How do you handle a disagreement with a colleague about how to do a task?',
+  ];
+  return lines[(asked - 1 + lines.length) % lines.length]!;
+}
+
+/** Dev/test stand-in: answers from `handler`, recording every request (dev default: `demoScript`). */
 export class FakeLlmProvider implements LlmProvider {
   readonly calls: LlmRequest[] = [];
-  handler: (req: LlmRequest) => string = (req) =>
-    req.purpose === 'turn' ? '[[topic:t1]] Thank you. Could you tell me about a recent project you are proud of?' : '{}';
+  handler: (req: LlmRequest) => string = demoScript;
 
   private reply(req: LlmRequest): LlmResult {
     this.calls.push(req);
