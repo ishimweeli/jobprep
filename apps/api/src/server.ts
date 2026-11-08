@@ -5,12 +5,16 @@ import { createProviderRegistry } from './payments/registry';
 import { sweepExpiredAttempts } from './services/attempts';
 import { sweepPayments } from './services/payments';
 import { ConsoleEmailProvider, SmtpEmailProvider } from './services/email';
+import { createLlmProvider } from './interview/llm';
+import { createSttProvider } from './interview/stt';
 
 const config = loadConfig();
 const prisma = new PrismaClient();
 const email = config.EMAIL_PROVIDER === 'smtp' ? new SmtpEmailProvider(config) : new ConsoleEmailProvider();
 const providers = createProviderRegistry(config);
-const app = createApp({ prisma, config, email, providers });
+const llm = createLlmProvider(config);
+const stt = createSttProvider(config);
+const app = createApp({ prisma, config, email, providers, llm, stt });
 
 // Auto-submit attempts whose time ran out even if the candidate never comes back.
 const sweeper = setInterval(() => {

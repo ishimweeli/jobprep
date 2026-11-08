@@ -59,6 +59,20 @@ const schema = z.object({
   SUPPORT_WHATSAPP: z.string().default(''),
   SUPPORT_EMAIL: z.string().default(''),
   SUPPORT_HOURS: z.string().default(''),
+  /** AI interview preparation. Off until switched on: the nav item, routes and the interview plan stay hidden. */
+  INTERVIEW_PREP_ENABLED: bool,
+  /** The interviewer (Claude through OpenRouter's Anthropic-compatible API). Empty key = the scripted fake (dev/test). */
+  OPENROUTER_API_KEY: z.string().default(''),
+  OPENROUTER_BASE_URL: z.string().url().default('https://openrouter.ai/api'),
+  INTERVIEW_MODEL: z.string().min(1).default('anthropic/claude-haiku-5.5'),
+  /** Speech to text (Groq Whisper). Empty key = the fake transcriber (dev/test). */
+  GROQ_API_KEY: z.string().default(''),
+  GROQ_BASE_URL: z.string().url().default('https://api.groq.com/openai/v1'),
+  GROQ_STT_MODEL: z.string().min(1).default('whisper-large-v3'),
+  /** 32 random bytes, base64: encrypts interview transcripts, job descriptions and reports at rest. */
+  DATA_ENCRYPTION_KEY: z.string().default(''),
+  /** Free interview minutes every account gets once. */
+  INTERVIEW_TRIAL_MINUTES: z.coerce.number().int().nonnegative().default(5),
 });
 
 export type Config = z.infer<typeof schema>;
@@ -92,6 +106,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     // Google sign-in is optional, but half a configuration is a mistake that would fail at the first click.
     if (!!cfg.GOOGLE_CLIENT_ID !== !!cfg.GOOGLE_CLIENT_SECRET) problems.push('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set together (or both left empty)');
     if (cfg.PAWAPAY_API_TOKEN.length === 0) problems.push('PAWAPAY_API_TOKEN must be set');
+    if (cfg.INTERVIEW_PREP_ENABLED) {
+      // The fakes would answer every candidate with scripted text and never charge real usage.
+      if (!cfg.OPENROUTER_API_KEY) problems.push('OPENROUTER_API_KEY must be set when INTERVIEW_PREP_ENABLED=true');
+      if (!cfg.GROQ_API_KEY) problems.push('GROQ_API_KEY must be set when INTERVIEW_PREP_ENABLED=true');
+      if (Buffer.from(cfg.DATA_ENCRYPTION_KEY, 'base64').length !== 32) problems.push('DATA_ENCRYPTION_KEY must be 32 random bytes, base64 (openssl rand -base64 32)');
+    }
     if (problems.length > 0) throw new Error(`Unsafe production configuration: ${problems.join('; ')}`);
   }
   return cfg;

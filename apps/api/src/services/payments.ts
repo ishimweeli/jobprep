@@ -7,6 +7,9 @@ import {
   candidateMessage, isExpiredPending, isTerminal, transition, type PaymentSignal, type PaymentStatusCode,
 } from '../domain/payment-state';
 import type { Ctx } from '../http/context';
+
+/** What the payment flow uses (the sweeper in server.ts calls it without the interview providers). */
+type PayCtx = Pick<Ctx, 'prisma' | 'config' | 'email' | 'providers' | 'now'>;
 import { badRequest, conflict, forbidden, HttpError, notFound } from '../http/errors';
 import { InvalidCallbackError, type CallbackRequest, type PaymentProvider, type ProviderCode, type ProviderStatus } from '../payments/types';
 
@@ -53,7 +56,7 @@ export interface SignalMeta {
   inTransaction?: (tx: Prisma.TransactionClient) => Promise<unknown>;
 }
 
-export async function applySignal(ctx: Ctx, paymentId: string, signal: PaymentSignal, meta: SignalMeta) {
+export async function applySignal(ctx: PayCtx, paymentId: string, signal: PaymentSignal, meta: SignalMeta) {
   const { prisma, now } = ctx;
   const at = now();
 
@@ -109,7 +112,7 @@ export async function applySignal(ctx: Ctx, paymentId: string, signal: PaymentSi
   return outcome;
 }
 
-async function sendReceipt(ctx: Ctx, payment: Payment, endsAt: Date) {
+async function sendReceipt(ctx: PayCtx, payment: Payment, endsAt: Date) {
   const [user, country, method] = await Promise.all([
     ctx.prisma.user.findUniqueOrThrow({ where: { id: payment.userId } }),
     ctx.prisma.country.findUniqueOrThrow({ where: { code: payment.countryCode } }),
@@ -141,7 +144,7 @@ export interface CreatePaymentInput {
   replacePaymentId?: string;
 }
 
-export async function createPayment(ctx: Ctx, input: CreatePaymentInput) {
+export async function createPayment(ctx: PayCtx, input: CreatePaymentInput) {
   const { prisma, now, providers } = ctx;
   const { user } = input;
   const at = now();
@@ -212,7 +215,7 @@ export async function createPayment(ctx: Ctx, input: CreatePaymentInput) {
 // ───────────────────────── Polling, expiry, status
 
 /** Ask the operator what happened. Throttled so a client polling every few seconds doesn't hammer them. */
-export async function pollPayment(ctx: Ctx, paymentId: string, opts: { force?: boolean } = {}) {
+export async function pollPayment(ctx: PayCtx, paymentId: string, opts: { force?: boolean } = {}) {
   const { prisma, now, providers } = ctx;
   const p = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
   const late = p.status === 'EXPIRED' && now().getTime() - p.updatedAt.getTime() < LATE_SUCCESS_WINDOW_MS;
@@ -238,7 +241,7 @@ export async function pollPayment(ctx: Ctx, paymentId: string, opts: { force?: b
 }
 
 /** Time ran out: look one last time (it may have just been approved), then expire. */
-export async function expireIfDue(ctx: Ctx, paymentId: string) {
+export async function expireIfDue(ctx: PayCtx, paymentId: string) {
   const p = await ctx.prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
   if (!isExpiredPending(p.status as PaymentStatusCode, p.expiresAt, ctx.now())) return p;
   const polled = await pollPayment(ctx, paymentId, { force: true });
@@ -247,13 +250,13 @@ export async function expireIfDue(ctx: Ctx, paymentId: string) {
   return ctx.prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
 }
 
-export async function refreshPayment(ctx: Ctx, paymentId: string, opts: { force?: boolean } = {}) {
+export async function refreshPayment(ctx: PayCtx, paymentId: string, opts: { force?: boolean } = {}) {
   await pollPayment(ctx, paymentId, opts);
   return expireIfDue(ctx, paymentId);
 }
 
 /** Background sweep: settle what the callbacks missed and expire what ran out. */
-export async function sweepPayments(ctx: Ctx): Promise<number> {
+export async function sweepPayments(ctx: PayCtx): Promise<number> {
   const now = ctx.now();
   const rows = await ctx.prisma.payment.findMany({
     where: {
@@ -281,7 +284,7 @@ export async function sweepPayments(ctx: Ctx): Promise<number> {
 
 // ───────────────────────── Webhooks
 
-export async function handleCallback(ctx: Ctx, provider: PaymentProvider, req: CallbackRequest) {
+export async function handleCallback(ctx: PayCtx, provider: PaymentProvider, req: CallbackRequest) {
   const parsed = provider.parseCallback(req); // throws InvalidCallbackError on a bad signature/secret
   const payment = await ctx.prisma.payment.findFirst({
     where: {
@@ -317,7 +320,7 @@ export { InvalidCallbackError };
 
 // ───────────────────────── What the client sees
 
-export async function paymentView(ctx: Ctx, p: Payment) {
+export async function paymentView(ctx: PayCtx, p: Payment) {
   const { prisma, now } = ctx;
   const [country, method, grant, allGrants] = await Promise.all([
     prisma.country.findUniqueOrThrow({ where: { code: p.countryCode } }),
@@ -354,7 +357,7 @@ export async function paymentView(ctx: Ctx, p: Payment) {
   };
 }
 
-export async function getOwnedPayment(ctx: Ctx, id: string, user: User) {
+export async function getOwnedPayment(ctx: PayCtx, id: string, user: User) {
   const p = await ctx.prisma.payment.findUnique({ where: { id } });
   if (!p || p.userId !== user.id) throw notFound('payment_not_found');
   return p;

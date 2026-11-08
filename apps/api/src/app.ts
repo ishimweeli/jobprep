@@ -22,6 +22,9 @@ import { createProviderRegistry, type ProviderRegistry } from './payments/regist
 import type { FetchLike } from './payments/types';
 import { ConsoleEmailProvider, type EmailProvider } from './services/email';
 import { serveWeb } from './http/static-web';
+import { FakeLlmProvider, type LlmProvider } from './interview/llm';
+import { FakeSttProvider, type SttProvider } from './interview/stt';
+import { createDataCipher } from './services/crypto';
 
 export interface AppDeps {
   prisma: PrismaClient;
@@ -31,6 +34,9 @@ export interface AppDeps {
   now?: () => Date;
   /** Outbound HTTP for Google sign-in (tests inject a mock). */
   fetch?: FetchLike;
+  /** Interview prep providers. Default: the fakes (server.ts passes the real ones). */
+  llm?: LlmProvider;
+  stt?: SttProvider;
 }
 
 export function createApp(deps: AppDeps) {
@@ -40,6 +46,9 @@ export function createApp(deps: AppDeps) {
     providers: deps.providers ?? createProviderRegistry(config),
     now: deps.now ?? (() => new Date()),
     fetch: deps.fetch,
+    llm: deps.llm ?? new FakeLlmProvider(),
+    stt: deps.stt ?? new FakeSttProvider(),
+    cipher: createDataCipher(config),
   };
 
   const app = express();

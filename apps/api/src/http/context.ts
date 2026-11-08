@@ -6,6 +6,9 @@ import { findSessionUser, parseCookies, SESSION_COOKIE } from '../services/sessi
 import type { ProviderRegistry } from '../payments/registry';
 import type { FetchLike } from '../payments/types';
 import type { ConsoleEmailProvider, EmailProvider } from '../services/email';
+import type { LlmProvider } from '../interview/llm';
+import type { SttProvider } from '../interview/stt';
+import type { DataCipher } from '../services/crypto';
 
 export interface Ctx {
   prisma: PrismaClient;
@@ -15,6 +18,10 @@ export interface Ctx {
   now: () => Date;
   /** Outbound HTTP for sign-in with Google (injected in tests; never call Google from a test). Default: global fetch. */
   fetch?: FetchLike;
+  /** AI interview preparation: the language model, speech to text, and encryption at rest. */
+  llm: LlmProvider;
+  stt: SttProvider;
+  cipher: DataCipher;
 }
 
 declare module 'express-serve-static-core' {
