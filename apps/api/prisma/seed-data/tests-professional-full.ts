@@ -20,6 +20,7 @@ export const executiveSecretaryFullMock1: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -186,6 +187,7 @@ export const executiveSecretaryFullMock2: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -352,6 +354,7 @@ export const executiveSecretaryFullMock3: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -518,6 +521,7 @@ export const executiveSecretaryFullMock4: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -684,6 +688,7 @@ export const executiveSecretaryFullMock5: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -850,6 +855,7 @@ export const sedoFullMock1: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1016,6 +1022,7 @@ export const sedoFullMock2: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1182,6 +1189,7 @@ export const sedoFullMock3: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1348,6 +1356,7 @@ export const sedoFullMock4: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1514,6 +1523,7 @@ export const sedoFullMock5: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   minutes: 120,
+  jobDeadlineAt: '2026-10-26',
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
