@@ -29,7 +29,7 @@ export const biomedicalTechnicianFullMock1: TestDef = {
   summary: 'A practice exam for Biomedical Technician posts: equipment lifecycle and maintenance management, standards, regulation and safety, and electronics, devices and troubleshooting.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: BF_LIFECYCLE }, { name: BF_STANDARDS }, { name: BF_DEVICES }],
   questions: [
     // ── BF_LIFECYCLE (18)
@@ -202,7 +202,7 @@ export const biomedicalTechnicianFullMock2: TestDef = {
   summary: 'A second practice exam for Biomedical Technician posts, covering equipment lifecycle and maintenance management, standards, regulation and safety, and electronics, devices and troubleshooting.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: BF_LIFECYCLE }, { name: BF_STANDARDS }, { name: BF_DEVICES }],
   questions: [
     // ── BF_LIFECYCLE (17)
@@ -374,7 +374,7 @@ export const biomedicalTechnicianFullMock3: TestDef = {
   summary: 'A third practice exam for Biomedical Technician posts, covering equipment lifecycle and maintenance management, standards, regulation and safety, and electronics, devices and troubleshooting.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: BF_LIFECYCLE }, { name: BF_STANDARDS }, { name: BF_DEVICES }],
   questions: [
     // ── BF_LIFECYCLE (16)
@@ -550,7 +550,7 @@ export const biomedicalTechnicianFullMock4: TestDef = {
   summary: 'A fourth practice exam for Biomedical Technician posts, covering equipment lifecycle and maintenance management, standards, regulation and safety, and electronics, devices and troubleshooting.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: BF_LIFECYCLE }, { name: BF_STANDARDS }, { name: BF_DEVICES }],
   questions: [
     // ── BF_LIFECYCLE (12)
@@ -723,7 +723,7 @@ export const biomedicalTechnicianFullMock5: TestDef = {
   summary: 'A fifth practice exam for Biomedical Technician posts, covering equipment lifecycle and maintenance management, standards, regulation and safety, and electronics, devices and troubleshooting.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: BF_LIFECYCLE }, { name: BF_STANDARDS }, { name: BF_DEVICES }],
   questions: [
     // ── BF_LIFECYCLE (11)
@@ -896,7 +896,7 @@ export const networkSpecialistFullMock1: TestDef = {
   summary: 'A practice exam for Network Specialist posts: networking fundamentals, services and security, troubleshooting methodology, and psychometric reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: NF_FUND }, { name: NF_SERVICES }, { name: NF_TROUBLESHOOT }, { name: NF_PSYCH }],
   questions: [
     // ── NF_FUND (18)
@@ -1070,7 +1070,7 @@ export const networkSpecialistFullMock2: TestDef = {
   summary: 'A second practice exam for Network Specialist posts, covering networking fundamentals, services and security, troubleshooting methodology, and psychometric reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: NF_FUND }, { name: NF_SERVICES }, { name: NF_TROUBLESHOOT }, { name: NF_PSYCH }],
   questions: [
     // ── NF_FUND (17)
@@ -1244,7 +1244,7 @@ export const networkSpecialistFullMock3: TestDef = {
   summary: 'A third practice exam for Network Specialist posts, covering networking fundamentals, services and security, troubleshooting methodology, and psychometric reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: NF_FUND }, { name: NF_SERVICES }, { name: NF_TROUBLESHOOT }, { name: NF_PSYCH }],
   questions: [
     // ── NF_FUND (16)
@@ -1421,7 +1421,7 @@ export const networkSpecialistFullMock4: TestDef = {
   summary: 'A fourth practice exam for Network Specialist posts, covering networking fundamentals, services and security, troubleshooting methodology, and psychometric reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: NF_FUND }, { name: NF_SERVICES }, { name: NF_TROUBLESHOOT }, { name: NF_PSYCH }],
   questions: [
     // ── NF_FUND (12)
@@ -1595,7 +1595,7 @@ export const networkSpecialistFullMock5: TestDef = {
   summary: 'A fifth practice exam for Network Specialist posts, covering networking fundamentals, services and security, troubleshooting methodology, and psychometric reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: NF_FUND }, { name: NF_SERVICES }, { name: NF_TROUBLESHOOT }, { name: NF_PSYCH }],
   questions: [
     // ── NF_FUND (11)

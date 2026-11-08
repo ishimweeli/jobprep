@@ -28,7 +28,7 @@ export const accountantMininterFullMock1: TestDef = {
   slug: 'accountant-mininter-full-mock-exam-1',
   title: 'Accountant (MININTER) — Mock Exam 1',
   summary: 'Practice for ministry accountant recruitment, covering accounting standards and risk, budgeting with IFMIS and the MTEF, and reconciliation and reporting.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AS }, { name: BIM }, { name: RR }],
   cases: [],
   questions: [
@@ -102,7 +102,7 @@ export const accountantMininterFullMock2: TestDef = {
   slug: 'accountant-mininter-full-mock-exam-2',
   title: 'Accountant (MININTER) — Mock Exam 2',
   summary: 'Practice for ministry accountant recruitment, covering accounting fundamentals and risk, budgeting with IFMIS and the MTEF, reconciliation and reporting, and a linked cash-flow forecasting case.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AS }, { name: BIM }, { name: RR }, { name: 'Case study: Huye District Health Centre Network', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'huye-health',
@@ -194,7 +194,7 @@ export const accountantMininterFullMock3: TestDef = {
   slug: 'accountant-mininter-full-mock-exam-3',
   title: 'Accountant (MININTER) — Mock Exam 3',
   summary: 'Practice for ministry accountant recruitment, covering accounting fundamentals and risk, budget monitoring, reconciliation and reporting, and a multi-line budget execution case.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AS }, { name: BIM }, { name: RR }, { name: 'Case study: Musanze District Roads Unit', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'musanze-roads',
@@ -297,7 +297,7 @@ export const accountantMininterFullMock4: TestDef = {
   slug: 'accountant-mininter-full-mock-exam-4',
   title: 'Accountant (MININTER) — Mock Exam 4',
   summary: 'Practice for ministry accountant recruitment, covering accounting ethics and risk, budgeting and cash controls, and reconciliation and reporting.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AS }, { name: BIM }, { name: RR }],
   cases: [],
   questions: [
@@ -390,7 +390,7 @@ export const accountantMininterFullMock5: TestDef = {
   slug: 'accountant-mininter-full-mock-exam-5',
   title: 'Accountant (MININTER) — Mock Exam 5',
   summary: 'Practice for ministry accountant recruitment, covering ethics and reporting disclosures, medium-term budgeting, reconciliation and reporting, and a cash-versus-accrual case study.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AS }, { name: BIM }, { name: RR }, { name: 'Case study: Gicumbi District Education Office', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'gicumbi-education',
@@ -511,7 +511,7 @@ export const internalAuditorMininterFullMock1: TestDef = {
   slug: 'internal-auditor-mininter-full-mock-exam-1',
   title: 'Internal Auditor (MININTER) — Mock Exam 1',
   summary: 'A practice exam for ministry internal auditor recruitment, covering audit standards and governance, risk-based planning, control review and reporting, psychometric reasoning, and a linked audit-priority case.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AG }, { name: RBP }, { name: CRR }, { name: PSY2 }, { name: 'Case study: three Sector offices', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'sector-risk-ranking',
@@ -610,7 +610,7 @@ export const internalAuditorMininterFullMock2: TestDef = {
   slug: 'internal-auditor-mininter-full-mock-exam-2',
   title: 'Internal Auditor (MININTER) — Mock Exam 2',
   summary: 'A practice exam for ministry internal auditor recruitment, covering independence and audit types, risk-based planning, control testing and reporting, psychometric reasoning, and a linked payroll-sampling case.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AG }, { name: RBP }, { name: CRR }, { name: PSY2 }, { name: 'Case study: payroll voucher sampling', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'payroll-sampling',
@@ -710,7 +710,7 @@ export const internalAuditorMininterFullMock3: TestDef = {
   slug: 'internal-auditor-mininter-full-mock-exam-3',
   title: 'Internal Auditor (MININTER) — Mock Exam 3',
   summary: 'A practice exam for ministry internal auditor recruitment, covering audit governance, risk-based planning, control investigation and reporting, and a linked repeat-finding follow-up case.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AG }, { name: RBP }, { name: CRR }, { name: 'Case study: a recurring payment-approval weakness', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'procurement-approval-weakness',
@@ -817,7 +817,7 @@ export const internalAuditorMininterFullMock4: TestDef = {
   slug: 'internal-auditor-mininter-full-mock-exam-4',
   title: 'Internal Auditor (MININTER) — Mock Exam 4',
   summary: 'A practice exam for ministry internal auditor recruitment, covering audit evidence and ethics, risk-based planning, control review, psychometric reasoning, and a linked follow-up-audit case.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AG }, { name: RBP }, { name: CRR }, { name: PSY2 }, { name: 'Case study: follow-up on three prior recommendations', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'followup-three-units',
@@ -913,7 +913,7 @@ export const internalAuditorMininterFullMock5: TestDef = {
   slug: 'internal-auditor-mininter-full-mock-exam-5',
   title: 'Internal Auditor (MININTER) — Mock Exam 5',
   summary: 'A practice exam for ministry internal auditor recruitment, covering audit professionalism, planning practice, evidence quality, psychometric reasoning, and a linked governance-oversight case.',
-  free: false, difficulty: 'STANDARD', minutes: 60,
+  free: false, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AG }, { name: RBP }, { name: CRR }, { name: PSY2 }, { name: 'Case study: reviewing governance oversight', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'governance-oversight-review',

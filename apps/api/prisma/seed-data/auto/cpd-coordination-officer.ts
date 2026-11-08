@@ -11,7 +11,7 @@ export const MOCKS: TestDef[] = [
     slug: 'cpd-coordination-officer-ndera-mock-exam-3',
     title: 'CPD Coordination Officer (Ndera Hospital) — Mock Exam 3',
     summary: 'Rwanda\'s joint CPD policy and council rules (RMDC, NCNM, RAHPC), training needs and evaluation models, HSSP V, the 4x4 reform and public service law, and Ndera hospital and mental health topics.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'CPD policy, councils & licensing in Rwanda' }, { name: 'Training needs, adult learning & evaluation' }, { name: 'Health sector strategy, HRH & public service rules' }, { name: 'Ndera hospital & mental health topics' }],
     questions: [
@@ -173,7 +173,7 @@ export const MOCKS: TestDef[] = [
     slug: 'cpd-coordination-officer-ndera-mock-exam-4',
     title: 'CPD Coordination Officer (Ndera Hospital) — Mock Exam 4',
     summary: 'CPD accreditation, credits and compliance rules (joint policy, RMDC, RAHPC, NCNM), learning design and evaluation, HSSP V, the 4x4 reform and public service law, and mental health and neurology at Ndera.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'CPD accreditation, credits & compliance' }, { name: 'Learning design, facilitation & evaluation' }, { name: 'Health workforce policy & public service rules' }, { name: 'Ndera hospital, mental health & neurology' }],
     questions: [
@@ -335,7 +335,7 @@ export const MOCKS: TestDef[] = [
     slug: 'cpd-coordination-officer-ndera-mock-exam-5',
     title: 'CPD Coordination Officer (Ndera Hospital) — Mock Exam 5',
     summary: 'CPD credit values and council rules (RMDC, RAHPC, NCNM), training design, evaluation and change models, the 4x4 reform, HSSP V and public service law, and Ndera, mental health and neurology.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'CPD credits, providers & council rules' }, { name: 'Training design, evaluation & change management' }, { name: 'Health workforce strategy & public service rules' }, { name: 'Ndera, mental health & neurology' }],
     questions: [

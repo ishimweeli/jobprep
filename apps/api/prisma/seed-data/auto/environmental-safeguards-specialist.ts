@@ -11,7 +11,7 @@ export const MOCKS: TestDef[] = [
     slug: 'environmental-safeguards-specialist-minema-mock-exam-1',
     title: 'Environmental Safeguards Specialist (MINEMA) — Mock Exam 1',
     summary: 'Law 48/2018 on environment and the 2025 ESIA order, World Bank ESF and the Jya Mbere (SEIRHC) project, camp WASH and environmental risk standards, refugee and disaster management law.',
-    free: true, difficulty: 'STANDARD', minutes: 60,
+    free: true, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Rwanda environment law and ESIA rules' }, { name: 'World Bank ESF and the Jya Mbere project' }, { name: 'Environmental risk management in camps' }, { name: 'MINEMA, refugees and disaster management' }],
     questions: [
@@ -173,7 +173,7 @@ export const MOCKS: TestDef[] = [
     slug: 'environmental-safeguards-specialist-minema-mock-exam-2',
     title: 'Environmental Safeguards Specialist (MINEMA) — Mock Exam 2',
     summary: 'Environment law distances and fines, ESIA and audit procedures, ESF standards and Jya Mbere financing, UNHCR water and sanitation ratios, camp locations and the disaster management law.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Rwanda environment law and ESIA rules' }, { name: 'World Bank ESF and the Jya Mbere project' }, { name: 'Environmental risk management in camps' }, { name: 'MINEMA, refugees and disaster management' }],
     questions: [
@@ -335,7 +335,7 @@ export const MOCKS: TestDef[] = [
     slug: 'environmental-safeguards-specialist-minema-mock-exam-3',
     title: 'Environmental Safeguards Specialist (MINEMA) — Mock Exam 3',
     summary: 'Environment law principles and offences, ESIA public hearings and audits, ESF annexes and Jya Mbere Phase II, camp water-quality and hygiene standards, disaster organs, Sendai and Vision 2050.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Rwanda environment law and ESIA rules' }, { name: 'World Bank ESF and the Jya Mbere project' }, { name: 'Environmental risk management in camps' }, { name: 'MINEMA, refugees and disaster management' }],
     questions: [
@@ -497,7 +497,7 @@ export const MOCKS: TestDef[] = [
     slug: 'environmental-safeguards-specialist-minema-mock-exam-4',
     title: 'Environmental Safeguards Specialist (MINEMA) — Mock Exam 4',
     summary: 'Environment law offences and duties of districts, ESIA certificates, ESF terms and instruments, refugee inclusion commitments, UNHCR water, school WASH and settlement tools, disaster preparedness and response.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Rwanda environment law and ESIA rules' }, { name: 'World Bank ESF and the Jya Mbere project' }, { name: 'Environmental risk management in camps' }, { name: 'MINEMA, refugees and disaster management' }],
     questions: [
@@ -659,7 +659,7 @@ export const MOCKS: TestDef[] = [
     slug: 'environmental-safeguards-specialist-minema-mock-exam-5',
     title: 'Environmental Safeguards Specialist (MINEMA) — Mock Exam 5',
     summary: 'Waste, wetland and inspection rules in Law 48/2018, ESIA hearings and audits, ESF risk concepts and Jya Mbere set-up, UNHCR sanitation and hygiene indicators, disaster recovery roles and refugee inclusion.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Rwanda environment law and ESIA rules' }, { name: 'World Bank ESF and the Jya Mbere project' }, { name: 'Environmental risk management in camps' }, { name: 'MINEMA, refugees and disaster management' }],
     questions: [

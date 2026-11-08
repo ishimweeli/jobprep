@@ -11,7 +11,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-project-manager-minagri-mock-exam-1',
     title: 'Conservation Agriculture Project Manager (MINAGRI) — Mock Exam 1',
     summary: 'FAO conservation agriculture principles, climate-smart agriculture, PSTA 5 budget and targets, Twigire Muhinzi extension, harmonised CA messaging, results chains, logframes and scheduling.',
-    free: true, difficulty: 'STANDARD', minutes: 60,
+    free: true, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture & Climate-Smart Practices' }, { name: 'Agriculture Policy, PSTA 5 & Institutions' }, { name: 'Extension, Coordination & Harmonised Messaging' }, { name: 'Project Management, M&E & Public Service' }],
     questions: [
@@ -173,7 +173,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-project-manager-minagri-mock-exam-2',
     title: 'Conservation Agriculture Project Manager (MINAGRI) — Mock Exam 2',
     summary: 'FAO CA thresholds, RICA principles, terracing, PSTA 5 shares and targets, AgriHubs, Twigire Muhinzi and FFS history, logframes, WBS, risk responses and Imihigo.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture & Climate-Smart Practices' }, { name: 'Agriculture Policy, PSTA 5 & Institutions' }, { name: 'Extension, Coordination & Harmonised Messaging' }, { name: 'Project Management, M&E & Public Service' }],
     questions: [
@@ -335,7 +335,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-project-manager-minagri-mock-exam-3',
     title: 'Conservation Agriculture Project Manager (MINAGRI) — Mock Exam 3',
     summary: 'CA results on RICA farms, soil degradation, PSTA 5 vision, outcomes and food security targets, Farmer Field School practice and funding, baselines, evaluation types, grant terms and cell-level staff.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture & Climate-Smart Practices' }, { name: 'Agriculture Policy, PSTA 5 & Institutions' }, { name: 'Extension, Coordination & Harmonised Messaging' }, { name: 'Project Management, M&E & Public Service' }],
     questions: [
@@ -497,7 +497,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-project-manager-minagri-mock-exam-4',
     title: 'Conservation Agriculture Project Manager (MINAGRI) — Mock Exam 4',
     summary: 'Climate-resilient inputs, RICA, PSTA 5 coordination, digitalisation and nutrition targets, FFS costs and scale, MoU content, proxy and qualitative indicators, counterfactuals, reserves and float.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture & Climate-Smart Practices' }, { name: 'Agriculture Policy, PSTA 5 & Institutions' }, { name: 'Extension, Coordination & Harmonised Messaging' }, { name: 'Project Management, M&E & Public Service' }],
     questions: [
@@ -659,7 +659,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-project-manager-minagri-mock-exam-5',
     title: 'Conservation Agriculture Project Manager (MINAGRI) — Mock Exam 5',
     summary: 'Inputs and yields under PSTA 4/5, RICA, irrigation, PSTA 5 mission, outputs and market targets, Twigire Muhinzi training and coordination, JADF, risk and schedule tools, OECD-DAC relevance, Umuganda and Ubudehe.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture & Climate-Smart Practices' }, { name: 'Agriculture Policy, PSTA 5 & Institutions' }, { name: 'Extension, Coordination & Harmonised Messaging' }, { name: 'Project Management, M&E & Public Service' }],
     questions: [

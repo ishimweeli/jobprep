@@ -11,7 +11,7 @@ export const MOCKS: TestDef[] = [
     slug: 'research-grant-management-specialist-ndera-mock-exam-4',
     title: 'Research and Grant Management Specialist (Ndera Hospital) — Mock Exam 4',
     summary: 'Rwanda\'s law on research on a human being and RNEC rules, Law 058/2021 on personal data, Helsinki/ICMJE/ICH GCP, US Uniform Guidance and Global Fund rules, procurement, Ndera\'s mandate and grant calculations.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'Rwanda\'s law on research on a human being & RNEC' }, { name: 'Data protection, publication & research integrity standards' }, { name: 'Donor rules & grant cost principles' }, { name: 'Ndera Hospital, procurement & grant budgeting calculations' }],
     questions: [
@@ -173,7 +173,7 @@ export const MOCKS: TestDef[] = [
     slug: 'research-grant-management-specialist-ndera-mock-exam-5',
     title: 'Research and Grant Management Specialist (Ndera Hospital) — Mock Exam 5',
     summary: 'Procurement under Law 031/2022 and its 2023 regulations, US Uniform Guidance on subawards, reporting and costs, RNEC and research-law penalties, Law 058/2021, and Helsinki, ICMJE and ICH GCP standards.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'Public procurement for grant-funded activities' }, { name: 'US Uniform Guidance: subawards, reporting & cost principles' }, { name: 'Rwanda research ethics & data protection: further provisions' }, { name: 'International research integrity & GCP standards' }],
     questions: [

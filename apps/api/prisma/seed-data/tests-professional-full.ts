@@ -19,7 +19,7 @@ export const executiveSecretaryFullMock1: TestDef = {
   summary: 'Practice for Executive Secretary recruitment: law and governance, plus administrative practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -185,7 +185,7 @@ export const executiveSecretaryFullMock2: TestDef = {
   summary: 'Practice for Executive Secretary recruitment: law and governance institutions, plus administrative practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -351,7 +351,7 @@ export const executiveSecretaryFullMock3: TestDef = {
   summary: 'Practice for Executive Secretary recruitment: law, governance and public-administration concepts, plus administrative practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -517,7 +517,7 @@ export const executiveSecretaryFullMock4: TestDef = {
   summary: 'Practice for Executive Secretary recruitment: law and governance concepts, plus administrative practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -683,7 +683,7 @@ export const executiveSecretaryFullMock5: TestDef = {
   summary: 'Practice for Executive Secretary recruitment: governance concepts and the law, plus administrative practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ES_LAW }, { name: ES_PRACTICE }],
   cases: [],
   questions: [
@@ -849,7 +849,7 @@ export const sedoFullMock1: TestDef = {
   summary: 'Practice for SEDO / Economic Development Officer recruitment: local economic development institutions and governance, plus field practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1015,7 +1015,7 @@ export const sedoFullMock2: TestDef = {
   summary: 'Practice for SEDO / Economic Development Officer recruitment: economic-development concepts and local governance, plus field practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1181,7 +1181,7 @@ export const sedoFullMock3: TestDef = {
   summary: 'Practice for SEDO / Economic Development Officer recruitment: local economic development concepts and governance, plus field practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1347,7 +1347,7 @@ export const sedoFullMock4: TestDef = {
   summary: 'Practice for SEDO / Economic Development Officer recruitment: governance and economic-development knowledge, plus field practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [
@@ -1513,7 +1513,7 @@ export const sedoFullMock5: TestDef = {
   summary: 'Practice for SEDO / Economic Development Officer recruitment: governance concepts and local economic development, plus field practice and service delivery.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SEDO_KNOW }, { name: SEDO_PRACTICE }],
   cases: [],
   questions: [

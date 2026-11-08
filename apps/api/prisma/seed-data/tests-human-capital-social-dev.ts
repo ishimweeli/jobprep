@@ -30,7 +30,7 @@ export const hcsdMock1: TestDef = {
   summary: 'Practice for this Cell-level social-development post: the Vision 2020 Umurenge Programme (VUP), Ubudehe categorisation, beneficiary targeting and graduation, and civil-service conduct.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SP1 }, { name: SP2 }, { name: SP3 }],
   questions: [
     { section: SP1, topic: SP1, stem: 'What is the Vision 2020 Umurenge Programme (VUP) primarily designed to do?', options: ['Fund large infrastructure projects only', 'Serve as an integrated local development programme targeting poverty eradication, rural growth and social protection', 'Replace Ubudehe categorisation entirely', 'Provide loans only to registered cooperatives'], correct: 1, explanation: 'VUP is an integrated local development programme aimed at accelerating poverty eradication, rural growth and social protection, targeting households with limited access to assets and income.' },
@@ -136,7 +136,7 @@ export const hcsdMock2: TestDef = {
   summary: 'Practice monitoring education performance indicators, Early Childhood Development and school feeding, data reporting through information management systems, and community mobilisation on education and adult literacy.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ED1 }, { name: ED2 }, { name: ED3 }, { name: ED4 }],
   questions: [
     { section: ED1, topic: ED1, stem: 'Which of these is explicitly listed among the education indicators this role is expected to monitor at Cell level?', options: ['National exam board membership', 'Dropout, enrolment, attendance, teen-mother rates and parental participation in school activities', 'University tuition fee levels', 'Teacher salary scales'], correct: 1, explanation: 'The role’s duties specifically mention monitoring interventions related to education performance on indicators such as dropout, enrolment, attendance, teen mothers and participation of parents in school activities.' },
@@ -236,7 +236,7 @@ export const hcsdMock3: TestDef = {
   summary: 'Practice monitoring health, hygiene, sanitation and nutrition interventions; youth, gender and disability-inclusion programmes; sports, innovation and delinquency prevention; and child-protection community mobilisation.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: HN1 }, { name: HN2 }, { name: HN3 }, { name: HN4 }],
   questions: [
     { section: HN1, topic: HN1, stem: 'Monitoring "health, hygiene, and sanitation" interventions at Cell level, as listed among this role’s duties, most directly supports which broader goal?', options: ['Increasing tax revenue', 'Reducing preventable illness and improving community wellbeing, which in turn supports education and economic participation', 'Replacing the role of health centres entirely', 'Setting national health insurance premiums'], correct: 1, explanation: 'Monitoring health, hygiene and sanitation interventions supports reducing preventable illness and improving wellbeing — outcomes that also reinforce school attendance and economic participation, consistent with the role’s human-capital focus.' },
@@ -342,7 +342,7 @@ export const hcsdMock4: TestDef = {
   summary: 'Practice Rwanda’s decentralisation structure and local governance, and District-level planning and performance reporting.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: GV1 }, { name: GV2 }],
   questions: [
     { section: GV1, topic: GV1, stem: 'What is the correct order of Rwanda’s main administrative hierarchy, from largest to smallest?', options: ['Province → District → Sector → Cell', 'District → Province → Cell → Sector', 'Province → Cell → District → Sector', 'Sector → District → Province → Cell'], correct: 0, explanation: 'Rwanda’s administrative hierarchy runs from Province down through District, then Sector, then Cell as the smallest formal politico-administrative unit.' },
@@ -468,7 +468,7 @@ export const hcsdMock5: TestDef = {
   summary: 'A mixed-practice mock covering the main areas of this role: social protection, education, health, youth, governance and professional ethics.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: MX1 }, { name: MX2 }],
   cases: [],
   questions: [

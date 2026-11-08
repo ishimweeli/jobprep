@@ -76,7 +76,7 @@ export const storekeeperChubMock1: TestDef = {
   summary: 'Practice for hospital storekeeper posts: stock-control fundamentals (FIFO/FEFO, reorder levels, EOQ, ABC analysis, stocktaking) plus numerical and logical reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ST_SC }, { name: ST_NR }],
   questions: [
     { section: ST_SC, topic: ST_SC, stem: 'What is the main purpose of a bin card kept at each storage location?',
@@ -245,7 +245,7 @@ export const storekeeperChubMock2: TestDef = {
   summary: 'Practice on the specifics of managing a hospital medical-supply store: cold chain, expiry management, controlled items, and the documents that connect the store to procurement.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ST_MS }, { name: ST_DI }],
   questions: [
     { section: ST_MS, topic: ST_MS, stem: 'Most vaccines must be kept within which temperature range in the cold chain?',
@@ -414,7 +414,7 @@ export const storekeeperChubMock3: TestDef = {
   summary: 'Practice on physical store organisation, safety and security, plus further stock-control concepts (costing methods, consignment stock, demand forecasting).',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ST_OS }, { name: ST_SC }],
   questions: [
     { section: ST_OS, topic: ST_OS, stem: 'What is the main benefit of organising a store into clearly labelled, logical zones by category, rather than storing items wherever there is space?',
@@ -583,7 +583,7 @@ export const storekeeperChubMock4: TestDef = {
   summary: 'Further practice on the paperwork and controls that connect a hospital store to procurement, finance and audit, and on remaining medical-supply handling topics.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: ST_DI }, { name: ST_MS }],
   questions: [
     { section: ST_DI, topic: ST_DI, stem: 'What is a stores requisition (or issue voucher) used for?',
@@ -752,7 +752,7 @@ export const storekeeperChubMock5: TestDef = {
   summary: 'A mixed review of stock control, store security and documentation, plus numerical and logical reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: 'Mixed store-management review' }, { name: ST_NR }],
   cases: [],
   questions: [
@@ -944,7 +944,7 @@ export const radiographerChubMock1: TestDef = {
   summary: 'Practice on standard radiographic positioning and projections for common examinations, plus the adaptations needed for trauma and emergency imaging.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: RG_RP }, { name: RG_TEI }],
   questions: [
     { section: RG_RP, topic: RG_RP, stem: 'For a routine chest X-ray, why is the PA (posteroanterior) projection generally preferred over AP (anteroposterior) when the patient can stand?',
@@ -1113,7 +1113,7 @@ export const radiographerChubMock2: TestDef = {
   summary: 'Practice on exposure factors, image quality, common artifacts and troubleshooting, and a comparative overview of the main medical imaging modalities.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: RG_IQ }, { name: RG_IMO }],
   questions: [
     { section: RG_IQ, topic: RG_IQ, stem: 'What does kVp (kilovoltage peak) mainly control in a radiographic exposure?',
@@ -1282,7 +1282,7 @@ export const radiographerChubMock3: TestDef = {
   summary: 'Practice on how X-rays are produced and interact with tissue, the biological effects of ionising radiation, the ALARA principle, and routine radiation-safety and equipment quality-assurance practice.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: RG_PH }, { name: RG_PS }],
   questions: [
     { section: RG_PH, topic: RG_PH, stem: 'X-rays used in diagnostic imaging are mainly produced by which mechanism at the tube\'s anode?',
@@ -1451,7 +1451,7 @@ export const radiographerChubMock4: TestDef = {
   summary: 'Practice on the Rwandan health-system and professional-licensing context for radiographers, plus patient care, contrast media safety and infection control.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: RG_HS }, { name: RG_PC }],
   questions: [
     { section: RG_HS, topic: RG_HS, stem: 'Which Rwandan professional body is responsible for registering and licensing radiographers (and other allied health professionals) to practise?',
@@ -1620,7 +1620,7 @@ export const radiographerChubMock5: TestDef = {
   summary: 'A mixed review spanning positioning, technique and radiation safety, a worked case study on a trauma referral to CHUB, and numerical and logical reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: RG_MR }, { name: RG_NR }, { name: RG_CS, label: 'Case-based, 5 linked questions' }],
   cases: [
     {

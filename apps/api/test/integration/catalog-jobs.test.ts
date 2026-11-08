@@ -20,10 +20,10 @@ describe('jobs: grouped catalog', () => {
   it('groups the catalog into one card per job, aggregating its mock tests', async () => {
     const body = await jobs('?pageSize=50');
     const bio = body.results.find((j: { jobSlug: string }) => j.jobSlug === 'rw-biostatistician');
-    // 5 full mocks of 50 questions at 60 min + 1 psychometric mock at 90 min: non-uniform, so a range instead of one value.
+    // 5 full mocks of 50 questions at 120 min + 1 psychometric mock at 90 min: non-uniform, so a range instead of one value.
     expect(bio).toMatchObject({
       jobName: 'Biostatistician', mockTestCount: 6, freeCount: 0,
-      durationMinutes: null, durationRange: { min: 60, max: 90 },
+      durationMinutes: null, durationRange: { min: 90, max: 120 },
     });
     expect(bio.jobDeadlineAt).not.toBeNull();
   });

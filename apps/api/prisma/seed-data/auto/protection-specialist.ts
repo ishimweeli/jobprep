@@ -11,7 +11,7 @@ export const MOCKS: TestDef[] = [
     slug: 'protection-specialist-minema-mock-exam-1',
     title: 'Protection Specialist (MINEMA) — Mock Exam 1',
     summary: 'Refugee Convention and OAU Convention basics, Rwanda Law 042/2024 asylum procedure, MINEMA and camps, child protection, SGBV response, data protection, GCR and public service.',
-    free: true, difficulty: 'STANDARD', minutes: 60,
+    free: true, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'International Refugee and IDP Law' }, { name: 'Rwanda Refugee Law and MINEMA' }, { name: 'Protection Practice' }, { name: 'Coordination, Solutions and Public Service' }],
     questions: [
@@ -173,7 +173,7 @@ export const MOCKS: TestDef[] = [
     slug: 'protection-specialist-minema-mock-exam-2',
     title: 'Protection Specialist (MINEMA) — Mock Exam 2',
     summary: 'Non-refoulement and exclusion, Kampala Convention, Rwanda Law 042/2024 decisions and appeals, ETM, best interests procedure, SGBV, PSEA, clusters, durable solutions, NST1 and Vision 2050.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'International Refugee and IDP Law' }, { name: 'Rwanda Refugee Law and MINEMA' }, { name: 'Protection Practice' }, { name: 'Coordination, Solutions and Public Service' }],
     questions: [
@@ -335,7 +335,7 @@ export const MOCKS: TestDef[] = [
     slug: 'protection-specialist-minema-mock-exam-3',
     title: 'Protection Specialist (MINEMA) — Mock Exam 3',
     summary: 'Cessation, expulsion and 1967 Protocol, statelessness, Law 042/2024 mass influx and renunciation, camps, child rights, older persons, data protection, CRRF, Abunzi and districts.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'International Refugee and IDP Law' }, { name: 'Rwanda Refugee Law and MINEMA' }, { name: 'Protection Practice' }, { name: 'Coordination, Solutions and Public Service' }],
     questions: [
@@ -497,7 +497,7 @@ export const MOCKS: TestDef[] = [
     slug: 'protection-specialist-minema-mock-exam-4',
     title: 'Protection Specialist (MINEMA) — Mock Exam 4',
     summary: 'Convention rights (education, travel, naturalisation), OAU Convention, Law 042/2024 rights and duties, disability, MHPSS, GBV policy, protection monitoring, complementary pathways, governance.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'International Refugee and IDP Law' }, { name: 'Rwanda Refugee Law and MINEMA' }, { name: 'Protection Practice' }, { name: 'Coordination, Solutions and Public Service' }],
     questions: [
@@ -659,7 +659,7 @@ export const MOCKS: TestDef[] = [
     slug: 'protection-specialist-minema-mock-exam-5',
     title: 'Protection Specialist (MINEMA) — Mock Exam 5',
     summary: 'Convention rights to work and relief, OAU solidarity, Law 042/2024 procedure and settlement, camps history, GBV case management, child soldiers, inclusion, data protection, Sphere, ETM.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'International Refugee and IDP Law' }, { name: 'Rwanda Refugee Law and MINEMA' }, { name: 'Protection Practice' }, { name: 'Coordination, Solutions and Public Service' }],
     questions: [

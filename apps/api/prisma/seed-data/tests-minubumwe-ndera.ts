@@ -38,7 +38,7 @@ export const genocideMemorialsMock1: TestDef = {
   summary: 'Practice on daily site upkeep, preventive conservation and the respectful handling of remains, clothing and other heritage items at a genocide memorial.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: GM_PRESERVE }, { name: GM_REMAINS }],
   questions: [
     { section: GM_PRESERVE, topic: GM_PRESERVE, stem: 'How is "preventive conservation" best described?',
@@ -207,7 +207,7 @@ export const genocideMemorialsMock2: TestDef = {
   summary: 'Practice on receiving and guiding visitors, coordinating school visits, and interpreting the site’s history responsibly and accurately.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: GM_VISITOR }, { name: GM_GUIDE }],
   questions: [
     { section: GM_VISITOR, topic: GM_VISITOR, stem: 'What is the main purpose of receiving and orienting visitors before they enter a memorial site?',
@@ -376,7 +376,7 @@ export const genocideMemorialsMock3: TestDef = {
   summary: 'Practice on collecting testimonies responsibly, researching site history from reliable sources, and writing clear, accurate reports.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: GM_TESTIMONY }, { name: GM_DOC }],
   cases: [],
   questions: [
@@ -546,7 +546,7 @@ export const genocideMemorialsMock4: TestDef = {
   summary: 'Practice on working with local communities, planning for the Kwibuka commemoration period, and recognising and responding appropriately to genocide ideology.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: GM_COMMUNITY }, { name: GM_COMMEMORATION }],
   questions: [
     { section: GM_COMMUNITY, topic: GM_COMMUNITY, stem: 'Why does the post ask the officer to work with residents and local authorities on the site’s history and ownership?',
@@ -715,7 +715,7 @@ export const genocideMemorialsMock5: TestDef = {
   summary: 'Practice on the institutional framework around genocide memorials (MINUBUMWE, CNLG, UNESCO World Heritage) and on public-sector ethics and official communications.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: GM_INSTITUTION }, { name: GM_ETHICS }],
   questions: [
     { section: GM_INSTITUTION, topic: GM_INSTITUTION, stem: 'Which ministry is responsible for this post and for national-unity programming connected to genocide memorial sites?',
@@ -905,7 +905,7 @@ export const avDigitizationMock1: TestDef = {
   summary: 'Practice on digitization technical standards and the analog source formats (tape, film, photographs) a MINUBUMWE archive specialist must capture and stabilise.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AV_DIGSTD }, { name: AV_ANALOG }],
   questions: [
     { section: AV_DIGSTD, topic: AV_DIGSTD, stem: 'What does an audio sampling rate of 48 kHz mean?', options: ['The analog waveform is measured 48,000 times per second to create the digital signal', 'The recording lasts exactly 48,000 seconds', 'The resulting file is 48 kilobytes in size', 'The audio is played back 48 times before being saved'], correct: 0, explanation: 'Sampling rate is how often per second the analog signal is measured. 48 kHz means 48,000 measurements (samples) are taken every second.' },
@@ -972,7 +972,7 @@ export const avDigitizationMock2: TestDef = {
   summary: 'Practice on file formats, codecs, compression trade-offs, and the metadata and cataloguing standards that make a digital archive usable and findable.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AV_CODECS }, { name: AV_METADATA }],
   questions: [
     { section: AV_CODECS, topic: AV_CODECS, stem: 'What is the difference between a "container" format (such as MP4 or MOV) and a "codec" (such as H.264)?', options: ['The container is the wrapper file format that holds video, audio and other data streams; the codec is the method used to encode and compress those streams', 'They are simply two different names for the same thing', 'A container always determines picture quality, while a codec only affects the file name', 'A codec can only exist without a container'], correct: 0, explanation: 'A container (e.g. MP4, MOV, MKV) organises and packages audio, video, subtitle and metadata streams together; a codec defines how the actual audio/video data inside is compressed and decoded. A given container can often hold several different codecs.' },
@@ -1039,7 +1039,7 @@ export const avDigitizationMock3: TestDef = {
   summary: 'Practice on long-term digital preservation principles (the OAIS model, fixity, migration) and the storage, backup and disaster-recovery practices that keep an archive safe over decades.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AV_OAIS }, { name: AV_STORAGE }],
   cases: [],
   questions: [
@@ -1107,7 +1107,7 @@ export const avDigitizationMock4: TestDef = {
   summary: 'Practice on editing workflow and terminology, plus photography, videography and documentary production practice for filming, producing and editing archival and testimony-based material.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AV_EDITING }, { name: AV_PRODUCTION }],
   questions: [
     { section: AV_EDITING, topic: AV_EDITING, stem: 'What is "linear editing" in video production?', options: ['An editing method in which footage is copied and assembled in sequential order from one tape to another, making it difficult to insert or change material in the middle without redoing everything after that point', 'Editing performed entirely inside a smartphone app', 'A method of editing only straight lines in graphic design', 'A synonym for colour correction'], correct: 0, explanation: 'Linear editing works tape-to-tape in sequence; because it is based on recording in order, changing something in the middle typically requires re-recording everything that follows, unlike random-access digital editing.' },
@@ -1174,7 +1174,7 @@ export const avDigitizationMock5: TestDef = {
   summary: 'Practice on copyright, consent and data-protection considerations for sensitive archival material, and on responsibly distributing and exhibiting content to media, schools, embassies and researchers.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AV_RIGHTS }, { name: AV_DISSEM }],
   questions: [
     { section: AV_RIGHTS, topic: AV_RIGHTS, stem: 'As a general copyright principle, who typically holds the copyright in a photograph or recording at the moment it is created?', options: ['The creator (or, where created as part of their employment duties, typically their employer), unless rights have been otherwise assigned or agreed', 'No one; newly created works never have an owner', 'Whoever later obtains a physical copy of the file', 'Only a government ministry can ever hold copyright in any recording'], correct: 0, explanation: 'As a general principle, copyright initially vests in the creator of a work, though in many jurisdictions works created within the scope of employment belong to the employer unless otherwise agreed — exact rules vary by jurisdiction.' },
@@ -1319,7 +1319,7 @@ export const socialWorkerMock1: TestDef = {
   summary: 'Practice psychosocial assessment and case management for a social worker post in a psychiatric and neurology referral hospital: intake, social history, care planning and coordination.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SW_ASSESS }, { name: SW_CASEMGMT }],
   questions: [
     { section: SW_ASSESS, topic: SW_ASSESS, stem: 'What does the biopsychosocial model ask a social worker to consider when assessing a patient?',
@@ -1488,7 +1488,7 @@ export const socialWorkerMock2: TestDef = {
   summary: 'Practice crisis intervention, de-escalation and risk and safety assessment for a psychiatric hospital social work post, including suicide risk, safeguarding and confidentiality limits.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SW_CRISIS }, { name: SW_RISK }],
   questions: [
     { section: SW_CRISIS, topic: SW_CRISIS, stem: 'What is the primary immediate goal of crisis intervention?',
@@ -1657,7 +1657,7 @@ export const socialWorkerMock3: TestDef = {
   summary: 'Practice family engagement, psychoeducation, discharge planning and community reintegration, including a short linked case study on preparing a patient for discharge from the Allied Health Sciences Unit.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SW_FAMILY }, { name: SW_DISCHARGE }],
   cases: [
     {
@@ -1844,7 +1844,7 @@ export const socialWorkerMock4: TestDef = {
   summary: 'Practice substance-use and rehabilitation support (including medication-assisted treatment) and therapeutic group work, as relevant to the Allied Health Sciences Unit.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SW_SUBSTANCE }, { name: SW_GROUP }],
   questions: [
     { section: SW_SUBSTANCE, topic: SW_SUBSTANCE, stem: 'What is the core idea behind a “harm reduction” approach to substance use?',
@@ -2013,7 +2013,7 @@ export const socialWorkerMock5: TestDef = {
   summary: 'Practice professional ethics and confidentiality principles, plus Rwanda’s regulatory framework for allied health professions and the Ndera Hospital institutional context.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: SW_ETHICS }, { name: SW_REG }],
   questions: [
     { section: SW_ETHICS, topic: SW_ETHICS, stem: 'Which set of principles is commonly considered central to professional social work ethics?',

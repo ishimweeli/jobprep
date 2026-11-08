@@ -41,7 +41,7 @@ export const biostatisticianFullMock1: TestDef = {
   summary: 'A practice exam covering study design and sampling, data management and statistical methods, and epidemiology and ethics.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: B_SS }, { name: B_DM }, { name: B_EE }],
   questions: [
     { section: B_SS, topic: B_SS, stem: 'What is a "sampling frame"?',
@@ -212,7 +212,7 @@ export const biostatisticianFullMock2: TestDef = {
   summary: 'A second practice exam, covering trial design and measurement, regression and inference, and epidemiological measures and research integrity.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: B_SS }, { name: B_DM }, { name: B_EE }],
   questions: [
     // ───── Study design & sampling (25) ─────
@@ -384,7 +384,7 @@ export const biostatisticianFullMock3: TestDef = {
   summary: 'A third practice exam, covering trial design biases, survival and categorical analysis, and surveillance and research-ethics oversight.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: B_SS }, { name: B_DM }, { name: B_EE }],
   questions: [
     // ───── Study design & sampling (25) ─────
@@ -556,7 +556,7 @@ export const biostatisticianFullMock4: TestDef = {
   summary: 'A fourth practice exam, covering quasi-experimental and specialised designs, quality-improvement statistics, and how audit ethics differ from research ethics.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: B_SS }, { name: B_DM }, { name: B_EE }],
   questions: [
     // ───── Study design & sampling (20) ─────
@@ -732,7 +732,7 @@ export const biostatisticianFullMock5: TestDef = {
   summary: 'A fifth practice exam, covering specialised study designs, advanced data-analysis topics, and standards for evidence synthesis and reporting.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: B_SS }, { name: B_DM }, { name: B_EE }],
   questions: [
     // ───── Study design & sampling (12) ─────
@@ -1013,7 +1013,7 @@ export const clinicalPsychologistFullMock1: TestDef = {
   summary: 'A practice exam covering assessment fundamentals, therapeutic interventions and ethics, and risk assessment and Rwanda’s mental-health system.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: P_AF }, { name: P_TE }, { name: P_RA }],
   questions: [
     // ───── Assessment fundamentals (25) ─────
@@ -1185,7 +1185,7 @@ export const clinicalPsychologistFullMock2: TestDef = {
   summary: 'A second practice exam, covering deeper assessment topics, further therapeutic approaches and ethical principles, and more on risk and Rwanda’s mental-health system.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: P_AF }, { name: P_TE }, { name: P_RA }],
   questions: [
     // ───── Assessment fundamentals (25) ─────
@@ -1361,7 +1361,7 @@ export const clinicalPsychologistFullMock3: TestDef = {
   summary: 'A third practice exam, covering further assessment detail, more therapeutic and ethical practice topics, and more on risk and Rwanda’s mental-health system.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: P_AF }, { name: P_TE }, { name: P_RA }],
   questions: [
     // ───── Assessment fundamentals (20) ─────
@@ -1536,7 +1536,7 @@ export const clinicalPsychologistFullMock4: TestDef = {
   summary: 'A fourth practice exam, covering further assessment and intervention topics across different clinical populations, and more risk-management principles.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: P_AF }, { name: P_TE }, { name: P_RA }],
   questions: [
     // ───── Assessment fundamentals (13) ─────
@@ -1713,7 +1713,7 @@ export const clinicalPsychologistFullMock5: TestDef = {
   summary: 'A fifth and final practice exam, covering further assessment, intervention and ethics topics, and risk assessment within Rwanda’s mental-health system.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: P_AF }, { name: P_TE }, { name: P_RA }],
   questions: [
     // ───── Assessment fundamentals (6) ─────

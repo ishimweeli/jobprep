@@ -11,7 +11,7 @@ export const MOCKS: TestDef[] = [
     slug: 'postgraduate-coordination-officer-ndera-mock-exam-3',
     title: 'Postgraduate Coordination Officer (Ndera Hospital) — Mock Exam 3',
     summary: 'Ndera hospital\'s mandate, the 4x4 reform and HSSP V, UR postgraduate programmes, HEC and health councils, the law on research on a human being, trainee assessment and data protection.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'Ndera hospital mandate & health workforce strategy' }, { name: 'Postgraduate programmes, regulators & quality assurance' }, { name: 'Research ethics & the law on research on a human being' }, { name: 'Trainee assessment, records & data protection' }],
     questions: [
@@ -173,7 +173,7 @@ export const MOCKS: TestDef[] = [
     slug: 'postgraduate-coordination-officer-ndera-mock-exam-4',
     title: 'Postgraduate Coordination Officer (Ndera Hospital) — Mock Exam 4',
     summary: 'Medical education frameworks and teaching methods, Rwanda\'s mental health context and health sector plans, research ethics, integrity and publication, public service rules and personal data protection.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'Medical education frameworks & teaching methods' }, { name: 'Mental health context & the health sector' }, { name: 'Research governance, integrity & publication' }, { name: 'Public service rules & personal data protection' }],
     questions: [
@@ -335,7 +335,7 @@ export const MOCKS: TestDef[] = [
     slug: 'postgraduate-coordination-officer-ndera-mock-exam-5',
     title: 'Postgraduate Coordination Officer (Ndera Hospital) — Mock Exam 5',
     summary: 'Clinical teaching, feedback and standard setting, the 4x4 reform, HSSP V and Ndera, obligations and penalties in the law on research on a human being, public service leave and data protection rules.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-03', jobDeadlineAt: '2026-11-11',
     sections: [{ name: 'Clinical teaching, feedback & standard setting' }, { name: 'Health workforce, Ndera & sector strategy' }, { name: 'Research law: obligations & penalties' }, { name: 'Public service leave & data protection rules' }],
     questions: [

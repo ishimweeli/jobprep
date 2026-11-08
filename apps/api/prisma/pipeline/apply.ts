@@ -21,7 +21,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const SEED = join(here, '..', 'seed-data');
 const AUTO = join(SEED, 'auto');
 const SOURCES = join(here, '..', 'content-revisions', 'question-sources.json');
-const MINUTES = 60;
+/** The real MIFOTRA written exam is allowed two hours; every 50-question mock keeps that. */
+const MINUTES = 120;
 
 const lit = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n')}'`;
 const qText = (q: WrittenQuestion, indent: string) =>

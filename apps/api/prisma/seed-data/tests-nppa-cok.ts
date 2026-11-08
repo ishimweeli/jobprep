@@ -31,7 +31,7 @@ export const adminAssistantProsecutorGeneralMock1: TestDef = {
   summary: 'Practice for the Administrative Assistant to the Prosecutor General post at NPPA: office administration, diary and correspondence management, public-service and justice-sector awareness, and workplace reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: OAS }, { name: PSJ }, { name: RAJ }],
   questions: [
     // ── Office administration and secretarial practice
@@ -202,7 +202,7 @@ export const adminAssistantProsecutorGeneralMock2: TestDef = {
   summary: 'A second practice set for the Administrative Assistant to the Prosecutor General post at NPPA, covering further office-administration scenarios, Rwanda’s justice-sector and public-service framework, and workplace reasoning.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: OAS }, { name: PSJ }, { name: RAJ }],
   questions: [
     // ── Office administration and secretarial practice
@@ -373,7 +373,7 @@ export const adminAssistantProsecutorGeneralMock3: TestDef = {
   summary: 'A third practice set for the Administrative Assistant to the Prosecutor General post at NPPA, with a linked case on diary management plus further office and public-service questions.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: OAS }, { name: PSJ }, { name: 'Case study: a clashing diary', label: 'Case-based, 5 linked questions' }],
   cases: [
     {
@@ -575,7 +575,7 @@ export const adminAssistantProsecutorGeneralMock4: TestDef = {
   summary: 'A fourth practice set for the Administrative Assistant to the Prosecutor General post at NPPA, covering further digital-office practice and public-service context.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: OAS }, { name: PSJ }],
   questions: [
     { section: OAS, topic: OAS, stem: 'An unscheduled visitor arrives without an appointment. What should be recorded, even if they are not seen immediately?',
@@ -743,7 +743,7 @@ export const adminAssistantProsecutorGeneralMock5: TestDef = {
   summary: 'A fifth and final practice set for the Administrative Assistant to the Prosecutor General post at NPPA, with a linked case checking a draft letter, plus office-practice and public-service questions.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: OAS }, { name: PSJ }, { name: 'Case study: checking a letter before dispatch', label: 'Case-based, 5 linked questions' }],
   cases: [
     {
@@ -970,7 +970,7 @@ export const accountantCityOfKigaliMock1: TestDef = {
   summary: 'Practice for the Accountant post at the City of Kigali: financial accounting fundamentals, public financial management systems and controls, local-government finance context, and a linked case study.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AFA }, { name: APFM }, { name: ALGF }, { name: 'Case study: a district office cash book', label: 'Case-based, 6 linked questions' }],
   cases: [
     {
@@ -1178,7 +1178,7 @@ export const accountantCityOfKigaliMock2: TestDef = {
   summary: 'A second practice set for the Accountant post at the City of Kigali: ratio and cash-flow analysis, public financial management systems, local-government revenue, and a linked case on processing a supplier payment.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AFA }, { name: APFM }, { name: ALGF }, { name: 'Case study: paying a supplier’s invoice', label: 'Case-based, 5 linked questions' }],
   cases: [
     {
@@ -1379,7 +1379,7 @@ export const accountantCityOfKigaliMock3: TestDef = {
   summary: 'A third practice set for the Accountant post at the City of Kigali: double-entry practice, budget variance and cost concepts, public financial management governance, and a linked case on a quarterly budget-execution report.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AFA }, { name: APFM }, { name: 'Case study: a quarterly budget-execution report', label: 'Case-based, 5 linked questions' }],
   cases: [
     {
@@ -1584,7 +1584,7 @@ export const accountantCityOfKigaliMock4: TestDef = {
   summary: 'A fourth practice set for the Accountant post at the City of Kigali: audit and reporting concepts, payroll and VAT mechanics, ratio analysis, public financial management, and a linked payroll case.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AFA }, { name: APFM }, { name: 'Case study: calculating an employee’s net pay', label: 'Case-based, 5 linked questions' }],
   cases: [
     {
@@ -1783,7 +1783,7 @@ export const accountantCityOfKigaliMock5: TestDef = {
   summary: 'A fifth and final practice set for the Accountant post at the City of Kigali: public-sector-specific accounting concepts, governance and digital systems, local-government context, and a linked VAT-return case.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: AFA }, { name: APFM }, { name: ALGF }, { name: 'Case study: preparing a quarterly VAT return', label: 'Case-based, 5 linked questions' }],
   cases: [
     {

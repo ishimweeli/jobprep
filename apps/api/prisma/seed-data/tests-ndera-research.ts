@@ -36,7 +36,7 @@ export const researchGrantMock1: TestDef = {
     'Practice for the Research and Grant Management Specialist post at Ndera Hospital: grant finance, the grant lifecycle and donor compliance, risk, procurement and PPPs, donor communication, and a linked case study.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   jobDeadlineAt: JOB_DEADLINE, jobPostedAt: '2026-11-03',
   sections: [
     { name: GFM },
@@ -146,7 +146,7 @@ export const researchGrantMock2: TestDef = {
     'Practice covering proposal writing, M&E design, research ethics and data-management compliance, financial management of multi-donor and multi-year grants, and a linked audit-findings case study.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   jobDeadlineAt: JOB_DEADLINE, jobPostedAt: '2026-11-03',
   sections: [
     { name: PDW },
@@ -256,7 +256,7 @@ export const researchGrantMock3: TestDef = {
     'Practice covering investment appraisal and financial modelling, resource mobilisation and partnerships, Rwanda’s public finance and budget context, time management, and a linked PPP feasibility case study.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   jobDeadlineAt: JOB_DEADLINE, jobPostedAt: '2026-11-03',
   sections: [
     { name: IPA },
@@ -367,7 +367,7 @@ export const cpdCoordinationMock1: TestDef = {
     'Practice for the CPD Coordination Officer post at Ndera Hospital: CPD policy and planning, accreditation and the Rwanda health system, facilitation and adult learning, and time management and coordination.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   jobDeadlineAt: JOB_DEADLINE, jobPostedAt: '2026-11-03',
   sections: [
     { name: CPB },
@@ -466,7 +466,7 @@ export const postgraduateCoordinationMock1: TestDef = {
     'Practice for the Postgraduate Coordination Officer post at Ndera Hospital: training administration and rotations, accreditation, ethics and the health system, assessment and records, and conflict resolution.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   jobDeadlineAt: JOB_DEADLINE, jobPostedAt: '2026-11-03',
   sections: [
     { name: PGT },
@@ -559,7 +559,7 @@ export const cpdCoordinationMock2: TestDef = {
     'Practice covering CPD programme design (ADDIE, Kirkpatrick, quality improvement), digital literacy and record-keeping, mentorship and coaching, and adaptability and stakeholder communication.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   jobDeadlineAt: JOB_DEADLINE, jobPostedAt: '2026-11-03',
   sections: [
     { name: CPB2 },
@@ -665,7 +665,7 @@ export const postgraduateCoordinationMock2: TestDef = {
     'Practice covering curriculum and learning outcomes, trainee research and thesis supervision, trainee welfare and duty hours, and multi-stakeholder coordination and scheduling.',
   free: false,
   difficulty: 'STANDARD',
-  minutes: 60,
+  minutes: 120,
   jobDeadlineAt: JOB_DEADLINE, jobPostedAt: '2026-11-03',
   sections: [
     { name: CUR },

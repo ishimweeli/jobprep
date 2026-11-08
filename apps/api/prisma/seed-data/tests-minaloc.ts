@@ -84,7 +84,7 @@ export const legalAffairsSpecialistMinalocMock1: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LAS1_A }, { name: LAS1_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -256,7 +256,7 @@ export const legalAffairsSpecialistMinalocMock2: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LAS2_A }, { name: LAS2_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -428,7 +428,7 @@ export const legalAffairsSpecialistMinalocMock3: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LAS3_A }, { name: LAS3_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -599,7 +599,7 @@ export const legalAffairsSpecialistMinalocMock4: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LAS4_A }, { name: LAS4_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -771,7 +771,7 @@ export const legalAffairsSpecialistMinalocMock5: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LAS5_A }, { name: LAS5_B, label: 'Case-based, 5 linked questions' }],
   instructions: INSTRUCTIONS,
   cases: [
@@ -980,7 +980,7 @@ export const lgCapacityDevelopmentSpecialistMinalocMock1: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LCD1_A }, { name: LCD1_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -1152,7 +1152,7 @@ export const lgCapacityDevelopmentSpecialistMinalocMock2: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LCD2_A }, { name: LCD2_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -1324,7 +1324,7 @@ export const lgCapacityDevelopmentSpecialistMinalocMock3: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LCD3_A }, { name: LCD3_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -1496,7 +1496,7 @@ export const lgCapacityDevelopmentSpecialistMinalocMock4: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LCD4_A }, { name: LCD4_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -1668,7 +1668,7 @@ export const lgCapacityDevelopmentSpecialistMinalocMock5: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: LCD5_A }, { name: LCD5_B, label: 'Case-based, 5 linked questions' }],
   instructions: INSTRUCTIONS,
   cases: [
@@ -1885,7 +1885,7 @@ export const idpManagementSpecialistMinalocMock1: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: IDP1_A }, { name: IDP1_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -2057,7 +2057,7 @@ export const idpManagementSpecialistMinalocMock2: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: IDP2_A }, { name: IDP2_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -2229,7 +2229,7 @@ export const idpManagementSpecialistMinalocMock3: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: IDP3_A }, { name: IDP3_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -2401,7 +2401,7 @@ export const idpManagementSpecialistMinalocMock4: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: IDP4_A }, { name: IDP4_B }],
   instructions: INSTRUCTIONS,
   questions: [
@@ -2572,7 +2572,7 @@ export const idpManagementSpecialistMinalocMock5: TestDef = {
   free: false,
   difficulty: 'STANDARD',
   jobDeadlineAt: '2026-11-11', jobPostedAt: '2026-11-03',
-  minutes: 60,
+  minutes: 120,
   sections: [{ name: IDP5_A, label: 'Case-based, 5 linked questions' }, { name: IDP5_B }],
   instructions: INSTRUCTIONS,
   cases: [

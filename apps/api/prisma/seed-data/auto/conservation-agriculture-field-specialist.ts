@@ -11,7 +11,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-field-specialist-minagri-mock-exam-1',
     title: 'Conservation Agriculture Field Specialist (MINAGRI) — Mock Exam 1',
     summary: 'FAO conservation agriculture principles, direct seeding and weeds, terraces and soil fertility, Twigire Muhinzi and field data quality, PSTA 5 targets, RAB and Rwanda\'s farming seasons.',
-    free: true, difficulty: 'STANDARD', minutes: 60,
+    free: true, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture Practice' }, { name: 'Soil Health, Erosion Control & Climate-Smart Agriculture' }, { name: 'Extension, Demonstrations & Field Data' }, { name: 'Agriculture Policy, Institutions & Public Service' }],
     questions: [
@@ -173,7 +173,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-field-specialist-minagri-mock-exam-2',
     title: 'Conservation Agriculture Field Specialist (MINAGRI) — Mock Exam 2',
     summary: 'No-till rules, cover crops and intercropping, USLE and terraces, fertilizers and soil acidity, Farmer Field Schools and adoption, PSTA 5 targets, NAIS and the land use master plan.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture Practice' }, { name: 'Soil Health, Erosion Control & Climate-Smart Agriculture' }, { name: 'Extension, Demonstrations & Field Data' }, { name: 'Agriculture Policy, Institutions & Public Service' }],
     questions: [
@@ -335,7 +335,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-field-specialist-minagri-mock-exam-3',
     title: 'Conservation Agriculture Field Specialist (MINAGRI) — Mock Exam 3',
     summary: 'No-till limits, planting basins, push-pull and IPM, terraces and erosion costs, fertilizer grades, NDC, Twigire Muhinzi and CAES, data validity, PSTA 5 budget, NAIS and public service law.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture Practice' }, { name: 'Soil Health, Erosion Control & Climate-Smart Agriculture' }, { name: 'Extension, Demonstrations & Field Data' }, { name: 'Agriculture Policy, Institutions & Public Service' }],
     questions: [
@@ -497,7 +497,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-field-specialist-minagri-mock-exam-4',
     title: 'Conservation Agriculture Field Specialist (MINAGRI) — Mock Exam 4',
     summary: 'Soil cover rules, no-till planters, cover crops and residues, 4R and soil information, terraces and NDC 3.0, AESA and M&E tools, PSTA 5 financing, Vision 2050, NAIS and labour law.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture Practice' }, { name: 'Soil Health, Erosion Control & Climate-Smart Agriculture' }, { name: 'Extension, Demonstrations & Field Data' }, { name: 'Agriculture Policy, Institutions & Public Service' }],
     questions: [
@@ -659,7 +659,7 @@ export const MOCKS: TestDef[] = [
     slug: 'conservation-agriculture-field-specialist-minagri-mock-exam-5',
     title: 'Conservation Agriculture Field Specialist (MINAGRI) — Mock Exam 5',
     summary: 'Herbicide spraying, weeds and water harvesting, terrace design, Meteo Rwanda seasons, PSTA 5 input and restoration targets, logframes and sampling, NAIS, Girinka and PSTA 5 vision.',
-    free: false, difficulty: 'STANDARD', minutes: 60,
+    free: false, difficulty: 'STANDARD', minutes: 120,
     jobPostedAt: '2026-11-05', jobDeadlineAt: '2026-11-13',
     sections: [{ name: 'Conservation Agriculture Practice' }, { name: 'Soil Health, Erosion Control & Climate-Smart Agriculture' }, { name: 'Extension, Demonstrations & Field Data' }, { name: 'Agriculture Policy, Institutions & Public Service' }],
     questions: [
