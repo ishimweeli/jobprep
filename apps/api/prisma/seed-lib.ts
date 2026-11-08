@@ -53,6 +53,7 @@ import {
   hcsdMock1, hcsdMock2, hcsdMock3, hcsdMock4, hcsdMock5,
 } from './seed-data/tests-human-capital-social-dev';
 import { PSYCHOMETRIC_PREP_MOCKS } from './seed-data/tests-psychometric-prep';
+import { AUTO_MOCKS } from './seed-data/auto';
 
 /** Password of the dev admins (system.admin@, content.editor@, support@, multi.role@jobprep.test). Never set in production. */
 export const DEV_PASSWORD = 'Password123!';
@@ -158,6 +159,9 @@ const ALL_TESTS: TestDef[] = [
   hcsdMock1, hcsdMock2, hcsdMock3, hcsdMock4, hcsdMock5,
 
   ...PSYCHOMETRIC_PREP_MOCKS,
+
+  // Written by the daily MIFOTRA content pipeline (prisma/pipeline).
+  ...AUTO_MOCKS,
 ];
 
 export { ALL_TESTS };

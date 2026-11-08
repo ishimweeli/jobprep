@@ -1,0 +1,22 @@
+{
+  "about": "Which JobPrep job (profession slug) each MIFOTRA advertised post belongs to. Key: '<ENTITY ACRONYM>:<position name, lower-case, punctuation removed>'. The daily pipeline adds new posts here; a re-advertised post matches its existing job.",
+  "positions": {
+    "MINEMA:environmental safeguards specialist": "environmental-safeguards-specialist",
+    "MINEMA:protection specialist": "protection-specialist",
+    "MINAGRI:howard g buffet foundation conservation agriculture project manager": "conservation-agriculture-project-manager",
+    "MINAGRI:conservation agriculture field specialist": "conservation-agriculture-field-specialist",
+    "MININTER:accountant": "accountant",
+    "MININTER:internal auditor": "internal-auditor",
+    "NDERA HOSPITAL:biomedical technician": "biomedical-technician",
+    "NDERA HOSPITAL:network specialist": "network-specialist",
+    "NDERA HOSPITAL:reasch and grant management specialist": "research-and-grant-management-specialist",
+    "NDERA HOSPITAL:cpd coordination officer": "cpd-coordination-officer",
+    "NDERA HOSPITAL:postgraduate coordination officer": "postgraduate-coordination-officer",
+    "NDERA HOSPITAL:biostatician": "biostatistician",
+    "NDERA HOSPITAL:clinical psychologist in allied health sciences unit": "clinical-psychologist",
+    "NDERA HOSPITAL:social workers a0 in allied health sciences unit": "social-worker",
+    "MINALOC:idp management specialist": "idp-management-specialist",
+    "MINALOC:legal affairs specialist": "legal-affairs-specialist",
+    "MINALOC:lg capacity development specialist": "lg-capacity-development-specialist"
+  }
+}
