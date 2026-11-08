@@ -21,7 +21,7 @@ export function usesPastPapers(jobName: string): boolean {
  * no claim of expert reviewers or of a match with the real exam, and "real questions" only for the jobs that have them.
  */
 export function sourceLine(jobName: string, psychometric: boolean): string {
-  if (psychometric) return 'These are practice questions for general reasoning and public service judgment. They are not real or past exam papers.';
+  if (psychometric) return 'These are practice questions for general reasoning and public service judgment. Mock 5 follows the format of MIFOTRA’s psychometric test, using sample questions reported by candidates. The other mocks are our own practice material and are not real or past exam papers.';
   if (usesPastPapers(jobName)) {
     return `The first ${jobName} exams are mostly made of real questions that candidates reported from earlier MIFOTRA written exams. We checked each answer against the law or policy as it stands today, and corrected it where the reported answer was wrong. The later exams are practice questions we wrote from the same laws and policies, in the style of the real exam, on topics future exams may cover. We cannot promise the same questions will appear in your exam.`;
   }

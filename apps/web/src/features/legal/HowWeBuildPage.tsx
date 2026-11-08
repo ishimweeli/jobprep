@@ -43,7 +43,7 @@ export function HowWeBuildPage() {
       <section className={sectionClass}>
         <h2 className={headingClass}>How an exam is set up</h2>
         <p className={bodyClass}>
-          Written mock exams have 100 questions and 120 minutes. Psychometric exams have 30 questions and 90 minutes. The timer runs as it would in an exam room, there is no negative marking, and every answer comes with an explanation.
+          Written mock exams for a job have 50 questions and 120 minutes. Psychometric practice mocks have 30 questions and 90 minutes, except Mock 5, which follows the real test format with 21 questions and 20 minutes. The timer runs as it would in an exam room, there is no negative marking, and every answer comes with an explanation.
         </p>
       </section>
       <section className={sectionClass}>

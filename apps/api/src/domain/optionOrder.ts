@@ -36,8 +36,12 @@ function random(seed: number): () => number {
   };
 }
 
+/** A True / False (or Yes / No) pair reads wrongly the other way round, so it keeps its order. */
+const TRUE_FALSE = /^\s*(true|false|yes|no)\s*\.?\s*$/i;
+
 export function shuffleOptions<T extends { text: string }>(options: T[], seed: string): T[] {
   if (options.some((o) => LETTER_REF.test(o.text))) return options;
+  if (options.length === 2 && options.every((o) => TRUE_FALSE.test(o.text))) return options;
   const movable = options.map((o, i) => ({ o, i })).filter(({ o }) => !CATCH_ALL.test(o.text));
   const order = shuffleInPlace(movable.map(({ o }) => o), random(hash(seed)));
   const out = [...options];

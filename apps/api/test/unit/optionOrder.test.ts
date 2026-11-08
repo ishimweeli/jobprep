@@ -38,6 +38,11 @@ describe('shuffleOptions', () => {
     expect(shuffleOptions(o, optionSeed('att1', 'q1'))).toEqual(shuffleOptions(o, optionSeed('att1', 'q1')));
   });
 
+  it('never flips a True / False pair', () => {
+    const o = opts('True', 'False');
+    for (let n = 0; n < 30; n++) expect(shuffleOptions(o, `att${n}`).map((x) => x.text)).toEqual(['True', 'False']);
+  });
+
   it('keeps every option and its key', () => {
     const o = opts('one', 'two', 'three', 'four');
     const out = shuffleOptions(o, 'seed');

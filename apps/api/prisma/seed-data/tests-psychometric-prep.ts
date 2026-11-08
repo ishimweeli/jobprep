@@ -237,9 +237,94 @@ const psychometricPrepMock4: TestDef = {
   ],
 };
 
+// ───────────────────────────── Mock 5: the real test format (21 questions)
+//
+// Unlike Mocks 1-4, this mock follows the format of MIFOTRA's e-recruitment psychometric test and uses sample questions
+// reported from a candidate's walkthrough of that test (the "Public Relations and Communication Officer" test, level
+// 4.II): 21 questions in four domains (critical thinking, problem solving, time management, clear and effective
+// communication), mostly workplace scenarios plus a few true/false and fill-in items, with 3 marks for the scenario
+// questions, 2 for the short ones and 4 for the last. The walkthrough's printed keys were re-checked: question 3 is a
+// time-zone sum (six hours behind, so 1:30 pm becomes 7:30 pm for you) and question 14 follows the walkthrough's own
+// explanation (reassess and adjust the plan). The matching item is turned into a multiple-choice question because the
+// exam player has no matching format. The real test also has a countdown per question; here there is one timer.
+
+const REAL1 = 'Critical thinking';
+const REAL2 = 'Problem solving';
+const REAL3 = 'Time management';
+const REAL4 = 'Clear and effective communication';
+
+const psychometricPrepMock5: TestDef = {
+  country: 'RW',
+  category: CATEGORY,
+  profession: PROFESSION,
+  slug: 'psychometric-test-preparation-mock-5',
+  title: 'Psychometric Test Preparation — Mock Exam 5: The Real Test Format',
+  summary: 'A 21-question practice test in the format MIFOTRA’s psychometric test is reported to use: workplace scenarios plus true/false and fill-in items on critical thinking, problem solving, time management and clear communication. The questions are based on a candidate’s walkthrough of the real test, with the keys re-checked. Do not expect the same questions in your own test.',
+  free: false,
+  difficulty: 'STANDARD',
+  minutes: 20,
+  sections: [{ name: REAL1 }, { name: REAL2 }, { name: REAL3 }, { name: REAL4 }],
+  questions: [
+    // Critical thinking
+    { section: REAL1, topic: REAL1, marks: 3, stem: 'When faced with a complex problem, the initial step should be:', options: ['Analyzing all available data', 'Defining the problem clearly', 'Implementing a solution immediately', 'Consulting colleagues'], correct: 1,
+      explanation: 'Define the problem clearly first, so that everyone understands what has to be solved before data is analysed or a solution is chosen.' },
+    { section: REAL1, topic: REAL1, marks: 3, stem: 'The key benefit of brainstorming sessions is:', options: ['Avoiding collaboration', 'Limiting creativity', 'Focusing solely on one idea', 'Generating diverse ideas'], correct: 3,
+      explanation: 'Brainstorming invites free and open sharing of ideas, which produces a wider range of possible solutions.' },
+    { section: REAL1, topic: REAL1, marks: 3, stem: 'When evaluating potential solutions, it is important to consider:', options: ['Cost alone', 'Feasibility, effectiveness, and impact', 'Speed of implementation', 'Popularity among team members'], correct: 1,
+      explanation: 'A good solution has to be practical, to work, and to deliver the result you want; cost, speed or popularity on their own do not show that.' },
+    { section: REAL1, topic: REAL1, marks: 3, stem: 'Which of the following is an example of lateral thinking?', options: ['Avoiding creativity', 'Sticking to conventional methods', 'Exploring unconventional solutions', 'Ignoring alternative perspectives'], correct: 2,
+      explanation: 'Lateral thinking approaches a problem in a non-linear, creative way to find new solutions rather than following the usual path.' },
+    { section: REAL1, topic: REAL1, marks: 2, stem: 'When prioritizing tasks, consider ______ .', options: ['Random selection', 'Procrastination', 'Personal preference', 'Urgency and importance'], correct: 3,
+      explanation: 'Tasks are ranked by how urgent and how important they are, so that the most valuable work is done on time.' },
+    { section: REAL1, topic: REAL1, marks: 2, stem: 'Water boils at 100 degrees Celsius at sea level.', options: ['True', 'False'], correct: 0,
+      explanation: 'At sea-level air pressure, water boils at 100 °C.' },
+    { section: REAL1, topic: REAL1, marks: 4, stem: 'You notice a consistent error in a weekly report that affects key business decisions. Which sequence of actions best fits these four steps: (1) the initial response, (2) preventing the error from recurring, (3) telling the team, (4) the next step if the error persists?',
+      options: ['(1) Investigate the root cause and correct it; (2) implement a review process for the report; (3) discuss the error at the next team meeting and propose solutions; (4) escalate to higher management with documented evidence',
+        '(1) Escalate to higher management with documented evidence; (2) discuss the error at the next team meeting; (3) implement a review process for the report; (4) investigate the root cause and correct it',
+        '(1) Discuss the error at the next team meeting; (2) investigate the root cause; (3) escalate to higher management; (4) implement a review process for the report',
+        '(1) Implement a review process for the report; (2) escalate to higher management; (3) investigate the root cause; (4) discuss the error at the next team meeting'], correct: 0,
+      explanation: 'Start by finding and fixing the cause, then put a review in place so it does not recur, tell the team and agree improvements, and escalate with evidence only if the error keeps happening.' },
+
+    // Problem solving
+    { section: REAL2, topic: REAL2, marks: 3, stem: 'You are responsible for inventory management, and there is a sudden surge in demand for a particular product. However, the stock for that product is low. What is your approach?', options: ['Prioritize other products with higher stock levels', 'Analyze demand patterns and expedite orders for the product', 'Place a bulk order for the product without analyzing demand', 'Ignore the surge and let customers know the product is unavailable'], correct: 1,
+      explanation: 'Look at the pattern of demand first and speed up the right orders, so that you restock enough without over-ordering or leaving customers unserved.' },
+    { section: REAL2, topic: REAL2, marks: 3, stem: 'During a routine check, you discover a technical malfunction in a critical system. It is likely to disrupt operations if not addressed promptly. What is your next step?', options: ['Attempt to fix the issue yourself to minimize downtime', 'Immediately report the issue to the relevant technical support team', 'Wait until the issue becomes critical before escalating it', 'Inform your supervisor and wait for instructions'], correct: 1,
+      explanation: 'Prompt reporting to the team that can fix the fault limits the risk of disruption; waiting, or trying a repair you are not responsible for, does not.' },
+    { section: REAL2, topic: REAL2, marks: 3, stem: 'In the middle of a meeting, a key stakeholder raises concerns about a project’s progress, indicating potential flaws in the plan. What is your reaction?', options: ['Argue with the stakeholder to defend the current plan', 'Reschedule the meeting to discuss the concerns later', 'Dismiss the concerns and proceed as planned', 'Listen attentively, take notes, and assure the stakeholder their concerns will be addressed'], correct: 3,
+      explanation: 'Listening and recording the concerns shows respect, takes the issue seriously and keeps the discussion professional.' },
+    { section: REAL2, topic: REAL2, marks: 3, stem: 'You are overseeing a project, and unexpected resource constraints arise, affecting timelines. What is your strategy to mitigate the impact?', options: ['Reassess resource allocation and adjust the project plan accordingly', 'Request additional resources without adjusting the project plan', 'Extend the project timeline to accommodate resource limitations', 'Proceed with the existing plan despite resource constraints'], correct: 0,
+      explanation: 'Reassessing how resources are used and adjusting the plan lets the project adapt to the new constraint; asking for more resources, extending dates or carrying on regardless does not address it.' },
+    { section: REAL2, topic: REAL2, marks: 2, stem: 'Employees must always follow the exact procedures, without deviating from them, when faced with a problem.', options: ['True', 'False'], correct: 1,
+      explanation: 'Procedures guide the work, but employees are expected to use judgment and escalate when a problem falls outside them, so "always, without deviating" is false.' },
+
+    // Time management
+    { section: REAL3, topic: REAL3, marks: 3, stem: 'A client requests a phone call with you at 1:30 pm tomorrow at their time. The client’s time zone is six hours behind your time zone. What time would you use to schedule the phone call in your time zone?', options: ['8:30 pm', '10:30 pm', '7:30 pm', '9:30 pm'], correct: 2,
+      explanation: 'Your clock is six hours ahead of the client’s, so you add six hours to 1:30 pm: 7:30 pm in your time zone.' },
+    { section: REAL3, topic: REAL3, marks: 3, stem: 'Why is it crucial to refrain from overloading your schedule with too many commitments?', options: ['It ensures you complete all tasks on time.', 'It reduces stress and prevents burn out.', 'It eliminates the need for prioritizing tasks.', 'It allows for more breaks and free time.'], correct: 1,
+      explanation: 'An overloaded schedule leads to exhaustion, lower productivity and poor performance; a realistic one reduces stress and burnout.' },
+    { section: REAL3, topic: REAL3, marks: 3, stem: 'Which one best describes your approach when replying to incoming emails?', options: ['You don’t use email.', 'You don’t pay much attention to emails and you aren’t worried if you have a back up.', 'You like to save time by combining multiple tasks, so you often check emails while on the phone or working on something else.', 'You have set times in the day when you check your emails and you always try to stick to them.'], correct: 3,
+      explanation: 'Checking email at set times keeps a structured routine and avoids the distraction of constant interruptions.' },
+    { section: REAL3, topic: REAL3, marks: 3, stem: 'As an operations manager, you are overseeing a project with tight deadlines. A team member requests an extension due to unexpected obstacles. What do you do?', options: ['Discuss with the team to find alternative solutions.', 'Extend the deadline but with reduced scope.', 'Deny the extension and demand completion on time.', 'Grant the extension to ensure quality work.'], correct: 0,
+      explanation: 'Discussing it with the team solves the problem together, keeps the project on track and protects morale; an automatic yes or no does not.' },
+    { section: REAL3, topic: REAL3, marks: 2, stem: 'Taking regular breaks is detrimental to time management.', options: ['True', 'False'], correct: 1,
+      explanation: 'Regular breaks improve focus and productivity, so they help rather than harm time management.' },
+
+    // Clear and effective communication
+    { section: REAL4, topic: REAL4, marks: 3, stem: 'You are in a meeting with stakeholders discussing a new project. Some stakeholders have differing opinions on the project’s direction. How do you navigate this disagreement?', options: ['Facilitate a discussion to understand each stakeholder’s perspective and find common ground.', 'Side with the stakeholder whose opinion aligns with yours.', 'Ignore the disagreement and proceed with your own plan.', 'Dismiss the opinions of stakeholders who disagree with your own.'], correct: 0,
+      explanation: 'A facilitated discussion hears every voice and builds a balanced decision; siding, ignoring or dismissing stakeholders does not.' },
+    { section: REAL4, topic: REAL4, marks: 3, stem: 'You are leading a training session for new employees. One participant seems confused and asks for clarification. How do you respond?', options: ['Ask the participant to wait until the end of the session to address their concern.', 'Tell the participant to figure it out on their own.', 'Ignore the question and continue with the training.', 'Provide clear explanations and examples to address his or her confusion.'], correct: 3,
+      explanation: 'Helping the participant understand the material at the moment of confusion supports learning and keeps the session engaged.' },
+    { section: REAL4, topic: REAL4, marks: 3, stem: 'You are tasked with giving feedback to a team member on their performance. How do you ensure the feedback is constructive?', options: ['Avoid giving feedback altogether to avoid conflict.', 'Deliver the feedback publicly to encourage transparency.', 'Provide specific examples of both strengths and areas for improvement.', 'Focus only on the negatives to encourage improvement.'], correct: 2,
+      explanation: 'Feedback is constructive when it is specific, acknowledges strengths and names what to improve, and is given appropriately rather than publicly.' },
+    { section: REAL4, topic: REAL4, marks: 3, stem: 'A colleague sends you a message in a group chat asking for help with a task. How do you respond?', options: ['Ignore the message and hope someone else responds.', 'Reply with a sarcastic comment about their incompetence.', 'Tell them to figure it out themselves.', 'Offer assistance and ask clarifying questions to better understand the task.'], correct: 3,
+      explanation: 'A professional reply offers help and asks questions to understand the task, which shows willingness to support the colleague.' },
+  ],
+};
+
 export const PSYCHOMETRIC_PREP_MOCKS: TestDef[] = [
   psychometricPrepMock1,
   psychometricPrepMock2,
   psychometricPrepMock3,
   psychometricPrepMock4,
+  psychometricPrepMock5,
 ];
