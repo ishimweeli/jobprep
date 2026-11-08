@@ -279,9 +279,9 @@ export const executiveSecretaryMock3: TestDef = {
 export const sedoLocalEconomicDevelopmentMock1: TestDef = {
   country: 'RW',
   category: 'government-administration',
-  profession: { slug: 'socio-economic-development-officer', name: 'Socio-Economic Development Officer (SEDO)' },
+  profession: { slug: 'socio-economic-development-officer', name: 'Economic Development Officer' },
   slug: 'sedo-local-economic-development-mock-1',
-  title: 'Socio-Economic Development Officer (SEDO) — Mock 1',
+  title: 'Economic Development Officer — Mock 1',
   summary: 'Practice for Socio-Economic Development Officer (SEDO) / Economic Development Officer recruitment: cell-level economic development, community programmes and local governance.',
   free: false,
   difficulty: 'STANDARD',
