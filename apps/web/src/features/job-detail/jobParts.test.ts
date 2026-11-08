@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { otherJobs } from './AlsoIncluded';
-import { sourceLine } from './ExamSourceNote';
+import { sourceLine, usesPastPapers } from './ExamSourceNote';
 import { attemptsBadge } from './JobMockTestRow';
 
 describe('job page parts', () => {
@@ -17,11 +17,23 @@ describe('job page parts', () => {
     expect(otherJobs(jobs, null)).toEqual({ names: ['A', 'B'], count: 2, mockTests: 8 });
   });
 
-  it('never claims past papers or a match with the real exam', () => {
+  it('never claims past papers or a match with the real exam for jobs without reported questions', () => {
     for (const line of [sourceLine('Accountant', false), sourceLine('x', true)]) {
       expect(line).toContain('not real or past exam papers');
       expect(line).not.toMatch(/experts?|mirror|guarantee|reviewed/i);
     }
     expect(sourceLine('Accountant', false)).toContain('published job advert for Accountant');
+  });
+
+  it('says real questions are included only for the jobs that have them, and promises nothing about the real exam', () => {
+    for (const job of ['Executive Secretary', 'Economic Development Officer', 'Human Capital & Social Development Officer']) {
+      const line = sourceLine(job, false);
+      expect(usesPastPapers(job)).toBe(true);
+      expect(line).toContain('real questions that candidates reported');
+      expect(line).toContain('cannot promise the same questions will appear');
+      expect(line).not.toMatch(/experts?|mirror|guarantee|reviewed|actual exam/i);
+    }
+    expect(usesPastPapers('Accountant')).toBe(false);
+    expect(sourceLine('Executive Secretary', true)).toContain('not real or past exam papers');
   });
 });

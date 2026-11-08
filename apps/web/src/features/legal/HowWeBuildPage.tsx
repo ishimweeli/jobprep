@@ -25,9 +25,18 @@ export function HowWeBuildPage() {
         </p>
       </section>
       <section className={sectionClass}>
+        <h2 className={headingClass}>Real questions from earlier exams</h2>
+        <p className={bodyClass}>
+          The Executive Secretary, Economic Development Officer and Human Capital &amp; Social Development Officer exams include real questions that candidates reported from earlier MIFOTRA written exams. We did not take the answers on trust:
+          each one was checked against the law or policy as it stands today. Where the reported answer was wrong or the law has changed, we use the correct answer, and a question that rests on a repealed law is reworded for the current one. Questions
+          whose answer we could not confirm from an official source are left out.
+        </p>
+      </section>
+      <section className={sectionClass}>
         <h2 className={headingClass}>What they are not</h2>
         <p className={bodyClass}>
-          These are practice questions. They are not real or past exam papers, and we cannot promise that the same questions will appear in your exam. JobPrep is independent of MIFOTRA and of the institutions that are hiring.
+          Apart from those reported questions, our exams are practice questions written by us. They are not complete copies of any past exam paper, and we cannot promise that the same questions will appear in your exam. JobPrep is independent of
+          MIFOTRA and of the institutions that are hiring.
         </p>
       </section>
       <section className={sectionClass}>

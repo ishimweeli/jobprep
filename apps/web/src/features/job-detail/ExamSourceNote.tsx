@@ -7,13 +7,25 @@ export const MIFOTRA_PORTAL = 'https://recruitment.mifotra.gov.rw/';
 export const HOW_WE_BUILD_PATH = '/how-we-build-exams';
 
 /**
+ * The jobs whose exams include real questions that candidates reported from earlier MIFOTRA written exams. Every other
+ * job's exams are written by us and must keep saying so.
+ */
+const PAST_PAPER_JOBS = new Set(['executive secretary', 'economic development officer', 'human capital & social development officer']);
+
+export function usesPastPapers(jobName: string): boolean {
+  return PAST_PAPER_JOBS.has(jobName.trim().toLowerCase());
+}
+
+/**
  * Why a candidate can trust these questions, and what they are not. It only says what is true of the content:
- * no claim of past papers, expert reviewers or a match with the real exam.
+ * no claim of expert reviewers or of a match with the real exam, and "real questions" only for the jobs that have them.
  */
 export function sourceLine(jobName: string, psychometric: boolean): string {
-  return psychometric
-    ? 'These are practice questions for general reasoning and public service judgment. They are not real or past exam papers.'
-    : `Questions are written around the duties and qualifications in the published job advert for ${jobName}. They are practice questions, not real or past exam papers.`;
+  if (psychometric) return 'These are practice questions for general reasoning and public service judgment. They are not real or past exam papers.';
+  if (usesPastPapers(jobName)) {
+    return `Many questions in the ${jobName} exams are real questions that candidates reported from earlier MIFOTRA written exams. We checked each answer against the law or policy as it stands today, and corrected it where the reported answer was wrong. The rest are practice questions written around the published job advert. We cannot promise the same questions will appear in your exam.`;
+  }
+  return `Questions are written around the duties and qualifications in the published job advert for ${jobName}. They are practice questions, not real or past exam papers.`;
 }
 
 /** The note on a job page: where the questions come from, with a way to check the official adverts. */

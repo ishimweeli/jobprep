@@ -54,6 +54,7 @@ import {
 } from './seed-data/tests-human-capital-social-dev';
 import { PSYCHOMETRIC_PREP_MOCKS } from './seed-data/tests-psychometric-prep';
 import { AUTO_MOCKS } from './seed-data/auto';
+import { applyPastPapers } from './seed-data/past-papers';
 
 /** Password of the dev admins (system.admin@, content.editor@, support@, multi.role@jobprep.test). Never set in production. */
 export const DEV_PASSWORD = 'Password123!';
@@ -129,7 +130,8 @@ const BASE_TESTS: TestDef[] = [
   keTeachingSample, keAccountantMock,
 ];
 
-const ALL_TESTS: TestDef[] = [
+/** Every mock as written in seed-data, before the real past-paper questions are applied. */
+const SEED_TESTS: TestDef[] = [
   ...BASE_TESTS,
   executiveSecretaryMock3, sedoLocalEconomicDevelopmentMock1,
 
@@ -173,7 +175,9 @@ const ALL_TESTS: TestDef[] = [
   ...AUTO_MOCKS,
 ];
 
-export { ALL_TESTS, BASE_TESTS };
+const ALL_TESTS: TestDef[] = applyPastPapers(SEED_TESTS);
+
+export { ALL_TESTS, BASE_TESTS, SEED_TESTS };
 
 export const slugify = (s: string) =>
   s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

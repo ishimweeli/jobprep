@@ -60,7 +60,9 @@ describe('starting an attempt', () => {
     expect(res.body.counts).toEqual({ total: 20, answered: 0, flagged: 0 });
     expect(res.body.attempt).toMatchObject({ status: 'IN_PROGRESS', kind: 'FULL', mockTest: { slug: MATHS, countryCode: 'RW' } });
     const q1 = res.body.questions[0];
-    expect(q1).toMatchObject({ number: 1, sectionName: 'Algebra & functions', multiple: false, marks: 1 });
+    // Questions are shuffled inside their section per attempt, so which question is first varies; the first section does not.
+    expect(q1).toMatchObject({ number: 1, sectionName: 'Algebra & functions' });
+    expect(q1.marks).toBeGreaterThan(0);
     // Options come in a per-attempt shuffled order; every key is there once.
     expect(q1.options.map((o: { key: string }) => o.key).sort()).toEqual(['A', 'B', 'C', 'D']);
     const raw = JSON.stringify(res.body);
