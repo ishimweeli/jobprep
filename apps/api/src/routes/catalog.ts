@@ -3,7 +3,7 @@ import type { Country, Difficulty, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { canStartMockTest, coveredUntil, daysLeft, type GrantLike } from '../domain/access';
 import { emailInput } from '../domain/email';
-import { activeJobSearches, deriveJobDeadline } from '../domain/jobDeadline';
+import { activeJobSearches, deriveJobDeadline, deriveJobPostedAt } from '../domain/jobDeadline';
 import { formatMoney, isSellable } from '../domain/pricing';
 import { normalizeQuery } from '../services/demand';
 import { HttpError, notFound } from '../http/errors';
@@ -66,6 +66,7 @@ function card(t: CardRow) {
     attempts: 'UNLIMITED',
     publishedAt: t.publishedAt,
     jobDeadlineAt: t.jobDeadlineAt,
+    jobPostedAt: t.jobPostedAt,
   };
 }
 
@@ -125,6 +126,7 @@ function jobCard(rows: CardRow[], now: Date) {
     questionCountRange: questionCounts.length > 1 ? { min: Math.min(...questionCounts), max: Math.max(...questionCounts) } : null,
     languages: [...new Set(rows.flatMap((r) => r.languages))].sort(),
     jobDeadlineAt: deriveJobDeadline(rows.map((r) => r.jobDeadlineAt), now),
+    jobPostedAt: deriveJobPostedAt(rows.map((r) => r.jobPostedAt)),
     publishedAt: publishedDates.length > 0 ? new Date(Math.max(...publishedDates.map((d) => d.getTime()))) : null,
   };
 }
@@ -233,7 +235,7 @@ export function catalogRouter(ctx: Ctx) {
     const words = (f.q ?? '').split(/\s+/).filter(Boolean).slice(0, 6);
 
     const orderBy: Prisma.MockTestOrderByWithRelationInput[] =
-      f.sort === 'recent' ? [{ publishedAt: 'desc' }, { title: 'asc' }]
+      f.sort === 'recent' ? [{ jobPostedAt: { sort: 'desc', nulls: 'last' } }, { publishedAt: 'desc' }, { title: 'asc' }]
       : f.sort === 'title' ? [{ title: 'asc' }]
       : f.sort === 'free_first' ? [{ isFree: 'desc' }, { title: 'asc' }]
       : f.sort === 'deadline' ? [{ jobDeadlineAt: 'asc' }, { title: 'asc' }]
@@ -309,7 +311,8 @@ export function catalogRouter(ctx: Ctx) {
 
     const categoryRank = new Map(facetCats.map((c, i) => [c.slug, i]));
     jobs.sort(
-      f.sort === 'recent' ? (a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0) || a.jobName.localeCompare(b.jobName)
+      // Most recent: the newest job posting first, then the most recently published.
+      f.sort === 'recent' ? (a, b) => (b.jobPostedAt?.getTime() ?? 0) - (a.jobPostedAt?.getTime() ?? 0) || (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0) || a.jobName.localeCompare(b.jobName)
       : f.sort === 'title' ? (a, b) => a.jobName.localeCompare(b.jobName)
       : f.sort === 'free_first' ? (a, b) => (Number(b.freeCount > 0) - Number(a.freeCount > 0)) || a.jobName.localeCompare(b.jobName)
       : f.sort === 'deadline' ? (a, b) => (a.jobDeadlineAt?.getTime() ?? Infinity) - (b.jobDeadlineAt?.getTime() ?? Infinity) || a.jobName.localeCompare(b.jobName)
@@ -381,6 +384,7 @@ export function catalogRouter(ctx: Ctx) {
       category: exam.profession.category,
       profession: { name: exam.profession.name },
       jobDeadlineAt: deriveJobDeadline(mockTests.map((t) => t.jobDeadlineAt), ctx.now()),
+      jobPostedAt: deriveJobPostedAt(mockTests.map((t) => t.jobPostedAt)),
       freeCount: mockTests.filter((t) => t.isFree).length,
       totalMockTests: mockTests.length,
       mockTests: mockTests.map((t) => {

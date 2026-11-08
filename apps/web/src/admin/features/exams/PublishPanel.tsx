@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { archiveMockTest } from '../../api/admin';
-import { contentKeys, duplicateTest, getChecklist, getConsequences, publishTest, restoreTest, unpublishTest, type PublishChecklist } from '../../api/content';
+import { contentKeys, deleteTest, duplicateTest, getChecklist, getConsequences, publishTest, restoreTest, unpublishTest, type PublishChecklist } from '../../api/content';
 import type { TestStatus } from '../../api/types';
 import { ActionDialog } from '../../components/ActionDialog';
 import { TextField } from '../../components/forms';
@@ -47,8 +47,9 @@ export function PublishPanel({ testId, title, status, dirty }: { testId: string;
   const qc = useQueryClient();
   const toast = useToast();
   const navigate = useNavigate();
-  const [dialog, setDialog] = useState<null | 'unpublish' | 'archive' | 'duplicate'>(null);
+  const [dialog, setDialog] = useState<null | 'unpublish' | 'archive' | 'duplicate' | 'delete'>(null);
   const [copyTitle, setCopyTitle] = useState('');
+  const [typedTitle, setTypedTitle] = useState('');
   const [publishError, setPublishError] = useState<string[]>([]);
   const hint = denyHint(admin.permissions, 'exams:write', 'change a mock test’s status');
 
@@ -131,6 +132,16 @@ export function PublishPanel({ testId, title, status, dirty }: { testId: string;
       <div className="flex flex-wrap gap-2 border-t border-border pt-3">
         <Btn whyDisabled={hint} onClick={() => { setCopyTitle(`${title} (copy)`); setDialog('duplicate'); }}>Duplicate…</Btn>
         {status !== 'ARCHIVED' && <Btn kind="danger" whyDisabled={hint} onClick={() => setDialog('archive')}>Archive…</Btn>}
+        <Btn
+          kind="danger"
+          whyDisabled={hint ?? (status === 'PUBLISHED' ? 'Unpublish or archive it first. A published test cannot be deleted.' : undefined)}
+          onClick={() => {
+            setTypedTitle('');
+            setDialog('delete');
+          }}
+        >
+          Delete permanently…
+        </Btn>
       </div>
 
       <ActionDialog
@@ -170,6 +181,34 @@ export function PublishPanel({ testId, title, status, dirty }: { testId: string;
         }}
       >
         <p className="m-0">An archived test disappears for candidates. Results and history are kept. You can restore it as a draft.</p>
+      </ActionDialog>
+
+      <ActionDialog
+        open={dialog === 'delete'}
+        onClose={() => setDialog(null)}
+        title={`Delete ${title} permanently?`}
+        confirmLabel="Delete permanently"
+        kind="danger"
+        reasonHint="Say why it is being deleted. This is kept in the audit log."
+        fields={<TextField label="Type the test’s title to confirm" value={typedTitle} onChange={(e) => setTypedTitle(e.target.value)} autoComplete="off" />}
+        fieldsOk={typedTitle.trim() === title.trim()}
+        fieldsError="Type the title exactly as it is shown above."
+        note="This cannot be undone. The content sync will not bring the test back."
+        errors={{
+          published: 'Unpublish or archive this test first. A published test cannot be deleted.',
+          title_mismatch: 'The title you typed does not match. Nothing was deleted.',
+          has_attempts: 'Candidates have taken this test, so deleting it would erase their results. It stays archived instead, hidden from candidates.',
+          has_reports: 'Candidates reported questions in this test. Close those reports first, or keep the test archived.',
+          in_use: 'Something still uses this test (a result or a report). Nothing was deleted; keep it archived.',
+        }}
+        submit={(reason) => deleteTest(testId, typedTitle, reason)}
+        onDone={() => {
+          toast({ text: `${title} was deleted.` });
+          void refresh();
+          navigate('/admin/exams', { replace: true });
+        }}
+      >
+        <p className="m-0">This removes the test with its sections, case studies and questions. It only works for a test no candidate has taken; otherwise archive it, which already hides it.</p>
       </ActionDialog>
 
       <ActionDialog

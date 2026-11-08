@@ -31,6 +31,8 @@ export const getConsequences = (id: string) => api<Consequences>(`/mock-tests/${
 export interface PublishResult { ok: true; status: 'PUBLISHED'; questions: number; warnings?: string[]; checklist?: PublishChecklist }
 export const publishTest = (id: string) => api<PublishResult>(`/mock-tests/${enc(id)}/publish`, { method: 'POST' });
 export const unpublishTest = (id: string, reason: string) => api<{ ok: true; status: 'DRAFT'; consequences: Consequences }>(`/mock-tests/${enc(id)}/unpublish`, { method: 'POST', body: { reason } });
+/** Deletes the test for good. The API refuses a published test, or one candidates have taken or reported. */
+export const deleteTest = (id: string, confirmTitle: string, reason: string) => api<{ ok: true }>(`/mock-tests/${enc(id)}`, { method: 'DELETE', body: { confirmTitle, reason } });
 export const restoreTest = (id: string) => api<{ ok: true; status: 'DRAFT' }>(`/mock-tests/${enc(id)}/restore`, { method: 'POST' });
 export const duplicateTest = (id: string, title?: string) => api<{ id: string; slug: string; status: string; questions: number }>(`/mock-tests/${enc(id)}/duplicate`, { method: 'POST', body: title ? { title } : {} });
 

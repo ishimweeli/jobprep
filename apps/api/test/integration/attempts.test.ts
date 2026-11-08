@@ -61,7 +61,8 @@ describe('starting an attempt', () => {
     expect(res.body.attempt).toMatchObject({ status: 'IN_PROGRESS', kind: 'FULL', mockTest: { slug: MATHS, countryCode: 'RW' } });
     const q1 = res.body.questions[0];
     expect(q1).toMatchObject({ number: 1, sectionName: 'Algebra & functions', multiple: false, marks: 1 });
-    expect(q1.options.map((o: { key: string }) => o.key)).toEqual(['A', 'B', 'C', 'D']);
+    // Options come in a per-attempt shuffled order; every key is there once.
+    expect(q1.options.map((o: { key: string }) => o.key).sort()).toEqual(['A', 'B', 'C', 'D']);
     const raw = JSON.stringify(res.body);
     expect(raw).not.toMatch(/explanation|"correct"|"payload"|Factorise/);
     expect(res.body.questions.find((q: { multiple: boolean }) => q.multiple)).toBeDefined();

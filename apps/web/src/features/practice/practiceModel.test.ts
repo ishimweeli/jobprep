@@ -3,6 +3,7 @@ import type { ExamQuestion, PracticeCheckResponse } from '../../api/types';
 import {
   canCheck, dominantTopic, feedbackFor, initialPracticeState, joinNames, optionTag, practiceProgress, practiceReducer, practiceSummary, type PracticeState,
 } from './practiceModel';
+import { letterOfKey } from '../../lib/optionLetter';
 
 const q = (id: string, extra: Partial<ExamQuestion> = {}): ExamQuestion => ({
   id, number: 1, sectionName: 'S', topic: { id: 't1', name: 'Statistics & probability' }, type: 'SINGLE_CHOICE', multiple: false, choose: null, stem: 's',
@@ -79,6 +80,13 @@ describe('practice copy', () => {
     expect(feedbackFor({ state: 'incorrect', correct: ['B'] })).toEqual({ title: 'Not quite — the answer is B', tone: 'incorrect', detail: null });
     expect(feedbackFor({ state: 'incorrect', correct: ['C', 'A'] }).title).toBe('Not quite — the answers are A, C');
     expect(feedbackFor({ state: 'partial', correct: ['A', 'C'] })).toMatchObject({ title: 'Partly correct', tone: 'partial' });
+  });
+  it('names the letter shown on screen, not the stored key (options are shuffled)', () => {
+    // Shown order D, A, C, B → stored key B appears as letter D.
+    const letter = (key: string) => letterOfKey([{ key: 'D' }, { key: 'A' }, { key: 'C' }, { key: 'B' }], key);
+    expect(feedbackFor({ state: 'incorrect', correct: ['B'] }, letter).title).toBe('Not quite — the answer is D');
+    expect(feedbackFor({ state: 'partial', correct: ['A', 'B'], yourAnswer: ['A', 'C'] }, letter).detail)
+      .toBe('You found 1 of 2 correct answers and chose 1 that is not correct. The correct answers are B, D.');
   });
   it('option tags after checking: ✓ Correct on a right option, ✕ Your answer on a wrong pick, nothing before', () => {
     const r = result('q1', 'incorrect', ['B'], ['A']);

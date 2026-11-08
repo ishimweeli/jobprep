@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { ExamQuestion } from '../../api/types';
 import { Dialog } from '../../components/Dialog';
 import { cx } from '../../lib/cx';
+import { optionLetter } from '../../lib/optionLetter';
 import { cellState, chooseCountLabel, sectionGroups, type CellState, type ExamCounts } from './examModel';
 import type { LocalAnswers } from './queue';
 
@@ -114,7 +115,7 @@ export function AnswerOptions({
     return (
       <>
         <div role="group" aria-label={`Answer options, choose ${choose}`} className="flex flex-col gap-2.5">
-          {question.options.map((o) => {
+          {question.options.map((o, i) => {
             const on = selected.includes(o.key);
             return (
               <button
@@ -137,7 +138,7 @@ export function AnswerOptions({
                     <path d="M5 12.5l4.5 4.5L19 7.5" />
                   </svg>
                 </span>
-                <span className="w-[18px] font-semibold text-ink-2">{o.key}</span>
+                <span className="w-[18px] font-semibold text-ink-2">{optionLetter(i)}</span>
                 <span className={cx('text-base leading-[1.45]', numeric && 'tabular')}>{o.text}</span>
               </button>
             );
@@ -151,7 +152,7 @@ export function AnswerOptions({
   }
   return (
     <div role="group" aria-label="Answer options" className="flex flex-col gap-2.5 md:gap-3">
-      {question.options.map((o) => {
+      {question.options.map((o, i) => {
         const on = selected.includes(o.key);
         return (
           <button
@@ -171,7 +172,7 @@ export function AnswerOptions({
                 on ? 'bg-brand text-white' : 'bg-soft text-ink-2',
               )}
             >
-              {o.key}
+              {optionLetter(i)}
             </span>
             <span className={cx('text-base leading-[1.45]', numeric && 'tabular')}>{o.text}</span>
           </button>

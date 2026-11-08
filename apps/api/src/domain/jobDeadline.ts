@@ -11,6 +11,12 @@ export function deriveJobDeadline(deadlines: (Date | null)[], now: Date): Date |
   return known.reduce((latest, d) => (d.getTime() > latest.getTime() ? d : latest), known[0]!);
 }
 
+/** When a job's posting opened: the most recent opening date among its mock tests (a re-advertised post is newer). */
+export function deriveJobPostedAt(dates: (Date | null)[]): Date | null {
+  const known = dates.filter((d): d is Date => d !== null);
+  return known.length === 0 ? null : new Date(Math.max(...known.map((d) => d.getTime())));
+}
+
 export interface SearchableMock {
   examId: string;
   examName: string;

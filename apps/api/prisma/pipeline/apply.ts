@@ -13,7 +13,7 @@ import { QUESTIONS_PER_MOCK, REGISTRY_PATH, type WorkList } from './scan';
  * - top-ups are appended to the end of the existing mock's `questions` (sync-content then adds them on live
  *   databases) and its `minutes` becomes 60;
  * - new mocks go to seed-data/auto/<profession>.ts (one file per job, collected by seed-data/auto/index.ts);
- * - new posts are added to jobs-registry.json, changed closing dates are written to the job's mocks;
+ * - new posts are added to jobs-registry.json, changed opening/closing dates are written to the job's mocks;
  * - every question's `source` is kept in content-revisions/question-sources.json for review.
  */
 
@@ -64,6 +64,7 @@ export function applyWritten(work: WorkList, written: Written[]) {
   const note = (slug: string, q: WrittenQuestion) => (sources[slug] ??= []).push({ stem: q.stem, source: q.source });
   const topups: Record<string, WrittenQuestion[]> = Object.assign({}, ...written.map((w) => w.topups ?? {}));
   const deadlines = new Map(work.jobs.flatMap((j) => j.deadlineToUpdate.map((slug) => [slug, j.jobDeadlineAt] as const)));
+  const postedDates = new Map(work.jobs.flatMap((j) => (j.postedToUpdate ?? []).map((slug) => [slug, j.jobPostedAt] as const)));
   const done = new Set<string>();
 
   const seedFiles = readdirSync(SEED).filter((f) => /^tests-.*\.ts$/.test(f)).map((f) => join(SEED, f));
@@ -82,9 +83,16 @@ export function applyWritten(work: WorkList, written: Written[]) {
         edits.push({ start: m.getStart(), end: m.getEnd(), text: String(MINUTES) });
         done.add(slug);
       }
-      const deadline = deadlines.get(slug);
-      const d = prop(node, 'jobDeadlineAt');
-      if (deadline && d && ts.isStringLiteralLike(d.initializer)) edits.push({ start: d.initializer.getStart(), end: d.initializer.getEnd(), text: lit(deadline) });
+      // Closing and opening dates of the real posting: replace the value, or add the property after jobDeadlineAt / minutes.
+      const setDate = (name: string, value: string | undefined) => {
+        if (!value) return;
+        const existing = prop(node, name);
+        if (existing) { edits.push({ start: existing.initializer.getStart(), end: existing.initializer.getEnd(), text: lit(value) }); return; }
+        const after = prop(node, 'jobDeadlineAt') ?? prop(node, 'minutes')!;
+        edits.push({ start: after.getEnd(), end: after.getEnd(), text: `, ${name}: ${lit(value)}` });
+      };
+      setDate('jobDeadlineAt', deadlines.get(slug));
+      setDate('jobPostedAt', postedDates.get(slug));
       return edits;
     });
   }
@@ -109,7 +117,8 @@ export function applyWritten(work: WorkList, written: Written[]) {
         `    slug: ${lit(m.slug)},`,
         `    title: ${lit(m.title)},`,
         `    summary: ${lit(m.summary)},`,
-        `    free: ${m.free === true}, difficulty: 'STANDARD', minutes: ${MINUTES}, jobDeadlineAt: ${lit(job.jobDeadlineAt)},`,
+        `    free: ${m.free === true}, difficulty: 'STANDARD', minutes: ${MINUTES},`,
+        `    jobPostedAt: ${lit(job.jobPostedAt)}, jobDeadlineAt: ${lit(job.jobDeadlineAt)},`,
         `    sections: [${m.sections.map((s) => `{ name: ${lit(s)} }`).join(', ')}],`,
         '    questions: [',
         `${m.questions.map((q) => qText(q, '      ')).join(',\n')},`,
@@ -125,7 +134,7 @@ export function applyWritten(work: WorkList, written: Written[]) {
       writeFileSync(file, [
         "import type { TestDef } from '../types';",
         '',
-        `// ${job.professionName} — ${job.entity}. MIFOTRA advert ${job.requisitionId}, closing ${job.jobDeadlineAt}.`,
+        `// ${job.professionName} — ${job.entity}. MIFOTRA advert ${job.requisitionId}, posted ${job.jobPostedAt}, closing ${job.jobDeadlineAt}.`,
         '// Written by the daily content pipeline (prisma/pipeline) to the MIFOTRA written-exam pattern. Original practice',
         '// questions, not real or past exam papers; sources in prisma/content-revisions/question-sources.json.',
         '',

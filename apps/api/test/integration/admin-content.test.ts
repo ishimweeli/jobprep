@@ -114,9 +114,10 @@ describe('question editor', () => {
 
     const a = await guestAttempt(PROC);
     const s = await state(a);
-    const seen = s.questions[0];
+    // Questions and options are shown in a per-attempt shuffled order: find them by id and key.
+    const seen = s.questions.find((x: { id: string }) => x.id === q.id);
     expect(seen.stem).toContain('(edited)');
-    expect(seen.options[1].text).toContain('(clarified)');
+    expect(seen.options.find((o: { key: string }) => o.key === before[1]!.key).text).toContain('(clarified)');
     expect(seen.marks).toBe(2);
 
     const log = (await auditFor('question.update', q.id)).at(-1)!;
@@ -256,7 +257,8 @@ describe('mock tests: create, publish, archive', () => {
     const pub = await editor.post(`/api/admin/mock-tests/${c.body.id}/publish`).send({});
     expect(pub.body).toMatchObject({ ok: true, status: 'PUBLISHED', questions: 1 });
     const live = await visible('procurement-officer-mock-2');
-    expect(live).toMatchObject({ title: 'Procurement Officer — Mock 2', questionCount: 1, totalMarks: 2, isFree: false, durationMinutes: 20 });
+    // New tests start as a Free sample unless the editor chooses Full Access.
+    expect(live).toMatchObject({ title: 'Procurement Officer — Mock 2', questionCount: 1, totalMarks: 2, isFree: true, durationMinutes: 20 });
 
     expect((await editor.post(`/api/admin/mock-tests/${c.body.id}/archive`).send({})).body.status).toBe('ARCHIVED');
     expect((await request(app).get('/api/countries/RW/mock-tests/procurement-officer-mock-2')).status).toBe(404);

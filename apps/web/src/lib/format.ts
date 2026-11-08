@@ -53,6 +53,18 @@ export function jobDeadlineLabel(iso: string | null | undefined): JobDeadlineLab
   return { text: `Application closes in ${days} days`, closed: false };
 }
 
+/**
+ * When the real job posting opened and closes, as plain dates, so people can tell the latest postings apart:
+ * "Posted 5 Nov 2026 · Closes 13 Nov 2026" (or "Closed …" once past). Null when neither date is known.
+ */
+export function jobDatesLine(postedIso: string | null | undefined, deadlineIso: string | null | undefined): string | null {
+  const posted = formatDate(postedIso, true);
+  const deadline = formatDate(deadlineIso, true);
+  const closed = !!deadlineIso && new Date(deadlineIso).getTime() < Date.now() - 24 * 60 * 60 * 1000;
+  const parts = [posted && `Posted ${posted}`, deadline && `${closed ? 'Closed' : 'Closes'} ${deadline}`].filter(Boolean);
+  return parts.length ? parts.join(' · ') : null;
+}
+
 /** A job card's one access badge: "Free" (every mock), "Free to try" (some), "Full Access" (none). */
 export function jobAccessSummary(freeCount: number, totalCount: number): string {
   if (freeCount === 0) return 'Full Access';

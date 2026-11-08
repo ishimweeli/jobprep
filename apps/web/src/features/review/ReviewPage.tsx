@@ -6,6 +6,7 @@ import { isApiError } from '../../api/client';
 import type { ExamCase, ReviewFilter, ReviewItem, ReviewResponse } from '../../api/types';
 import { QueryError, Loader } from '../../components/states';
 import { cx } from '../../lib/cx';
+import { optionLetter } from '../../lib/optionLetter';
 import { translationNote, useLocale, useT } from '../../lib/i18n';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
@@ -290,7 +291,7 @@ function QuestionCard({ item, shownOnPhone, caseData }: { item: ReviewItem; show
       </p>
       {multi ? (
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
-          {item.options.map((o) => {
+          {item.options.map((o, i) => {
             const k = optionKind(o);
             const note = multiOptionNote(o);
             return (
@@ -303,7 +304,7 @@ function QuestionCard({ item, shownOnPhone, caseData }: { item: ReviewItem; show
               >
                 <span className="flex items-center gap-3">
                   <CheckBox on={o.isYourPick} />
-                  <span className="w-[18px] font-semibold text-ink-2">{o.key}</span>
+                  <span className="w-[18px] font-semibold text-ink-2">{optionLetter(i)}</span>
                   <span className="text-base">{o.text}</span>
                 </span>
                 {note && <span className={cx('pl-[52px] text-[13px] font-semibold', o.isCorrect ? 'text-free' : 'text-incorrect')}>{note}</span>}
@@ -313,7 +314,7 @@ function QuestionCard({ item, shownOnPhone, caseData }: { item: ReviewItem; show
         </ul>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
-          {item.options.map((o) => {
+          {item.options.map((o, i) => {
             const k = optionKind(o);
             return (
               <li
@@ -326,7 +327,7 @@ function QuestionCard({ item, shownOnPhone, caseData }: { item: ReviewItem; show
                 )}
               >
                 <span className="flex items-center gap-2.5 md:contents">
-                  <span className="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-soft text-[13px] font-semibold text-ink-2 md:h-7 md:w-7">{o.key}</span>
+                  <span className="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-soft text-[13px] font-semibold text-ink-2 md:h-7 md:w-7">{optionLetter(i)}</span>
                   <span className="text-base md:flex-[1_1_200px]">{o.text}</span>
                 </span>
                 {k === 'right' && (

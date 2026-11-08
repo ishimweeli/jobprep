@@ -46,12 +46,16 @@ export interface WorkJob {
   entity: string;
   requisitionId: string;
   jobDeadlineAt: string;
+  /** When MIFOTRA opened the posting (YYYY-MM-DD), shown to users next to the closing date. */
+  jobPostedAt: string;
   positionKey: string;
   contextFile: string;
   topups: { slug: string; need: number; sections: string[]; topics: string[] }[];
   newMocks: { slug: string; title: string; free: boolean }[];
   /** Mocks of this job whose stored deadline differs from the advert's closing date. */
   deadlineToUpdate: string[];
+  /** Mocks of this job whose stored opening date differs from the advert's (or is missing). */
+  postedToUpdate: string[];
 }
 export interface WorkList { generatedAt: string; adverts: number; jobs: WorkJob[] }
 
@@ -74,6 +78,7 @@ export function buildWorkList(adverts: Advert[], tests: TestDef[], registry: Rec
     const isNew = mocks.length === 0;
     const professionName = mocks[0]?.profession.name ?? a.positionName;
     const deadline = a.closingDate.slice(0, 10);
+    const posted = a.openingDate.slice(0, 10);
     const entity = a.entityAcronym || a.entityName;
 
     const topups = mocks
@@ -93,11 +98,12 @@ export function buildWorkList(adverts: Advert[], tests: TestDef[], registry: Rec
 
     const contextFile = join(outDir, `job-${professionSlug}.txt`);
     writeFileSync(contextFile, contextText(a, professionName, mocks));
-    if (!topups.length && !newMocks.length && mocks.every((t) => t.jobDeadlineAt === deadline)) continue;
+    if (!topups.length && !newMocks.length && mocks.every((t) => t.jobDeadlineAt === deadline && t.jobPostedAt === posted)) continue;
     jobs.push({
       professionSlug, professionName, category: mocks[0]?.category ?? guessCategory(a), isNew, entity, requisitionId: a.requisitionId,
-      jobDeadlineAt: deadline, positionKey: key, contextFile, topups, newMocks,
+      jobDeadlineAt: deadline, jobPostedAt: posted, positionKey: key, contextFile, topups, newMocks,
       deadlineToUpdate: mocks.filter((t) => t.jobDeadlineAt !== deadline).map((t) => t.slug),
+      postedToUpdate: mocks.filter((t) => t.jobPostedAt !== posted).map((t) => t.slug),
     });
   }
   return { generatedAt: new Date().toISOString(), adverts: adverts.length, jobs };
@@ -137,7 +143,7 @@ async function main() {
   const q = work.jobs.reduce((s, j) => s + j.topups.reduce((x, t) => x + t.need, 0) + j.newMocks.length * QUESTIONS_PER_MOCK, 0);
   console.log(`${work.adverts} open adverts; ${work.jobs.length} job(s) need work; ${q} question(s) to write.`);
   for (const j of work.jobs) {
-    console.log(`- ${j.professionSlug}${j.isNew ? ' (NEW)' : ''}: top up ${j.topups.length} mock(s) (+${j.topups.reduce((s, t) => s + t.need, 0)}), write ${j.newMocks.length} new mock(s)${j.deadlineToUpdate.length ? `, deadline → ${j.jobDeadlineAt}` : ''}`);
+    console.log(`- ${j.professionSlug}${j.isNew ? ' (NEW)' : ''}: top up ${j.topups.length} mock(s) (+${j.topups.reduce((s, t) => s + t.need, 0)}), write ${j.newMocks.length} new mock(s)${j.deadlineToUpdate.length ? `, deadline → ${j.jobDeadlineAt}` : ''}${j.postedToUpdate.length ? `, posted → ${j.jobPostedAt}` : ''}`);
   }
 }
 

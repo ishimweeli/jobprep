@@ -5,7 +5,7 @@ import { catalogKeys, getJob } from '../../api/catalog';
 import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import { QueryError, Loader } from '../../components/states';
-import { jobDeadlineLabel, plural } from '../../lib/format';
+import { jobDatesLine, jobDeadlineLabel, plural } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useClearPreferredJob, useSetPreferredJob } from '../catalog/usePreferredJob';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
@@ -61,6 +61,7 @@ export function JobDetailPage() {
   }
 
   const deadlineLabel = jobDeadlineLabel(job.jobDeadlineAt);
+  const dates = jobDatesLine(job.jobPostedAt, job.jobDeadlineAt);
   const someLocked = job.mockTests.some((t) => t.access.state === 'LOCKED');
 
   return (
@@ -91,6 +92,7 @@ export function JobDetailPage() {
             {deadlineLabel && <Badge tone={deadlineLabel.closed ? 'neutral' : 'brand'}>{deadlineLabel.text}</Badge>}
           </div>
           <h1 className="m-0 text-[22px] font-bold leading-[1.2] tracking-[-0.02em] text-heading md:text-2xl dark:text-night-heading">{job.exam.name}</h1>
+          {dates && <p className="m-0 text-sm font-semibold text-ink-2 dark:text-night-muted">MIFOTRA posting: {dates}</p>}
           <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2 md:text-[17px]">
             Prepare for your recruitment exam with {plural(job.totalMockTests, 'practice test')} for this position.
           </p>

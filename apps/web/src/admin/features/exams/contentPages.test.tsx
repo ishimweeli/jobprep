@@ -68,7 +68,9 @@ describe('mock test form', () => {
     expect(screen.getByLabelText('Marks taken off for each wrong answer')).toHaveValue(0);
     expect(screen.getByLabelText(/Official pass mark/)).toHaveValue(null);
     expect(screen.getByText(/only shows a pass mark when both/i)).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /Full Access/ })).toBeChecked();
+    // A new test starts as a free sample, so it is discoverable unless someone chooses to charge for it.
+    expect(screen.getByRole('radio', { name: /Free sample/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /Full Access/ })).not.toBeChecked();
   });
 
   it('refuses a pass mark without its source and shows the field error', async () => {
@@ -264,7 +266,7 @@ describe('case studies', () => {
 });
 
 describe('editing a test: status, checklist, sections', () => {
-  const test = (status: 'DRAFT' | 'PUBLISHED') => ({
+  const test = (status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED') => ({
     mockTest: {
       id: 't1', slug: 's', title: 'Sec. Mathematics — Mock 1', summary: '', status, isFree: false, difficulty: 'STANDARD', durationMinutes: 90, languages: ['en'], instructions: [],
       countryCode: 'RW', negativeMarkPerWrong: 0, passMarkPercent: null, passMarkSource: null, category: { id: 'c1', name: 'Teaching' }, publishedAt: null, profession: { id: 'p1', name: 'Teacher' },
@@ -273,7 +275,7 @@ describe('editing a test: status, checklist, sections', () => {
     cases: [], questions: [],
   });
 
-  function setup(status: 'DRAFT' | 'PUBLISHED', canPublish = false) {
+  function setup(status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED', canPublish = false, deleteReply?: { status: number; body: unknown }) {
     stubViewport(true);
     const api = mockFetch((url, init) => {
       if (url === '/api/admin/mock-tests/t1' && (init?.method ?? 'GET') === 'GET') return json(test(status));
@@ -282,6 +284,8 @@ describe('editing a test: status, checklist, sections', () => {
       if (url === '/api/admin/mock-tests/t1/checklist') return json({ canPublish, items: [{ key: 'hasQuestions', label: 'q', ok: canPublish, blocking: true }, { key: 'freeSample', label: 'f', ok: false, blocking: false }] });
       if (url === '/api/admin/mock-tests/t1/consequences') return json({ attemptsInProgress: 2, attemptsFinished: 40, status: 'PUBLISHED' });
       if (url === '/api/admin/mock-tests/t1/unpublish') return json({ ok: true, status: 'DRAFT', consequences: {} });
+      if (url === '/api/admin/mock-tests/t1' && init?.method === 'DELETE') return deleteReply ? { status: deleteReply.status, body: deleteReply.body } : json({ ok: true });
+      if (url.startsWith('/api/admin/exams')) return json({ total: 0, page: 1, pageSize: 100, items: [] });
       return undefined;
     });
     return { api, ...renderAdminRoutes([{ path: '/admin/exams/:testId/edit', element: <ToastProvider><MockTestFormPage /></ToastProvider> }], { route: '/admin/exams/t1/edit', me: sys }) };
@@ -310,5 +314,38 @@ describe('editing a test: status, checklist, sections', () => {
     await waitFor(() => expect(api.calls.some((c) => c.url.endsWith('/unpublish'))).toBe(true));
     const post = api.calls.find((c) => c.url.endsWith('/unpublish'))!;
     expect(JSON.parse(String(post.init?.body))).toEqual({ reason: 'Wrong answers in section 2' });
+  });
+
+  it('a published test cannot be deleted: the button says why', async () => {
+    setup('PUBLISHED');
+    const del = await screen.findByRole('button', { name: 'Delete permanently…' });
+    expect(del).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('deleting an archived test needs its exact title and a reason, then sends both', async () => {
+    const { api } = setup('ARCHIVED');
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete permanently…' }));
+    const dialog = await screen.findByRole('dialog', { name: /Delete .* permanently/ });
+    await userEvent.type(within(dialog).getByLabelText('Type the test’s title to confirm'), 'Sec. Mathematics');
+    await userEvent.type(within(dialog).getByLabelText('Reason'), 'Old dummy test');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete permanently' }));
+    expect(await within(dialog).findByText('Type the title exactly as it is shown above.')).toBeInTheDocument();
+    expect(api.calls.some((c) => c.init?.method === 'DELETE')).toBe(false);
+    await userEvent.clear(within(dialog).getByLabelText('Type the test’s title to confirm'));
+    await userEvent.type(within(dialog).getByLabelText('Type the test’s title to confirm'), 'Sec. Mathematics — Mock 1');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete permanently' }));
+    await waitFor(() => expect(api.calls.some((c) => c.init?.method === 'DELETE')).toBe(true));
+    const del = api.calls.find((c) => c.init?.method === 'DELETE')!;
+    expect(JSON.parse(String(del.init?.body))).toEqual({ confirmTitle: 'Sec. Mathematics — Mock 1', reason: 'Old dummy test' });
+  });
+
+  it('a test candidates have taken is not deleted, and the dialog says why', async () => {
+    setup('ARCHIVED', false, { status: 409, body: { error: 'has_attempts' } });
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete permanently…' }));
+    const dialog = await screen.findByRole('dialog', { name: /Delete .* permanently/ });
+    await userEvent.type(within(dialog).getByLabelText('Type the test’s title to confirm'), 'Sec. Mathematics — Mock 1');
+    await userEvent.type(within(dialog).getByLabelText('Reason'), 'Old dummy test');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete permanently' }));
+    expect(await within(dialog).findByText(/Candidates have taken this test/)).toBeInTheDocument();
   });
 });

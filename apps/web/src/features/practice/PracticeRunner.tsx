@@ -8,6 +8,7 @@ import { Button, buttonClasses } from '../../components/Button';
 import { Dialog } from '../../components/Dialog';
 import { authErrorMessage } from '../../lib/errorCopy';
 import { cx } from '../../lib/cx';
+import { letterOfKey, optionLetter } from '../../lib/optionLetter';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath } from '../country/hooks';
 import { ChooseBadge } from '../exam/ExamParts';
@@ -128,7 +129,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
   if (!q) return null;
   const checked = s.checked[q.id];
   const picked = s.picked[q.id] ?? [];
-  const fb = checked ? feedbackFor(checked) : null;
+  const fb = checked ? feedbackFor(checked, (key) => letterOfKey(q.options, key)) : null;
   const ready = canCheck(s, q.id);
   const choose = q.multiple ? q.choose : null;
 
@@ -157,7 +158,7 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
             {choose ? <strong className="font-semibold"> Choose {choose}.</strong> : null}
           </p>
           <div role="group" aria-label={choose ? `Answer options, choose ${choose}` : 'Answer options'} className="flex flex-col gap-2.5">
-            {q.options.map((o) => {
+            {q.options.map((o, i) => {
               const on = picked.includes(o.key);
               const tag = optionTag(checked, o.key, picked);
               const right = tag?.kind === 'right';
@@ -191,10 +192,10 @@ export function PracticeRunner({ state: attempt, slug }: { state: AttemptState; 
                         !checked && on ? 'bg-brand text-white' : 'bg-soft text-ink-2',
                       )}
                     >
-                      {o.key}
+                      {optionLetter(i)}
                     </span>
                   )}
-                  {q.multiple && <span className="w-[18px] font-semibold text-ink-2">{o.key}</span>}
+                  {q.multiple && <span className="w-[18px] font-semibold text-ink-2">{optionLetter(i)}</span>}
                   <span className="flex-1 text-base md:text-lg">{o.text}</span>
                   {tag && <span className={cx('text-[13px] font-semibold', tag.kind === 'right' ? 'text-free' : 'text-incorrect')}>{tag.text}</span>}
                 </button>

@@ -40,7 +40,7 @@ export interface MockTestForm {
 
 export function emptyForm(prefill: { title?: string; country?: string } = {}): MockTestForm {
   return {
-    title: prefill.title ?? '', summary: '', countryCode: prefill.country ?? '', categoryId: '', professionId: '', isFree: false, difficulty: 'STANDARD',
+    title: prefill.title ?? '', summary: '', countryCode: prefill.country ?? '', categoryId: '', professionId: '', isFree: true, difficulty: 'STANDARD',
     durationMinutes: '60', languages: ['en'], instructions: [], negativeMark: '0', passMark: '', passSource: '',
   };
 }

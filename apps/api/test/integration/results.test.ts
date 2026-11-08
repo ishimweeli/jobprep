@@ -2,6 +2,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app';
 import type { QuestionPayload } from '../../src/domain/scoring';
+import { shuffleQuestions } from '../../src/domain/optionOrder';
 import { createPracticeAttempt } from '../../src/services/results';
 import { ConsoleEmailProvider } from '../../src/services/email';
 import { resetAndSeed, signedInAgent, testConfig, testPrisma } from '../helpers';
@@ -40,6 +41,21 @@ async function key(slug: string) {
     return { id: q.id, correct: p.correct, wrong: p.options.find((o) => !p.correct.includes(o.key))!.key };
   });
 }
+
+/**
+ * Questions are shown in a per-attempt shuffled order (within each section). Maps an authored question index (as used
+ * in the PLANs below) to the number this attempt shows it under.
+ */
+async function shownNumber(attemptId: string, slug = MATHS) {
+  const qs = await prisma.question.findMany({
+    where: { mockTest: { slug, countryCode: 'RW' }, status: 'PUBLISHED' },
+    orderBy: [{ section: { sortOrder: 'asc' } }, { sortOrder: 'asc' }],
+  });
+  const shown = shuffleQuestions(qs, attemptId).map((q) => q.id);
+  const authored = (await key(slug)).map((q) => q.id);
+  return (i: number) => shown.indexOf(authored[i]!) + 1;
+}
+const sorted = (xs: number[]) => [...xs].sort((a, b) => a - b);
 
 async function guestStart(slug = MATHS, token?: string) {
   const r = request(app).post(startPath(slug));
@@ -118,7 +134,8 @@ describe('results', () => {
     expect(b.incorrectCount).toBe(6);
     expect(b.reviewFirst).toHaveLength(3);
     expect(b.reviewFirst.every((r: { topic: string }) => r.topic === 'Statistics & probability')).toBe(true); // weakest topic with wrong answers
-    expect(b.reviewFirst.map((r: { number: number }) => r.number)).toEqual([14, 15, 16]);
+    const n = await shownNumber(id);
+    expect(b.reviewFirst.map((r: { number: number }) => r.number)).toEqual(sorted([13, 14, 15].map(n)));
     expect(b.reviewFirst[0]).toMatchObject({ yourAnswer: expect.any(Array), correctAnswer: expect.any(Array) });
     expect(b.reviewFirst[0].yourAnswer).not.toEqual(b.reviewFirst[0].correctAnswer);
   });
@@ -199,16 +216,18 @@ describe('answer review', () => {
 
   it('filters', async () => {
     const f = async (name: string) => (await c.get(`/api/attempts/${id}/review?filter=${name}`)).body.items.map((i: { number: number }) => i.number);
-    expect(await f('incorrect')).toEqual([7, 11, 12, 14, 15, 16]); // 7 is the partly-correct multiple-select
-    expect(await f('flagged')).toEqual([11, 17]);
-    expect(await f('unanswered')).toEqual([17, 18, 19, 20]);
+    const n = await shownNumber(id);
+    expect(await f('incorrect')).toEqual(sorted([6, 10, 11, 13, 14, 15].map(n))); // authored 6 is the partly-correct multiple-select
+    expect(await f('flagged')).toEqual(sorted([10, 16].map(n)));
+    expect(await f('unanswered')).toEqual(sorted([16, 17, 18, 19].map(n)));
     expect((await f('all')).length).toBe(20);
     expect(await (async () => (await c.get(`/api/attempts/${id}/review`)).body.filter)()).toBe('incorrect'); // default
   });
 
   it('every item shows the options with the correct answer and your pick marked, plus the explanation', async () => {
     const items = (await c.get(`/api/attempts/${id}/review?filter=incorrect`)).body.items;
-    const wrong = items.find((i: { number: number }) => i.number === 12);
+    const n = await shownNumber(id);
+    const wrong = items.find((i: { number: number }) => i.number === n(11));
     expect(wrong.status).toBe('incorrect');
     expect(wrong.options.filter((o: { isCorrect: boolean }) => o.isCorrect)).toHaveLength(1);
     const pick = wrong.options.find((o: { isYourPick: boolean }) => o.isYourPick);
@@ -216,16 +235,17 @@ describe('answer review', () => {
     expect(wrong.explanation.length).toBeGreaterThan(20);
     expect(wrong.topic).toBe('Geometry & measurement');
 
-    const partial = items.find((i: { number: number }) => i.number === 7);
+    const partial = items.find((i: { number: number }) => i.number === n(6));
     expect(partial).toMatchObject({ status: 'partial', multiple: true, marks: 2, marksAwarded: 1, yourAnswer: ['A'] });
-    expect(partial.options.filter((o: { isCorrect: boolean }) => o.isCorrect).map((o: { key: string }) => o.key)).toEqual(['A', 'C']);
+    expect(partial.options.filter((o: { isCorrect: boolean }) => o.isCorrect).map((o: { key: string }) => o.key).sort()).toEqual(['A', 'C']);
   });
 
   it('has a jump grid over every question whatever the filter, and unanswered items have no pick', async () => {
     const b = (await c.get(`/api/attempts/${id}/review?filter=flagged`)).body;
     expect(b.grid).toHaveLength(20);
-    expect(b.grid[10]).toMatchObject({ number: 11, status: 'incorrect', flagged: true });
-    expect(b.grid[19]).toMatchObject({ number: 20, status: 'unanswered', flagged: false });
+    const n = await shownNumber(id);
+    expect(b.grid[n(10) - 1]).toMatchObject({ number: n(10), status: 'incorrect', flagged: true });
+    expect(b.grid[n(19) - 1]).toMatchObject({ number: n(19), status: 'unanswered', flagged: false });
     const un = (await c.get(`/api/attempts/${id}/review?filter=unanswered`)).body.items[0];
     expect(un.options.some((o: { isYourPick: boolean }) => o.isYourPick)).toBe(false);
     expect(un.options.some((o: { isCorrect: boolean }) => o.isCorrect)).toBe(true);

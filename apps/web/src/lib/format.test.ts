@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ExamDetail } from '../api/types';
 import { ApiError } from '../api/client';
 import { authErrorMessage } from './errorCopy';
-import { attemptScore, initials, languageList, mmss, passMarkDisplay, plural } from './format';
+import { attemptScore, initials, jobDatesLine, languageList, mmss, passMarkDisplay, plural } from './format';
 import { readGuestTokens } from './guestTokens';
 import { isValidEmail, normalizeEmail } from './email';
 import { formatPhone, groupNational, nationalDigits } from './phone';
@@ -77,5 +77,14 @@ describe('guest tokens', () => {
     expect(readGuestTokens()).toEqual(['abcdefgh1']);
     localStorage.setItem('jobprep.guestTokens', '{not json');
     expect(readGuestTokens()).toEqual([]);
+  });
+});
+
+describe('job posting dates', () => {
+  it('shows when the posting opened and when it closes, or that it closed', () => {
+    expect(jobDatesLine('2026-11-05T12:23:56.653Z', '2099-11-13T00:00:00.000Z')).toBe('Posted 5 Nov 2026 · Closes 13 Nov 2099');
+    expect(jobDatesLine('2026-10-01', '2026-10-09')).toBe('Posted 1 Oct 2026 · Closed 9 Oct 2026');
+    expect(jobDatesLine(null, '2099-01-02')).toBe('Closes 2 Jan 2099');
+    expect(jobDatesLine(undefined, null)).toBeNull();
   });
 });

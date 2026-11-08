@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import type { Attempt, Country, MockTest, Prisma, PrismaClient } from '@prisma/client';
 import { canStartMockTest, type GrantLike } from '../domain/access';
+import { optionSeed, shuffleOptions, shuffleQuestions } from '../domain/optionOrder';
 import { chooseLimit, scoreAttempt, type QuestionPayload, type ScorableQuestion } from '../domain/scoring';
 import { deadlineFor, SAVE_GRACE_SECONDS, timerState } from '../domain/timer';
 import { conflict, forbidden, HttpError, notFound, unauthorized } from '../http/errors';
@@ -166,7 +167,7 @@ export async function buildState(ctx: Ctx, attemptId: string) {
   const { prisma, now } = ctx;
   const attempt = await prisma.attempt.findUniqueOrThrow({ where: { id: attemptId }, include: { mockTest: true } });
   const [questions, answers] = await Promise.all([
-    scopeQuestions(prisma, attempt),
+    scopeQuestions(prisma, attempt).then((qs) => shuffleQuestions(qs, attempt.id)),
     prisma.attemptAnswer.findMany({ where: { attemptId } }),
   ]);
   const caseIds = [...new Set(questions.map((q) => q.caseId).filter((x): x is string => !!x))];
@@ -206,8 +207,8 @@ export async function buildState(ctx: Ctx, attemptId: string) {
         /** "Choose N" for multiple-select questions; null otherwise. */
         choose: q.type === 'MULTIPLE_SELECT' ? chooseLimit(p) : null,
         stem: q.stem,
-        // Option text only: never which ones are correct.
-        options: p.options.map((o) => ({ key: o.key, text: o.text })),
+        // Option text only: never which ones are correct. Shuffled per attempt, stable across reloads.
+        options: shuffleOptions(p.options, optionSeed(attempt.id, q.id)).map((o) => ({ key: o.key, text: o.text })),
         marks: Number(q.marks),
         caseId: q.caseId,
       };

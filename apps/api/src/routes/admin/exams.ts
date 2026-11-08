@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import type { Prisma, QuestionType } from '@prisma/client';
+import { Prisma, type QuestionType } from '@prisma/client';
+import { DELETED_MOCK_TESTS_KEY, deletedKey } from '../../domain/deletedContent';
 import { z } from 'zod';
 import { assertCountry, requirePermission, type AdminPrincipal } from '../../admin/auth';
 import { writeAudit } from '../../admin/audit';
@@ -49,7 +50,7 @@ const mockTestFields = {
 const createMockTest = z.object({
   ...mockTestFields,
   examId: mockTestFields.examId.optional(), professionId: mockTestFields.professionId.optional(),
-  summary: mockTestFields.summary.default(''), isFree: mockTestFields.isFree.default(false), difficulty: DIFFICULTY.default('STANDARD'),
+  summary: mockTestFields.summary.default(''), isFree: mockTestFields.isFree.default(true), difficulty: DIFFICULTY.default('STANDARD'),
   languages: mockTestFields.languages.default(['en']), instructions: mockTestFields.instructions.default([]),
   negativeMarkPerWrong: mockTestFields.negativeMarkPerWrong.default(0),
   passMarkPercent: mockTestFields.passMarkPercent.default(null), passMarkSource: mockTestFields.passMarkSource.default(null),
@@ -397,6 +398,46 @@ export function adminExamsRouter(ctx: Ctx) {
       return created;
     }, { timeout: 60_000, maxWait: 10_000 });
     res.status(201).json({ id: copy.id, slug: copy.slug, status: copy.status, questions: questions.length });
+  });
+
+  /**
+   * Delete a mock test for good, with its sections, case studies and questions. Only a test candidates never touched:
+   * not published, never started (as a test or inside a practice set) and with no reported question. Anything else is
+   * refused, because deleting it would erase someone's results; archiving already hides it. The deleted slug is
+   * remembered, so the content sync never brings it back.
+   */
+  router.delete('/mock-tests/:id', requirePermission('exams:write'), async (req, res) => {
+    const t = await loadTest(String(req.params.id), req.admin!);
+    const b = z.object({ confirmTitle: z.string().max(300), reason: reasonField }).parse(req.body ?? {});
+    if (t.status === 'PUBLISHED') throw conflict('published');
+    if (b.confirmTitle.trim() !== t.title.trim()) throw badRequest('title_mismatch');
+    const [attempts, answered, reports, questions] = await Promise.all([
+      prisma.attempt.count({ where: { mockTestId: t.id } }),
+      prisma.attemptAnswer.count({ where: { question: { mockTestId: t.id } } }),
+      prisma.questionReport.count({ where: { question: { mockTestId: t.id } } }),
+      prisma.question.count({ where: { mockTestId: t.id } }),
+    ]);
+    if (attempts > 0 || answered > 0) throw conflict('has_attempts');
+    if (reports > 0) throw conflict('has_reports');
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.mockTest.delete({ where: { id: t.id } });
+        const row = await tx.setting.findUnique({ where: { key: DELETED_MOCK_TESTS_KEY } });
+        const list = Array.isArray(row?.value) ? (row.value as string[]) : [];
+        const key = deletedKey(t.countryCode, t.slug);
+        const value = list.includes(key) ? list : [...list, key];
+        await tx.setting.upsert({ where: { key: DELETED_MOCK_TESTS_KEY }, update: { value }, create: { key: DELETED_MOCK_TESTS_KEY, value } });
+        await writeAudit(tx, req.admin!, {
+          action: 'mock_test.delete', entityType: 'mock_test', entityId: t.id, countryCode: t.countryCode, reason: b.reason,
+          metadata: { title: t.title, slug: t.slug, status: t.status, questions },
+        });
+      });
+    } catch (e) {
+      // Something still points at it (a result or report written since the checks above): keep it.
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') throw conflict('in_use');
+      throw e;
+    }
+    res.json({ ok: true });
   });
 
   router.post('/mock-tests/:id/archive', requirePermission('exams:write'), async (req, res) => {

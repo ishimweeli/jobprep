@@ -1,5 +1,6 @@
 import type { Attempt, Country, MockTest, Prisma, PrismaClient } from '@prisma/client';
 import { canStartMockTest, type GrantLike } from '../domain/access';
+import { optionSeed, shuffleOptions, shuffleQuestions } from '../domain/optionOrder';
 import {
   chooseLimit, scoreQuestion, WEAK_TOPIC_CUTOFF_PERCENT, weakTopics, type QuestionPayload, type ScorableQuestion, type TopicResult,
 } from '../domain/scoring';
@@ -36,11 +37,12 @@ async function showExplanations(prisma: PrismaClient, isFree: boolean) {
 
 export async function buildResult(ctx: Ctx, a: AttemptWithTest, reviewFirstLimit = 3) {
   const { prisma } = ctx;
-  const questions = await prisma.question.findMany({
+  // Numbered in the order this attempt showed them.
+  const questions = shuffleQuestions(await prisma.question.findMany({
     where: a.questionIds.length > 0 ? { id: { in: a.questionIds } } : { mockTestId: a.mockTestId, status: 'PUBLISHED' },
     orderBy: [{ section: { sortOrder: 'asc' } }, { sortOrder: 'asc' }],
     include: { topic: { select: { id: true, name: true } } },
-  });
+  }), a.id);
   const answers = await prisma.attemptAnswer.findMany({ where: { attemptId: a.id } });
   const byQ = new Map(answers.map((x) => [x.questionId, x]));
   const negative = Number(a.mockTest.negativeMarkPerWrong);
@@ -138,11 +140,12 @@ export type ReviewFilter = (typeof REVIEW_FILTERS)[number];
 
 export async function buildReview(ctx: Ctx, a: AttemptWithTest, filter: ReviewFilter) {
   const { prisma } = ctx;
-  const questions = await prisma.question.findMany({
+  // Same order (and numbers) the exam showed.
+  const questions = shuffleQuestions(await prisma.question.findMany({
     where: a.questionIds.length > 0 ? { id: { in: a.questionIds } } : { mockTestId: a.mockTestId, status: 'PUBLISHED' },
     orderBy: [{ section: { sortOrder: 'asc' } }, { sortOrder: 'asc' }],
     include: { topic: { select: { id: true, name: true } }, mockTest: { select: { isFree: true } } },
-  });
+  }), a.id);
   const answers = new Map((await prisma.attemptAnswer.findMany({ where: { attemptId: a.id } })).map((x) => [x.questionId, x]));
   const negative = Number(a.mockTest.negativeMarkPerWrong);
   const caseIds = [...new Set(questions.map((q) => q.caseId).filter((x): x is string => !!x))];
@@ -165,7 +168,8 @@ export async function buildReview(ctx: Ctx, a: AttemptWithTest, filter: ReviewFi
       status: (s.state === 'correct' ? 'correct' : s.state === 'unanswered' ? 'unanswered' : s.state === 'partial' ? 'partial' : 'incorrect') as 'correct' | 'incorrect' | 'partial' | 'unanswered',
       flagged: row?.flagged ?? false,
       stem: q.stem,
-      options: p.options.map((o) => ({ key: o.key, text: o.text, isCorrect: p.correct.includes(o.key), isYourPick: selected.includes(o.key) })),
+      // Same order the candidate saw in the exam.
+      options: shuffleOptions(p.options, optionSeed(a.id, q.id)).map((o) => ({ key: o.key, text: o.text, isCorrect: p.correct.includes(o.key), isYourPick: selected.includes(o.key) })),
       yourAnswer: selected,
       marks: Number(q.marks),
       marksAwarded: Math.max(0, s.marksAwarded),

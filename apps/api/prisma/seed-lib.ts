@@ -311,6 +311,7 @@ export async function seedDatabase(prisma: PrismaClient) {
         ],
         publishedAt: new Date(),
         jobDeadlineAt: t.jobDeadlineAt ? new Date(t.jobDeadlineAt) : null,
+        jobPostedAt: t.jobPostedAt ? new Date(t.jobPostedAt) : null,
       },
     });
 

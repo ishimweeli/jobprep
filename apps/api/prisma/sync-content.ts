@@ -1,5 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import { ALL_TESTS, buildPayload, slugify } from './seed-lib';
+import { DELETED_MOCK_TESTS_KEY, deletedKey, deletedSet } from '../src/domain/deletedContent';
 
 /**
  * Additive-only content sync for an already-live database: adds mock tests (and their professions/exams/
@@ -10,10 +11,9 @@ import { ALL_TESTS, buildPayload, slugify } from './seed-lib';
  * could drift from the canonical RW_CATEGORIES / KE_CATEGORIES list in seed-lib.ts.
  *
  * For a MockTest that already exists, this can still ADD newly-written questions, never remove or edit
- * published ones: if a TestDef's `questions` array has grown since it was last synced (every seed-data
- * agent in this project is instructed to only append, never reorder), the extra ones at the end are
- * inserted, continuing sortOrder from the current count. It also refreshes `durationMinutes`, `totalMarks`
- * and `jobDeadlineAt` from the TestDef so those stay in sync once new questions arrive, or a deadline that
+ * published ones: a TestDef question whose stem is not on the mock yet (in any status) is inserted after
+ * the existing ones. Removing questions is `revise-content`'s job. It also refreshes `durationMinutes`, `totalMarks`
+ * and `jobDeadlineAt` / `jobPostedAt` from the TestDef so those stay in sync once new questions arrive, or a deadline that
  * was missing gets filled in. New questions must land in a section/case that's already live on that
  * mock (by name/title) — a TestDef that introduces a brand-new section or case on an existing mock throws,
  * since this function never creates new Section/Case rows on an already-published MockTest.
@@ -26,8 +26,15 @@ export async function syncContent(prisma: PrismaClient) {
   let questionsAddedToExisting = 0;
   const addedSlugs: string[] = [];
   const updatedSlugs: string[] = [];
+  const skippedDeleted: string[] = [];
+  // Tests an admin deleted for good stay deleted, even though they are still in seed-data.
+  const deleted = deletedSet((await prisma.setting.findUnique({ where: { key: DELETED_MOCK_TESTS_KEY } }))?.value);
 
   for (const t of ALL_TESTS) {
+    if (deleted.has(deletedKey(t.country, t.slug))) {
+      skippedDeleted.push(t.slug);
+      continue;
+    }
     const category = await prisma.category.findUnique({
       where: { countryCode_slug: { countryCode: t.country, slug: t.category } },
     });
@@ -58,16 +65,33 @@ export async function syncContent(prisma: PrismaClient) {
     const totalMarks = t.questions.reduce((sum, q) => sum + (q.marks ?? 1), 0);
 
     if (existingMock) {
-      const existingCount = await prisma.question.count({ where: { mockTestId: existingMock.id } });
+      // New questions are only ever appended to a TestDef, so "new" = after the last seed question already on the
+      // mock (matched by stem, in any status) and not on it yet. Matching by stem rather than by count, because
+      // revise-content archives removed questions; looking only past the last match keeps a question an admin
+      // re-worded mid-mock from coming back as a duplicate.
+      const existing = await prisma.question.findMany({ where: { mockTestId: existingMock.id }, select: { stem: true, sortOrder: true, status: true } });
+      const existingStems = new Set(existing.map((q) => q.stem.trim()));
+      const existingCount = existing.reduce((max, q) => Math.max(max, q.sortOrder + 1), 0);
       const newDeadline = t.jobDeadlineAt ? new Date(t.jobDeadlineAt) : null;
-      const deadlineChanged = (newDeadline?.getTime() ?? null) !== (existingMock.jobDeadlineAt?.getTime() ?? null);
-      const toAdd = t.questions.slice(existingCount);
+      const newPosted = t.jobPostedAt ? new Date(t.jobPostedAt) : null;
+      const deadlineChanged = (newDeadline?.getTime() ?? null) !== (existingMock.jobDeadlineAt?.getTime() ?? null)
+        || (newPosted?.getTime() ?? null) !== (existingMock.jobPostedAt?.getTime() ?? null);
+      let lastMatched = -1;
+      t.questions.forEach((q, i) => { if (existingStems.has(q.stem.trim())) lastMatched = i; });
+      let toAdd = t.questions.slice(lastMatched + 1).filter((q) => !existingStems.has(q.stem.trim()));
+      // A mock still short of its seed size (e.g. some questions never reached this database) also gets the seed
+      // questions missing mid-list — but only up to the seed size, so a question an admin re-worded (same count,
+      // different stem) is never added back as a duplicate.
+      const published = existing.filter((q) => q.status === 'PUBLISHED').length;
+      if (published + toAdd.length < t.questions.length) {
+        toAdd = t.questions.filter((q) => !existingStems.has(q.stem.trim())).slice(0, t.questions.length - published);
+      }
 
       if (toAdd.length === 0) {
         if (deadlineChanged || existingMock.durationMinutes !== t.minutes || Number(existingMock.totalMarks) !== totalMarks) {
           await prisma.mockTest.update({
             where: { id: existingMock.id },
-            data: { durationMinutes: t.minutes, totalMarks, jobDeadlineAt: newDeadline },
+            data: { durationMinutes: t.minutes, totalMarks, jobDeadlineAt: newDeadline, jobPostedAt: newPosted },
           });
           mockTestsUpdated++;
           updatedSlugs.push(`${t.slug} (metadata only)`);
@@ -118,7 +142,7 @@ export async function syncContent(prisma: PrismaClient) {
 
       await prisma.mockTest.update({
         where: { id: existingMock.id },
-        data: { durationMinutes: t.minutes, totalMarks, jobDeadlineAt: newDeadline },
+        data: { durationMinutes: t.minutes, totalMarks, jobDeadlineAt: newDeadline, jobPostedAt: newPosted },
       });
       mockTestsUpdated++;
       updatedSlugs.push(`${t.slug} (+${toAdd.length} questions)`);
@@ -141,6 +165,7 @@ export async function syncContent(prisma: PrismaClient) {
         ],
         publishedAt: new Date(),
         jobDeadlineAt: t.jobDeadlineAt ? new Date(t.jobDeadlineAt) : null,
+        jobPostedAt: t.jobPostedAt ? new Date(t.jobPostedAt) : null,
       },
     });
 
@@ -188,5 +213,5 @@ export async function syncContent(prisma: PrismaClient) {
     addedSlugs.push(t.slug);
   }
 
-  return { mockTestsAdded, mockTestsSkipped, mockTestsUpdated, questionsAdded, questionsAddedToExisting, addedSlugs, updatedSlugs };
+  return { mockTestsAdded, mockTestsSkipped, mockTestsUpdated, questionsAdded, questionsAddedToExisting, addedSlugs, updatedSlugs, skippedDeleted };
 }

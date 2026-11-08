@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { JobCard } from '../../api/types';
 import { Badge } from '../../components/Badge';
-import { jobAccessSummary, jobDeadlineLabel } from '../../lib/format';
+import { jobAccessSummary, jobDatesLine, jobDeadlineLabel } from '../../lib/format';
 import { countryPath } from '../country/hooks';
 
 /** A row has no room for the word "Application"; the badge keeps the part that matters ("Closes in 5 days"). */
@@ -13,10 +13,12 @@ const shortDeadline = (text: string) => text.replace(/^Application c/, 'C');
  */
 export function JobResultCard({ slug, job }: { slug: string; job: JobCard }) {
   const deadlineLabel = jobDeadlineLabel(job.jobDeadlineAt);
+  const dates = jobDatesLine(job.jobPostedAt, job.jobDeadlineAt);
   return (
     <article className="relative flex flex-col gap-2 rounded-card border border-border-strong bg-surface px-4 py-3.5 md:flex-row md:items-center md:gap-4">
       <div className="flex min-w-0 flex-col gap-2 md:flex-1">
         <h2 className="m-0 text-base font-semibold leading-snug md:font-bold">{job.jobName}</h2>
+        {dates && <p className="m-0 text-[13px] text-muted">{dates}</p>}
         <div className="flex flex-wrap items-center gap-1.5">
           {deadlineLabel && <Badge tone={deadlineLabel.closed ? 'neutral' : 'brand'}>{shortDeadline(deadlineLabel.text)}</Badge>}
           <Badge tone={job.freeCount > 0 ? 'free' : 'fullAccess'}>{jobAccessSummary(job.freeCount, job.mockTestCount)}</Badge>

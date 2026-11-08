@@ -64,10 +64,14 @@ export type FeedbackTone = 'correct' | 'incorrect' | 'partial';
  * The feedback panel: "Correct", "Not quite — the answer is B", or for multiple-select "Partly correct", which also says how
  * many of the right answers were found and which are right (a line the artboard does not draw: MISSING_DESIGNS C1 / new gaps).
  */
-export function feedbackFor(result: Pick<PracticeCheckResponse, 'state' | 'correct'> & Partial<Pick<PracticeCheckResponse, 'yourAnswer'>>): { title: string; tone: FeedbackTone; detail: string | null } {
+export function feedbackFor(
+  result: Pick<PracticeCheckResponse, 'state' | 'correct'> & Partial<Pick<PracticeCheckResponse, 'yourAnswer'>>,
+  /** Option key → the letter shown on screen (options are shuffled per attempt). */
+  letter: (key: string) => string = (key) => key,
+): { title: string; tone: FeedbackTone; detail: string | null } {
   if (result.state === 'correct') return { title: 'Correct', tone: 'correct', detail: null };
-  if (result.state === 'partial') return { title: 'Partly correct', tone: 'partial', detail: partialDetail(result.correct, result.yourAnswer ?? []) };
-  const keys = [...result.correct].sort().join(', ');
+  if (result.state === 'partial') return { title: 'Partly correct', tone: 'partial', detail: partialDetail(result.correct.map(letter), (result.yourAnswer ?? []).map(letter)) };
+  const keys = result.correct.map(letter).sort().join(', ');
   return { title: `Not quite — the ${result.correct.length === 1 ? 'answer is' : 'answers are'} ${keys}`, tone: 'incorrect', detail: null };
 }
 

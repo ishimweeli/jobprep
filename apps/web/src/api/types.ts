@@ -81,6 +81,8 @@ export interface TestCard {
   publishedAt: string | null;
   /** Application deadline of the real job posting this mock targets, if it's tied to one currently open. */
   jobDeadlineAt: string | null;
+  /** When the real job posting opened for applications (MIFOTRA); null when unknown. */
+  jobPostedAt?: string | null;
 }
 
 /** The general psychometric practice section, once it has published exams. */
@@ -140,6 +142,8 @@ export interface JobCard {
   questionCountRange: { min: number; max: number } | null;
   languages: string[];
   jobDeadlineAt: string | null;
+  /** When the real job posting opened for applications (MIFOTRA); null when unknown. */
+  jobPostedAt?: string | null;
   publishedAt: string | null;
 }
 
@@ -168,6 +172,8 @@ export interface JobMockTestCard {
   durationMinutes: number;
   questionCount: number;
   jobDeadlineAt: string | null;
+  /** When the real job posting opened for applications (MIFOTRA); null when unknown. */
+  jobPostedAt?: string | null;
   publishedAt: string | null;
   /** This person's finished attempts of this mock; `null` when they have none (or are not signed in). */
   myAttempts?: null | { count: number; bestPercent: number | null };
@@ -188,6 +194,8 @@ export interface JobDetail {
   category: { slug: string; name: string };
   profession: { name: string };
   jobDeadlineAt: string | null;
+  /** When the real job posting opened for applications (MIFOTRA); null when unknown. */
+  jobPostedAt?: string | null;
   freeCount: number;
   totalMockTests: number;
   mockTests: JobMockTestCard[];

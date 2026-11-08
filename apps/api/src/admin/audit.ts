@@ -62,6 +62,7 @@ export function describeAudit(e: { action: string; reason: string | null; metada
     case 'mock_test.archive': return `archived ${s('title')}`;
     case 'mock_test.unpublish': return `unpublished ${s('title')}${why}`;
     case 'mock_test.restore': return `restored ${s('title')} as a draft`;
+    case 'mock_test.delete': return `permanently deleted ${s('title')}${why}`;
     case 'mock_test.duplicate': return `copied ${s('title')} as ${s('copyTitle')}`;
     case 'question.reorder': return `reordered the questions of ${s('title')}`;
     case 'question.translate': return `saved the ${s('language')} translation of a question in ${s('title')}`;

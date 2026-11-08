@@ -6,6 +6,11 @@ name: Sync content to production
 # new content is merged to main, independently of a full app deploy.
 on:
   workflow_dispatch:
+    inputs:
+      revision:
+        description: 'Optional content revision to apply first (archives questions removed from seed-data), e.g. prisma/content-revisions/2026-11-07-mifotra-blueprint.json'
+        required: false
+        default: ''
 
 jobs:
   check:
@@ -28,6 +33,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t jobprep:v1 .
+      - name: Apply content revision (only when one is given)
+        if: ${{ inputs.revision != '' }}
+        env:
+          REVISION: ${{ inputs.revision }}
+        run: >
+          docker run --rm --add-host host.docker.internal:host-gateway
+          --env-file /opt/jobprep/migrate.env jobprep:v1 npx tsx prisma/revise-content-cli.ts "$REVISION" --apply
       - name: Sync content (additive only — see apps/api/prisma/sync-content.ts)
         # Calls tsx directly (not `npm run sync-content`) because that script wraps itself with
         # `--env-file=../../.env` for local dev; that file doesn't exist in the container, where real env

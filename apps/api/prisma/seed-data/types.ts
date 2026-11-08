@@ -37,4 +37,6 @@ export interface TestDef {
   instructions?: string[];
   /** Application deadline (ISO date, e.g. '2026-11-12') of the real job posting this mock targets. Omit for mocks not tied to a specific live posting. */
   jobDeadlineAt?: string;
+  /** Date (ISO, e.g. '2026-11-03') the real job posting opened for applications on MIFOTRA. Omit when unknown. */
+  jobPostedAt?: string;
 }

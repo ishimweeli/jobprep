@@ -17,9 +17,9 @@ const detail = {
 const filled = (): MockTestForm => ({ ...emptyForm({ country: 'RW' }), title: 'A new mock test', categoryId: 'c1', professionId: 'p1' });
 
 describe('mock test form model', () => {
-  it('starts with negative marking off and no pass mark, prefilled from the link', () => {
+  it('starts as a free sample with negative marking off and no pass mark, prefilled from the link', () => {
     const f = emptyForm({ title: 'Veterinary officer', country: 'KE' });
-    expect(f).toMatchObject({ title: 'Veterinary officer', countryCode: 'KE', negativeMark: '0', passMark: '', passSource: '', languages: ['en'], isFree: false });
+    expect(f).toMatchObject({ title: 'Veterinary officer', countryCode: 'KE', negativeMark: '0', passMark: '', passSource: '', languages: ['en'], isFree: true });
   });
 
   it('checks the same limits as the API', () => {

@@ -269,7 +269,10 @@ describe('question order and translations', () => {
     expect(en.questions[0].stem).toBe('What is two plus two in this test?');
     expect(en.language).toBeUndefined();
     const rw = (await request(app).get(`/api/attempts/${start.body.attemptId}?lang=rw`).set('X-Guest-Token', tok)).body;
-    expect(rw.questions[0]).toMatchObject({ stem: 'Kabiri kongeraho kabiri ni bingahe?', options: [{ key: 'A', text: 'Rimwe' }, { key: 'B', text: 'Kane' }, { key: 'C', text: 'Gatatu' }, { key: 'D', text: 'Gatanu' }] });
+    expect(rw.questions[0]).toMatchObject({ stem: 'Kabiri kongeraho kabiri ni bingahe?' });
+    // Options are shown in a per-attempt shuffled order; each keeps its translated text.
+    expect([...rw.questions[0].options].sort((x: { key: string }, y: { key: string }) => x.key.localeCompare(y.key)))
+      .toEqual([{ key: 'A', text: 'Rimwe' }, { key: 'B', text: 'Kane' }, { key: 'C', text: 'Gatatu' }, { key: 'D', text: 'Gatanu' }]);
     expect(rw.language).toEqual({ requested: 'rw', served: 'rw', translatedQuestions: 1, totalQuestions: 1 });
     expect(JSON.stringify(rw)).not.toMatch(/"correct"|isCorrect/); // a translation never leaks an answer
     const sw = (await request(app).get(`/api/attempts/${start.body.attemptId}?lang=sw`).set('X-Guest-Token', tok)).body;
