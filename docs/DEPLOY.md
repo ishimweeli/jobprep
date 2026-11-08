@@ -62,14 +62,14 @@ Names only; the values come from the providers or are generated.
 
 ## Daily content from MIFOTRA
 
-`.github/workflows/daily-content.yml` runs every day at 06:00 Kigali. It reads the open MIFOTRA adverts, writes the
-missing mocks (5 per job, 50 questions each) with the Claude Agent SDK through OpenRouter, keeps only jobs that pass
-`prisma/pipeline/check.ts` in full, commits them to `main`, adds them to production with `sync-content`, and emails a
-status report to the address in the workflow's `REPORT_TO` (through the `MAIL_*` account in `/opt/jobprep/.env`).
+`.github/workflows/daily-content.yml` runs every day at 06:00 Kigali on the netcup runner. It reads the open MIFOTRA
+adverts, writes the missing mocks (5 per job, 50 questions each) with the Claude Agent SDK through OpenRouter, keeps
+only jobs that pass `prisma/pipeline/check.ts` in full, commits them to `main`, adds them to production with
+`sync-content`, and emails a status report to the workflow's `REPORT_TO` (through the `MAIL_*` account).
 
-- Secret `OPENROUTER_API_KEY` (repository → Settings → Secrets → Actions).
-- Variable `DAILY_CONTENT_ENABLED` = `true` turns the schedule on (Settings → Variables). Without it only manual runs
-  happen; a manual run is a dry run by default (writes and checks, saves and publishes nothing, still emails).
+- `OPENROUTER_API_KEY=...` must be in netcup's `/opt/jobprep/.env`; without it the run stops and the email says so.
+- A manual run (Actions tab) is a real run unless "dry run" is ticked (writes and checks, saves and publishes nothing,
+  still emails).
 - Optional limits, as workflow env: `PIPELINE_MAX_JOBS` (4 per day), `PIPELINE_CONCURRENCY` (2),
   `PIPELINE_JOB_BUDGET_USD` (25 per job), `PIPELINE_MODEL` (`claude-opus-5-5`).
 

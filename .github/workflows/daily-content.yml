@@ -4,8 +4,8 @@ name: Daily content from MIFOTRA
 # SDK (through OpenRouter), validate them with prisma/pipeline/check.ts, commit them to main, add them to production
 # and email a status report (see apps/api/prisma/pipeline/run-daily.ts).
 #
-# Switched on by the repository variable DAILY_CONTENT_ENABLED = true. Needs the secret OPENROUTER_API_KEY.
-# Run it by hand from the Actions tab; "dry run" (the default there) writes and checks but saves and publishes nothing.
+# Runs on the netcup server's runner, which reads OPENROUTER_API_KEY and the MAIL_* account from /opt/jobprep/.env.
+# Run it by hand from the Actions tab; tick "dry run" to write and check without saving or publishing.
 on:
   schedule:
     - cron: '0 4 * * *'
@@ -14,50 +14,48 @@ on:
       dry_run:
         description: 'Dry run: write and check only, no commit and no production sync (the report is still emailed)'
         type: boolean
-        default: true
+        default: false
 
 concurrency:
   group: daily-content
   cancel-in-progress: false
 
-env:
-  REPORT_TO: ishimweeliab0@gmail.com
-
 jobs:
-  write:
-    if: github.event_name == 'workflow_dispatch' || vars.DAILY_CONTENT_ENABLED == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 340
+  daily:
+    runs-on: [self-hosted, netcup]
+    timeout-minutes: 330
     permissions:
       contents: write
-    outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      dry_run: ${{ steps.mode.outputs.dry_run }}
+    env:
+      REPORT_TO: ishimweeliab0@gmail.com
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
     steps:
-      - id: mode
-        run: echo "dry_run=${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       # Not --omit=optional: the Agent SDK ships its Claude Code binary as an optional dependency.
       - run: npm ci
       - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - name: Read the OpenRouter key from /opt/jobprep/.env
+        run: |
+          key=$(grep -E '^OPENROUTER_API_KEY=' /opt/jobprep/.env | tail -1 | cut -d= -f2- | tr -d "\r\"'")
+          if [ -z "$key" ]; then echo "OPENROUTER_API_KEY is missing from /opt/jobprep/.env" >&2; exit 1; fi
+          echo "::add-mask::$key"
+          echo "ANTHROPIC_AUTH_TOKEN=$key" >> "$GITHUB_ENV"
       - name: Scan MIFOTRA, write and check the missing mocks
         working-directory: apps/api
         env:
           ANTHROPIC_BASE_URL: https://openrouter.ai/api
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
           ANTHROPIC_API_KEY: ''
-          PIPELINE_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+          PIPELINE_DRY_RUN: ${{ env.DRY_RUN }}
         run: npx tsx prisma/pipeline/run-daily.ts "$RUNNER_TEMP/pipeline"
       - name: Typecheck and lint the new content
-        if: steps.mode.outputs.dry_run != 'true'
+        if: env.DRY_RUN != 'true'
         run: npm run typecheck && npm run lint
       - name: Commit and push
         id: commit
-        if: steps.mode.outputs.dry_run != 'true'
+        if: env.DRY_RUN != 'true'
         run: |
           if [ -z "$(git status --porcelain -- apps/api/prisma)" ]; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
           git config user.name "github-actions[bot]"
@@ -67,31 +65,12 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: daily-report
-          path: ${{ runner.temp }}/pipeline/report.json
-          if-no-files-found: ignore
-
-  publish-and-report:
-    needs: write
-    if: always() && needs.write.result != 'skipped'
-    runs-on: [self-hosted, netcup]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-      - uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: daily-report
-          path: report
       - name: Build image
+        if: always()
         run: docker build -t jobprep:daily .
       - name: Add the new content to production (additive only, see apps/api/prisma/sync-content.ts)
         id: sync
-        if: needs.write.outputs.changed == 'true'
+        if: steps.commit.outputs.changed == 'true'
         run: >
           docker run --rm --add-host host.docker.internal:host-gateway
           --env-file /opt/jobprep/migrate.env jobprep:daily npx tsx prisma/sync-content-cli.ts
@@ -101,7 +80,7 @@ jobs:
           docker run --rm --add-host host.docker.internal:host-gateway
           --env-file /opt/jobprep/.env
           -e REPORT_TO="$REPORT_TO"
-          -e SYNC_STATUS="${{ needs.write.outputs.changed == 'true' && steps.sync.outcome || 'skipped' }}"
-          -e WRITE_STATUS="${{ needs.write.result }}"
-          -v "$PWD/report:/report:ro"
+          -e SYNC_STATUS="${{ steps.commit.outputs.changed == 'true' && steps.sync.outcome || 'skipped' }}"
+          -e WRITE_STATUS="${{ job.status }}"
+          -v "$RUNNER_TEMP/pipeline:/report:ro"
           jobprep:daily npx tsx prisma/pipeline/report.ts /report/report.json
