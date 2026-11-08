@@ -19703,6 +19703,38 @@
   {
    "stem": "Which entity does the Community Development Policy identify as the core formal community and the focus of the policy?",
    "source": "Community Development Policy (MINALOC, revised April 2008), Executive Summary [nya-dl_cd.txt] [practice question written from the cited source, answer checked: P-v01-35]"
+  },
+  {
+   "stem": "When the Executive Secretary of a Sector is absent, who designates the employee who replaces him or her?",
+   "source": "Presidential Order 001/01 of 06/02/2023, Art. 14 [es-dl_g2023.txt] [practice question written from the cited source, answer checked: swap-ES-4]"
+  },
+  {
+   "stem": "Under Presidential Order No 071/01 of 31/10/2023 relating to the Security Committee, who is the Chairperson of the Restricted Sector Security Committee?",
+   "source": "Presidential Order 071/01 of 31/10/2023, Art. 13 [past_work_g_2023-11-01-no-Special.txt] [practice question written from the cited source, answer checked: swap-ES-5]"
+  },
+  {
+   "stem": "Under Presidential Order No 072/01 of 31/10/2023, which of the following is NOT a member of the Advisory Council for the Fight against Injustice and Corruption at Sector level?",
+   "source": "Presidential Order 072/01 of 31/10/2023, Arts 20 and 26 [past_work_g_2023-11-01-no-Special.txt] [practice question written from the cited source, answer checked: swap-ES-6]"
+  },
+  {
+   "stem": "Which of the following is NOT a member of the Extended Sector Security Committee under Presidential Order No 071/01 of 31/10/2023?",
+   "source": "Presidential Order 071/01 of 31/10/2023, Art. 14 [past_work_g_2023-11-01-no-Special.txt] [practice question written from the cited source, answer checked: swap-ES-7]"
+  },
+  {
+   "stem": "Which public servant is responsible for the Secretariat of the Advisory Council for the Fight against Injustice and Corruption at Sector level?",
+   "source": "Presidential Order 072/01 of 31/10/2023, Art. 31 [past_work_g_2023-11-01-no-Special.txt] [practice question written from the cited source, answer checked: swap-ES-8]"
+  },
+  {
+   "stem": "Under Presidential Order No 071/01 of 31/10/2023, the Security Committee sits when at least what share of its members is present?",
+   "source": "Presidential Order 071/01 of 31/10/2023, Art. 17 [past_work_g_2023-11-01-no-Special.txt] [practice question written from the cited source, answer checked: swap-ES-9]"
+  },
+  {
+   "stem": "Under Presidential Order No 021/01 of 24/02/2021 on professional ethics for public servants, each public institution establishes an internal disciplinary committee comprised of at least how many members?",
+   "source": "Presidential Order 021/01 of 24/02/2021, Art. 22 [mus-work_po21.txt] [practice question written from the cited source, answer checked: swap-ES-10]"
+  },
+  {
+   "stem": "A Cell Executive Secretary is transferred to a post that is not a Cell Executive Secretary post. What happens to his or her powers as a non-professional bailiff under Law No 12/2013?",
+   "source": "Law 12/2013 of 22/03/2013, Art. 50 [es-dl_bailiff2013.txt] [practice question written from the cited source, answer checked: swap-ES-11]"
   }
  ],
  "sedo-full-mock-6": [
@@ -20345,6 +20377,70 @@
   {
    "stem": "How many priority areas does the Social Transformation pillar of NST1 have?",
    "source": "NST1 2017-2024, Social Transformation pillar (introduction to priority areas) [nya-dl_nst1.txt] [practice question written from the cited source, answer checked: P-v02-30]"
+  },
+  {
+   "stem": "How often does the National JADF Stakeholders' Consultative Forum take place under the Prime Minister's instructions governing JADF?",
+   "source": "RGB, JADF Performance Assessment Report 2018-2023, section 5.2 [mus-work_jadf.txt] [practice question written from the cited source, answer checked: swap-ES-1]"
+  },
+  {
+   "stem": "Under Presidential Order No 001/01 of 06/02/2023, which of the following is NOT a responsibility of the Village Executive Committee member in charge of development?",
+   "source": "Presidential Order 001/01 of 06/02/2023, Arts 49 and 52 [es-dl_g2023.txt] [practice question written from the cited source, answer checked: swap-ES-2]"
+  },
+  {
+   "stem": "Under Presidential Order No 001/01 of 06/02/2023, which of the following is NOT a responsibility of the Executive Secretary of the Cell?",
+   "source": "Presidential Order 001/01 of 06/02/2023, Arts 29 and 31 [es-dl_g2023.txt] [practice question written from the cited source, answer checked: swap-ES-3]"
+  },
+  {
+   "stem": "Rehabilitation on a disciplinary sanction of the second category may be granted at least how many years after the public servant is sanctioned?",
+   "source": "Presidential Order 021/01 of 24/02/2021, Art. 48 [mus-work_po21.txt] [practice question written from the cited source, answer checked: swap-ES-12]"
+  },
+  {
+   "stem": "According to the Vital Statistics Report 2022, until 2006 the lowest office for civil registration in Rwanda was the:",
+   "source": "Rwanda Vital Statistics Report 2022, section 2.1 [cell-sedo-work_vs22.txt] [practice question written from the cited source, answer checked: swap-ES-13]"
+  },
+  {
+   "stem": "According to MINALOC, cited in Vision 2050, the value of Umuganda in money rose from 4 billion Rwandan francs in 2007 to how much in 2016?",
+   "source": "Vision 2050, Rwanda's Home-Grown Solutions [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-ES-14]"
+  },
+  {
+   "stem": "Fill in the missing: A land committee is composed of ........ members, of whom at least two must be female.",
+   "source": "Ministerial Order 007/01 of 12/05/2022 governing land committees, Art. 2 [nya-dl_lc.txt] [practice question written from the cited source, answer checked: swap-ES-15]"
+  },
+  {
+   "stem": "According to the Community Development Policy (revised 2008), the Development Advisory Committee established at Cell level comprises individuals who have gone through which process?",
+   "source": "Community Development Policy (revised April 2008), institutional framework [nya-dl_cd.txt] [practice question written from the cited source, answer checked: swap-ES-16]"
+  },
+  {
+   "stem": "A Cell Executive Secretary arrives late on duty without a valid reason. Under the Presidential Order on professional ethics for public servants, which sanction applies?",
+   "source": "Presidential Order 021/01 of 24/02/2021, Arts 26 and 27 [mus-work_po21.txt] [practice question written from the cited source, answer checked: swap-ES-17]"
+  },
+  {
+   "stem": "The National Centralized and Integrated CRVS system (NCI-CRVS) was officially launched on:",
+   "source": "Rwanda Vital Statistics Report 2022, section 2.3.2.1 (NCI-CRVS) [cell-sedo-work_vs22.txt] [practice question written from the cited source, answer checked: swap-ES-18]"
+  },
+  {
+   "stem": "Since which fiscal year has a competition on Umuganda been organised annually at district, province and national levels, with the best performers rewarded?",
+   "source": "RGB, Assessment of the Impact of Home Grown Initiatives (2014), Ch. 4.2.4 [nym_rgb_hgi.txt] [practice question written from the cited source, answer checked: swap-ES-19]"
+  },
+  {
+   "stem": "Who is the rapporteur of the meeting of the land committee at Cell level?",
+   "source": "Ministerial Order 007/01 of 12/05/2022 governing land committees, Art. 20 [nya-dl_lc.txt] [practice question written from the cited source, answer checked: swap-ES-20]"
+  },
+  {
+   "stem": "For what maximum period may an Abunzi Committee suspend one of its members on the ground of partiality or any other misconduct?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 32 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-ES-21]"
+  },
+  {
+   "stem": "Who prepares the budget of the Advisory Council for the Fight against Injustice and Corruption at District and Sector levels?",
+   "source": "Presidential Order 072/01 of 31/10/2023, Art. 32 [past_work_g_2023-11-01-no-Special.txt] [practice question written from the cited source, answer checked: swap-ES-22]"
+  },
+  {
+   "stem": "By 2022, births, deaths, marriages, divorces, annulment of marriage, recognition of a child and adoption were registered through NCI-CRVS. Which event's module was still being completed?",
+   "source": "Rwanda Vital Statistics Report 2022, section 2.3.2 (state of CRVS in 2022) [cell-sedo-work_vs22.txt] [practice question written from the cited source, answer checked: swap-ES-23]"
+  },
+  {
+   "stem": "In fiscal year 2015-2016 the City of Kigali had the lowest Umuganda participation at 82.2%, while the national average was 91.3%. By how many percentage points was Kigali below the national average?",
+   "source": "RGB, Impact Assessment of Umuganda 2007-2016, Ch. III [past_dl21_umu.txt] [practice question written from the cited source, answer checked: swap-ES-24]"
   }
  ],
  "sedo-full-mock-7": [
@@ -20547,6 +20643,22 @@
   {
    "stem": "According to RPHC5, which Province has the highest total fertility rate (TFR) in Rwanda?",
    "source": "RPHC5 Main Indicators Report (2023), section 3.7 Fertility indicators [cell-sedo-work_rphc5.txt] [practice question written from the cited source, answer checked: P-v02-37]"
+  },
+  {
+   "stem": "In the NST2 Theory of Change, what is the correct order of result levels from the highest to the lowest?",
+   "source": "NST2 (2024-2029), Section 8.1(i) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-1]"
+  },
+  {
+   "stem": "Which institution is tasked in NST2 with supporting the integration of NST2 priorities into the City of Kigali and District Development Strategies?",
+   "source": "NST2 (2024-2029), Section 7.1, Table 4 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-2]"
+  },
+  {
+   "stem": "NST2 flood control measures in high-risk areas are highlighted for which provinces?",
+   "source": "NST2 (2024-2029), Section 3.10 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-3]"
+  },
+  {
+   "stem": "Under Law No. 007/2021, a public company must have at least how many directors?",
+   "source": "Law N° 007/2021 of 05/02/2021 governing companies, Art. 153 [edo-urban_company_law007_2021_gazette4ter.txt] [practice question written from the cited source, answer checked: swap-EDO-52]"
   }
  ],
  "sedo-full-mock-8": [
@@ -20749,6 +20861,86 @@
   {
    "stem": "How does the NSA Mainstreaming Guideline define Nutrition Sensitive Agriculture (NSA)?",
    "source": "NSA Mainstreaming Guideline (MINAGRI), Section 2.1 [dl18_nsa.txt] [practice question written from the cited source, answer checked: P-v03-31]"
+  },
+  {
+   "stem": "How often does the National JADF Stakeholders' Consultative Forum take place under the Prime Minister's instructions governing JADF?",
+   "source": "RGB, JADF Performance Assessment Report 2018-2023, section 5.2 [mus-work_jadf.txt] [practice question written from the cited source, answer checked: swap-EDO-4]"
+  },
+  {
+   "stem": "Under the NST2 strategic interventions on natural resources, tree seedling nurseries are to be increased at which level?",
+   "source": "NST2 (2024-2029), Annex 2, PA-13 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-5]"
+  },
+  {
+   "stem": "Fill in the missing: Vision 2050 targets a median commuting time to work of 45 minutes by 2035 and ...... by 2050.",
+   "source": "Vision 2050, Pillar 4: Urbanization and Agglomeration [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-6]"
+  },
+  {
+   "stem": "Vision 2050 notes that transport accounts for 40% of the cost of trade and aims to reduce this cost by 7% by 2035. By what percentage is it to be reduced by 2050?",
+   "source": "Vision 2050, Pillar 4: Urbanization and Agglomeration [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-7]"
+  },
+  {
+   "stem": "According to the condominium law, the common elements of a condominium include all of the following EXCEPT:",
+   "source": "Law N° 15/2010 of 07/05/2010 on condominiums, Art. 18 [cell-sedo-work_condo.txt] [practice question written from the cited source, answer checked: swap-EDO-40]"
+  },
+  {
+   "stem": "According to NST2, the District Development Strategy (DDS) M&E matrix is monitored annually through JADF and administrative reports submitted to which body?",
+   "source": "NST2 (2024-2029), Section 8.1(vi) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-41]"
+  },
+  {
+   "stem": "Vision 2050 says smart distribution systems will cut energy losses from 19.1% in 2019/2020 to 12% in 2035 and 6% in 2050. By how many percentage points will losses fall by 2050?",
+   "source": "Vision 2050, Pillar 4 (Sustainable supply and demand for energy) [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-47]"
+  },
+  {
+   "stem": "In ancient Rwandan Imihigo, the evaluation was done through a public praise ceremony where actors informed the community about their exploits. What was this ceremony called?",
+   "source": "RGB, Assessment of the Impact of Home Grown Initiatives (2014), Ch. 5.2 [nym_rgb_hgi.txt] [practice question written from the cited source, answer checked: swap-EDO-49]"
+  },
+  {
+   "stem": "In the traditional Itorero, the first cow that a young intore received was given to his father and was known as:",
+   "source": "NURC/Itorero ry'Igihugu, Rwandan Cultural Values in National Development, para. 2.6.1.3 [nya-dl_values2.txt] [practice question written from the cited source, answer checked: swap-EDO-50]"
+  },
+  {
+   "stem": "NST1 required financing of RWF 39,246 billion over seven years. What share was projected to come from public resources?",
+   "source": "NST1 2017-2024, Chapter VI (Required investments) [nya-dl_nst1.txt] [practice question written from the cited source, answer checked: swap-EDO-51]"
+  },
+  {
+   "stem": "A Ministry is preparing for the evaluation of its organ's performance contract at the end of the fiscal year. Under Law No 18/2017, the evaluation of performance contracts of organs is carried out in accordance with the guidance given each year by:",
+   "source": "Law No 18/2017 of 28/04/2017 on results-based performance management, Art. 19 [es-dl_rbm2017.txt] [practice question written from the cited source, answer checked: swap-EDO-53]"
+  },
+  {
+   "stem": "For what maximum period may an Abunzi Committee suspend one of its members on the ground of partiality or any other misconduct?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 32 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-EDO-54]"
+  },
+  {
+   "stem": "Under the former Constitution of 2003 (as amended through 2010), Gacaca Courts were responsible for trying persons accused of genocide and other crimes against humanity committed between which dates?",
+   "source": "Constitution of 2003 as amended through 2010, Art. 152 [mus-work_const.txt] [practice question written from the cited source, answer checked: swap-EDO-55]"
+  },
+  {
+   "stem": "NST2 notes that unemployment in 2023 was 20.3% for women and 14.5% for men. By how many percentage points was the rate for women higher than for men?",
+   "source": "NST2 (2024-2029), Section 1.2 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-56]"
+  },
+  {
+   "stem": "The NST2 intervention \"Operationalize Itorero program at different levels\" lists all of the following levels EXCEPT:",
+   "source": "NST2 2024-2029, Sector 15 (Sports and Culture), PA-49 [dl18_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-57]"
+  },
+  {
+   "stem": "In the Burera District Development Strategy 2024-2029, ICPC stands for:",
+   "source": "Burera District Development Strategy 2024-2029, Acronyms [edo-dl2_burera.txt] [practice question written from the cited source, answer checked: swap-EDO-58]"
+  },
+  {
+   "stem": "Under Law No 18/2017, which instrument determines the provisions on results-based performance management, awards and sanctions for the Parliament, the Judiciary and the National Public Prosecution Authority?",
+   "source": "Law No 18/2017 of 28/04/2017 on results-based performance management, Art. 20 [es-dl_rbm2017.txt] [practice question written from the cited source, answer checked: swap-EDO-59]"
+  },
+  {
+   "stem": "According to the RGB assessment of Home Grown Initiatives, the pilot phase of the Ubudehe programme (2001-2002) was conducted in which province?",
+   "source": "RGB, Assessment of the Impact of Home Grown Initiatives (2014), Ch. 2.2.5 [nym_rgb_hgi.txt] [practice question written from the cited source, answer checked: swap-EDO-60]"
+  },
+  {
+   "stem": "According to the Ministry of Local Government assessment of decentralisation policy implementation, which institution was established as Gacaca was winding up, to help sustain the transitional justice and reconciliation benefits already realised?",
+   "source": "MINALOC, Assessment of the Impact of Decentralisation Policy Implementation, chapter on innovations [nya-dl_dia.txt] [practice question written from the cited source, answer checked: swap-EDO-61]"
+  },
+  {
+   "stem": "NST2 places special focus on employment initiatives for youth and women, using community-based approaches in which areas?",
+   "source": "NST2 (2024-2029), Section 3.11 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-62]"
   }
  ],
  "sedo-full-mock-9": [
@@ -20951,6 +21143,98 @@
   {
    "stem": "In EICV7 (2023/24), the extreme poverty line, based on the cost of food equivalent to 2,400 kcal per day, is about how much per adult per year (January 2024 prices)?",
    "source": "NISR, EICV7 2023/24 booklet, poverty indicators [dl18_booklet.txt] [practice question written from the cited source, answer checked: P-v04-25]"
+  },
+  {
+   "stem": "Vision 2050 describes the Smart Cities and Communities project. Which of the following is NOT among the smart elements it lists?",
+   "source": "Vision 2050, Pillar 4: Smart and Green cities [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-8]"
+  },
+  {
+   "stem": "According to NST2, access to electricity surged during the NST1 period from 34.4% to:",
+   "source": "NST2 2024-2029, Section 1.1 (key achievements of NST1) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-9]"
+  },
+  {
+   "stem": "Which of the following is NOT among the seven hospitals that NST2 says were constructed during the NST1 period?",
+   "source": "NST2 2024-2029, Section 1.1 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-10]"
+  },
+  {
+   "stem": "By what percentage does NST2 aim to reduce greenhouse gas emissions over the next five years, in line with Rwanda's NDCs?",
+   "source": "NST2 2024-2029, Section 3.10 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-11]"
+  },
+  {
+   "stem": "Under the NST2 roles and responsibilities, which institution provides high-level policy and strategic orientation to guide implementation?",
+   "source": "NST2 2024-2029, Section 7.1, Table 4 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-12]"
+  },
+  {
+   "stem": "Under the NST2 M&E framework, the Sector Strategic Plan (SSP) M&E matrix is monitored at the Sector Working Group level annually through:",
+   "source": "NST2 2024-2029, Section 8.1 (v) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-13]"
+  },
+  {
+   "stem": "NST2 identifies implementation enablers. Which of the following is NOT one of them?",
+   "source": "NST2 2024-2029, Section 7.2 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-14]"
+  },
+  {
+   "stem": "The total NST2 financing over the five-year period 2024/25-2028/29 is estimated at:",
+   "source": "NST2 2024-2029, Section 2.2 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-15]"
+  },
+  {
+   "stem": "NST2 says the functioning of SPIU across institutions will be streamlined to deliver projects efficiently. What does SPIU stand for?",
+   "source": "NST2 2024-2029, Section 7.2 (i) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-16]"
+  },
+  {
+   "stem": "According to the Burera District Development Strategy 2024-2029, Burera is divided into 17 sectors, 69 cells and how many villages?",
+   "source": "Burera District Development Strategy 2024-2029, Section 2.1 [edo-dl2_burera.txt] [practice question written from the cited source, answer checked: swap-EDO-17]"
+  },
+  {
+   "stem": "Fill in the missing: Under NST2, the cross-cutting areas will be mainstreamed, monitored and evaluated across all ........ by the respective lead institutions.",
+   "source": "NST2 2024-2029, Chapter 6 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-18]"
+  },
+  {
+   "stem": "How many of Burera District's seventeen sectors are directly adjacent to the border with Uganda?",
+   "source": "Burera District Development Strategy 2024-2029, Section 2.1 [edo-dl2_burera.txt] [practice question written from the cited source, answer checked: swap-EDO-19]"
+  },
+  {
+   "stem": "Under Law No 37/2016 on the Abunzi Committee (as amended in 2020), the Abunzi Committee at Cell level has jurisdiction over movable and immovable assets and succession thereto where their value does not exceed:",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 10 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-EDO-20]"
+  },
+  {
+   "stem": "The Transformational Governance pillar of NST2 enables the achievement of the Vision 2050 goals relating to which pillar?",
+   "source": "NST2 2024-2029, Chapter 5 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-21]"
+  },
+  {
+   "stem": "Fill in the missing: The Burera DDS 2024-2029 plans to upgrade the district's road network coverage from 35% to ...... by 2029.",
+   "source": "Burera District Development Strategy 2024-2029, Section 3.1.2 [edo-dl2_burera.txt] [practice question written from the cited source, answer checked: swap-EDO-22]"
+  },
+  {
+   "stem": "Under Law No 37/2016, the Abunzi Committee at Cell level may decide all of the following civil matters EXCEPT:",
+   "source": "Law No 37/2016 of 08/09/2016, Arts. 10 and 11 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-EDO-23]"
+  },
+  {
+   "stem": "In the NST2 M&E matrix, what is the end-period (2028/29) target for the level of shared sense of national identity, reported by MINUBUMWE?",
+   "source": "NST2 2024-2029, Annex 1, outcome 33 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-EDO-24]"
+  },
+  {
+   "stem": "According to the Burera DDS 2024-2029, the district's proximity to Uganda and to which border post presents opportunities for trade and transportation?",
+   "source": "Burera District Development Strategy 2024-2029, Section 2.3 (Potentialities) [edo-dl2_burera.txt] [practice question written from the cited source, answer checked: swap-EDO-25]"
+  },
+  {
+   "stem": "As Cell Executive Secretary, a resident who was notified in writing of the verdict of the Abunzi Committee at Cell level is not satisfied with it. Within how many days may he/she appeal to the Abunzi Committee at Sector level?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 25 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-EDO-26]"
+  },
+  {
+   "stem": "In the Girinka programme, the passing-on scheme consists in:",
+   "source": "RGB, Assessment of the Impact of Home Grown Initiatives (2014), Ch. 3.2.2 [nym_rgb_hgi.txt] [practice question written from the cited source, answer checked: swap-EDO-42]"
+  },
+  {
+   "stem": "Under Law No. 007/2021, a private company limits the number of its shareholders to how many, excluding persons employed or formerly employed by the company?",
+   "source": "Law N° 007/2021 of 05/02/2021 governing companies, Art. 8 [edo-urban_company_law007_2021_gazette4ter.txt] [practice question written from the cited source, answer checked: swap-EDO-48]"
+  },
+  {
+   "stem": "In the Burera District Development Strategy 2024-2029, VSLA stands for:",
+   "source": "Burera District Development Strategy 2024-2029, Acronyms [edo-dl2_burera.txt] [practice question written from the cited source, answer checked: swap-EDO-63]"
+  },
+  {
+   "stem": "Several State organs are involved in a joint Imihigo. Under Law No 18/2017, which instrument designates the organ in charge of coordinating the planned activities?",
+   "source": "Law No 18/2017 of 28/04/2017 on results-based performance management, Art. 9 [es-dl_rbm2017.txt] [practice question written from the cited source, answer checked: swap-EDO-64]"
   }
  ],
  "sedo-full-mock-10": [
@@ -21153,6 +21437,74 @@
   {
    "stem": "According to NST2, which institution is scoping the introduction of a Central Bank Digital Currency (CBDC)?",
    "source": "NST2 (2024-2029), Section 3.9 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: P-v05-20]"
+  },
+  {
+   "stem": "Vision 2050 envisages a mid-term review in 2035. After that, regular reviews are planned every:",
+   "source": "Vision 2050, Background (Development of Vision 2050) [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-27]"
+  },
+  {
+   "stem": "Under Law No. 15/2010 on condominiums, an association of owners in a condominium is a non-commercial organisation of at least how many owners?",
+   "source": "Law N° 15/2010 of 07/05/2010 on condominiums, Art. 2(1) [cell-sedo-work_condo.txt] [practice question written from the cited source, answer checked: swap-EDO-28]"
+  },
+  {
+   "stem": "On the day of appearance before the Abunzi Committee, the parties to a dispute agree on how many Abunzi to whom they refer their dispute?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 15 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-EDO-29]"
+  },
+  {
+   "stem": "What are the two overarching goals of Vision 2050?",
+   "source": "Vision 2050, Executive Summary [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-30]"
+  },
+  {
+   "stem": "Under the condominium law, unless the general meeting decides otherwise, the participation co-share of each owner in the common elements is proportional to:",
+   "source": "Law N° 15/2010 of 07/05/2010 on condominiums, Art. 20 [cell-sedo-work_condo.txt] [practice question written from the cited source, answer checked: swap-EDO-31]"
+  },
+  {
+   "stem": "As Cell Executive Secretary, a resident brings you a dispute to be submitted to the Abunzi Committee at Cell level. What must you do on the day of receipt?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 13 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-EDO-32]"
+  },
+  {
+   "stem": "Fill in the missing: Vision 2050 lists as shared values \"Self determination, including self-sufficiency as a Nation (........), Solidarity and Dignity (Agaciro)\".",
+   "source": "Vision 2050, Positive Values supporting Societal Transformation [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-33]"
+  },
+  {
+   "stem": "Under Law No. 15/2010, the association of co-owners carries liability in relation to the condominium, but it does NOT carry liability for:",
+   "source": "Law N° 15/2010 of 07/05/2010 on condominiums, Art. 15 [cell-sedo-work_condo.txt] [practice question written from the cited source, answer checked: swap-EDO-34]"
+  },
+  {
+   "stem": "Where a party refuses to comply with an Abunzi verdict, the prejudiced party requests the enforcement formula to be appended to the verdict by:",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 29 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-EDO-35]"
+  },
+  {
+   "stem": "According to Vision 2050, the second phase of decentralization (2006-2010) reduced the number of cells from 9,165 to:",
+   "source": "Vision 2050, Pillar 5 (Deepening decentralization) [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-36]"
+  },
+  {
+   "stem": "Under the condominium law, who is responsible for insuring the individual units in a condominium?",
+   "source": "Law N° 15/2010 of 07/05/2010 on condominiums, Art. 14 [cell-sedo-work_condo.txt] [practice question written from the cited source, answer checked: swap-EDO-37]"
+  },
+  {
+   "stem": "According to the RGB assessment of Home Grown Initiatives, the concept of Girinka was first introduced by which king?",
+   "source": "RGB, The Assessment of the Impact of Home Grown Initiatives (2014), Ch. 3.2.1 [nym_rgb_hgi.txt] [practice question written from the cited source, answer checked: swap-EDO-38]"
+  },
+  {
+   "stem": "To reach upper middle-income status in 2035, Vision 2050 says GDP must grow at an annual average of at least what rate during 2018-2035?",
+   "source": "Vision 2050, Strong and Sustainable macroeconomic fundamentals [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-39]"
+  },
+  {
+   "stem": "Which of the following is NOT one of the Home-Grown Solutions that Vision 2050 cites as contributing to Rwanda's transformation?",
+   "source": "Vision 2050, Rwanda's Home-Grown Solutions [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-EDO-43]"
+  },
+  {
+   "stem": "Fill in the missing: Under Law No. 007/2021 governing companies, the name of a private company must end with the words \"Private limited company\" or the letters ......",
+   "source": "Law N° 007/2021 of 05/02/2021 governing companies, Art. 7 [edo-urban_company_law007_2021_gazette4ter.txt] [practice question written from the cited source, answer checked: swap-EDO-44]"
+  },
+  {
+   "stem": "According to the RGB assessment of Home Grown Initiatives, Imihigo were publicly signed for the first time on:",
+   "source": "RGB, Assessment of the Impact of Home Grown Initiatives (2014), Ch. 5.2.1 [nym_rgb_hgi.txt] [practice question written from the cited source, answer checked: swap-EDO-45]"
+  },
+  {
+   "stem": "According to the NURC study on Rwandan cultural values, in traditional Rwanda who was in charge of selecting young people to be sent to Itorero?",
+   "source": "NURC/Itorero ry'Igihugu, Rwandan Cultural Values in National Development, para. 2.6.1.1 [nya-dl_values2.txt] [practice question written from the cited source, answer checked: swap-EDO-46]"
   }
  ],
  "human-capital-social-development-officer-mock-exam-8": [
@@ -21387,6 +21739,26 @@
   {
    "stem": "NST2 states that, to improve the quality of healthcare, the number of active registered health workers will be:",
    "source": "NST2 2024-2029, section 4.2 (Enhanced quality of health), p.34 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: P-v02-10]"
+  },
+  {
+   "stem": "Under the 2012 National Disaster Management Policy, the National Disaster Management Executive Committee (NDMEC) is chaired by:",
+   "source": "National Disaster Management Policy (MIDIMAR, June 2012), II.3.1 [past_dl21_dmp.txt] [practice question written from the cited source, answer checked: swap-HCSD-1]"
+  },
+  {
+   "stem": "Under Law 71/2024, full adoption can be granted to a total orphan only if he or she has no collateral kinship up to which degree?",
+   "source": "Law 71/2024 governing persons and family, Art. 318 [es-dl_family2024.txt] [practice question written from the cited source, answer checked: swap-HCSD-34]"
+  },
+  {
+   "stem": "The investment manager of the EjoHeza scheme proposes to buy shares, using scheme funds, in a company of which the investment manager is the majority shareholder. What does Law No 29/2017 provide?",
+   "source": "Law No 29/2017 of 29/06/2017 establishing the long-term savings scheme, Art. 32 [ng-dl_ejo.txt] [practice question written from the cited source, answer checked: swap-HCSD-35]"
+  },
+  {
+   "stem": "The Transformational Governance pillar of NST2 enables the achievement of the Vision 2050 goals relating to which pillar?",
+   "source": "NST2 2024-2029, Chapter 5 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-36]"
+  },
+  {
+   "stem": "On the day of appearance before the Abunzi Committee, the parties to a dispute agree on how many Abunzi to whom they refer their dispute?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 15 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-HCSD-37]"
   }
  ],
  "human-capital-social-development-officer-mock-exam-9": [
@@ -21621,6 +21993,74 @@
   {
    "stem": "To be accredited to provide model ECD center or ECD center services, a center must fulfil the particular requirements of Article 78. Which of the following is NOT one of them?",
    "source": "Ministerial Order No 001/MIGEPROF/2023 of 12/01/2023 relating to child well-being, Arts. 78 and 79 [past_ecd_mo2023.txt] [practice question written from the cited source, answer checked: P-v06-9]"
+  },
+  {
+   "stem": "Under the 2012 National Disaster Management Policy, MIDIMAR and its partners must strengthen fast response mechanisms so that the first response to a disaster is launched within a period not exceeding:",
+   "source": "National Disaster Management Policy (MIDIMAR, June 2012), I.6 (Time factor) [past_dl21_dmp.txt] [practice question written from the cited source, answer checked: swap-HCSD-2]"
+  },
+  {
+   "stem": "In the National Legal Aid Policy, which test applies alongside the means test to discourage and prevent frivolous claims?",
+   "source": "National Legal Aid Policy (Ministry of Justice, October 2014), Strategy 7 (5.7.3) [nym_la_la.txt] [practice question written from the cited source, answer checked: swap-HCSD-3]"
+  },
+  {
+   "stem": "Choose the false response: Under the National Legal Aid Policy, the following are recognised as legal aid providers, subject to accreditation and regulation:",
+   "source": "National Legal Aid Policy (Ministry of Justice, October 2014), Strategy 2 [nym_la_la.txt] [practice question written from the cited source, answer checked: swap-HCSD-4]"
+  },
+  {
+   "stem": "How often does the National JADF Stakeholders' Consultative Forum take place under the Prime Minister's instructions governing JADF?",
+   "source": "RGB, JADF Performance Assessment Report 2018-2023, section 5.2 [mus-work_jadf.txt] [practice question written from the cited source, answer checked: swap-HCSD-5]"
+  },
+  {
+   "stem": "According to the Community Based Health Insurance policy (2010), CBHI beneficiaries are covered at how many levels of health service provision?",
+   "source": "Community Based Health Insurance Policy (MOH, April 2010), section 2.2 [nym_cb_mu.txt] [practice question written from the cited source, answer checked: swap-HCSD-6]"
+  },
+  {
+   "stem": "According to the Community Based Health Insurance policy (2010), in which two ways are health service providers reimbursed?",
+   "source": "Community Based Health Insurance Policy (MOH, April 2010), section 2.2 [nym_cb_mu.txt] [practice question written from the cited source, answer checked: swap-HCSD-7]"
+  },
+  {
+   "stem": "According to the Community Based Health Insurance policy (2010), the minimum package of activities at primary health care level is funded from the following sources EXCEPT:",
+   "source": "Community Based Health Insurance Policy (MOH, April 2010), section 2.2 [nym_cb_mu.txt] [practice question written from the cited source, answer checked: swap-HCSD-8]"
+  },
+  {
+   "stem": "According to the Community Based Health Insurance policy (2010), who validates and pays the invoices of district hospitals?",
+   "source": "Community Based Health Insurance Policy (MOH, April 2010), sections 2.2 and 3.3 [nym_cb_mu.txt] [practice question written from the cited source, answer checked: swap-HCSD-9]"
+  },
+  {
+   "stem": "As Cell Executive Secretary, a resident who was notified in writing of the verdict of the Abunzi Committee at Cell level is not satisfied with it. Within how many days may he/she appeal to the Abunzi Committee at Sector level?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 25 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-HCSD-33]"
+  },
+  {
+   "stem": "Under Law 71/2024, which organ may temporarily or permanently deprive a person of parental authority on request by an interested person?",
+   "source": "Law 71/2024 governing persons and family, Art. 352 [es-dl_family2024.txt] [practice question written from the cited source, answer checked: swap-HCSD-38]"
+  },
+  {
+   "stem": "Fill in the missing: Under Law No 29/2017, the rights of a member of the long-term savings scheme are ........",
+   "source": "Law No 29/2017 of 29/06/2017 establishing the long-term savings scheme, Art. 10 [ng-dl_ejo.txt] [practice question written from the cited source, answer checked: swap-HCSD-39]"
+  },
+  {
+   "stem": "In the NST2 M&E matrix, what is the end-period (2028/29) target for the level of shared sense of national identity, reported by MINUBUMWE?",
+   "source": "NST2 2024-2029, Annex 1, outcome 33 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-41]"
+  },
+  {
+   "stem": "As Cell Executive Secretary, a resident brings you a dispute to be submitted to the Abunzi Committee at Cell level. What must you do on the day of receipt?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 13 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-HCSD-42]"
+  },
+  {
+   "stem": "NST2 reports that how many decent and productive jobs were created over the NST1 period?",
+   "source": "NST2 2024-2029, Section 1.1 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-43]"
+  },
+  {
+   "stem": "Under Article 326 of Law 71/2024, a Rwandan who intends to adopt a child must be at least how many years older than the child (unless the Minister in charge of children reduces the difference)?",
+   "source": "Law 71/2024 governing persons and family, Art. 326 [es-dl_family2024.txt] [practice question written from the cited source, answer checked: swap-HCSD-44]"
+  },
+  {
+   "stem": "According to Prime Minister's Order No 021/03 of 21/10/2021, the mission of the Ministry of National Unity and Civic Engagement (MINUBUMWE) is to:",
+   "source": "Prime Minister's Order No 021/03 of 21/10/2021, Art. 2 [gm_dl_g20211021.txt] [practice question written from the cited source, answer checked: swap-HCSD-45]"
+  },
+  {
+   "stem": "Where a party refuses to comply with an Abunzi verdict, the prejudiced party requests the enforcement formula to be appended to the verdict by:",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 29 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-HCSD-49]"
   }
  ],
  "human-capital-social-development-officer-mock-exam-10": [
@@ -21855,6 +22295,114 @@
   {
    "stem": "As Human Capital and Social Development Officer, you find that a parent keeps a seven-year-old child at home to look after livestock. According to Law 10/2021, what is the correct position?",
    "source": "Law 10/2021 determining the organisation of education, Art. 57 [dl18_l10.txt] [practice question written from the cited source, answer checked: P-v07-3]"
+  },
+  {
+   "stem": "In the CBHI system, what is a co-payment (ticket modérateur)?",
+   "source": "Community Based Health Insurance Policy (MOH, April 2010), section 2.2 [nym_cb_mu.txt] [practice question written from the cited source, answer checked: swap-HCSD-10]"
+  },
+  {
+   "stem": "The Health Policy revised in 2004, described in the National Health Insurance Policy (2010), has how many objectives guiding interventions in the health sector?",
+   "source": "National Health Insurance Policy (MOH, April 2010), section 2 (Health Policy 2004) [past_dl21_nhip.txt] [practice question written from the cited source, answer checked: swap-HCSD-11]"
+  },
+  {
+   "stem": "According to the National Health Insurance Policy (2010), which three levels of risk pool were established by the Health Insurance Law of 2007?",
+   "source": "National Health Insurance Policy (MOH, April 2010), section 6.1 [past_dl21_nhip.txt] [practice question written from the cited source, answer checked: swap-HCSD-12]"
+  },
+  {
+   "stem": "According to NST2, access to electricity surged during the NST1 period from 34.4% to:",
+   "source": "NST2 2024-2029, Section 1.1 (key achievements of NST1) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-13]"
+  },
+  {
+   "stem": "According to the National Health Insurance Policy (2010), how many major roles will the future National Solidarity Fund play?",
+   "source": "National Health Insurance Policy (MOH, April 2010), section 5.4 [past_dl21_nhip.txt] [practice question written from the cited source, answer checked: swap-HCSD-14]"
+  },
+  {
+   "stem": "Which of the following is NOT among the seven hospitals that NST2 says were constructed during the NST1 period?",
+   "source": "NST2 2024-2029, Section 1.1 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-15]"
+  },
+  {
+   "stem": "Under the National Health Insurance Policy (2010), public workers in the RAMA scheme contribute 15% of their basic salary, shared equally by employer and employee. What share of the basic salary does the employee pay?",
+   "source": "National Health Insurance Policy (MOH, April 2010), section 5.2 [past_dl21_nhip.txt] [practice question written from the cited source, answer checked: swap-HCSD-16]"
+  },
+  {
+   "stem": "By what percentage does NST2 aim to reduce greenhouse gas emissions over the next five years, in line with Rwanda's NDCs?",
+   "source": "NST2 2024-2029, Section 3.10 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-17]"
+  },
+  {
+   "stem": "What does RHIC stand for in the National Health Insurance Policy (2010)?",
+   "source": "National Health Insurance Policy (MOH, April 2010), section 6.1 [past_dl21_nhip.txt] [practice question written from the cited source, answer checked: swap-HCSD-18]"
+  },
+  {
+   "stem": "Under the NST2 roles and responsibilities, which institution provides high-level policy and strategic orientation to guide implementation?",
+   "source": "NST2 2024-2029, Section 7.1, Table 4 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-19]"
+  },
+  {
+   "stem": "According to the National Health Insurance Policy (2010), the mandate of the Rwanda Health Insurance Council includes all the following EXCEPT:",
+   "source": "National Health Insurance Policy (MOH, April 2010), section 6.1 [past_dl21_nhip.txt] [practice question written from the cited source, answer checked: swap-HCSD-20]"
+  },
+  {
+   "stem": "Under the NST2 M&E framework, the Sector Strategic Plan (SSP) M&E matrix is monitored at the Sector Working Group level annually through:",
+   "source": "NST2 2024-2029, Section 8.1 (v) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-21]"
+  },
+  {
+   "stem": "Under Law No 29/2017 establishing the long-term savings scheme (EjoHeza), how is the administrator of the scheme appointed?",
+   "source": "Law No 29/2017 of 29/06/2017 establishing the long-term savings scheme, Art. 17 [ng-dl_ejo.txt] [practice question written from the cited source, answer checked: swap-HCSD-22]"
+  },
+  {
+   "stem": "NST2 identifies implementation enablers. Which of the following is NOT one of them?",
+   "source": "NST2 2024-2029, Section 7.2 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-23]"
+  },
+  {
+   "stem": "The National Legal Aid Policy adds one extra lawyer to each Access to Justice Bureau (MAJ) to coordinate Abunzi activities. How many MAJ lawyers per District does this make?",
+   "source": "National Legal Aid Policy (Ministry of Justice, October 2014), Strategy 2 [nym_la_la.txt] [practice question written from the cited source, answer checked: swap-HCSD-24]"
+  },
+  {
+   "stem": "Under Law No 29/2017 establishing the long-term savings scheme, the following institutions are eligible to act as custodian EXCEPT:",
+   "source": "Law No 29/2017 of 29/06/2017 establishing the long-term savings scheme, Arts. 18-19 [ng-dl_ejo.txt] [practice question written from the cited source, answer checked: swap-HCSD-25]"
+  },
+  {
+   "stem": "The total NST2 financing over the five-year period 2024/25-2028/29 is estimated at:",
+   "source": "NST2 2024-2029, Section 2.2 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-26]"
+  },
+  {
+   "stem": "Under Law No 37/2016 on the Abunzi Committee (as amended in 2020), the Abunzi Committee at Cell level has jurisdiction over movable and immovable assets and succession thereto where their value does not exceed:",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 10 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-HCSD-27]"
+  },
+  {
+   "stem": "Fill in the missing: Under Law No 29/2017, the Regulator monitors the performance of the long-term savings scheme every ........ against the benchmarks in the investment programme.",
+   "source": "Law No 29/2017 of 29/06/2017 establishing the long-term savings scheme, Art. 30 [ng-dl_ejo.txt] [practice question written from the cited source, answer checked: swap-HCSD-28]"
+  },
+  {
+   "stem": "NST2 says the functioning of SPIU across institutions will be streamlined to deliver projects efficiently. What does SPIU stand for?",
+   "source": "NST2 2024-2029, Section 7.2 (i) [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-29]"
+  },
+  {
+   "stem": "Under Law No 37/2016, the Abunzi Committee at Cell level may decide all of the following civil matters EXCEPT:",
+   "source": "Law No 37/2016 of 08/09/2016, Arts. 10 and 11 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-HCSD-30]"
+  },
+  {
+   "stem": "Under Law No 29/2017, records relating to members' long-term savings are kept for at least how many years after the rights have been granted?",
+   "source": "Law No 29/2017 of 29/06/2017 establishing the long-term savings scheme, Art. 34 [ng-dl_ejo.txt] [practice question written from the cited source, answer checked: swap-HCSD-31]"
+  },
+  {
+   "stem": "Fill in the missing: Under NST2, the cross-cutting areas will be mainstreamed, monitored and evaluated across all ........ by the respective lead institutions.",
+   "source": "NST2 2024-2029, Chapter 6 [past_nst2_nst2.txt] [practice question written from the cited source, answer checked: swap-HCSD-32]"
+  },
+  {
+   "stem": "According to the National Health Insurance Policy (2010), in which year was the medical insurance scheme for public servants and their dependants (RAMA) established?",
+   "source": "National Health Insurance Policy (MOH, April 2010), section 1.3 [past_dl21_nhip.txt] [practice question written from the cited source, answer checked: swap-HCSD-40]"
+  },
+  {
+   "stem": "Under Law No 29/2017, the Regulator may impose an administrative fine ranging from ........ for faults such as providing an unlicensed long-term savings scheme service.",
+   "source": "Law No 29/2017 of 29/06/2017 establishing the long-term savings scheme, Art. 36 [ng-dl_ejo.txt] [practice question written from the cited source, answer checked: swap-HCSD-46]"
+  },
+  {
+   "stem": "For what maximum period may an Abunzi Committee suspend one of its members on the ground of partiality or any other misconduct?",
+   "source": "Law No 37/2016 of 08/09/2016, Art. 32 [hgs_abunzi_law37_2016.txt] [practice question written from the cited source, answer checked: swap-HCSD-47]"
+  },
+  {
+   "stem": "Vision 2050 envisages a mid-term review in 2035. After that, regular reviews are planned every:",
+   "source": "Vision 2050, Background (Development of Vision 2050) [past_dl22_vfull.txt] [practice question written from the cited source, answer checked: swap-HCSD-48]"
   }
  ]
 }
