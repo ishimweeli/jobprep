@@ -1,4 +1,5 @@
 import type { TestDef } from './types';
+import { PSYCHOMETRIC_REAL_FORMAT_MOCKS } from './tests-psychometric-real';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Psychometric Test Preparation: four general practice mocks (numerical,
@@ -327,4 +328,5 @@ export const PSYCHOMETRIC_PREP_MOCKS: TestDef[] = [
   psychometricPrepMock3,
   psychometricPrepMock4,
   psychometricPrepMock5,
+  ...PSYCHOMETRIC_REAL_FORMAT_MOCKS,
 ];
