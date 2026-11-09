@@ -22,7 +22,7 @@ describe('jobs: grouped catalog', () => {
     const bio = body.results.find((j: { jobSlug: string }) => j.jobSlug === 'rw-biostatistician');
     // 5 full mocks of 50 questions at 120 min + 1 psychometric mock at 90 min: non-uniform, so a range instead of one value.
     expect(bio).toMatchObject({
-      jobName: 'Biostatistician', mockTestCount: 6, freeCount: 0,
+      jobName: 'Biostatistician', mockTestCount: 6, freeCount: 1,
       durationMinutes: null, durationRange: { min: 90, max: 120 },
     });
     expect(bio.jobDeadlineAt).not.toBeNull();

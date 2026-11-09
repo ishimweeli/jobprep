@@ -28,7 +28,7 @@ export const accountantMininterFullMock1: TestDef = {
   slug: 'accountant-mininter-full-mock-exam-1',
   title: 'Accountant (MININTER) — Mock Exam 1',
   summary: 'Practice for ministry accountant recruitment, covering accounting standards and risk, budgeting with IFMIS and the MTEF, and reconciliation and reporting.',
-  free: false, difficulty: 'STANDARD', minutes: 120,
+  free: true, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AS }, { name: BIM }, { name: RR }],
   cases: [],
   questions: [
@@ -511,7 +511,7 @@ export const internalAuditorMininterFullMock1: TestDef = {
   slug: 'internal-auditor-mininter-full-mock-exam-1',
   title: 'Internal Auditor (MININTER) — Mock Exam 1',
   summary: 'A practice exam for ministry internal auditor recruitment, covering audit standards and governance, risk-based planning, control review and reporting, psychometric reasoning, and a linked audit-priority case.',
-  free: false, difficulty: 'STANDARD', minutes: 120,
+  free: true, difficulty: 'STANDARD', minutes: 120,
   sections: [{ name: AG }, { name: RBP }, { name: CRR }, { name: PSY2 }, { name: 'Case study: three Sector offices', label: 'Case-based, 8 linked questions' }],
   cases: [{
     key: 'sector-risk-ranking',

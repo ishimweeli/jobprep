@@ -28,7 +28,7 @@ export const hcsdMock1: TestDef = {
   slug: 'human-capital-social-development-officer-mock-exam-1',
   title: 'Human Capital & Social Development Officer — Mock Exam 1',
   summary: 'Practice for this Cell-level social-development post: the Vision 2020 Umurenge Programme (VUP), Ubudehe categorisation, beneficiary targeting and graduation, and civil-service conduct.',
-  free: false,
+  free: true,
   difficulty: 'STANDARD',
   minutes: 120,
   sections: [{ name: SP1 }, { name: SP2 }, { name: SP3 }],
