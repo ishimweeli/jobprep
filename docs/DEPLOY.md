@@ -80,6 +80,20 @@ only jobs that pass `prisma/pipeline/check.ts` in full, commits them to `main`, 
 - Optional limits, as workflow env: `PIPELINE_MAX_JOBS` (4 per day), `PIPELINE_CONCURRENCY` (2),
   `PIPELINE_JOB_BUDGET_USD` (25 per job), `PIPELINE_MODEL` (`claude-opus-5-5`).
 
+## Uptime alerts
+
+`.github/workflows/uptime-monitor.yml` runs every 10 minutes on the **Contabo** runner (so it still works when the
+Netcup gateway is what is down). It opens the public site, `/api/health` and a real search (`q=teacher` on the jobs
+list must return jobs), retries for about a minute so a deploy blip is not an outage, and emails
+`ishimweeliab0@gmail.com` (the `MONITOR_TO` in the workflow) through the `MAIL_*` account in Contabo's
+`/opt/jobprep/.env`. One email when something breaks, a reminder every 3 hours while it stays broken, one when it works
+again. What was already reported is kept in `~/jobprep-monitor/uptime-state.json` of the runner user.
+
+- Run it by hand (Actions, "Uptime monitor", Run workflow) with **send_test** ticked to prove the alert reaches the inbox.
+- It cannot report that Contabo's own runner or server is down: pair it with an outside check (UptimeRobot, free) on
+  `https://jobprep.nexvecta.com/api/health` if that matters.
+- Script and tests: `apps/api/prisma/monitor/uptime.ts`, `apps/api/test/unit/uptimeMonitor.test.ts`.
+
 ## Gateway
 
 `deploy/gateway/jobprep.nginx.conf` holds the `jobprep_pool` upstream and the two server blocks.

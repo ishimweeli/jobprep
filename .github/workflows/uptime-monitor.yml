@@ -1,0 +1,46 @@
+name: Uptime monitor
+
+# Every 10 minutes: open the public site, the health endpoint and a real search, and email MONITOR_TO when one of them
+# fails (once when it breaks, a reminder every 3 hours, once when it works again). See apps/api/prisma/monitor/uptime.ts.
+#
+# Runs on the Contabo server's runner, reading the MAIL_* account from /opt/jobprep/.env, so it still works when the
+# Netcup gateway is the thing that is down. Run it by hand from the Actions tab with "test" ticked to prove that the
+# email reaches you.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      send_test:
+        description: 'Send a test email now (proves alerts reach you)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: uptime-monitor
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: [self-hosted, contabo]
+    timeout-minutes: 8
+    env:
+      MONITOR_TO: ishimweeliab0@gmail.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: apps/api/prisma/monitor
+      # The script is mounted into the image the site runs from (jobprep:v1), which already has Node, tsx and the mail
+      # code. `state` remembers what was already reported, so one outage is one email and not one every 10 minutes.
+      - name: Check the site and search, email on trouble
+        run: |
+          state="$HOME/jobprep-monitor"
+          mkdir -p "$state"
+          docker run --rm --user "$(id -u):$(id -g)" \
+            --env-file /opt/jobprep/.env \
+            -e MONITOR_TO="$MONITOR_TO" \
+            -e MONITOR_TEST="${{ inputs.send_test }}" \
+            -e MONITOR_STATE_FILE=/state/uptime-state.json \
+            -v "$state:/state" \
+            -v "$PWD/apps/api/prisma/monitor:/app/apps/api/prisma/monitor:ro" \
+            jobprep:v1 node --import tsx prisma/monitor/uptime.ts
