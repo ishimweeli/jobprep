@@ -1,10 +1,12 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getOverview, getUsers, keys } from '../../api/admin';
 import type { UserFilter, UserRow } from '../../api/types';
 import { AdminShell } from '../../components/AdminShell';
 import { EmptyState, ErrorBox, Loader } from '../../components/states';
 import { Avatar, Btn, FilterChips, Pager, Pill } from '../../components/ui';
+import { denyHint, ROLE_LABEL } from '../../lib/permissions';
 import { ACCESS_TONE } from '../../lib/badges';
 import { cx } from '../../lib/cx';
 import { formatCount, formatLastActive, initials } from '../../lib/format';
@@ -12,6 +14,9 @@ import { pageCount, parseUsersQuery, usersSearch } from '../../lib/queryState';
 import { useDebouncedSearch } from '../../lib/useDebouncedSearch';
 import { useAdminCountry } from '../../lib/adminCountry';
 import { useIsDesktop } from '../../lib/useMediaQuery';
+import type { AdminRole } from '../../api/types';
+import { useAdmin } from '../auth/session';
+import { ChangeRoleDialog, GrantAccessDialog } from './UserActions';
 import { UserDetailView } from './UserDetail';
 
 const PAGE_SIZE = 25;
@@ -36,6 +41,10 @@ export function UsersPage() {
   const query = parseUsersQuery(sp);
   const search = usersSearch;
   const { country } = useAdminCountry();
+  const { permissions } = useAdmin();
+  const [rowDialog, setRowDialog] = useState<{ kind: 'grant' | 'role'; user: UserRow } | null>(null);
+  const grantHint = denyHint(permissions, 'users:manage', 'assign a subscription');
+  const roleHint = denyHint(permissions, 'admins:manage', 'change a role');
 
   const list = useQuery({
     queryKey: keys.users({ ...query, country }),
@@ -162,14 +171,15 @@ export function UsersPage() {
           {body ?? (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] border-collapse text-sm">
+                <table className="w-full min-w-[780px] border-collapse text-sm">
                   <thead>
                     <tr className="bg-page text-left text-xs text-muted">
                       <th className="px-4 py-3 font-semibold">Candidate</th>
                       <th className="px-2 py-3 font-semibold">Goal</th>
                       <th className="px-2 py-3 font-semibold">Access</th>
                       <th className="px-2 py-3 text-right font-semibold">Tests</th>
-                      <th className="px-4 py-3 text-right font-semibold">Last active</th>
+                      <th className="px-2 py-3 text-right font-semibold">Last active</th>
+                      <th className="px-4 py-3 text-right font-semibold">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -182,7 +192,10 @@ export function UsersPage() {
                             <button type="button" aria-pressed={on} onClick={() => open(u)} className="flex cursor-pointer items-center gap-2.5 border-0 bg-transparent py-1 text-left text-ink">
                               <Avatar text={initials(u.name)} size={34} />
                               <span className="flex flex-col">
-                                <span className="font-semibold">{u.name}</span>
+                                <span className="flex flex-wrap items-center gap-1.5 font-semibold">
+                                  {u.name}
+                                  {(u.roles ?? []).map((r) => <span key={r} className="rounded-full bg-brand-soft px-2 py-px text-[11px] font-semibold text-brand">{ROLE_LABEL[r as AdminRole] ?? r}</span>)}
+                                </span>
                                 <span className="break-all text-xs text-muted">{u.email}</span>
                               </span>
                             </button>
@@ -190,7 +203,13 @@ export function UsersPage() {
                           <td className="px-2 py-2.5 text-ink-2">{u.goal ?? '—'}</td>
                           <td className="px-2 py-2.5"><Pill tone={t} className="px-[9px] py-[3px]">{t.label}</Pill></td>
                           <td className="px-2 py-2.5 text-right tabular">{u.testsTaken}</td>
-                          <td className="px-4 py-2.5 text-right text-muted">{formatLastActive(u.lastActiveAt, now)}</td>
+                          <td className="px-2 py-2.5 text-right text-muted">{formatLastActive(u.lastActiveAt, now)}</td>
+                          <td className="px-4 py-2.5">
+                            <span className="flex justify-end gap-1.5">
+                              <Btn size="sm" whyDisabled={grantHint} aria-label={`Assign subscription to ${u.name}`} onClick={() => setRowDialog({ kind: 'grant', user: u })}>Subscription</Btn>
+                              <Btn size="sm" whyDisabled={roleHint} aria-label={`Change role of ${u.name}`} onClick={() => setRowDialog({ kind: 'role', user: u })}>Role</Btn>
+                            </span>
+                          </td>
                         </tr>
                       );
                     })}
@@ -210,6 +229,12 @@ export function UsersPage() {
         </section>
         {selected ? <UserDetailView key={selected} id={selected} phone={false} /> : null}
       </div>
+      {rowDialog && (
+        <>
+          <GrantAccessDialog open={rowDialog.kind === 'grant'} onClose={() => setRowDialog(null)} user={rowDialog.user} />
+          <ChangeRoleDialog open={rowDialog.kind === 'role'} onClose={() => setRowDialog(null)} user={rowDialog.user} />
+        </>
+      )}
     </AdminShell>
   );
 }

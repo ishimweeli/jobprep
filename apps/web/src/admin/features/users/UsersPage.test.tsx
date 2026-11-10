@@ -76,6 +76,19 @@ describe('Users: filters live in the query string', () => {
     expect(screen.getByText('Access changes ask for a reason and are recorded in the audit log.')).toBeInTheDocument();
   });
 
+  it('each row has Subscription and Role actions that open the grant and role dialogs', async () => {
+    setup('/admin/users');
+    expect(await screen.findByText('Aline Uwase')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Actions' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Assign subscription to Eric Habimana' }));
+    expect(await screen.findByText('Grant or extend Full Access for Eric Habimana')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Change role of Eric Habimana' }));
+    expect(await screen.findByText('Change role of Eric Habimana')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Candidate only/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /System admin/ })).not.toBeChecked();
+  });
+
   it('phone: the list shows "N users · showing latest" and cards link to the user page', async () => {
     setup('/admin/users', false);
     expect(await screen.findByText('4,218 users · showing latest'.replace('4,218', '2'))).toBeInTheDocument();

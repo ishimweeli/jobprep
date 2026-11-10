@@ -8,7 +8,7 @@ import { ACCESS_TONE, accessSummary, historySentence, paymentTone } from '../../
 import { formatDateTime, formatDay, formatLastActive, formatDayYear, initials, languageName } from '../../lib/format';
 import { denyHint } from '../../lib/permissions';
 import { useAdmin } from '../auth/session';
-import { GrantAccessDialog, PasswordResetDialog, SuspendDialog, UnsuspendDialog } from './UserActions';
+import { ChangeRoleDialog, GrantAccessDialog, PasswordResetDialog, SuspendDialog, UnsuspendDialog } from './UserActions';
 
 /**
  * One user (AdminUsers.dc side panel, AdminUserPhone.dc page). The four action buttons open their dialogs (A2 grant /
@@ -19,7 +19,7 @@ import { GrantAccessDialog, PasswordResetDialog, SuspendDialog, UnsuspendDialog 
 const NOTE = 'Access changes ask for a reason and are recorded in the audit log.';
 const VIEW_HINT = 'Opens a read-only view of what this person sees. Nothing can be changed from it, and the view is recorded in the audit log.';
 
-type Dialog = null | 'grant' | 'suspend' | 'unsuspend' | 'reset';
+type Dialog = null | 'grant' | 'suspend' | 'unsuspend' | 'reset' | 'role';
 
 function Actions({ d, phone }: { d: UserDetailData; phone: boolean }) {
   const { permissions } = useAdmin();
@@ -27,6 +27,7 @@ function Actions({ d, phone }: { d: UserDetailData; phone: boolean }) {
   const suspended = d.user.status === 'SUSPENDED';
   const manage = denyHint(permissions, 'users:manage', 'change access or suspend accounts');
   const reset = denyHint(permissions, 'otp:resend', 'send password resets') ?? (suspended ? 'A suspended account cannot get an email. Un-suspend it first.' : undefined);
+  const roleHint = denyHint(permissions, 'admins:manage', 'change a role');
   const size = phone ? 'lg' : 'md';
   const close = () => setDialog(null);
   const who = d.user;
@@ -34,6 +35,7 @@ function Actions({ d, phone }: { d: UserDetailData; phone: boolean }) {
   const grant = <Btn kind="primary" size={size} className="w-full" whyDisabled={manage} onClick={() => setDialog('grant')}>Grant / extend 30 days</Btn>;
   const resetBtn = <Btn size={size} className="w-full" whyDisabled={reset} onClick={() => setDialog('reset')}>Send password reset</Btn>;
   const view = <LinkButton to={`/admin/users/${who.id}/view`} size={size} className="w-full" aria-describedby={`view-hint-${who.id}`}>View as candidate</LinkButton>;
+  const roleBtn = <Btn size={size} className="w-full" whyDisabled={roleHint} onClick={() => setDialog('role')}>Change role</Btn>;
   const suspend = suspended
     ? <Btn size={size} className="w-full" whyDisabled={manage} onClick={() => setDialog('unsuspend')}>Un-suspend account</Btn>
     : <Btn kind="danger" size={size} className="w-full" whyDisabled={manage} onClick={() => setDialog('suspend')}>Suspend account</Btn>;
@@ -44,10 +46,11 @@ function Actions({ d, phone }: { d: UserDetailData; phone: boolean }) {
         <div className="flex flex-col gap-2">
           {grant}
           <div className="grid grid-cols-2 gap-2">{resetBtn}{view}</div>
+          {roleBtn}
           {suspend}
         </div>
       ) : (
-        <div className="grid grid-cols-2 items-start gap-2">{grant}{resetBtn}{view}{suspend}</div>
+        <div className="grid grid-cols-2 items-start gap-2">{grant}{resetBtn}{view}{roleBtn}{suspend}</div>
       )}
       <p id={`view-hint-${who.id}`} className="m-0 text-xs text-muted">{VIEW_HINT}</p>
       <p className="m-0 text-xs text-muted">{NOTE}</p>
@@ -55,6 +58,7 @@ function Actions({ d, phone }: { d: UserDetailData; phone: boolean }) {
       <SuspendDialog open={dialog === 'suspend'} onClose={close} user={who} />
       <UnsuspendDialog open={dialog === 'unsuspend'} onClose={close} user={who} />
       <PasswordResetDialog open={dialog === 'reset'} onClose={close} user={who} />
+      <ChangeRoleDialog open={dialog === 'role'} onClose={close} user={{ ...who, roles: d.user.roles }} />
     </>
   );
 }

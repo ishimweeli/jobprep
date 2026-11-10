@@ -1,3 +1,4 @@
+import type { AdminRole, InviteBody, TeamPatch } from '../../api/types';
 import type { AccessPreview } from '../../api/users-payments';
 import { formatDayYear, plural } from '../../lib/format';
 
@@ -37,3 +38,27 @@ export const USER_ERRORS: Record<string, string> = {
   otp_hourly_limit: 'This person has had the most reset emails allowed this hour. Try again in an hour.',
   user_not_found: 'This person no longer exists, or is not in your countries.',
 };
+
+// ───────────────────────── Change a person's role (from the users list or the user panel)
+
+/** What a person can be: a plain candidate (no admin role) or one of the three admin roles. */
+export type RoleChoice = 'NONE' | AdminRole;
+
+/** The role they hold now: the first active admin role (the list sends only active ones), else a plain candidate. */
+export const currentRole = (roles: readonly string[] | undefined): RoleChoice => (roles?.[0] as AdminRole | undefined) ?? 'NONE';
+
+/**
+ * The one API call that moves someone from `from` to `to`, reusing the team endpoints:
+ * candidate → role is an invite for their address (an existing account just gets the role added),
+ * role → another role changes that assignment, role → candidate removes it. `null` when nothing changes.
+ */
+export type RoleChange =
+  | { kind: 'invite'; body: InviteBody }
+  | { kind: 'patch'; id: string; body: TeamPatch };
+
+export function roleChange(user: { id: string; name: string; email: string }, from: RoleChoice, to: RoleChoice, reason: string): RoleChange | null {
+  if (from === to) return null;
+  if (from === 'NONE') return { kind: 'invite', body: { name: user.name, email: user.email.toLowerCase(), role: to as AdminRole, countryScope: [], reason } };
+  if (to === 'NONE') return { kind: 'patch', id: user.id, body: { role: from, active: false, reason } };
+  return { kind: 'patch', id: user.id, body: { role: from, newRole: to, reason } };
+}

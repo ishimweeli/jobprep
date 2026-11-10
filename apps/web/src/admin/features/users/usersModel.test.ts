@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseDays, summaryLine } from './usersModel';
+import { currentRole, parseDays, roleChange, summaryLine } from './usersModel';
 
 describe('grant access: days', () => {
   it('accepts whole numbers from 1 to 365', () => {
@@ -25,5 +25,23 @@ describe('"Access will run until"', () => {
     expect(summaryLine(7, preview)).toBe('Access will run for 7 days, added after any access they still have.');
     expect(summaryLine(1, undefined)).toContain('1 day,');
     expect(summaryLine(null, undefined)).toMatch(/Enter the number of days/);
+  });
+});
+
+describe('role change (users list and panel)', () => {
+  const who = { id: 'u1', name: 'Abel Kwizera', email: 'Abel@Example.com' };
+  it('reads the current role from the roles the list sends', () => {
+    expect(currentRole(undefined)).toBe('NONE');
+    expect(currentRole([])).toBe('NONE');
+    expect(currentRole(['SUPPORT'])).toBe('SUPPORT');
+  });
+  it('candidate → role is an invite for their address, role → role moves the assignment, role → candidate removes it', () => {
+    expect(roleChange(who, 'NONE', 'SYSTEM_ADMIN', 'because')).toEqual({ kind: 'invite', body: { name: 'Abel Kwizera', email: 'abel@example.com', role: 'SYSTEM_ADMIN', countryScope: [], reason: 'because' } });
+    expect(roleChange(who, 'SUPPORT', 'CONTENT_EDITOR', 'because')).toEqual({ kind: 'patch', id: 'u1', body: { role: 'SUPPORT', newRole: 'CONTENT_EDITOR', reason: 'because' } });
+    expect(roleChange(who, 'SUPPORT', 'NONE', 'because')).toEqual({ kind: 'patch', id: 'u1', body: { role: 'SUPPORT', active: false, reason: 'because' } });
+  });
+  it('does nothing when the role is unchanged', () => {
+    expect(roleChange(who, 'SUPPORT', 'SUPPORT', 'because')).toBeNull();
+    expect(roleChange(who, 'NONE', 'NONE', 'because')).toBeNull();
   });
 });

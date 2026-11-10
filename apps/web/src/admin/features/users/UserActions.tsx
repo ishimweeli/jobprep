@@ -1,15 +1,16 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { grantAccess, sendPasswordReset, suspendUser, unsuspendUser } from '../../api/admin';
+import { grantAccess, inviteAdmin, keys, patchTeamMember, sendPasswordReset, suspendUser, unsuspendUser } from '../../api/admin';
 import type { UserDetail } from '../../api/types';
 import { getAccessPreview, upKeys } from '../../api/users-payments';
 import { ActionDialog } from '../../components/ActionDialog';
-import { SelectField, TextField } from '../../components/forms';
+import { FieldGroup, SelectField, TextField } from '../../components/forms';
 import { useToast } from '../../components/Toast';
 import { allowedCountryCodes } from '../../lib/adminCountry';
 import { countryName, formatDayYear, plural } from '../../lib/format';
 import { useAdmin } from '../auth/session';
-import { DAYS_PROBLEM, DEFAULT_DAYS, parseDays, summaryLine, USER_ERRORS } from './usersModel';
+import { ROLE_CHOICES, TEAM_ERRORS } from '../settings/teamModel';
+import { currentRole, DAYS_PROBLEM, DEFAULT_DAYS, parseDays, roleChange, summaryLine, USER_ERRORS, type RoleChoice } from './usersModel';
 
 /** The dialogs behind the user detail's buttons: grant / extend access (A2), suspend and un-suspend (A3), send a password reset (A5). */
 
@@ -174,6 +175,63 @@ export function PasswordResetDialog({ open, onClose, user }: { open: boolean; on
     >
       <p className="m-0"><strong>{user.name}</strong> gets an email at <strong className="break-all">{user.email}</strong> with a link to choose a new password.</p>
       <p className="m-0">Earlier reset links stop working. Limits apply: one email at a time, and a few each hour.</p>
+    </ActionDialog>
+  );
+}
+
+const ROLE_OPTIONS: { value: RoleChoice; label: string; help: string }[] = [
+  { value: 'NONE', label: 'Candidate only', help: 'A normal account. No access to the admin area.' },
+  ...ROLE_CHOICES,
+];
+
+/**
+ * Change what kind of account a person has: a plain candidate or an admin role. It uses the admin-team endpoints, so the
+ * same rules apply (only a System admin can do it, nobody removes their own System admin role, one System admin always
+ * stays). Country limits for an editor or support person are set under Settings, Team; here the role covers every country.
+ */
+export function ChangeRoleDialog({ open, onClose, user }: { open: boolean; onClose: () => void; user: Who & { roles?: string[] } }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const now = currentRole(user.roles);
+  const [choice, setChoice] = useState<RoleChoice>(now);
+  useEffect(() => {
+    if (open) setChoice(currentRole(user.roles));
+  }, [open, user.roles]);
+  const label = (r: RoleChoice) => ROLE_OPTIONS.find((o) => o.value === r)!.label;
+  return (
+    <ActionDialog
+      open={open}
+      onClose={onClose}
+      title={`Change role of ${user.name}`}
+      confirmLabel="Save role"
+      reasonHint="Why this person needs this role."
+      fieldsOk={choice !== now}
+      fieldsError="Choose a different role first."
+      errors={{ ...USER_ERRORS, ...TEAM_ERRORS }}
+      fields={
+        <FieldGroup legend="Role">
+          {ROLE_OPTIONS.map((r) => (
+            <label key={r.value} className="flex min-h-11 items-start gap-2.5 rounded-[10px] border border-border-strong p-2.5 text-[15px] has-[:checked]:border-brand has-[:checked]:bg-brand-softer">
+              <input type="radio" name={`role-${user.id}`} value={r.value} checked={choice === r.value} onChange={() => setChoice(r.value)} className="mt-1 h-5 w-5 flex-none accent-brand" />
+              <span className="flex flex-col"><span className="font-semibold">{r.label}</span><span className="text-[13px] text-muted">{r.help}</span></span>
+            </label>
+          ))}
+        </FieldGroup>
+      }
+      submit={(reason) => {
+        const change = roleChange(user, now, choice, reason);
+        if (!change) return Promise.reject(new Error('nothing_to_change'));
+        return change.kind === 'invite' ? inviteAdmin(change.body) : patchTeamMember(change.id, change.body);
+      }}
+      onDone={() => {
+        void qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+        void qc.invalidateQueries({ queryKey: ['admin', 'user'] });
+        void qc.invalidateQueries({ queryKey: keys.team });
+        void qc.invalidateQueries({ queryKey: ['admin', 'audit'] });
+        toast({ text: choice === 'NONE' ? `${user.name} is a candidate only now.` : `${user.name} now has the ${label(choice)} role.` });
+      }}
+    >
+      <p className="m-0">Now: <strong>{label(now)}</strong>. The change applies at once, on the person’s next request. Nothing is emailed.</p>
     </ActionDialog>
   );
 }
