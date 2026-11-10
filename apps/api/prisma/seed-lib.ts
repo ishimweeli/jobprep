@@ -55,6 +55,7 @@ import {
 import { PSYCHOMETRIC_PREP_MOCKS } from './seed-data/tests-psychometric-prep';
 import { AUTO_MOCKS } from './seed-data/auto';
 import { applyPastPapers } from './seed-data/past-papers';
+import { applyExamStructure } from './seed-data/exam-structure';
 
 /** Password of the dev admins (system.admin@, content.editor@, support@, multi.role@jobprep.test). Never set in production. */
 export const DEV_PASSWORD = 'Password123!';
@@ -175,7 +176,7 @@ const SEED_TESTS: TestDef[] = [
   ...AUTO_MOCKS,
 ];
 
-const ALL_TESTS: TestDef[] = applyPastPapers(SEED_TESTS);
+const ALL_TESTS: TestDef[] = applyExamStructure(applyPastPapers(SEED_TESTS));
 
 export { ALL_TESTS, BASE_TESTS, SEED_TESTS };
 
@@ -362,7 +363,8 @@ export async function seedDatabase(prisma: PrismaClient, tests: TestDef[] = ALL_
     let qOrder = 0;
     const rows: Prisma.QuestionCreateManyInput[] = [];
     for (const q of t.questions) {
-      const tKey = `${catKey}:${q.topic}`;
+      // Keyed by slug (the DB unique is categoryId+slug), so names differing only by case or punctuation share one topic.
+      const tKey = `${catKey}:${slugify(q.topic)}`;
       if (!topicId.has(tKey)) {
         const topic = await prisma.topic.create({
           data: { categoryId: catId, slug: slugify(q.topic), name: q.topic },

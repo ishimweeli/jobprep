@@ -2,7 +2,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import { loadWritten, type Written, type WrittenQuestion } from './check';
+import { CASE_SECTION } from '../seed-data/exam-structure';
+import { CASE_START, loadWritten, type Written, type WrittenQuestion } from './check';
 import { QUESTIONS_PER_MOCK, REGISTRY_PATH, type WorkList } from './scan';
 
 /**
@@ -10,6 +11,8 @@ import { QUESTIONS_PER_MOCK, REGISTRY_PATH, type WorkList } from './scan';
  *
  *   tsx prisma/pipeline/apply.ts <worklist.json> <written.json>...
  *
+ * - a new mock is marked like the real exam: questions 1-30 one mark, 31-40 three, 41-50 four (the two case studies);
+ *   100 in all;
  * - top-ups are appended to the end of the existing mock's `questions` (sync-content then adds them on live
  *   databases) and its `minutes` becomes 60;
  * - new mocks go to seed-data/auto/<profession>.ts (one file per job, collected by seed-data/auto/index.ts);
@@ -25,10 +28,13 @@ const SOURCES = join(here, '..', 'content-revisions', 'question-sources.json');
 const MINUTES = 120;
 
 const lit = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n')}'`;
-const qText = (q: WrittenQuestion, indent: string) =>
+const qText = (q: WrittenQuestion, indent: string, marking?: { marks: number; caseKey?: string }) =>
   `${indent}{ section: ${lit(q.section)}, topic: ${lit(q.topic)}, stem: ${lit(q.stem)},\n` +
   `${indent}  options: [${q.options.map(lit).join(', ')}], correct: ${q.correct},\n` +
-  `${indent}  explanation: ${lit(q.explanation)} }`;
+  `${indent}  explanation: ${lit(q.explanation)}${marking ? `, marks: ${marking.marks}${marking.caseKey ? `, caseKey: ${lit(marking.caseKey)}` : ''}` : ''} }`;
+
+/** Real-exam marking by question number (0-based): 1 mark for 1-30, 3 for 31-40, 4 for the case studies 41-50. */
+const marksFor = (i: number) => (i < 30 ? 1 : i < CASE_START ? 3 : 4);
 
 type Edit = { start: number; end: number; text: string };
 const prop = (o: ts.ObjectLiteralExpression, n: string) =>
@@ -120,9 +126,12 @@ export function applyWritten(work: WorkList, written: Written[]) {
         `    summary: ${lit(m.summary)},`,
         `    free: ${m.free === true}, difficulty: 'STANDARD', minutes: ${MINUTES},`,
         `    jobPostedAt: ${lit(job.jobPostedAt)}, jobDeadlineAt: ${lit(job.jobDeadlineAt)},`,
-        `    sections: [${m.sections.map((s) => `{ name: ${lit(s)} }`).join(', ')}],`,
+        `    sections: [${[...m.sections.map((s) => `{ name: ${lit(s)} }`), `{ name: ${lit(CASE_SECTION)}, label: 'Case study' }`].join(', ')}],`,
+        '    cases: [',
+        ...(m.cases ?? []).map((c, ci) => `      { key: 'case${ci + 1}', title: ${lit(c.title)}, passage: [${c.passage.map(lit).join(', ')}], tables: [], notes: [] },`),
+        '    ],',
         '    questions: [',
-        `${m.questions.map((q) => qText(q, '      ')).join(',\n')},`,
+        `${m.questions.map((q, i) => qText(q, '      ', { marks: marksFor(i), caseKey: q.case === undefined ? undefined : `case${q.case + 1}` })).join(',\n')},`,
         '    ],',
         '  },',
       ].join('\n');

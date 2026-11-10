@@ -23,7 +23,7 @@ const ruleRoot = (abs: string) => `//${abs.replace(/\\/g, '/').replace(/^([A-Za-
 
 function prompt(job: WorkJob, worklistPath: string, folder: string): string {
   const tasks = [
-    ...job.newMocks.map((m) => `- NEW mock "${m.slug}", title "${m.title}", free: ${m.free}: exactly ${QUESTIONS_PER_MOCK} questions, 3–4 sections of at least 8.`),
+    ...job.newMocks.map((m) => `- NEW mock "${m.slug}", title "${m.title}", free: ${m.free}: exactly ${QUESTIONS_PER_MOCK} questions: questions 1–40 in 3–4 sections of at least 8, then questions 41–50 as two case studies of five questions each (see the brief).`),
     ...job.topups.map((t) => `- TOP UP "${t.slug}" with exactly ${t.need} questions, using only these sections: ${t.sections.map((s) => `"${s}"`).join(', ')}.`),
   ];
   return [

@@ -19,9 +19,15 @@ describe('real past-paper questions in the Executive Secretary, Economic Develop
         expect(t.questions, t.slug).toHaveLength(50);
         const seed = seedBySlug.get(t.slug);
         if (!seed) continue;
-        for (const s of t.sections) {
-          expect(t.questions.filter((q) => q.section === s.name).length, `${t.slug} / ${s.name}`).toBe(seed.questions.filter((q) => q.section === s.name).length);
+        // Ten questions move into the two case studies (see exam-structure); every other section keeps its size.
+        let moved = 0;
+        for (const s of t.sections.filter((x) => x.name !== 'Case studies')) {
+          const before = seed.questions.filter((q) => q.section === s.name).length;
+          const after = t.questions.filter((q) => q.section === s.name).length;
+          expect(after, `${t.slug} / ${s.name}`).toBeLessThanOrEqual(before);
+          moved += before - after;
         }
+        expect(moved, `${t.slug} moved into case studies`).toBe(t.questions.filter((q) => q.section === 'Case studies').length);
       }
     }
   });
