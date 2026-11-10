@@ -118,6 +118,8 @@ export async function buildResult(ctx: Ctx, a: AttemptWithTest, reviewFirstLimit
     incorrectCount: incorrect,
     // Guests are offered "Save my result"; signed-in users already have it.
     isGuest: !a.userId,
+    // The candidate's optional feedback on this exam (null until they send some).
+    feedback: await prisma.examFeedback.findUnique({ where: { attemptId: a.id }, select: { rating: true, comment: true } }),
     canPractice: topics.some((t) => t.weak),
     // Edge states of the results screen.
     edge: {

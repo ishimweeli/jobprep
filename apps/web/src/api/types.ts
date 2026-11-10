@@ -542,6 +542,8 @@ export interface ResultResponse {
   reviewFirst: ReviewFirstItem[];
   incorrectCount: number;
   isGuest: boolean;
+  /** The candidate's optional feedback on this exam, once sent. */
+  feedback?: { rating: number; comment: string | null } | null;
   canPractice: boolean;
   edge?: { noneAnswered: boolean; perfect: boolean; noWeakAreas: boolean; allTopicsStrong: boolean };
 }

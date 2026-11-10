@@ -30,6 +30,7 @@ const ImportPage = page(() => import('./features/exams/ImportPage'), 'ImportPage
 const CatalogPage = page(() => import('./features/exams/CatalogPage'), 'CatalogPage');
 const CasePage = page(() => import('./features/exams/CasePage'), 'CasePage');
 const ReportsPage = page(() => import('./features/exams/ReportsPage'), 'ReportsPage');
+const FeedbackPage = page(() => import('./features/exams/FeedbackPage'), 'FeedbackPage');
 const RequestsPage = page(() => import('./features/exams/RequestsPage'), 'RequestsPage');
 const WaitingListPage = page(() => import('./features/countries/WaitingListPage'), 'WaitingListPage');
 
@@ -97,6 +98,7 @@ export default function AdminApp() {
             <Route path="exams/import" element={<ImportPage />} />
             <Route path="exams/catalog" element={<CatalogPage />} />
             <Route path="exams/reports" element={<ReportsPage />} />
+            <Route path="exams/feedback" element={<FeedbackPage />} />
             <Route path="exams/requests" element={<RequestsPage />} />
             <Route path="exams/:testId" element={<ExamsPage />} />
             <Route path="exams/:testId/edit" element={<MockTestFormPage />} />

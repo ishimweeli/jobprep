@@ -13,6 +13,7 @@ import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { StartPracticeLink } from '../practice/StartPracticeLink';
+import { FeedbackCard } from './FeedbackCard';
 import { useStartPractice } from '../practice/useStartPractice';
 import {
   answerText, AUTO_SUBMITTED_LINE, barHeight, deltaHeadline, historyLabel, JOBPREP_PASS_MARK, marksLabel, NOT_SAVED_BANNER, passVerdict, percentLabel, PRACTICE_NOTE, resultsFlags, resultsSummaryLine,
@@ -376,6 +377,8 @@ function ResultsView({ r, slug, attemptId, justSaved }: { r: ResultResponse; slu
             </Link>
           </section>
         )}
+
+        <FeedbackCard attemptId={attemptId} saved={r.feedback ?? null} />
       </main>
     </div>
   );

@@ -432,6 +432,7 @@ model User {
   accessGrants AccessGrant[]
   payments     Payment[]
   reports      QuestionReport[]
+  examFeedback ExamFeedback[]
   /// Admin access: one account can hold many roles (see UserRole). Empty for plain candidates.
   roles        UserRole[]
   grantsGiven  AccessGrant[]    @relation("GrantedBy")
@@ -512,6 +513,7 @@ model Attempt {
 
   answers AttemptAnswer[]
   reports QuestionReport[]
+  feedback ExamFeedback?
 
   @@index([userId, status])
   @@index([guestToken])
@@ -709,6 +711,25 @@ model QuestionReport {
   createdAt  DateTime     @default(now())
 
   @@index([questionId, status])
+}
+
+/// What a candidate said about a finished mock exam: an optional 1-5 rating and an optional comment (something that
+/// looked wrong, something that was missing). One per attempt; sending again replaces it.
+model ExamFeedback {
+  id          String   @id @default(cuid())
+  attemptId   String   @unique
+  attempt     Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  mockTestId  String
+  countryCode String
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([countryCode, createdAt])
+  @@index([mockTestId])
 }
 
 // ───────────────────────── Admin ─────────────────────────

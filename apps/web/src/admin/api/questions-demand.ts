@@ -111,3 +111,18 @@ export async function downloadCsv(url: string, fallbackName: string): Promise<st
   setTimeout(() => URL.revokeObjectURL(href), 1000);
   return name;
 }
+
+// ───────────────────────── Exam feedback (the optional rating and comment candidates send after an exam)
+
+export interface FeedbackRow {
+  id: string; rating: number; comment: string | null; createdAt: string; countryCode: string;
+  mockTest: { id: string; title: string }; user: { name: string; email: string } | null;
+}
+export interface FeedbackPage {
+  total: number; page: number;
+  summary: { count: number; average: number | null; byRating: { rating: number; count: number }[] };
+  results: FeedbackRow[];
+}
+export const feedbackKey = (q: Record<string, unknown>) => ['admin', 'feedback', q] as const;
+export const getFeedback = (q: { country?: string; withComment?: boolean; page?: number; pageSize?: number }) =>
+  api<FeedbackPage>('/feedback', { query: { country: q.country, withComment: q.withComment ? '1' : undefined, page: q.page, pageSize: q.pageSize } });

@@ -210,5 +210,28 @@ export function attemptsRouter(ctx: Ctx) {
     res.status(201).json({ ok: true });
   });
 
+  /**
+   * Optional feedback after a finished exam: a 1-5 rating and, if they want, a comment. Only on their own finished attempt;
+   * sending again replaces the earlier answer. The rating is what the candidate chose, nothing is derived from it.
+   */
+  router.post('/attempts/:id/feedback', async (req, res) => {
+    const { rating, comment } = z.object({
+      rating: z.number().int().min(1).max(5),
+      comment: z.string().trim().max(1000).optional(),
+    }).parse(req.body);
+    const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
+    await finalizeIfExpired(ctx, attempt.id);
+    const fresh = await getOwnedAttempt(ctx, attempt.id, viewerFromReq(req));
+    assertFinished(fresh);
+    const data = { rating, comment: comment || null };
+    const saved = await prisma.examFeedback.upsert({
+      where: { attemptId: fresh.id },
+      create: { attemptId: fresh.id, userId: fresh.userId, mockTestId: fresh.mockTestId, countryCode: fresh.countryCode, ...data },
+      update: data,
+      select: { rating: true, comment: true },
+    });
+    res.status(201).json({ feedback: saved });
+  });
+
   return router;
 }

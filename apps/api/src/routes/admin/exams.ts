@@ -659,6 +659,35 @@ export function adminExamsRouter(ctx: Ctx) {
     res.status(201).json({ dryRun: false, created: report.valid.length, ...summary(report) });
   });
 
+  // ───────────────────────── Exam feedback (the optional rating and comment after a finished exam)
+
+  router.get('/feedback', requirePermission('exams:read'), async (req, res) => {
+    const f = pageSchema.extend({ country: z.string().length(2).optional(), withComment: z.enum(['1']).optional() }).parse(req.query);
+    const codes = countryCodes(req.admin!, f.country);
+    const where: Prisma.ExamFeedbackWhereInput = { countryCode: inCodes(codes), ...(f.withComment && { comment: { not: null } }) };
+    const scope: Prisma.ExamFeedbackWhereInput = { countryCode: inCodes(codes) };
+    const [total, rows, stats, byRating] = await Promise.all([
+      prisma.examFeedback.count({ where }),
+      prisma.examFeedback.findMany({
+        where, orderBy: { createdAt: 'desc' }, skip: (f.page - 1) * f.pageSize, take: f.pageSize,
+        include: { user: { select: { name: true, email: true } }, attempt: { select: { mockTest: { select: { id: true, title: true } } } } },
+      }),
+      prisma.examFeedback.aggregate({ where: scope, _avg: { rating: true }, _count: { _all: true } }),
+      prisma.examFeedback.groupBy({ by: ['rating'], where: scope, _count: { _all: true } }),
+    ]);
+    res.json({
+      total, page: f.page,
+      summary: {
+        count: stats._count._all, average: stats._avg.rating === null ? null : Math.round(stats._avg.rating * 10) / 10,
+        byRating: [1, 2, 3, 4, 5].map((r) => ({ rating: r, count: byRating.find((x) => x.rating === r)?._count._all ?? 0 })),
+      },
+      results: rows.map((r) => ({
+        id: r.id, rating: r.rating, comment: r.comment, createdAt: r.createdAt, countryCode: r.countryCode,
+        mockTest: r.attempt.mockTest, user: r.user ? { name: r.user.name, email: r.user.email } : null,
+      })),
+    });
+  });
+
   // ───────────────────────── Candidate reports
 
   router.get('/reports', requirePermission('exams:read'), async (req, res) => {

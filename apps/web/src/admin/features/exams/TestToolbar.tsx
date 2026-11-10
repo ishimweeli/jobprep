@@ -44,6 +44,7 @@ export function ExamsHeaderActions({ testId }: { testId?: string; phone?: boolea
       {hint ? <Btn whyDisabled={hint}>Import questions (CSV)</Btn> : <LinkButton to={importTo}>Import questions (CSV)</LinkButton>}
       <LinkButton to="/admin/exams/catalog">Categories and topics</LinkButton>
       <LinkButton to="/admin/exams/reports">Reported questions</LinkButton>
+      <LinkButton to="/admin/exams/feedback">Exam feedback</LinkButton>
       <LinkButton to="/admin/exams/requests">Exam requests</LinkButton>
       {hint ? <Btn kind="primary" whyDisabled={hint}>+ New mock test</Btn> : <LinkButton to="/admin/exams/new" kind="primary">+ New mock test</LinkButton>}
     </div>

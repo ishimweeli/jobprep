@@ -26,6 +26,10 @@ export const saveAnswers = (id: string, changes: AnswerChangeDto[], keepalive = 
 export const submitAttempt = (id: string, changes: AnswerChangeDto[] = []) =>
   api<SubmitResponse>(`/attempts/${encodeURIComponent(id)}/submit`, { method: 'POST', body: changes.length > 0 ? { changes } : {} });
 
+/** Optional rating (1-5) and comment about a finished exam. Sending again replaces the earlier answer. */
+export const sendFeedback = (id: string, body: { rating: number; comment?: string }) =>
+  api<{ feedback: { rating: number; comment: string | null } }>(`/attempts/${encodeURIComponent(id)}/feedback`, { method: 'POST', body });
+
 export const getResult = (id: string) => api<ResultResponse>(`/attempts/${encodeURIComponent(id)}/result`);
 export const getReview = (id: string, filter: ReviewFilter, lang?: string) =>
   api<ReviewResponse>(`/attempts/${encodeURIComponent(id)}/review`, { query: { filter, lang: lang && lang !== 'en' ? lang : undefined } });
