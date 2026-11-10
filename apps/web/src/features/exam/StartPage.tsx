@@ -5,12 +5,14 @@ import { attemptKeys, startAttempt } from '../../api/attempts';
 import { ApiError } from '../../api/client';
 import { ErrorState, Loader } from '../../components/states';
 import { addGuestToken } from '../../lib/guestTokens';
+import { signUpPath } from '../../lib/next';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 
 /**
  * Route `/:country/tests/:slug/start`. Starts the test (or resumes the running attempt), keeps a guest's secret
- * token on this device, then opens `/:country/exam/:attemptId`. Free tests need no account.
+ * token on this device, then opens `/:country/exam/:attemptId`. Every exam needs an account: a guest is sent to sign up
+ * and brought straight back here to start.
  */
 export function StartPage() {
   useDocumentTitle('Starting your test');
@@ -42,6 +44,10 @@ export function StartPage() {
       (e: unknown) => {
         if (!alive.current) return;
         const err = e instanceof ApiError ? e : new ApiError(0, 'network_error');
+        if (err.code === 'account_required') {
+          navigate(signUpPath(countryPath(slug, 'tests', testSlug, 'start')), { replace: true });
+          return;
+        }
         // A guest tapping a paid test sees "This test is part of Full Access" (GuestPaid.dc) on its details page.
         if (err.code === 'sign_in_required') {
           navigate(`${countryPath(slug, 'tests', testSlug)}?gate=paid`, { replace: true });

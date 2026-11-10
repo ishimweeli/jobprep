@@ -14,7 +14,7 @@ import { countryPath, useActiveCountrySlug, useCountryDetail } from '../country/
 
 const PROVIDER_COLOURS: Record<string, string> = { MTN_MOMO: '#FFCB05', AIRTEL_MONEY: '#E40000', MPESA: '#00A651' };
 
-const FREE_LIST = ['At least one sample test for every position', 'Full timer and question navigator', 'Score and answer explanations', 'No account needed to start'];
+const FREE_LIST = ['At least one sample test for every position', 'Full timer and question navigator', 'Score and answer explanations', 'Free account to start'];
 
 /** Feature list for the paid plan. Duration comes from the API, never from this file. */
 export function fullAccessFeatures(days: number): string[] {
@@ -105,7 +105,7 @@ function PricingBody({ slug, data, disclaimer, signedIn }: { slug: string; data:
             <p className="m-0 text-2xl font-bold md:mt-4 md:text-[40px] md:tracking-tight">{data.free.priceLabel ?? 'Free'}</p>
           </div>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px] text-ink-2 md:gap-2.5 md:text-base">
-            {FREE_LIST.filter((f) => !signedIn || !/No account needed/.test(f)).map((f) => (
+            {FREE_LIST.filter((f) => !signedIn || !/Free account to start/.test(f)).map((f) => (
               <Feature key={f} tone="free">
                 {f}
               </Feature>

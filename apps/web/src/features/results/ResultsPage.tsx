@@ -14,6 +14,7 @@ import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { StartPracticeLink } from '../practice/StartPracticeLink';
 import { FeedbackCard } from './FeedbackCard';
+import { SignUpToSee } from './SignUpToSee';
 import { useStartPractice } from '../practice/useStartPractice';
 import {
   answerText, AUTO_SUBMITTED_LINE, barHeight, deltaHeadline, historyLabel, JOBPREP_PASS_MARK, marksLabel, NOT_SAVED_BANNER, passVerdict, percentLabel, PRACTICE_NOTE, resultsFlags, resultsSummaryLine,
@@ -32,6 +33,11 @@ export function ResultsPage() {
 
   if (q.isError && isApiError(q.error) && q.error.code === 'attempt_in_progress') {
     return <Navigate to={countryPath(slug, 'exam', attemptId)} replace />;
+  }
+  // A guest's finished exam: scored, but the marks open after sign-up or sign-in (the attempt then joins their account).
+  if (q.isError && isApiError(q.error) && q.error.code === 'sign_up_required') {
+    const mt = (q.error.details as { mockTest?: { title?: string } })?.mockTest;
+    return <SignUpToSee what="your marks" title={mt?.title} next={countryPath(slug, 'results', attemptId)} />;
   }
   // C18: the person just signed up from "Save my result" and the attempt could not be added to the account: a neutral note, no error tone.
   if (q.isError && saved && user && isApiError(q.error) && (q.error.status === 404 || q.error.status === 403)) {

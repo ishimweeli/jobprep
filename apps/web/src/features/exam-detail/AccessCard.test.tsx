@@ -33,10 +33,10 @@ const base: ExamDetail = {
   inProgress: null,
 };
 
-const renderCard = (exam: ExamDetail) =>
+const renderCard = (exam: ExamDetail, signedIn = false) =>
   render(
     <MemoryRouter>
-      <AccessCard view={accessView(exam, 'ke')} />
+      <AccessCard view={accessView(exam, 'ke', { signedIn })} />
     </MemoryRouter>,
   );
 
@@ -74,13 +74,23 @@ describe('exam access card', () => {
     expect(screen.getByRole('link', { name: 'Try the free 6-question sample' })).toHaveAttribute('href', '/ke/tests/accountant-free-sample/start');
   });
 
-  it('free test: Get started, no account needed', () => {
+  it('free test for a guest: Sign up free to start (then straight into the exam), with a sign-in link', () => {
     const exam = { ...base, isFree: true, access: { ...base.access, state: 'FREE' as const, canStart: true, needsFullAccess: false }, pricing: null };
-    expect(accessView(exam, 'ke').startPath).toBe('/ke/tests/accountant-mock-1/start');
+    const v = accessView(exam, 'ke');
+    expect(v.startPath).toBe('/ke/tests/accountant-mock-1/start');
+    expect(v.needsAccount).toBe(true);
     renderCard(exam);
-    expect(screen.getByRole('link', { name: 'Get started' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Sign up free to start' })).toHaveAttribute('href', '/sign-up?next=' + encodeURIComponent('/ke/tests/accountant-mock-1/start'));
+    expect(screen.getByRole('link', { name: /Sign in/ })).toHaveAttribute('href', '/sign-in?next=' + encodeURIComponent('/ke/tests/accountant-mock-1/start'));
+    expect(screen.queryByRole('link', { name: 'Get started' })).not.toBeInTheDocument();
     expect(screen.getByText('Free')).toBeInTheDocument();
-    expect(screen.getByText(/No account needed/)).toBeInTheDocument();
+  });
+
+  it('free test when signed in: Get started goes straight to the exam', () => {
+    const exam = { ...base, isFree: true, access: { ...base.access, state: 'FREE' as const, canStart: true, needsFullAccess: false }, pricing: null };
+    expect(accessView(exam, 'ke', { signedIn: true }).needsAccount).toBe(false);
+    renderCard(exam, true);
+    expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/ke/tests/accountant-mock-1/start');
   });
 
   it('granted test shows days left from the API', () => {

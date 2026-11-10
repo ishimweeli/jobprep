@@ -70,7 +70,7 @@ export function SignUpPage() {
 
   return (
     <AuthFrame homeTo={countryPath(getStoredCountry() ?? 'rw')} backHome>
-      <AuthHeading title="Create your account">Free to start. Free sample tests need no account at all.</AuthHeading>
+      <AuthHeading title="Create your account">Free to start. Your marks, answers and progress are saved to your account.</AuthHeading>
       {paidTitle && <PaidNote>{signUpPaidText(paidTitle)}</PaidNote>}
       <AuthCard onSubmit={submit}>
         {googleNoAccount && <AlertBox title={GOOGLE_NO_ACCOUNT.title} body={GOOGLE_NO_ACCOUNT.body} />}

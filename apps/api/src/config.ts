@@ -36,6 +36,8 @@ const schema = z.object({
   MAIL_STARTTLS: bool,
   MAIL_FROM_ADDRESS: z.string().default(''),
   MAIL_FROM_NAME: z.string().default('JobPrep'),
+  /** Nobody can start a full exam without an account, and a guest's old finished attempt shows its marks and review only after they sign up. */
+  REQUIRE_ACCOUNT: z.enum(['true', 'false']).default('true').transform((v) => v === 'true'),
   ENABLE_TEST_ENDPOINTS: bool,
   /** Per-IP rate limits. Default: on in production, off elsewhere (the e2e suites make many sign-ups from one IP). */
   RATE_LIMIT_ENABLED: z.enum(['true', 'false']).optional().transform((v) => (v === undefined ? undefined : v === 'true')),

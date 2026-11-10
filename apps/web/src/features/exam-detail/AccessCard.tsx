@@ -1,5 +1,7 @@
 import type { ExamDetail } from '../../api/types';
 import { ActionLink, buttonClasses } from '../../components/Button';
+import { Link } from 'react-router-dom';
+import { signInPath, signUpPath } from '../../lib/next';
 import { ROUTES_READY } from '../../lib/routesReady';
 import { countryPath } from '../country/hooks';
 
@@ -30,9 +32,13 @@ export interface AccessView {
   /** Locked, but the country has no sellable price: no purchase button is shown. */
   canBuy: boolean;
   getFullAccessLabel: string | null;
+  /** A guest cannot start an exam: the button says "Sign up free to start" and goes to sign-up, then straight into the exam. */
+  needsAccount: boolean;
+  signUpTo: string;
+  signInTo: string;
 }
 
-/** `signedIn` removes the guest-only "No account needed" note: a signed-in person already has one. */
+/** `signedIn` false: starting needs an account, so the start button becomes "Sign up free to start" (sign-up, then the exam). */
 export function accessView(exam: ExamDetail, slug: string, opts: { signedIn?: boolean } = {}): AccessView {
   const base = {
     startPath: countryPath(slug, 'tests', exam.slug, 'start'),
@@ -44,6 +50,9 @@ export function accessView(exam: ExamDetail, slug: string, opts: { signedIn?: bo
     footNote: null,
     canBuy: false,
     getFullAccessLabel: null,
+    needsAccount: false,
+    signUpTo: signUpPath(countryPath(slug, 'tests', exam.slug, 'start')),
+    signInTo: signInPath(countryPath(slug, 'tests', exam.slug, 'start')),
   };
 
   if (exam.access.state === 'FREE') {
@@ -53,7 +62,8 @@ export function accessView(exam: ExamDetail, slug: string, opts: { signedIn?: bo
       label: 'This test',
       headline: 'Free',
       note: exam.attempts === 'UNLIMITED' ? 'Unlimited attempts' : null,
-      footNote: opts.signedIn ? null : 'No account needed. Sign in afterwards to save your result.',
+      needsAccount: !opts.signedIn,
+      footNote: opts.signedIn ? null : 'A free account keeps your marks, answers and progress.',
     };
   }
   if (exam.access.state === 'GRANTED') {
@@ -118,6 +128,27 @@ function BuyButton({ view, onBuy, className, children }: { view: AccessView; onB
   );
 }
 
+/** The start action: "Get started" when signed in, otherwise sign-up (free) with a sign-in link. */
+function StartAction({ view, className, size }: { view: AccessView; className: string; size?: 'sm' | 'md' | 'lg' }) {
+  if (!view.needsAccount) {
+    return (
+      <ActionLink ready={ROUTES_READY.examStart} to={view.startPath} variant="primary" size={size} block className={className}>
+        Get started
+      </ActionLink>
+    );
+  }
+  return (
+    <>
+      <ActionLink ready to={view.signUpTo} variant="primary" size={size} block className={className}>
+        Sign up free to start
+      </ActionLink>
+      <Link to={view.signInTo} className="text-center text-[15px] font-semibold text-link hover:text-link-hover">
+        I already have an account · Sign in
+      </Link>
+    </>
+  );
+}
+
 /** Desktop sidebar card. */
 export function AccessCard({ view, onBuy }: { view: AccessView; onBuy?: () => void }) {
   return (
@@ -146,9 +177,7 @@ export function AccessCard({ view, onBuy }: { view: AccessView; onBuy?: () => vo
           )}
         </>
       ) : (
-        <ActionLink ready={ROUTES_READY.examStart} to={view.startPath} variant="primary" block className="py-[11px]">
-          Get started
-        </ActionLink>
+        <StartAction view={view} className="py-[11px]" />
       )}
       {view.footNote && <p className="m-0 text-center text-[13px] text-muted">{view.footNote}</p>}
     </div>
@@ -179,9 +208,7 @@ export function PhoneCtaBar({ view, onBuy }: { view: AccessView; onBuy?: () => v
           )}
         </>
       ) : (
-        <ActionLink ready={ROUTES_READY.examStart} to={view.startPath} variant="primary" block className={big}>
-          Get started
-        </ActionLink>
+        <StartAction view={view} className={big} />
       )}
     </div>
   );

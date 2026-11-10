@@ -91,7 +91,7 @@ const lockAttempt = (tx: Tx, id: string) => tx.$queryRaw`SELECT id FROM "Attempt
 
 export async function startAttempt(
   ctx: Ctx,
-  input: { country: Country; test: MockTest; viewer: Viewer; kind?: 'FULL' | 'PRACTICE'; questionIds?: string[] },
+  input: { country: Country; test: MockTest; viewer: Viewer; kind?: 'FULL' | 'PRACTICE'; questionIds?: string[]; requireAccount?: boolean },
 ) {
   const { prisma, now } = ctx;
   const { country, test, viewer } = input;
@@ -119,6 +119,8 @@ export async function startAttempt(
   }
 
   const kind = input.kind ?? 'FULL';
+  // Every full exam needs an account (REQUIRE_ACCOUNT): a guest is sent to sign up first and then starts it.
+  if (kind === 'FULL' && !viewer.user && input.requireAccount) throw unauthorized('account_required');
   const questionIds = input.questionIds ?? [];
   const qCount = await prisma.question.count({
     where: { status: 'PUBLISHED', ...(questionIds.length > 0 ? { id: { in: questionIds } } : { mockTestId: test.id }) },

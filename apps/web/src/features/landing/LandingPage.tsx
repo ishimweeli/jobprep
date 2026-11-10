@@ -87,11 +87,11 @@ export function LandingPage() {
               {data?.psychometricPrep && <PsychometricCard slug={slug} prep={data.psychometricPrep} />}
               <p className="m-0 hidden items-center gap-2 text-[15px] text-ink-2 md:flex">
                 <Check size={18} strokeWidth={2.4} className="text-correct" aria-hidden="true" />
-                {user ? 'Free sample tests — start any time, no payment.' : 'Free sample tests — start without an account or payment.'}
+                {user ? 'Free sample tests — start any time, no payment.' : 'Free sample tests — a free account, no payment.'}
               </p>
               <Link to={freeHref} className="flex items-center gap-2 text-[15px] font-semibold text-free no-underline hover:text-free md:hidden">
                 <Check size={18} strokeWidth={2.4} aria-hidden="true" />
-                {user ? 'Try a free sample test' : 'Try a free sample test — no account needed'}
+                {user ? 'Try a free sample test' : 'Try a free sample test'}
               </Link>
             </div>
             <HeroPreview />

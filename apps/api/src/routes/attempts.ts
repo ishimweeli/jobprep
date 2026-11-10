@@ -1,6 +1,6 @@
 import { Router, type Request } from 'express';
 import { z } from 'zod';
-import { badRequest, notFound } from '../http/errors';
+import { badRequest, HttpError, notFound } from '../http/errors';
 import type { Ctx } from '../http/context';
 import {
   buildState, finalizeIfExpired, getOwnedAttempt, listInProgress, MAX_CHANGES_PER_REQUEST,
@@ -57,7 +57,7 @@ export function attemptsRouter(ctx: Ctx) {
     });
     if (!test) throw notFound('mock_test_not_found');
 
-    const { attempt, resumed, guestToken } = await startAttempt(ctx, { country, test, viewer: viewerFromReq(req) });
+    const { attempt, resumed, guestToken } = await startAttempt(ctx, { country, test, viewer: viewerFromReq(req), requireAccount: ctx.config.REQUIRE_ACCOUNT });
     res.status(resumed ? 200 : 201).json({
       attemptId: attempt.id,
       resumed,
@@ -137,12 +137,23 @@ export function attemptsRouter(ctx: Ctx) {
 
   // ───────────────────────── After the exam
 
+  /**
+   * A guest's finished full exam is scored but not shown: the marks and the review open once they have an account (signing
+   * up or in with the same browser attaches the attempt to it). Practice sets stay open: they show answers as you go.
+   */
+  const lockedForGuest = (a: { userId: string | null; kind: string; mockTest: { title: string; slug: string; countryCode: string } }) => {
+    if (ctx.config.REQUIRE_ACCOUNT && !a.userId && a.kind === 'FULL') {
+      throw new HttpError(403, 'sign_up_required', { mockTest: { title: a.mockTest.title, slug: a.mockTest.slug, countryCode: a.mockTest.countryCode } });
+    }
+  };
+
   /** Score, counts, per-topic performance, comparison with the previous attempt, "review these first". */
   router.get('/attempts/:id/result', async (req, res) => {
     const attempt = await getOwnedAttempt(ctx, String(req.params.id), viewerFromReq(req));
     await finalizeIfExpired(ctx, attempt.id);
     const fresh = await getOwnedAttempt(ctx, attempt.id, viewerFromReq(req));
     assertFinished(fresh);
+    lockedForGuest(fresh);
     res.json(await buildResult(ctx, fresh));
   });
 
@@ -154,6 +165,7 @@ export function attemptsRouter(ctx: Ctx) {
     await finalizeIfExpired(ctx, attempt.id);
     const fresh = await getOwnedAttempt(ctx, attempt.id, viewerFromReq(req));
     assertFinished(fresh);
+    lockedForGuest(fresh);
     const review = await buildReview(ctx, fresh, filter);
     // The language note must cover the whole attempt, not just the filtered items: overlay every question of the grid via the items we hold.
     const language = await overlayLanguage(prisma, lang, { questions: review.items, cases: review.cases });

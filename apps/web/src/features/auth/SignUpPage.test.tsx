@@ -54,7 +54,7 @@ describe('sign-up screen (SignUp.dc)', () => {
     server();
     renderSignUp();
     expect(await screen.findByRole('heading', { name: 'Create your account' })).toBeInTheDocument();
-    expect(screen.getByText('Free to start. Free sample tests need no account at all.')).toBeInTheDocument();
+    expect(screen.getByText('Free to start. Your marks, answers and progress are saved to your account.')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
     expect(screen.getByText('Use 8 or more characters.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create account' })).toBeInTheDocument();

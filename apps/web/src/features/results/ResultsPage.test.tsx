@@ -50,6 +50,21 @@ function render(r: ResultResponse, route = '/rw/results/a1', signedIn = false) {
 }
 
 describe('results edge states (C6)', () => {
+  it('a guest whose exam is locked sees "sign up to see your marks", with sign-up and sign-in that come back to the results', async () => {
+    mockFetch((url) => {
+      if (url === '/api/attempts/a1/result') return { status: 403, body: { error: 'sign_up_required', mockTest: { title: 'Maths mock', slug: 'math', countryCode: 'RW' } } };
+      if (url === '/api/me') return { status: 401, body: { error: 'not_authenticated' } };
+      if (url === '/api/countries') return { body: { countries: [] } };
+      return undefined;
+    });
+    renderWithProviders(<Routes><Route path="/:country/results/:attemptId" element={<ResultsPage />} /></Routes>, { route: '/rw/results/a1' });
+    expect(await screen.findByText('Your exam was submitted')).toBeInTheDocument();
+    expect(screen.getByText('Maths mock')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Sign up free to see my marks' })).toHaveAttribute('href', '/sign-up?next=' + encodeURIComponent('/rw/results/a1'));
+    expect(screen.getByRole('link', { name: /Sign in/ })).toHaveAttribute('href', '/sign-in?next=' + encodeURIComponent('/rw/results/a1'));
+    expect(screen.queryByText(/Correct/)).not.toBeInTheDocument();
+  });
+
   it('a normal full test: Practice Weak Areas, guest banner, no practice wording', async () => {
     render(result());
     expect(await screen.findByRole('link', { name: 'Save my result' })).toBeInTheDocument();

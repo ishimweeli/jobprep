@@ -20,6 +20,8 @@ export function testConfig(over: Record<string, string> = {}): Config {
     DATABASE_URL: process.env.TEST_DATABASE_URL!,
     SESSION_SECRET: 'test-secret-test-secret',
     ENABLE_TEST_ENDPOINTS: 'true',
+    // Most tests start and read exams as a guest; the account requirement has its own test that turns this on.
+    REQUIRE_ACCOUNT: 'false',
     ...over,
   });
 }

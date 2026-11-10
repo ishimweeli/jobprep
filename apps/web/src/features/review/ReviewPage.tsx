@@ -5,6 +5,7 @@ import { attemptKeys, getReview } from '../../api/attempts';
 import { isApiError } from '../../api/client';
 import type { ExamCase, ReviewFilter, ReviewItem, ReviewResponse } from '../../api/types';
 import { QueryError, Loader } from '../../components/states';
+import { SignUpToSee } from '../results/SignUpToSee';
 import { cx } from '../../lib/cx';
 import { optionLetter } from '../../lib/optionLetter';
 import { translationNote, useLocale, useT } from '../../lib/i18n';
@@ -30,6 +31,9 @@ export function ReviewPage() {
   useDocumentTitle('Answer review');
 
   if (q.isError && isApiError(q.error) && q.error.code === 'attempt_in_progress') return <Navigate to={countryPath(slug, 'exam', attemptId)} replace />;
+  if (q.isError && isApiError(q.error) && q.error.code === 'sign_up_required') {
+    return <SignUpToSee what="your answers and explanations" next={countryPath(slug, 'review', attemptId)} />;
+  }
   if (q.isError) {
     return (
       <main id="main-content" className="mx-auto w-full max-w-[1200px] px-4 py-8 md:px-6">
