@@ -55,13 +55,16 @@ describe('country config (price and currency come from the database)', () => {
 });
 
 describe('seed data invariants (business rules)', () => {
-  it('every Rwanda category has at least one published free sample test', async () => {
+  it('every Rwanda category that has tests has at least one published free sample test', async () => {
     const cats = await prisma.category.findMany({
       where: { countryCode: 'RW' },
-      include: { mockTests: { where: { status: 'PUBLISHED', isFree: true } } },
+      include: { mockTests: { where: { status: 'PUBLISHED' }, select: { isFree: true } } },
     });
-    expect(cats).toHaveLength(6);
-    for (const c of cats) expect(c.mockTests.length, `${c.name} needs a free sample`).toBeGreaterThan(0);
+    expect(cats).toHaveLength(7);
+    // The small test catalogue has no licensing mocks; a category without tests is hidden in the catalogue.
+    for (const c of cats.filter((x) => x.mockTests.length > 0)) {
+      expect(c.mockTests.filter((t) => t.isFree).length, `${c.name} needs a free sample`).toBeGreaterThan(0);
+    }
   });
 
   it('never invents a pass mark', async () => {

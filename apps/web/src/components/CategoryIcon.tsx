@@ -1,4 +1,4 @@
-import { Building2, Calculator, ClipboardList, GraduationCap, Landmark, LayoutGrid, Monitor, type LucideIcon } from 'lucide-react';
+import { Award, Building2, Calculator, ClipboardList, GraduationCap, Landmark, LayoutGrid, Monitor, type LucideIcon } from 'lucide-react';
 
 /** Category icon names come from the API (`category.icon`); unknown names fall back to a grid. */
 const ICONS: Record<string, LucideIcon> = {
@@ -9,6 +9,7 @@ const ICONS: Record<string, LucideIcon> = {
   calculator: Calculator,
   'clipboard-list': ClipboardList,
   'layout-grid': LayoutGrid,
+  award: Award,
 };
 
 export function CategoryIcon({ name, size = 24 }: { name: string | null | undefined; size?: number }) {

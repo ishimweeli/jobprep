@@ -12,6 +12,8 @@ export const ICON_PATHS = {
   tests: 'M9 3h6v3H9z M7 5H5v16h14V5h-2 M8 11h8 M8 15h5',
   /** Interview preparation (a microphone). */
   mic: 'M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z M19 10v2a7 7 0 0 1-14 0v-2 M12 19v3 M8 22h8',
+  /** Professional licensing exams (an award rosette). */
+  license: 'M12 14a6 6 0 1 0 0-12 6 6 0 0 0 0 12z M8.2 12.9L7 22l5-3 5 3-1.2-9.1',
   /** The top bar's dark-mode toggle (a crescent moon). */
   moon: 'M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z',
 } as const;

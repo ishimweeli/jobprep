@@ -17,6 +17,25 @@ export function usesPastPapers(jobName: string): boolean {
 }
 
 /**
+ * Licensing exams whose first mocks hold real questions candidates reported from earlier council exams (matched on the
+ * start of the exam name, e.g. "Nurses and Midwives Licensing Exam (NCNM)").
+ */
+const PAST_PAPER_LICENSING = ['nurses and midwives licensing exam'];
+
+export function licensingUsesPastPapers(jobName: string): boolean {
+  const n = jobName.trim().toLowerCase();
+  return PAST_PAPER_LICENSING.some((p) => n.startsWith(p));
+}
+
+/** The note for a council licensing exam (category "licensing-exams"). */
+export function licensingSourceLine(jobName: string): string {
+  if (licensingUsesPastPapers(jobName)) {
+    return `The first ${jobName} mocks are mostly made of real questions that candidates reported from earlier council licensing exams. We checked each answer against current clinical guidance and corrected it where the reported answer was wrong. The later mocks are practice questions we wrote in the same style, on the exam's subject areas. We cannot promise the same questions will appear in your exam.`;
+  }
+  return `Questions are written around the subject areas of the ${jobName}. They are practice questions, not real or past exam papers.`;
+}
+
+/**
  * Why a candidate can trust these questions, and what they are not. It only says what is true of the content:
  * no claim of expert reviewers or of a match with the real exam, and "real questions" only for the jobs that have them.
  */
@@ -29,7 +48,7 @@ export function sourceLine(jobName: string, psychometric: boolean): string {
 }
 
 /** The note on a job page: where the questions come from, with a way to check the official adverts. */
-export function ExamSourceNote({ jobName, psychometric, countrySlug }: { jobName: string; psychometric?: boolean; countrySlug: string }) {
+export function ExamSourceNote({ jobName, psychometric, licensing, countrySlug }: { jobName: string; psychometric?: boolean; licensing?: boolean; countrySlug: string }) {
   return (
     <section aria-labelledby="source-note" className="flex items-start gap-3 rounded-card border border-border bg-surface p-3.5 md:p-4">
       <Info size={18} strokeWidth={2} aria-hidden="true" className="mt-0.5 flex-none text-brand" />
@@ -38,10 +57,12 @@ export function ExamSourceNote({ jobName, psychometric, countrySlug }: { jobName
           Where these questions come from
         </h2>
         <p className="m-0 text-sm leading-normal text-ink-2">
-          {sourceLine(jobName, !!psychometric)} JobPrep is independent of MIFOTRA and of the hiring institution.
+          {licensing
+            ? `${licensingSourceLine(jobName)} JobPrep is independent of the council that sets this exam.`
+            : `${sourceLine(jobName, !!psychometric)} JobPrep is independent of MIFOTRA and of the hiring institution.`}
         </p>
         <p className="m-0 flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold">
-          {countrySlug === 'rw' && (
+          {countrySlug === 'rw' && !licensing && (
             <a href={MIFOTRA_PORTAL} {...NEW_TAB} className="link inline-flex items-center gap-1">
               Official job adverts on MIFOTRA
               <ExternalLink size={13} strokeWidth={2.2} aria-hidden="true" />

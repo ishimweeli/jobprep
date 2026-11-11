@@ -6,7 +6,8 @@ import { resetAndSeed, testPrisma } from '../helpers';
 const prisma = testPrisma();
 const SLUG = 'sedo-full-mock-3';
 
-beforeAll(() => resetAndSeed(prisma, { full: true }));
+// The full production catalogue (with the licensing mocks) takes over a minute to seed.
+beforeAll(() => resetAndSeed(prisma, { full: true }), 300_000);
 afterAll(() => prisma.$disconnect());
 
 describe('restructure-content (real-exam marking and case studies on a live mock)', () => {

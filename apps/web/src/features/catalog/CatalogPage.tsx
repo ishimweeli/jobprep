@@ -94,7 +94,8 @@ export function CatalogPage() {
   // job page is also a POP landing here, so it's excluded too — otherwise Back would just bounce right back.
   const isBackNavigation = navigationType === 'POP' && hasPushedThisSession();
   if (user && (sessionLoading || preferredLoading)) return <Loader label="Loading…" />;
-  if (preferredSlug && !isBackNavigation) return <Navigate to={countryPath(slug, 'tests', 'jobs', preferredSlug)} replace />;
+  // A category opened on purpose (e.g. "Licensing exams" in the nav) shows that category, not the saved job.
+  if (preferredSlug && !isBackNavigation && !filters.category) return <Navigate to={countryPath(slug, 'tests', 'jobs', preferredSlug)} replace />;
 
   return (
     <div>

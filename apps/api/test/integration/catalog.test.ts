@@ -61,12 +61,12 @@ describe('country gating', () => {
 });
 
 describe('landing', () => {
-  it('returns the six categories with Teaching positions first and featured', async () => {
+  it('returns the seven categories with Teaching positions first and featured', async () => {
     const res = await request(app).get('/api/countries/RW/landing');
     expect(res.status).toBe(200);
     expect(res.body.categories.map((c: { slug: string }) => c.slug)).toEqual([
       'teaching-positions', 'school-leadership', 'government-administration',
-      'accounting-finance', 'procurement', 'other-professional',
+      'accounting-finance', 'procurement', 'other-professional', 'licensing-exams',
     ]);
     expect(res.body.categories[0]).toMatchObject({ featured: true, mockTestCount: 4 });
     expect(res.body.featuredCategory.slug).toBe('teaching-positions');
@@ -187,7 +187,7 @@ describe('catalog search and filters', () => {
 
   it('exposes facets for the filter UI, scoped to Rwanda', async () => {
     const { facets } = await list();
-    expect(facets.categories).toHaveLength(6);
+    expect(facets.categories).toHaveLength(7);
     expect(facets.difficulties.sort()).toEqual(['CHALLENGING', 'FOUNDATION', 'STANDARD']);
     expect(facets.languages).toEqual(['en']);
     const subjectSlugs = facets.subjects.map((s: { slug: string }) => s.slug);

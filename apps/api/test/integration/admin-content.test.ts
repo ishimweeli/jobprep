@@ -38,7 +38,7 @@ const auditFor = (action: string, entityId?: string) => prisma.auditLog.findMany
 describe('exams list, detail and options', () => {
   it('the list shows each test with its counts, plus the header totals from the design', async () => {
     const b = (await editor.get('/api/admin/exams?pageSize=100')).body;
-    expect(b.totals).toMatchObject({ mockTests: 12, categories: 6 });
+    expect(b.totals).toMatchObject({ mockTests: 12, categories: 7 });
     expect(b.totals.questions).toBe(await prisma.question.count({ where: { mockTest: { countryCode: 'RW' } } }));
     const maths = b.results.find((r: { slug: string }) => r.slug === MATHS);
     expect(maths).toMatchObject({ title: 'Secondary Mathematics Teacher (S1–S3) — Mock 1', isFree: true, status: 'PUBLISHED', questionCount: 20, durationMinutes: 30, openReports: 0, category: { name: 'Teaching positions' } });
@@ -68,7 +68,7 @@ describe('exams list, detail and options', () => {
 
   it('gives the form its dropdown data: categories with topics, professions, authorities', async () => {
     const o = (await editor.get('/api/admin/catalog-options')).body;
-    expect(o.categories).toHaveLength(6);
+    expect(o.categories).toHaveLength(7);
     expect(o.categories[0].topics.length).toBeGreaterThan(0);
     expect(o.professions.find((p: { name: string }) => p.name === 'Accountant (Public Institution)')).toMatchObject({ examId: expect.any(String) });
     expect(o.authorities.map((a: { shortName: string }) => a.shortName)).toEqual(['MIFOTRA', 'REB']);

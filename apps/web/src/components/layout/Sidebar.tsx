@@ -1,7 +1,8 @@
 import { ChevronDown } from 'lucide-react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Logo } from '../Logo';
-import { StrokeIcon, type IconName } from '../StrokeIcon';
+import { StrokeIcon } from '../StrokeIcon';
+import { primaryNav } from './navItems';
 import { cx } from '../../lib/cx';
 import { countryPath, useActiveCountry } from '../../features/country/hooks';
 import { useSession } from '../../features/auth/session';
@@ -25,13 +26,8 @@ export function Sidebar() {
   const name = country?.name ?? code;
 
   const { session } = useSession();
-  const items: { to: string; label: string; icon: IconName; end?: boolean }[] = [
-    { to: countryPath(slug, 'progress'), label: 'Dashboard', icon: 'progress' },
-    { to: countryPath(slug, 'tests'), label: 'Mock tests', icon: 'tests' },
-    ...(session?.features?.interviewPrep ? [{ to: countryPath(slug, 'interview'), label: 'Interview prep', icon: 'mic' as const }] : []),
-    { to: countryPath(slug, 'pricing'), label: 'Pricing', icon: 'access' },
-    { to: '/account', label: 'Account', icon: 'user' },
-  ];
+  const { pathname, search } = useLocation();
+  const items = primaryNav(slug, { interviewPrep: session?.features?.interviewPrep });
 
   return (
     <nav
@@ -61,10 +57,14 @@ export function Sidebar() {
       <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
         {items.map((item) => (
           <li key={item.label}>
-            <NavLink to={item.to} end={item.end ?? false} className={navLink}>
+            <Link
+              to={item.to}
+              className={navLink({ isActive: item.isActive(pathname, search) })}
+              aria-current={item.isActive(pathname, search) ? 'page' : undefined}
+            >
               <StrokeIcon name={item.icon} size={18} className="flex-none" />
               {item.label}
-            </NavLink>
+            </Link>
           </li>
         ))}
       </ul>

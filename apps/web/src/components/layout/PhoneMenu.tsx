@@ -5,7 +5,8 @@ import { X } from 'lucide-react';
 import { isLocale } from '@jobprep/shared';
 import { focusableIn } from '../Dialog';
 import { Logo } from '../Logo';
-import { StrokeIcon, type IconName } from '../StrokeIcon';
+import { StrokeIcon } from '../StrokeIcon';
+import { primaryNav } from './navItems';
 import { cx } from '../../lib/cx';
 import { initials, languageOwnName } from '../../lib/format';
 import { useLocale, useOfferedLanguages, useSetLocale } from '../../lib/i18n';
@@ -83,13 +84,7 @@ export function PhoneMenu({ open, onClose }: { open: boolean; onClose: () => voi
     }
   };
 
-  const items: { to: string; label: string; icon: IconName }[] = [
-    { to: countryPath(slug, 'progress'), label: 'Dashboard', icon: 'progress' },
-    { to: countryPath(slug, 'tests'), label: 'Mock tests', icon: 'tests' },
-    ...(session?.features?.interviewPrep ? [{ to: countryPath(slug, 'interview'), label: 'Interview prep', icon: 'mic' as const }] : []),
-    { to: countryPath(slug, 'pricing'), label: 'Pricing', icon: 'access' },
-    { to: '/account', label: 'Account', icon: 'user' },
-  ];
+  const items = primaryNav(slug, { interviewPrep: session?.features?.interviewPrep });
 
   const nextLocale = () => {
     if (offered.length < 2) return;
@@ -145,10 +140,15 @@ export function PhoneMenu({ open, onClose }: { open: boolean; onClose: () => voi
         <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
           {items.map((item) => (
             <li key={item.label}>
-              <NavLink to={item.to} onClick={onClose} className={navLink}>
+              <Link
+                to={item.to}
+                onClick={onClose}
+                className={navLink({ isActive: item.isActive(location.pathname, location.search) })}
+                aria-current={item.isActive(location.pathname, location.search) ? 'page' : undefined}
+              >
                 <StrokeIcon name={item.icon} size={20} className="flex-none" />
                 {item.label}
-              </NavLink>
+              </Link>
             </li>
           ))}
         </ul>

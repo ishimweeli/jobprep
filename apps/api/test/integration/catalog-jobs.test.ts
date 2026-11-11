@@ -10,7 +10,8 @@ const app = createApp({ prisma, config: testConfig(), email: mail });
 
 // These tests are about the real job-specific catalogue (MIFOTRA postings with closing dates), so they seed all of it;
 // catalog.test.ts uses the small fixed catalogue so its counts stay put.
-beforeAll(() => resetAndSeed(prisma, { full: true }));
+// The full production catalogue (with the licensing mocks) takes over a minute to seed.
+beforeAll(() => resetAndSeed(prisma, { full: true }), 300_000);
 afterAll(() => prisma.$disconnect());
 
 describe('jobs: grouped catalog', () => {

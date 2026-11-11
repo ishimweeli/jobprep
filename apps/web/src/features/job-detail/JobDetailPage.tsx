@@ -14,6 +14,7 @@ import { ExamSourceNote } from './ExamSourceNote';
 import { JobMockTestRow } from './JobMockTestRow';
 import { PsychometricCard } from './PsychometricCard';
 import { InterviewCta } from '../interview/InterviewCta';
+import { LICENSING_CATEGORY } from '../../components/layout/navItems';
 
 /**
  * One job's page (`/:country/tests/jobs/:jobSlug`): every mock test under it. Landing here is what *picks* this
@@ -28,7 +29,7 @@ export function JobDetailPage() {
   const job = q.data;
   useDocumentTitle(
     job ? `${job.exam.name} exam preparation` : null,
-    job ? `Prepare for the ${job.exam.name} recruitment exam (${job.category.name}). ${job.totalMockTests} timed mock tests${job.freeCount > 0 ? `, ${job.freeCount} free` : ''}, with an explanation for every answer.` : null,
+    job ? `Prepare for the ${job.exam.name}${job.category.slug === LICENSING_CATEGORY ? '' : ' recruitment exam'} (${job.category.name}). ${job.totalMockTests} timed mock tests${job.freeCount > 0 ? `, ${job.freeCount} free` : ''}, with an explanation for every answer.` : null,
   );
 
   const setPreferred = useSetPreferredJob();
@@ -64,6 +65,7 @@ export function JobDetailPage() {
   const deadlineLabel = jobDeadlineLabel(job.jobDeadlineAt);
   const dates = jobDatesLine(job.jobPostedAt, job.jobDeadlineAt);
   const someLocked = job.mockTests.some((t) => t.access.state === 'LOCKED');
+  const licensing = job.category.slug === LICENSING_CATEGORY;
 
   return (
     <div className="flex flex-1 flex-col">
@@ -95,7 +97,9 @@ export function JobDetailPage() {
           <h1 className="m-0 text-[22px] font-bold leading-[1.2] tracking-[-0.02em] text-heading md:text-2xl dark:text-night-heading">{job.exam.name}</h1>
           {dates && <p className="m-0 text-sm font-semibold text-ink-2 dark:text-night-muted">MIFOTRA posting: {dates}</p>}
           <p className="m-0 max-w-[44em] text-base leading-[1.55] text-ink-2 md:text-[17px]">
-            Prepare for your recruitment exam with {plural(job.totalMockTests, 'practice test')} for this position.
+            {licensing
+              ? <>Prepare for your licensing exam with {plural(job.totalMockTests, 'practice test')} in the exam&rsquo;s format.</>
+              : <>Prepare for your recruitment exam with {plural(job.totalMockTests, 'practice test')} for this position.</>}
           </p>
         </div>
 
@@ -105,9 +109,9 @@ export function JobDetailPage() {
           ))}
         </div>
 
-        {!job.isPsychometricPrep && <InterviewCta slug={slug} jobSlug={job.exam.slug} jobName={job.exam.name} />}
-        {job.psychometricPrep && <PsychometricCard slug={slug} prep={job.psychometricPrep} />}
-        <ExamSourceNote jobName={job.exam.name} psychometric={job.isPsychometricPrep} countrySlug={slug} />
+        {!job.isPsychometricPrep && !licensing && <InterviewCta slug={slug} jobSlug={job.exam.slug} jobName={job.exam.name} />}
+        {job.psychometricPrep && !licensing && <PsychometricCard slug={slug} prep={job.psychometricPrep} />}
+        <ExamSourceNote jobName={job.exam.name} psychometric={job.isPsychometricPrep} licensing={licensing} countrySlug={slug} />
         {someLocked && <AlsoIncluded slug={slug} currentJobSlug={job.exam.slug} title="Full Access also opens" />}
       </main>
     </div>

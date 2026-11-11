@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { LICENSING_CATEGORY } from './navItems';
 import { ArrowLeft, Menu } from 'lucide-react';
 import { AccountMenu } from '../../features/account/AccountMenu';
 import { GuestMenuSheet } from './GuestMenuSheet';
@@ -26,14 +27,19 @@ export function DesktopHeader() {
   const t = useT();
   const slug = useActiveCountrySlug();
   const { user, session, isLoading } = useSession();
+  const { pathname, search } = useLocation();
+  const licensing = pathname === countryPath(slug, 'tests') && new URLSearchParams(search).get('category') === LICENSING_CATEGORY;
   return (
     <header className="hidden border-b border-border bg-surface md:block">
       <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-7 gap-y-3 px-6 py-3.5">
         <Logo to={countryPath(slug)} />
         <nav aria-label="Main" className="flex flex-1 flex-wrap gap-x-[22px] gap-y-1">
-          <NavLink to={countryPath(slug, 'tests')} end className={navLink}>
+          <Link to={countryPath(slug, 'tests')} className={navLink({ isActive: pathname === countryPath(slug, 'tests') && !licensing })} aria-current={pathname === countryPath(slug, 'tests') && !licensing ? 'page' : undefined}>
             {t('nav.mockTests')}
-          </NavLink>
+          </Link>
+          <Link to={`${countryPath(slug, 'tests')}?category=${LICENSING_CATEGORY}`} className={navLink({ isActive: licensing })} aria-current={licensing ? 'page' : undefined}>
+            Licensing exams
+          </Link>
           <NavLink to={countryPath(slug, 'pricing')} className={navLink}>
             {t('nav.pricing')}
           </NavLink>

@@ -1236,7 +1236,7 @@ describe('profile and job goal', () => {
 
   it('lists the categories of a country with test counts', async () => {
     const res = await request(app).get('/api/countries/RW/categories');
-    expect(res.body.categories).toHaveLength(6);
+    expect(res.body.categories).toHaveLength(7);
     expect(res.body.categories[0]).toMatchObject({ slug: 'teaching-positions', featured: true });
     const ke = await request(app).get('/api/countries/KE/categories');
     expect(ke.body.categories.map((c: { slug: string }) => c.slug)).toContain('county-government');

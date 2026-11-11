@@ -7,7 +7,8 @@ import { resetAndSeed, testPrisma } from '../helpers';
 const prisma = testPrisma();
 
 // The whole catalogue: this test is about content that is in seed-data but removed or re-worded on a live database.
-beforeAll(() => resetAndSeed(prisma, { full: true }));
+// The full production catalogue (with the licensing mocks) takes over a minute to seed.
+beforeAll(() => resetAndSeed(prisma, { full: true }), 300_000);
 afterAll(() => prisma.$disconnect());
 
 describe('revise-content (taking questions out of a live mock)', () => {

@@ -54,6 +54,7 @@ import {
 } from './seed-data/tests-human-capital-social-dev';
 import { PSYCHOMETRIC_PREP_MOCKS } from './seed-data/tests-psychometric-prep';
 import { AUTO_MOCKS } from './seed-data/auto';
+import { LICENSING_MOCKS } from './seed-data/licensing';
 import { applyPastPapers } from './seed-data/past-papers';
 import { applyExamStructure } from './seed-data/exam-structure';
 
@@ -109,6 +110,9 @@ const RW_CATEGORIES: CategoryDef[] = [
     description: 'Procurement officers and specialists' },
   { slug: 'other-professional', name: 'Other professional exams', icon: 'layout-grid',
     description: 'ICT, healthcare, engineering and more' },
+  // Last, so its sortOrder matches the row the 20261110300000_licensing_exams migration adds in production.
+  { slug: 'licensing-exams', name: 'Professional licensing exams', icon: 'award',
+    description: 'Council licensing exams: nurses and midwives, doctors and dentists, allied health, pharmacy' },
 ];
 
 const KE_CATEGORIES: CategoryDef[] = [
@@ -174,6 +178,9 @@ const SEED_TESTS: TestDef[] = [
 
   // Written by the daily MIFOTRA content pipeline (prisma/pipeline).
   ...AUTO_MOCKS,
+
+  // Council licensing exams (NCNM, NPC, RMDC, RAHPC): category "licensing-exams".
+  ...LICENSING_MOCKS,
 ];
 
 const ALL_TESTS: TestDef[] = applyExamStructure(applyPastPapers(SEED_TESTS));

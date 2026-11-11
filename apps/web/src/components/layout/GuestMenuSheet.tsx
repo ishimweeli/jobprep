@@ -3,6 +3,7 @@ import { countryPath, useActiveCountry } from '../../features/country/hooks';
 import { Dialog } from '../Dialog';
 import { buttonClasses } from '../Button';
 import { LanguageSwitcher } from '../LanguageSwitcher';
+import { LICENSING_CATEGORY } from './navItems';
 
 const row = 'flex min-h-[48px] items-center justify-between border-b border-soft px-1 text-base font-semibold text-ink no-underline hover:text-ink';
 
@@ -28,6 +29,9 @@ export function GuestMenuSheet({ open, onClose }: { open: boolean; onClose: () =
     >
       <Link to={countryPath(slug, 'tests')} onClick={onClose} className={row}>
         Mock tests
+      </Link>
+      <Link to={`${countryPath(slug, 'tests')}?category=${LICENSING_CATEGORY}`} onClick={onClose} className={row}>
+        Licensing exams
       </Link>
       <Link to={countryPath(slug, 'pricing')} onClick={onClose} className={row}>
         Pricing
