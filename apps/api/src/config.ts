@@ -36,6 +36,9 @@ const schema = z.object({
   MAIL_STARTTLS: bool,
   MAIL_FROM_ADDRESS: z.string().default(''),
   MAIL_FROM_NAME: z.string().default('JobPrep'),
+  /** Who is emailed when the app breaks for a user (5xx, a failing background job, a crash). Production default: the
+   * owner (the same address as the uptime monitor). `off` turns it off. Empty outside production = off. */
+  ERROR_ALERT_TO: z.string().default(''),
   /** Nobody can start a full exam without an account, and a guest's old finished attempt shows its marks and review only after they sign up. */
   REQUIRE_ACCOUNT: z.enum(['true', 'false']).default('true').transform((v) => v === 'true'),
   ENABLE_TEST_ENDPOINTS: bool,
@@ -87,6 +90,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   const cfg = parsed.data;
   cfg.RATE_LIMIT_ENABLED ??= cfg.NODE_ENV === 'production';
+  if (!cfg.ERROR_ALERT_TO && cfg.NODE_ENV === 'production') cfg.ERROR_ALERT_TO = 'ishimweeliab0@gmail.com';
+  if (cfg.ERROR_ALERT_TO === 'off') cfg.ERROR_ALERT_TO = '';
   if (cfg.NODE_ENV === 'production') {
     // Test-only endpoints must never exist in production, whatever the env file says.
     cfg.ENABLE_TEST_ENDPOINTS = false;

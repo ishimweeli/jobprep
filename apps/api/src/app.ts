@@ -26,6 +26,7 @@ import { serveWeb } from './http/static-web';
 import { FakeLlmProvider, type LlmProvider } from './interview/llm';
 import { FakeSttProvider, type SttProvider } from './interview/stt';
 import { createDataCipher } from './services/crypto';
+import { routeOf, type ErrorAlerter } from './services/error-alerts';
 
 export interface AppDeps {
   prisma: PrismaClient;
@@ -38,6 +39,8 @@ export interface AppDeps {
   /** Interview prep providers. Default: the fakes (server.ts passes the real ones). */
   llm?: LlmProvider;
   stt?: SttProvider;
+  /** Emails the owner when a request fails with a 5xx (server.ts passes it in production; none in tests). */
+  alerts?: ErrorAlerter;
 }
 
 export function createApp(deps: AppDeps) {
@@ -114,8 +117,19 @@ export function createApp(deps: AppDeps) {
     res.status(404).json({ error: 'not_found', requestId: _req.id });
   });
 
+  const alert = (req: express.Request, status: number, code: string | undefined, err: unknown) => {
+    void deps.alerts?.record({
+      where: routeOf(req.method, req.originalUrl),
+      status, code,
+      message: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+      requestId: req.id,
+      userId: req.user?.id,
+    });
+  };
   const onError: ErrorRequestHandler = (err, req, res, _next) => {
     if (err instanceof HttpError) {
+      if (err.status >= 500) alert(req, err.status, err.code, err);
       if (err.status === 429 && typeof err.extra.retryAfterSeconds === 'number') {
         res.set('Retry-After', String(err.extra.retryAfterSeconds));
       }
@@ -131,6 +145,7 @@ export function createApp(deps: AppDeps) {
     if (err instanceof SyntaxError && 'body' in err) return res.status(400).json({ error: 'invalid_json', requestId: req.id });
     if ((err as { type?: string }).type === 'entity.too.large') return res.status(413).json({ error: 'payload_too_large', requestId: req.id });
     console.error(`[${req.id}]`, err);
+    alert(req, 500, 'internal_error', err);
     // The id is what the error page shows as "Reference"; it is also in the server log line above.
     res.status(500).json({ error: 'internal_error', requestId: req.id });
   };

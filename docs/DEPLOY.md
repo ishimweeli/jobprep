@@ -94,6 +94,16 @@ again. What was already reported is kept in `~/jobprep-monitor/uptime-state.json
   `https://jobprep.nexvecta.com/api/health` if that matters.
 - Script and tests: `apps/api/prisma/monitor/uptime.ts`, `apps/api/test/unit/uptimeMonitor.test.ts`.
 
+## Error alerts (the app breaking for a user)
+
+The API itself emails `ERROR_ALERT_TO` (production default `ishimweeliab0@gmail.com`; `ERROR_ALERT_TO=off` turns it
+off) when a request fails with a 5xx, a background job (attempt, payment or interview sweep) fails, or the process
+crashes. The first error is emailed at once; more errors in the next 15 minutes come as one grouped summary. The email
+has the method and path (no query string, no body), the user id, the error, the top of the stack and the
+**Reference** the user sees on the error page: `docker logs jobprep-1 2>&1 | grep <Reference>` finds the full error.
+4xx answers (the user did something wrong) send nothing. Sent through the same `MAIL_*` account, from whichever box
+served the request. Code and tests: `apps/api/src/services/error-alerts.ts`, `apps/api/test/unit/errorAlerts.test.ts`.
+
 ## Gateway
 
 `deploy/gateway/jobprep.nginx.conf` holds the `jobprep_pool` upstream and the two server blocks.
