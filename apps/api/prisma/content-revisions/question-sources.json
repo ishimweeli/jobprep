@@ -32504,5 +32504,2025 @@
    "stem": "As a planning benchmark, the UNHCR Emergency Handbook entry on relief item distributions (21 July 2026) says to avoid requiring people to travel more than how far to reach a distribution site?",
    "source": "UNHCR Emergency Handbook, Relief item distributions (21 July 2026)"
   }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-1": [
+  {
+   "stem": "In the sentence 'She is too tired to walk home', what part of speech is the word 'too'?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (adverbs of degree); Swan, Practical English Usage (4th ed., OUP), entry too"
+  },
+  {
+   "stem": "Which of the following nouns is uncountable in standard British English?",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry advice; Oxford Advanced Learner's Dictionary, advice"
+  },
+  {
+   "stem": "In which sentence is the word 'before' used as a conjunction?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language, subordinators; Swan, Practical English Usage (4th ed., OUP), entry before"
+  },
+  {
+   "stem": "Which of the following verbs is NOT normally used in the continuous form when it has its ordinary meaning?",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry progressive (continuous) tenses: stative verbs; Quirk et al., A Comprehensive Grammar of the English Language"
+  },
+  {
+   "stem": "Choose the correct word to complete the sentence: 'Yesterday the injured player ___ on the pitch for ten minutes.'",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry lie/lay; Oxford Advanced Learner's Dictionary, lie"
+  },
+  {
+   "stem": "Complete the sentence: 'While I ___ the lesson, the headteacher knocked at the door.'",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry past continuous; Quirk et al., A Comprehensive Grammar of the English Language"
+  },
+  {
+   "stem": "Which sentence is correct in standard English?",
+   "source": "Oxford Advanced Learner's Dictionary, swim; Swan, Practical English Usage (4th ed., OUP), irregular verbs"
+  },
+  {
+   "stem": "Complete the sentence: 'We shall begin the lesson as soon as the inspector ___.'",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry future: time clauses; Quirk et al., A Comprehensive Grammar of the English Language"
+  },
+  {
+   "stem": "Which question is correct in standard written British English?",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry used to"
+  },
+  {
+   "stem": "Which noun phrase has its adjectives in the usual order in English?",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry adjectives: order; Quirk et al., A Comprehensive Grammar of the English Language"
+  },
+  {
+   "stem": "Which sentence contains a gerund?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (-ing forms); Swan, Practical English Usage (4th ed., OUP), entry -ing forms"
+  },
+  {
+   "stem": "Which of the following sentences is NOT correct?",
+   "source": "Swan, Practical English Usage (4th ed., OUP), entry reflexive pronouns; Quirk et al., A Comprehensive Grammar of the English Language"
+  },
+  {
+   "stem": "Which statement best describes the role of the teacher in the Rwandan Competence-Based Curriculum?",
+   "source": "REB English Syllabus S4-S6 (2022), 2.3.1 Role of the teacher (\"Teachers ought to become facilitators\"); REB, Curriculum Framework Pre-primary to Upper Secondary (2015)"
+  },
+  {
+   "stem": "In an English lesson, learners use the library and approved websites to collect information on a famous author, compare the sources and write a short profile. Which generic competence is MOST directly developed?",
+   "source": "REB, CBC training module (elearning.reb.rw), citing Curriculum Framework Pre-primary to Upper Secondary 2015, pp. 21-31 (competences, cross-cutting issues); REB English Syllabus S4-S6 (2022), 2.2.1 Generic competences (Research)"
+  },
+  {
+   "stem": "A teacher chooses a reading passage about a family that makes a monthly budget and saves part of its income, then asks learners to discuss it. Which cross-cutting issue is being integrated into the lesson?",
+   "source": "REB, CBC training module (elearning.reb.rw), citing Curriculum Framework Pre-primary to Upper Secondary 2015, pp. 21-31 (competences, cross-cutting issues)"
+  },
+  {
+   "stem": "A teacher chooses a comprehension text on planting trees and protecting wetlands, and learners then write a paragraph on how their school can keep its compound clean and green. Which cross-cutting issue is being integrated?",
+   "source": "REB, CBC training module (elearning.reb.rw), citing Curriculum Framework Pre-primary to Upper Secondary 2015, pp. 21-31 (competences, cross-cutting issues)"
+  },
+  {
+   "stem": "Learners read two news reports about the same event, decide which report is more reliable and give reasons for their choice. Which generic competence is MOST directly developed?",
+   "source": "REB, CBC training module (elearning.reb.rw), citing Curriculum Framework Pre-primary to Upper Secondary 2015, pp. 21-31 (competences, cross-cutting issues); REB English Syllabus S4-S6 (2022), 2.2.1 Generic competences"
+  },
+  {
+   "stem": "Which of these tasks asks learners to think at the HIGHEST level of the revised Bloom's taxonomy?",
+   "source": "Anderson and Krathwohl (eds), A Taxonomy for Learning, Teaching and Assessing (2001)"
+  },
+  {
+   "stem": "In Vygotsky's theory, the zone of proximal development is the gap between:",
+   "source": "Vygotsky, Mind in Society (1978); Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "According to constructivism, learners learn best when they:",
+   "source": "REB, Curriculum Framework Pre-primary to Upper Secondary (2015), competences and learner-centred approach; Richards and Rodgers, Approaches and Methods in Language Teaching"
+  },
+  {
+   "stem": "In the 'think-pair-share' technique, what is the correct order of steps?",
+   "source": "Lyman, F. (1981), The responsive classroom discussion (think-pair-share); REB CBC training module, techniques such as think-write-pair and share"
+  },
+  {
+   "stem": "Which of the following is NOT a feature of a learner-centred lesson?",
+   "source": "REB, Curriculum Framework Pre-primary to Upper Secondary (2015), competences and learner-centred approach"
+  },
+  {
+   "stem": "During group work, which action by the teacher is MOST consistent with the role of a facilitator?",
+   "source": "REB, Curriculum Framework Pre-primary to Upper Secondary (2015), competences and learner-centred approach"
+  },
+  {
+   "stem": "Which strategy best ensures that every learner takes part in a group task?",
+   "source": "Harmer, The Practice of English Language Teaching (group work); REB teacher guides, cooperative learning"
+  },
+  {
+   "stem": "After asking an open question, why should a teacher wait a few seconds before choosing a learner to answer?",
+   "source": "Rowe, M. B. (1974), Wait-time and rewards as instructional variables, Journal of Research in Science Teaching 11(2); Harmer, How to Teach English"
+  },
+  {
+   "stem": "Which language-teaching approach emphasises communication in meaningful contexts, using tasks such as role plays and information-gap activities?",
+   "source": "Richards and Rodgers, Approaches and Methods in Language Teaching, ch. Communicative Language Teaching"
+  },
+  {
+   "stem": "In Krashen's input hypothesis, language acquisition takes place when learners receive input that is:",
+   "source": "Krashen, Principles and Practice in Second Language Acquisition (1982)"
+  },
+  {
+   "stem": "Which comment on a learner's essay is MOST useful for improving learning?",
+   "source": "Black and Wiliam (1998), Inside the Black Box; REB syllabi, feedback to learners"
+  },
+  {
+   "stem": "Wingi wa sentensi 'Mwanafunzi mwerevu ameshinda' ni upi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "Ni nomino ipi kati ya zifuatazo HAIPO katika ngeli ya M-MI?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "Nomino 'kijana' huanza na 'ki-'. Ni sentensi ipi ina upatanisho sahihi wa kisarufi katika wingi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "Wingi wa sentensi 'Kikombe kimevunjika' ni upi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "Wingi wa sentensi 'Dirisha kubwa limevunjika' ni upi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "Wingi wa nomino 'jino' ni upi?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu, neno jino"
+  },
+  {
+   "stem": "Katika sentensi 'Huruma ya mama yangu ilitufariji', neno 'huruma' ni nomino ya aina gani?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, aina za nomino"
+  },
+  {
+   "stem": "Katika sentensi 'Kusoma kunaongeza maarifa', neno 'kusoma' ni la aina gani?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, nomino za kitenzi-jina"
+  },
+  {
+   "stem": "Ni nomino ipi kati ya zifuatazo ni nomino ya jamii?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, aina za nomino (jamii, kawaida, pekee, dhahania); TUKI, Kamusi ya Kiswahili Sanifu, neno kundi"
+  },
+  {
+   "stem": "Nomino 'jicho' iko katika ngeli ya LI-YA. Ni sentensi ipi iliyopatanishwa sahihi kisarufi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "Ni sentensi ipi HAIKUPATANISHWA sahihi kisarufi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "Ni jozi ipi ya umoja na wingi HAIKUANDIKWA sahihi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  },
+  {
+   "stem": "To begin the lesson by activating learners' prior knowledge, which activity is the most appropriate?",
+   "source": "REB, Curriculum Framework Pre-primary to Upper Secondary (2015), competences and learner-centred approach; Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "The teacher wants learners to discover the rule for forming regular past tense verbs. Which sequence follows an inductive approach?",
+   "source": "Thornbury, How to Teach Grammar (1999); Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "During a speaking activity meant to build fluency, a learner says, 'I goed to the market yesterday.' Which response is NOT appropriate?",
+   "source": "Harmer, The Practice of English Language Teaching (correcting speaking: fluency and accuracy)"
+  },
+  {
+   "stem": "The lesson objective is that learners will write a short account of a past event. Which end-of-lesson task BEST assesses this objective?",
+   "source": "REB, Curriculum Framework Pre-primary to Upper Secondary (2015), competences and learner-centred approach; REB syllabi, assessment of learning objectives"
+  },
+  {
+   "stem": "Which of the following verbs has the same form in its past simple and its past participle in standard British English?",
+   "source": "Oxford Advanced Learner's Dictionary; Swan, Practical English Usage (4th ed., OUP), irregular verbs"
+  },
+  {
+   "stem": "Which introduction best suits a learner-centred lesson on ngeli?",
+   "source": "REB, Curriculum Framework Pre-primary to Upper Secondary (2015), competences and learner-centred approach; Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "Kinyarwanda also has noun classes with agreement. Which of the following is NOT a sound way to use this in the lesson?",
+   "source": "Cook, Linguistics and Second Language Acquisition; Harmer, The Practice of English Language Teaching (use of L1)"
+  },
+  {
+   "stem": "Which task best assesses whether learners can APPLY ngeli agreement rather than only name the classes?",
+   "source": "REB, Curriculum Framework Pre-primary to Upper Secondary (2015), competences and learner-centred approach; REB syllabi, assessment of competences"
+  },
+  {
+   "stem": "In a class of 50 learners with few books, which technique tells the teacher in a few seconds whether every learner can form plurals correctly?",
+   "source": "Wiliam, Embedded Formative Assessment (2011); REB teacher guides, formative assessment"
+  },
+  {
+   "stem": "Ni sentensi ipi inayoonyesha wingi sahihi wa 'Mkulima mwenye bidii amepanda mti mrefu'?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya ngeli za nomino"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-2": [
+  {
+   "stem": "Which sentence uses the present perfect correctly?",
+   "source": "Swan, Practical English Usage (4th ed.), entries on tenses, modal verbs and conditionals"
+  },
+  {
+   "stem": "Choose the correct form: \"By the time the inspector arrived, the learners ____ their tests and gone home.\"",
+   "source": "Murphy, English Grammar in Use (Cambridge), units on perfect tenses, modals and conditionals"
+  },
+  {
+   "stem": "Which sentence is in the present perfect continuous?",
+   "source": "Murphy, English Grammar in Use (Cambridge), units on perfect tenses, modals and conditionals"
+  },
+  {
+   "stem": "Which of the following is NOT a modal auxiliary verb?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language, chapters on verb phrase and modality"
+  },
+  {
+   "stem": "Choose the modal verb that expresses strong logical deduction: \"The lights are on, so she ____ be in the office.\"",
+   "source": "Swan, Practical English Usage (4th ed.), entries on tenses, modal verbs and conditionals"
+  },
+  {
+   "stem": "Choose the correct form: \"The ground is wet. It ____ during the night.\"",
+   "source": "Swan, Practical English Usage (4th ed.), entries on tenses, modal verbs and conditionals"
+  },
+  {
+   "stem": "Which sentence is a third conditional?",
+   "source": "Murphy, English Grammar in Use (Cambridge), units on perfect tenses, modals and conditionals"
+  },
+  {
+   "stem": "Choose the correct form: \"Unless you ____ harder, you will not pass the examination.\"",
+   "source": "Swan, Practical English Usage (4th ed.), entries on tenses, modal verbs and conditionals"
+  },
+  {
+   "stem": "Choose the correct form: \"If I had accepted the job in Huye, I ____ there now.\"",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language, chapters on verb phrase and modality"
+  },
+  {
+   "stem": "Choose the correct form: \"By next July, Mr Habimana ____ at this school for ten years.\"",
+   "source": "Murphy, English Grammar in Use (Cambridge), units on perfect tenses, modals and conditionals"
+  },
+  {
+   "stem": "Which of the following sentences is INCORRECT?",
+   "source": "Swan, Practical English Usage (4th ed.), entries on tenses, modal verbs and conditionals"
+  },
+  {
+   "stem": "Which sentence expresses prohibition (the action is not allowed)?",
+   "source": "Swan, Practical English Usage (4th ed.), entries on tenses, modal verbs and conditionals"
+  },
+  {
+   "stem": "According to the section \"Main steps for a lesson in active learning approach\" of the REB English Teacher's Guide (Senior 5), which set gives the three main parts of a lesson?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "In the REB English Teacher's Guide, the development of a new lesson goes through small steps. Which step comes directly after the presentation of students' findings?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "Which of the following is NOT a heading in the sample lesson plan of the REB English Teacher's Guide (Senior 5)?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "In the REB sample lesson plan, what is written in the right-hand column of the table beside the teacher's and students' activities?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "According to the REB guide, what is the main purpose of the introduction of a lesson?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "In the objective \"Using a short passage, learners will be able to identify five modal verbs correctly\", which phrase states the condition under which the behaviour is performed?",
+   "source": "Heinich et al., Instructional Media and Technologies for Learning (ABCD objectives); Mager, Preparing Instructional Objectives"
+  },
+  {
+   "stem": "Which verb is typical of the 'create' level of Bloom's revised taxonomy?",
+   "source": "Anderson and Krathwohl (eds.), A Taxonomy for Learning, Teaching and Assessing (2001)"
+  },
+  {
+   "stem": "Which verb is NOT suitable in a measurable lesson objective, because the learning it describes cannot be directly observed?",
+   "source": "Mager, Preparing Instructional Objectives; Anderson and Krathwohl (2001)"
+  },
+  {
+   "stem": "What is a scheme of work?",
+   "source": "Richards and Rodgers / Harmer, The Practice of English Language Teaching (planning chapters); REB English teacher guides (unit and lesson sequence)"
+  },
+  {
+   "stem": "What does \"constructive alignment\" (Biggs) require in lesson planning?",
+   "source": "Biggs, Enhancing teaching through constructive alignment (Higher Education, 1996)"
+  },
+  {
+   "stem": "Which of the following is NOT a purpose of a written lesson plan?",
+   "source": "Harmer, The Practice of English Language Teaching, chapter on lesson planning"
+  },
+  {
+   "stem": "What should a teacher do FIRST when planning a lesson?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.6 (Sample lesson plan: key unit competence precedes the instructional objective); Harmer, The Practice of English Language Teaching (planning)"
+  },
+  {
+   "stem": "Which type of assessment is carried out at the beginning of a new unit to find out what learners already know or can do?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.4 Guidance on assessment, https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "After a lesson, some gifted and talented learners finish early. According to the REB guide, which type of activity should they be given?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.3 (Guidance on how to help students with special education needs), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "On what should the teacher's self-evaluation at the end of a lesson mainly depend, according to the REB sample lesson plan?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "In the REB sample lesson plan for a 40-minute lesson, how is the time shared between the introduction, the development and the assessment?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.6 (Sample lesson plan, timing column), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "Wingi wa nomino 'ubao' ni upi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Ngeli ya PA-KU-MU hutumika kwa nomino za aina gani?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Ni nomino ipi kati ya zifuatazo HAIPO katika ngeli ya I-ZI (N)?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Ni nomino ipi kati ya zifuatazo ni ya dhana isiyo na wingi, kwa hivyo iko katika ngeli ya U-U?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Ni sentensi ipi HAINA upatanisho sahihi wa kisarufi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Chagua kiwakilishi kionyeshi sahihi cha karibu: '____ ni viatu vyangu.'",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Chagua kiwakilishi kimilikishi sahihi: 'Kiti changu kimevunjika, lakini ____ ni kizima.'",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Chagua kiulizi sahihi: 'Mwanafunzi ____ amefaulu mtihani?'",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Ni kivumishi kipi kati ya vifuatavyo HAKIPOKEI kiambishi cha ngeli?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Chagua -a unganifu sahihi: 'Majani ____ mwembe yameanguka.'",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Katika sentensi 'Mwalimu ambaye alitufundisha jana amestaafu', neno 'ambaye' ni kiwakilishi cha aina gani?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Ni sentensi ipi ina upatanisho sahihi wa kisarufi katika ngeli ya U-ZI (wingi)?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  },
+  {
+   "stem": "Which learning objective is the best for this lesson?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "Which activity best fits the discovery step of this lesson if the teacher wants an inductive approach?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "Which of the following is NOT an appropriate way to include the learner with low vision in this lesson?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.3 (Guidance on how to help students with special education needs), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "At the end of the lesson, which activity best shows whether the learners have achieved the objective?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "Which sentence is a correct second conditional?",
+   "source": "Murphy, English Grammar in Use (Cambridge), units on perfect tenses, modals and conditionals"
+  },
+  {
+   "stem": "Which of the following is NOT a suitable introduction to this lesson?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.5 (Main steps for a lesson in active learning approach) and 1.2.6 (Sample lesson plan), https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "How can the teacher best use the learners' knowledge of Kinyarwanda in this lesson?",
+   "source": "Kimenyi, A Relational Grammar of Kinyarwanda; Cummins, interdependence hypothesis (first-language knowledge supports second-language learning)"
+  },
+  {
+   "stem": "Many learners still make agreement errors. What should the teacher do about the scheme of work?",
+   "source": "REB, English Senior 5 Teacher's Guide, sections 1.2.3-1.2.4 (remedial and consolidation activities; assessment visible in lesson, unit and term plans)"
+  },
+  {
+   "stem": "A learner writes \"Kitabu yangu imepotea.\" Which feedback is the most consistent with formative assessment?",
+   "source": "REB, English Senior 5 Teacher's Guide, section 1.2.4 Guidance on assessment, https://elearning.reb.rw/pluginfile.php/42559/mod_resource/content/1/English%20S5_TG.pdf"
+  },
+  {
+   "stem": "Ni sentensi ipi ina upatanisho sahihi wa kisarufi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya ngeli na upatanisho wa kisarufi"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-3": [
+  {
+   "stem": "Which sentence is the correct indirect form of: 'I met her yesterday,' he said?",
+   "source": "Swan, Practical English Usage (3rd ed.), entry 'reported speech: tense changes'; Quirk et al., A Comprehensive Grammar of the English Language (1985), 14.30-14.34"
+  },
+  {
+   "stem": "Which is the correct reported form of: 'Where do you live?' the officer asked me.",
+   "source": "Swan, Practical English Usage, entry 'reported speech: questions'; Oxford Learner's Grammar (Eastwood)"
+  },
+  {
+   "stem": "Which of the following sentences uses a reporting verb pattern INCORRECTLY?",
+   "source": "Swan, Practical English Usage, entries 'advise', 'suggest', 'admit', 'insist'; Cambridge Grammar of English (Carter and McCarthy), reporting verbs"
+  },
+  {
+   "stem": "Which is the correct passive form of: 'The committee will announce the results next week.'?",
+   "source": "Quirk et al. (1985), 3.62-3.65 (the passive); Swan, Practical English Usage, entry 'passive verb forms'"
+  },
+  {
+   "stem": "Which of the following sentences cannot be changed into the passive voice?",
+   "source": "Quirk et al. (1985), 3.62 and 16.3; Swan, Practical English Usage, entry 'passive'"
+  },
+  {
+   "stem": "Which sentence is the correct passive form of: 'People say that the minister has resigned.'?",
+   "source": "Swan, Practical English Usage, entry 'passive: it is said that / he is said to'; Quirk et al. (1985), 3.66"
+  },
+  {
+   "stem": "Complete the question tag: 'Let's start the revision now, ____?'",
+   "source": "Swan, Practical English Usage, entry 'question tags'; Quirk et al. (1985), 11.22"
+  },
+  {
+   "stem": "Complete the question tag: 'Nobody called while I was out, ____?'",
+   "source": "Swan, Practical English Usage, entry 'question tags: negative sentences, indefinite pronouns'; Quirk et al. (1985), 11.22"
+  },
+  {
+   "stem": "Complete the question tag: 'I am late again, ____?'",
+   "source": "Swan, Practical English Usage, entry 'question tags: I am'; Oxford Dictionary of English, entry 'aren't'"
+  },
+  {
+   "stem": "Which of the following sentences has an INCORRECT question tag?",
+   "source": "Swan, Practical English Usage, entry 'question tags'; Quirk et al. (1985), 11.22"
+  },
+  {
+   "stem": "Which is the correct reported form of: 'Don't touch the wires,' the electrician told the children?",
+   "source": "Swan, Practical English Usage, entry 'reported speech: orders and requests'; Quirk et al. (1985), 14.33"
+  },
+  {
+   "stem": "Which is the correct passive form of: 'They are building a new bridge near the market.'?",
+   "source": "Swan, Practical English Usage, entry 'passive verb forms'; Quirk et al. (1985), 3.62"
+  },
+  {
+   "stem": "At the start of the year a teacher gives Senior 1 learners a short test to find out which grammar areas each learner already knows and where the gaps are. Which type of test is this?",
+   "source": "Brown and Abeywickrama, Language Assessment: Principles and Classroom Practices (2nd ed.), ch. 3 'Types of tests'"
+  },
+  {
+   "stem": "A national examination tests only grammar rules in multiple-choice form, so teachers spend most lessons drilling those rules and neglect speaking. Which term describes this influence of a test on teaching and learning?",
+   "source": "Brown and Abeywickrama, Language Assessment: Principles and Classroom Practices (2nd ed.), ch. 2 (washback); Hughes, Testing for Language Teachers (2nd ed.), ch. 1"
+  },
+  {
+   "stem": "Two teachers mark the same composition and give very different marks. Which quality of the assessment is affected?",
+   "source": "Brown and Abeywickrama, Language Assessment: Principles and Classroom Practices, ch. 2 (reliability, rater reliability)"
+  },
+  {
+   "stem": "What is meant by an analytic scoring rubric for a piece of writing?",
+   "source": "Brown and Abeywickrama, Language Assessment, ch. 9 (assessing writing: holistic and analytic scoring); Weigle, Assessing Writing (2002)"
+  },
+  {
+   "stem": "Which of the following is NOT a feature of a well-designed rubric?",
+   "source": "Brookhart, How to Create and Use Rubrics for Formative Assessment and Grading (ASCD, 2013), ch. 1-2"
+  },
+  {
+   "stem": "A teacher reports learners' results by what each learner can do against stated learning objectives (for example 'writes a formal letter with correct layout'), not by comparing learners with one another. This is:",
+   "source": "Brown and Abeywickrama, Language Assessment, ch. 1 and 3 (norm-referenced and criterion-referenced tests); REB e-learning, 'Purpose of assessment' (elearning.reb.rw lesson 5780): formative or continuous assessment in the competency-based curriculum should be criterion-referenced"
+  },
+  {
+   "stem": "A learner says: 'I goed to the market yesterday.' The teacher replies: 'Oh, you went to the market yesterday?' and the conversation continues. Which type of corrective feedback is this?",
+   "source": "Lyster and Ranta (1997), 'Corrective feedback and learner uptake', Studies in Second Language Acquisition 19(1)"
+  },
+  {
+   "stem": "Which of the following is NOT an example of assessment as learning?",
+   "source": "Earl, Assessment as Learning (Corwin, 2003)"
+  },
+  {
+   "stem": "In the revised Bloom's taxonomy (Anderson and Krathwohl, 2001), which is the correct order of the cognitive processes from lower-order to higher-order thinking?",
+   "source": "Anderson and Krathwohl (eds.), A Taxonomy for Learning, Teaching, and Assessing (2001), ch. 3"
+  },
+  {
+   "stem": "Which of the following verbs is NOT suitable for stating an observable and measurable learning objective?",
+   "source": "Mager, Preparing Instructional Objectives (1962/1997), on avoiding fuzzy verbs such as 'know' and 'understand'; Anderson and Krathwohl (2001)"
+  },
+  {
+   "stem": "Which task requires learners to work at the 'analyse' level of the revised Bloom's taxonomy?",
+   "source": "Anderson and Krathwohl (2001), the cognitive process dimension: analyse (differentiate, organise, attribute); 'compare' belongs to understand in that taxonomy"
+  },
+  {
+   "stem": "Which of the following is an integrative test item rather than a discrete-point item?",
+   "source": "Brown and Abeywickrama, Language Assessment: Principles and Classroom Practices, ch. 1 (discrete-point and integrative testing)"
+  },
+  {
+   "stem": "When marking compositions a teacher underlines errors and writes codes in the margin such as T (tense) and WO (word order); learners then correct the errors themselves. This kind of written feedback is called:",
+   "source": "Ferris, Treatment of Error in Second Language Student Writing (2002); Harmer, The Practice of English Language Teaching (4th ed.), ch. 'Writing: correcting'"
+  },
+  {
+   "stem": "According to Hattie and Timperley (2007), effective feedback answers three questions. Which set is correct?",
+   "source": "Hattie and Timperley (2007), 'The Power of Feedback', Review of Educational Research 77(1)"
+  },
+  {
+   "stem": "A Senior 2 learner with low vision is given a large-print examination paper and extra time while sitting the same test as the rest of the class. This is an example of:",
+   "source": "UNESCO, Guidelines for Inclusion (2005) and Open File on Inclusive Education (2001); Brown and Abeywickrama, Language Assessment, ch. 'Assessment accommodations'"
+  },
+  {
+   "stem": "According to Black and Wiliam, an assessment activity is formative only when:",
+   "source": "Black and Wiliam (1998), 'Inside the Black Box', Phi Delta Kappan 80(2)"
+  },
+  {
+   "stem": "Ni ukanushaji upi ulio sahihi wa sentensi 'Wanafunzi wamefika'?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA), sura ya vitenzi: ukanushaji; Massamba, Kihore na Hokororo, Sarufi Miundo ya Kiswahili Sanifu (2012)"
+  },
+  {
+   "stem": "Ni ukanushaji upi ulio sahihi wa sentensi 'Mwalimu alifundisha darasa letu jana'?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: ukanushaji wa nyakati; Massamba et al. (2012)"
+  },
+  {
+   "stem": "Katika kitenzi 'nimekupenda', kiambishi 'ku' ni kiambishi cha:",
+   "source": "Massamba, Kihore na Hokororo, Sarufi Miundo ya Kiswahili Sanifu (SAMIKISA, 2012), viambishi awali vya kitenzi; UDSM Kiswahili journals (kiambishi cha yambwa hutokea baada ya kiambishi cha njeo au hali)"
+  },
+  {
+   "stem": "Ni kitenzi kipi kimepangwa kwa mpangilio sahihi wa viambishi: kiima + wakati + yambwa + mzizi + kiishio?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: muundo wa kitenzi; Massamba et al. (2012)"
+  },
+  {
+   "stem": "Katika sentensi 'Mvua ikinyesha, mazao yatastawi', kiambishi -ki- kinaonyesha:",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: hali; Mulokozi na wenzake, Sarufi ya Kiswahili Sekondari"
+  },
+  {
+   "stem": "Katika sentensi 'Alifika, akaketi, akanywa chai', kiambishi -ka- kinaonyesha nini?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: viambishi vya nyakati na hali; Massamba et al. (2012)"
+  },
+  {
+   "stem": "Ni jozi ipi ya kitenzi cha kuthibitisha na ukanushi wake ina kosa?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: ukanushaji wa wakati uliopo; Massamba et al. (2012)"
+  },
+  {
+   "stem": "Ni ukanushaji upi ulio sahihi, kwa sehemu zote mbili (sharti na tokeo), wa sentensi 'Ukisoma utafaulu'?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: ukanushaji wa -ki- na -sipo-; Massamba et al. (2012)"
+  },
+  {
+   "stem": "Katika sentensi 'Wanafunzi hawa hucheza mpira kila jioni', kiambishi 'hu' ni kiambishi cha:",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, hali ya mazoea; RTB e-learning (Rwanda) Kiswahili notes list '-hu-' as the habitual marker (wakati wa mazoea); Mulokozi na wenzake, Sarufi ya Kiswahili Sekondari"
+  },
+  {
+   "stem": "Kitenzi 'hatukuwaona' kina viambishi awali vingapi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: viambishi awali na viambishi tamati; Massamba et al. (2012)"
+  },
+  {
+   "stem": "Katika sentensi 'Ningekuwa na pesa ningenunua gari', kiambishi -nge- kinaonyesha:",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: hali ya masharti (-nge-, -ngali-); Massamba et al. (2012)"
+  },
+  {
+   "stem": "Kitenzi 'atakuwa amesoma' kiko katika wakati na hali gani?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu, sura ya vitenzi: vitenzi vishirikishi na vitenzi vikuu; Massamba et al. (2012)"
+  },
+  {
+   "stem": "Which learning objective is best written for this lesson?",
+   "source": "Anderson and Krathwohl (2001), A Taxonomy for Learning, Teaching, and Assessing; Mager, Preparing Instructional Objectives"
+  },
+  {
+   "stem": "While learners transform sentences in pairs, you walk round with a checklist and note who still forgets to change time words. This is an example of:",
+   "source": "REB e-learning, 'Purpose of assessment' (formative or continuous assessment; elearning.reb.rw lesson 5780); Black and Wiliam (1998), 'Inside the Black Box'"
+  },
+  {
+   "stem": "Your school gives all Senior 2 learners one written paper at the end of the term that covers the whole term's work, and the results are used to report overall attainment and decide promotion. This is mainly:",
+   "source": "Earl, Assessment as Learning (2003); Black and Wiliam (1998), 'Inside the Black Box'; Harmer, The Practice of English Language Teaching (4th ed.), ch. on testing"
+  },
+  {
+   "stem": "A learner writes: 'Jean said that I had lost my book' for the direct sentence 'I lost my book,' said Jean. Which response is NOT good feedback practice?",
+   "source": "Hattie and Timperley (2007), 'The Power of Feedback'; Ferris, Treatment of Error in Second Language Student Writing (2002)"
+  },
+  {
+   "stem": "Which sentence correctly reports: 'If I had known, I would have helped,' she said?",
+   "source": "Swan, Practical English Usage, entry 'reported speech: conditionals'; Quirk et al. (1985), 14.32"
+  },
+  {
+   "stem": "Which of the following activities would NOT give learners meaningful communicative practice of negative verb forms?",
+   "source": "Richards and Rodgers, Approaches and Methods in Language Teaching (3rd ed.), ch. 'Communicative Language Teaching'; Harmer, The Practice of English Language Teaching (4th ed.)"
+  },
+  {
+   "stem": "The objective is: 'Learners will be able to use negative verb forms correctly in short spoken exchanges.' Which assessment task is the most valid for it?",
+   "source": "Brown and Abeywickrama, Language Assessment: Principles and Classroom Practices, ch. 2 (validity) and ch. 8 (assessing speaking)"
+  },
+  {
+   "stem": "A quick check at the end of the lesson shows that 12 of the 45 learners still use the wrong negative form for the present tense. What is the best next step?",
+   "source": "Black and Wiliam (1998), 'Inside the Black Box', Phi Delta Kappan 80(2)"
+  },
+  {
+   "stem": "Which of the following is NOT good practice when giving feedback on learners' written Kiswahili work?",
+   "source": "Hattie and Timperley (2007), 'The Power of Feedback'; Ferris, Treatment of Error in Second Language Student Writing (2002)"
+  },
+  {
+   "stem": "Ni ukanushaji upi ulio sahihi wa sentensi 'Mtakunywa chai kesho'?",
+   "source": "Gambarage 2025 (standard Swahili negative paradigm: hatakula, hawatakula); Daily News TZ 'Kiswahili for Beginners: the Swahili negative forms' (monosyllabic verbs keep ku- in the future); elon.io Swahili verb reference 'kula'; Massamba et al. (2012)"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-4": [
+  {
+   "stem": "Which of the following sentences uses the indefinite article correctly?",
+   "source": "Swan, Practical English Usage (a/an: pronunciation); Quirk et al., A Comprehensive Grammar of the English Language, 5.26"
+  },
+  {
+   "stem": "In which of the following sentences should the article 'the' NOT be used in the gap?",
+   "source": "Swan, Practical English Usage (the: geographical names); Oxford Learner's Grammar"
+  },
+  {
+   "stem": "Which of the following words is NOT a determiner?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language, ch. 5 (determiners); Cambridge Dictionary entries"
+  },
+  {
+   "stem": "Which of the following sentences is correct?",
+   "source": "Swan, Practical English Usage (few/little, much/many, advice); Quirk et al., ch. 5.20-5.21"
+  },
+  {
+   "stem": "Which of the following quantifiers is used ONLY with uncountable nouns?",
+   "source": "Swan, Practical English Usage (quantifiers); Oxford Learner's Grammar"
+  },
+  {
+   "stem": "Which of the following sentences contains an INCORRECT preposition?",
+   "source": "Swan, Practical English Usage (for and since; at, on, in with time); Quirk et al., 9.60"
+  },
+  {
+   "stem": "Choose the word that correctly completes the sentence: '___ English, she speaks Kiswahili and French.'",
+   "source": "Swan, Practical English Usage (beside and besides); Oxford Advanced Learner's Dictionary"
+  },
+  {
+   "stem": "Choose the phrasal verb that correctly completes the sentence: 'The football match was ___ because of heavy rain.'",
+   "source": "Oxford Phrasal Verbs Dictionary (call off); Cambridge Dictionary"
+  },
+  {
+   "stem": "Which of the following sentences is NOT correct?",
+   "source": "Swan, Practical English Usage (phrasal verbs: word order); Oxford Phrasal Verbs Dictionary"
+  },
+  {
+   "stem": "Which phrasal verb means 'to tolerate something unpleasant without complaining'?",
+   "source": "Oxford Phrasal Verbs Dictionary; Cambridge Dictionary (put up with)"
+  },
+  {
+   "stem": "Choose the correct word to complete the sentence: 'This pen has run out of ink. May I borrow ___ pen?'",
+   "source": "Swan, Practical English Usage (another, other); Oxford Learner's Grammar"
+  },
+  {
+   "stem": "In the classification of determiners used by Quirk et al. (A Comprehensive Grammar of the English Language), how is the word 'both' classified in the phrase 'both the teachers'?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language, 5.8-5.13 (predeterminers, central determiners, postdeterminers)"
+  },
+  {
+   "stem": "Which of the following activities belongs to the post-listening stage of a listening lesson?",
+   "source": "Harmer, The Practice of English Language Teaching, ch. 'Teaching listening'; Field, Listening in the Language Classroom (2008)"
+  },
+  {
+   "stem": "A teacher plays a short radio news item once and asks learners to say only what it is mainly about. Which listening skill is being practised?",
+   "source": "Harmer, The Practice of English Language Teaching; Richards, Teaching Listening and Speaking: From Theory to Practice (2008)"
+  },
+  {
+   "stem": "Which of the following is an example of a bottom-up listening task?",
+   "source": "Richards, Teaching Listening and Speaking (2008), ch. 1; Field, Listening in the Language Classroom (2008)"
+  },
+  {
+   "stem": "Learner A holds half of a timetable and Learner B holds the other half; they must ask each other questions to complete it. This is an example of",
+   "source": "Harmer, The Practice of English Language Teaching; Richards & Rodgers, Approaches and Methods in Language Teaching (CLT)"
+  },
+  {
+   "stem": "During a fluency-focused speaking activity, when is it generally best for the teacher to correct most errors?",
+   "source": "Harmer, The Practice of English Language Teaching (feedback during fluency work); Brown, Teaching by Principles"
+  },
+  {
+   "stem": "Harmer gives three reasons for getting learners to speak in class. Which of the following is NOT one of them?",
+   "source": "Harmer, The Practice of English Language Teaching, ch. 'Teaching speaking' (reasons for getting students to speak)"
+  },
+  {
+   "stem": "A teacher scores each learner's oral presentation separately for pronunciation, fluency, vocabulary and organisation of ideas, and then adds the scores. This kind of scoring is called",
+   "source": "Brown, Language Assessment: Principles and Classroom Practice (scoring oral production); Hughes, Testing for Language Teachers (analytic and holistic scoring)"
+  },
+  {
+   "stem": "The teacher says 'Where is the post office?' and the whole class repeats the sentence together. This technique is called",
+   "source": "Harmer, The Practice of English Language Teaching (drilling); Ur, A Course in Language Teaching"
+  },
+  {
+   "stem": "In a dictogloss, what do learners do?",
+   "source": "Wajnryb, Grammar Dictation (1990); Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "A Senior 1 learner is very shy and never speaks in whole-class discussions. Which step is most consistent with a learner-centred approach?",
+   "source": "Harmer, The Practice of English Language Teaching (speaking: grouping learners); Brown, Teaching by Principles (affective factors)"
+  },
+  {
+   "stem": "The REB English Language syllabus for Ordinary Level (2015) says schools should provide a conducive environment for learners to practise English by taking part in clubs. Which clubs does it name?",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 2 (https://elearning.reb.rw/pluginfile.php/57815/mod_resource/content/1/English_Curriculum_O_level.pdf); same wording in REB English Syllabus S4-S6 (2022), section 2.3"
+  },
+  {
+   "stem": "According to the REB English Language syllabus for Ordinary Level (2015), Paper 1 (English Language) has four sections. Which of the following is NOT one of them?",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 3.3 (structure and format of the examination for English Language)"
+  },
+  {
+   "stem": "The REB English Language syllabus for Ordinary Level (2015) says that in a competence-based curriculum the questions in a summative test should give more weight to",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 3.3 (item writing in summative assessment)"
+  },
+  {
+   "stem": "A learner with a hearing impairment is in your class during a listening lesson. Which approach is most appropriate?",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 2.3 (special needs education and inclusive approach)"
+  },
+  {
+   "stem": "Which of the following is NOT an advantage of pair work in a speaking lesson?",
+   "source": "Harmer, The Practice of English Language Teaching (pair work and group work: advantages and disadvantages)"
+  },
+  {
+   "stem": "In the REB English Language syllabus for Ordinary Level (2015), the generic competence 'communication in official languages' says that proper use of the language of instruction by learners must be ensured by",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 1.2.3 (generic competences: communication in official languages); same wording in REB English Syllabus S4-S6 (2022), section 2.2.1"
+  },
+  {
+   "stem": "Methali 'Mtaka yote hukosa yote' ina maana gani?",
+   "source": "Methali za Kiswahili (TUKI/TATAKI, Kamusi ya Methali za Kiswahili)"
+  },
+  {
+   "stem": "Kiswahili Sanifu kilitokana hasa na lahaja ipi ya Kiswahili?",
+   "source": "Massamba, Historia ya Kiswahili (2002); Mulokozi, Kiswahili as a National and International Language"
+  },
+  {
+   "stem": "Katika sentensi 'Mama alimpikia mtoto uji', kitenzi 'alimpikia' kiko katika kauli gani?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli za vitenzi); Massamba na wenzake, Sarufi Maumbo ya Kiswahili Sanifu (SAMAKISA)"
+  },
+  {
+   "stem": "Ni sentensi ipi ina kitenzi katika kauli ya kutendwa?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli ya kutendwa)"
+  },
+  {
+   "stem": "Kauli ya kutendwa ya kitenzi cha silabi moja 'kupa' ni ipi?",
+   "source": "Kamusi ya Kiswahili Sanifu (TUKI/BAKITA), kiingilio 'pa'; TUKI, Sarufi Miundo ya Kiswahili Sanifu"
+  },
+  {
+   "stem": "Ni sentensi ipi ina kitenzi katika kauli ya kutendeka?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli ya kutendeka)"
+  },
+  {
+   "stem": "Ni sentensi ipi ina kitenzi katika kauli ya kutendana?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli ya kutendana)"
+  },
+  {
+   "stem": "Ni sentensi ipi ina kitenzi katika kauli ya kutendesha?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli ya kutendesha)"
+  },
+  {
+   "stem": "Kitenzi 'soma' kikinyambuliwa katika kauli ya kutendesha (kusababisha) kinakuwa kipi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (unyambulishaji wa vitenzi)"
+  },
+  {
+   "stem": "Ni kitenzi kipi hakiko katika kauli ya kutendea?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli ya kutendea na kutendua)"
+  },
+  {
+   "stem": "Kitenzi 'amepikiwa' katika sentensi 'Mgeni amepikiwa wali' kimeundwa kwa kauli zipi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (mnyambuliko wa kauli mbili)"
+  },
+  {
+   "stem": "Sentensi 'Mwalimu aliwaandikia wanafunzi barua' ikibadilishwa kuwa kauli ya kutendwa kwa kuanza na neno 'Wanafunzi', inakuwa ipi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli ya kutendwa na kutendea)"
+  },
+  {
+   "stem": "Which pre-listening activity is most suitable for this lesson?",
+   "source": "Harmer, The Practice of English Language Teaching (teaching listening: pre-listening); Field, Listening in the Language Classroom (2008)"
+  },
+  {
+   "stem": "While you read the dialogue aloud, which task best matches the purpose of listening for specific information?",
+   "source": "Richards, Teaching Listening and Speaking: From Theory to Practice (2008); Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "Pairs have practised giving directions to each other. Which way of assessing their speaking is most consistent with competence-based assessment?",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 3 (assessment approach: competence-based assessment); Brown, Language Assessment (assessing speaking)"
+  },
+  {
+   "stem": "During pair work, several learners keep switching to Kinyarwanda. Which response would be LEAST appropriate?",
+   "source": "Harmer, The Practice of English Language Teaching (use of the students' own language); Krashen, affective filter hypothesis"
+  },
+  {
+   "stem": "Which of the following sentences uses prepositions of movement and place correctly?",
+   "source": "Swan, Practical English Usage (prepositions of place and movement); Cambridge Grammar of English"
+  },
+  {
+   "stem": "Which way of introducing the new kauli is most consistent with the learner-centred approach of the Competence-Based Curriculum?",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 2 (pedagogical approach); Thornbury, How to Teach Grammar (inductive and deductive approaches)"
+  },
+  {
+   "stem": "Which practice activity best develops the competence of forming and using kauli in context?",
+   "source": "Harmer, The Practice of English Language Teaching (grammar practice: from controlled to freer practice); REB, English Language Ordinary Level syllabus (Kigali, 2015), section 2"
+  },
+  {
+   "stem": "How can the teacher best build on what the learners already know about verbs in their first language?",
+   "source": "Kimenyi, A Relational Grammar of Kinyarwanda (verb extensions); Brown, Principles of Language Learning and Teaching (language transfer)"
+  },
+  {
+   "stem": "Learners write sentences using kauli in their exercise books. Which kind of feedback is most effective?",
+   "source": "REB, English Language Ordinary Level syllabus (Kigali, 2015), section 3.1 (formative and continuous assessment); Harmer, The Practice of English Language Teaching (correcting written work)"
+  },
+  {
+   "stem": "Ni kitenzi kipi kimenyambuliwa vibaya katika kauli ya kutendea?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (kauli ya kutendea: upatanisho wa irabu); Massamba na wenzake, Sarufi Maumbo ya Kiswahili Sanifu (SAMAKISA)"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-5": [
+  {
+   "stem": "Which of the following is a compound-complex sentence?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (1985); Swan, Practical English Usage (Oxford)"
+  },
+  {
+   "stem": "Choose the correct relative pronoun: \"The woman ___ car was stolen reported the theft to the police.\"",
+   "source": "Swan, Practical English Usage (Oxford University Press); Oxford Dictionary of English Grammar"
+  },
+  {
+   "stem": "Which sentence is correctly punctuated?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (1985); Swan, Practical English Usage (Oxford)"
+  },
+  {
+   "stem": "Choose the correct verb: \"Neither the manager nor the employees ___ present at the meeting yesterday.\"",
+   "source": "Swan, Practical English Usage (Oxford University Press); Oxford Dictionary of English Grammar"
+  },
+  {
+   "stem": "Which sentence has correct subject-verb agreement?",
+   "source": "Swan, Practical English Usage (Oxford University Press); Oxford Dictionary of English Grammar"
+  },
+  {
+   "stem": "Which sentence uses the semicolon correctly?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (1985); Swan, Practical English Usage (Oxford)"
+  },
+  {
+   "stem": "In the sentence \"I do not know what she wants\", the clause \"what she wants\" functions as:",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (1985); Swan, Practical English Usage (Oxford)"
+  },
+  {
+   "stem": "In \"He took a map in order that he would not get lost\", the clause beginning \"in order that\" is an adverbial clause of:",
+   "source": "en.wikipedia.org/wiki/Adverbial_clause (purpose: in order that, so that; reason is a separate type); Quirk et al. (1985)"
+  },
+  {
+   "stem": "Which of the following is an exclamative sentence in terms of its grammatical form?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (1985); Swan, Practical English Usage (Oxford)"
+  },
+  {
+   "stem": "In which sentence can the relative pronoun be omitted without making the sentence ungrammatical?",
+   "source": "Swan, Practical English Usage (Oxford University Press); Oxford Dictionary of English Grammar"
+  },
+  {
+   "stem": "Which of the following sentences contains a comma splice?",
+   "source": "Quirk et al., A Comprehensive Grammar of the English Language (1985); Swan, Practical English Usage (Oxford)"
+  },
+  {
+   "stem": "Which of the following is NOT a subordinating conjunction?",
+   "source": "en.wikipedia.org/wiki/Subordinating_conjunction (whereas listed); Quirk et al. (1985)"
+  },
+  {
+   "stem": "Which of the following is NOT a purpose of pre-reading activities?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "A learner runs her eyes quickly down a school timetable to find the time of the English lesson on Tuesday and ignores everything else. Which reading skill is she using?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "Which statement best describes extensive reading?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing; Day and Bamford, Extensive Reading Activities for Teaching Language"
+  },
+  {
+   "stem": "Which sequence shows the main stages of the process approach to writing in their usual order?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "In a fixed-ratio cloze test of reading, how are the words removed from the passage?",
+   "source": "Chapelle & Abraham (1990), cloze method (fixed-ratio vs rational deletion), okt.kmf.uz.ua/atc/oktat-atc/Bakalavr/MELT/Readings_III-5/Chapelle_&_Abraham_1990_cloze_method.pdf"
+  },
+  {
+   "stem": "All of the following are features of the process approach to writing EXCEPT:",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "A teacher wants learners' essays to improve over time. Which feedback practice best fits a formative, process-oriented approach?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "Which of the following questions tests inferential comprehension?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "In Bloom's revised taxonomy, asking learners to \"summarise a passage in their own words\" mainly targets which level?",
+   "source": "Anderson and Krathwohl (eds), A Taxonomy for Learning, Teaching and Assessing (2001)"
+  },
+  {
+   "stem": "Which of the following is NOT a controlled writing activity?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "A teacher judges each learner's essay against a set of pre-defined standards, and not against the other learners' essays. This approach is called:",
+   "source": "Brown, Language Assessment: Principles and Classroom Practices (Pearson)"
+  },
+  {
+   "stem": "Which of the following is NOT usually a while-reading activity?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "In the SQ3R study-reading method, what does the first \"S\" stand for?",
+   "source": "Robinson, Effective Study (1946)"
+  },
+  {
+   "stem": "Which of the following learning objectives for a reading lesson is stated in observable, measurable terms?",
+   "source": "Anderson and Krathwohl (eds), A Taxonomy for Learning, Teaching and Assessing (2001): objectives use observable action verbs"
+  },
+  {
+   "stem": "Which of the following writing tasks has a clear purpose and a real audience?",
+   "source": "Harmer, The Practice of English Language Teaching (Pearson), chapters on teaching reading and writing"
+  },
+  {
+   "stem": "The main advantage of a writing portfolio as an assessment tool is that it:",
+   "source": "Brown, Language Assessment: Principles and Classroom Practices (Pearson)"
+  },
+  {
+   "stem": "Chagua kiunganishi kinachofaa: \"Mvua ilinyesha sana; ___ mto ulifurika.\"",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Katika sentensi \"Ingawa alikuwa mgonjwa, alienda kazini\", kiunganishi \"ingawa\" kinaonyesha uhusiano wa:",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Ni neno lipi si kihusishi katika orodha ifuatayo?",
+   "source": "REB Kiswahili S2 Teacher's Guide (elearning.reb.rw), Kipindi 16 (viunganishi na vihusishi: kando ya, nje ya); sw.wikipedia.org/wiki/Kihusishi (juu ya, chini ya); e-kayumba.blogspot.com/p/kiswahili-sarufi-olevel.html (vihusishi vya mahali)"
+  },
+  {
+   "stem": "Katika sentensi \"Mwalimu aliandika ubaoni kwa chaki\", neno \"kwa\" linaonyesha:",
+   "source": "Chuwa, Nordic Journal of African Studies (KWA kinaashiria kifaa kilichotumika katika utekelezaji wa tendo), mail.njas.fi/njas/article/download/676/499/1237; TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Ni sentensi ipi ina -a unganifu sahihi?",
+   "source": "Massamba, Kihore na Msanjila, Sarufi Maumbo ya Kiswahili Sanifu (SAMAKISA, TUKI)"
+  },
+  {
+   "stem": "Ni sentensi ipi ina -a unganifu isiyo sahihi?",
+   "source": "Massamba, Kihore na Msanjila, Sarufi Maumbo ya Kiswahili Sanifu (SAMAKISA, TUKI)"
+  },
+  {
+   "stem": "Ni sentensi ipi ina kielezi cha namna?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Ni kundi lipi la maneno yote ni vielezi vya wakati?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Kihisishi \"Pole!\" kinaonyesha hisia ya:",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Katika sentensi \"Mwalimu aliyetufundisha jana ameondoka\", kishazi \"aliyetufundisha jana\" ni:",
+   "source": "e-kayumba.blogspot.com/p/kiswahili-sarufi-olevel.html (kishazi tegemezi kivumishi, vitambulishi vya urejeshi, \"Mheshimiwa aliyeondoka\"); TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Ni sentensi ipi ni sentensi changamano?",
+   "source": "sw.wikipedia.org/wiki/Tungo_sentensi (sentensi changamano); journals.udsm.ac.tz/index.php/kcl/article/view/7203/5416 (kwamba huanzisha kishazi tegemezi); TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  },
+  {
+   "stem": "Katika sentensi \"Ungesoma kwa bidii, ungefaulu\", kishazi \"Ungesoma kwa bidii\" ni kishazi tegemezi cha:",
+   "source": "sw.wikipedia.org/wiki/Tungo_sentensi (sentensi shurutia: -nge-, -ngeli-, -ngali-, -ki-; -nge- pande zote mbili); e-kayumba.blogspot.com/p/kiswahili-sarufi-olevel.html (kishazi tegemezi kielezi cha masharti: \"Angekuja\")"
+  },
+  {
+   "stem": "You give groups cards with sentences containing \"who\", \"which\" and \"whose\" and ask them to work out when each one is used before you state any rule. Which approach to teaching grammar is this?",
+   "source": "Thornbury, How to Teach Grammar (Longman, 1999)"
+  },
+  {
+   "stem": "You want weaker learners to be supported by more capable peers, in line with Vygotsky's zone of proximal development. Which grouping best achieves this?",
+   "source": "Vygotsky, Mind in Society (1978), p. 86: \"in collaboration with more capable peers\""
+  },
+  {
+   "stem": "At the end of the lesson you want evidence of whether each learner can use relative clauses. Which is the most appropriate formative assessment?",
+   "source": "Brown, Language Assessment: Principles and Classroom Practices (Pearson), formative assessment"
+  },
+  {
+   "stem": "Later in the lesson, groups discuss \"my school life\", and the aim is fluency. One learner says \"The girl which sits next to me is clever.\" What is the best response?",
+   "source": "Harmer, The Practice of English Language Teaching (error correction in fluency work)"
+  },
+  {
+   "stem": "Which sentence is NOT correct?",
+   "source": "Swan, Practical English Usage (Oxford University Press); Oxford Dictionary of English Grammar"
+  },
+  {
+   "stem": "During the group writing activity, which of these is the most appropriate role for the teacher in a learner-centred classroom?",
+   "source": "REB Kiswahili S2 Teacher's Guide (elearning.reb.rw/pluginfile.php/10880/mod_resource/content/1/Kiswahili%20S2%20TG.pdf), Introduction: the guide places the learner at the centre"
+  },
+  {
+   "stem": "To mark the group paragraphs, you give learners a scoring guide that lists criteria (such as use of viunganishi, organisation and accuracy) with a description of performance at each level. What is this tool called?",
+   "source": "Brown, Language Assessment: Principles and Classroom Practices (Pearson)"
+  },
+  {
+   "stem": "Several learners are reluctant to speak Kiswahili in front of the class for fear of making mistakes. Which approach best lowers their anxiety?",
+   "source": "Krashen, Principles and Practice in Second Language Acquisition (Pergamon, 1982): affective filter (anxiety, self-confidence, motivation)"
+  },
+  {
+   "stem": "The class includes a learner with a hearing impairment. Which is the most appropriate way to include this learner?",
+   "source": "REB Kiswahili S2 Teacher's Guide, Introduction III \"Wanafunzi wenye mahitaji maalumu\": for hearing difficulties seat the learner near the teacher, advise amplification, use sign language where possible"
+  },
+  {
+   "stem": "Chagua umbo sahihi la kitenzi: \"Walimu wanafundisha kwa makini ili wanafunzi ___ vizuri.\"",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Kamusi ya Kiswahili Sanifu (TUKI/BAKITA)"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-6": [
+  {
+   "stem": "Which word-formation process produced the word 'brunch' (from 'breakfast' and 'lunch')?",
+   "source": "Quirk et al. (1985) A Comprehensive Grammar of the English Language, App. I (word-formation); Oxford Dictionary of English, 'brunch'"
+  },
+  {
+   "stem": "Which of the following words was formed by back-formation?",
+   "source": "Quirk et al. (1985) App. I; Oxford English Dictionary, 'televise' (back-formation from 'television')"
+  },
+  {
+   "stem": "The word 'unbreakable' is made from the base word 'break' by adding:",
+   "source": "Quirk et al. (1985) App. I; Yule, The Study of Language, ch. 6 (morphology)"
+  },
+  {
+   "stem": "Which word is NOT a synonym of 'ephemeral'?",
+   "source": "Oxford Dictionary of English, 'ephemeral'; Oxford Thesaurus of English"
+  },
+  {
+   "stem": "Which word is the antonym of 'benevolent'?",
+   "source": "Oxford Dictionary of English, 'benevolent' and 'malevolent'"
+  },
+  {
+   "stem": "Which pair consists of complementary (non-gradable) antonyms?",
+   "source": "Cruse (2011) Meaning in Language, ch. 9 (antonymy); Lyons (1977) Semantics, vol. 1"
+  },
+  {
+   "stem": "Which of the following sentences is correct (British English)?",
+   "source": "Swan (2016) Practical English Usage, entries 'advice/advise', 'affect/effect', 'principal/principle'"
+  },
+  {
+   "stem": "Which of the following is NOT a natural collocation in standard English?",
+   "source": "Oxford Collocations Dictionary for Students of English; Halliday (1966) 'Lexis as a linguistic level' (strong tea / powerful car)"
+  },
+  {
+   "stem": "What does the idiom 'to bite the bullet' mean?",
+   "source": "Oxford Dictionary of English, 'bite the bullet'; Cambridge Dictionary of Idioms"
+  },
+  {
+   "stem": "Which of the following idioms does NOT mean 'to die'?",
+   "source": "Oxford Dictionary of English; Cambridge Dictionary of Idioms ('kick the bucket', 'go the way of all flesh', 'meet your maker', 'burn the midnight oil')"
+  },
+  {
+   "stem": "The proverb 'A stitch in time saves nine' advises that:",
+   "source": "Oxford Dictionary of Proverbs, 'A stitch in time saves nine'"
+  },
+  {
+   "stem": "The words 'slim' and 'skinny' both describe a thin person, but 'skinny' suggests disapproval. This difference is one of:",
+   "source": "Leech (1981) Semantics, ch. 2 (conceptual and connotative meaning); Yule, The Study of Language, ch. 10"
+  },
+  {
+   "stem": "In a deductive approach to teaching grammar, the lesson typically begins with:",
+   "source": "Thornbury (1999) How to Teach Grammar, ch. 'Rules'; Harmer (2015) The Practice of English Language Teaching, ch. 'Teaching grammar'"
+  },
+  {
+   "stem": "Which of the following is NOT a commonly claimed advantage of the inductive approach to teaching grammar?",
+   "source": "Thornbury (1999) How to Teach Grammar, ch. 'Rules' (advantages of the deductive and inductive approaches)"
+  },
+  {
+   "stem": "After the teacher has introduced 'used to' through a short story, learners complete gap-fill sentences and repeat model sentences in chorus. Which stage of a PPP lesson is this?",
+   "source": "Richards & Rodgers (2014) Approaches and Methods in Language Teaching, ch. 'Communicative Language Teaching'; Harmer (2015) ch. 'Teaching grammar'"
+  },
+  {
+   "stem": "A common criticism of the PPP (Presentation, Practice, Production) model is that it:",
+   "source": "Willis & Willis (2007) Doing Task-based Teaching, ch. 1; Harmer (2015) ch. 'Teaching grammar' (criticisms of PPP)"
+  },
+  {
+   "stem": "Harmer's ESA lesson model has three stages. Which of the following is NOT one of them?",
+   "source": "Harmer (2015) The Practice of English Language Teaching, ch. 'Lesson sequences' (Engage, Study, Activate)"
+  },
+  {
+   "stem": "A teacher shows learners a real umbrella to teach the word 'umbrella'. This technique of conveying meaning is called the use of:",
+   "source": "Harmer (2015) The Practice of English Language Teaching, ch. 'Teaching vocabulary'; Thornbury (2002) How to Teach Vocabulary, ch. 'Explaining meaning'"
+  },
+  {
+   "stem": "A Senior 3 learner meets an unknown word while reading a passage for general understanding. Which strategy should the teacher encourage the learner to try first?",
+   "source": "Nation (2001) Learning Vocabulary in Another Language, ch. 6 (guessing from context); Harmer (2015) ch. 'Teaching reading'"
+  },
+  {
+   "stem": "According to research on vocabulary learning, a new word is more likely to be retained if the learner:",
+   "source": "Nation (2001) Learning Vocabulary in Another Language, ch. 3 (repetition and retrieval); Thornbury (2002) How to Teach Vocabulary, ch. 'Remembering words'"
+  },
+  {
+   "stem": "During a group discussion meant to build fluency, the teacher notes learners' grammar mistakes and discusses them with the class after the discussion has ended. This is called:",
+   "source": "Harmer (2015) The Practice of English Language Teaching, ch. 'Feedback' (correcting speaking); Ur (2012) A Course in English Language Teaching, ch. 'Feedback'"
+  },
+  {
+   "stem": "After presenting 'used to' in the sentence 'He used to smoke', a teacher asks the class, 'Does he smoke now?' and 'Did he smoke in the past?' These questions are called:",
+   "source": "British Council TeachingEnglish, 'Concept questions' (teachingenglish.org.uk, Knowing the subject: C); Scrivener (2011) Learning Teaching, 3rd ed., on checking understanding"
+  },
+  {
+   "stem": "According to Schmidt's Noticing Hypothesis, language input becomes intake for learning only when the learner:",
+   "source": "Schmidt (1990) 'The role of consciousness in second language learning', Applied Linguistics 11(2)"
+  },
+  {
+   "stem": "Which activity gives learners the most communicative practice of the first conditional ('If it rains, we will stay at home')?",
+   "source": "Ur (2012) A Course in English Language Teaching, ch. 'Teaching grammar'; Littlewood (1981) Communicative Language Teaching, ch. 'Pre-communicative and communicative activities'"
+  },
+  {
+   "stem": "Which of the following activities does NOT require learners to use new vocabulary productively?",
+   "source": "Nation (2001) Learning Vocabulary in Another Language, ch. 2 (receptive and productive knowledge); Thornbury (2002) How to Teach Vocabulary, ch. 'Practising vocabulary'"
+  },
+  {
+   "stem": "A teacher writes 'transport' in the centre of the board and learners add related words such as 'bus', 'road' and 'ticket' around it. This vocabulary technique is called:",
+   "source": "Thornbury (2002) How to Teach Vocabulary, ch. 'Practising vocabulary'; Harmer (2015) ch. 'Teaching vocabulary'"
+  },
+  {
+   "stem": "A teacher tests one grammar point at a time with items such as 'She ____ (go) to school yesterday.' This kind of test is called:",
+   "source": "Brown & Abeywickrama (2019) Language Assessment: Principles and Classroom Practices, ch. 'History of language testing'"
+  },
+  {
+   "stem": "Which of the following is NOT good practice when marking learners' written English?",
+   "source": "Harmer (2015) The Practice of English Language Teaching, ch. 'Feedback' (responding to writing); Hyland & Hyland (2006) Feedback in Second Language Writing"
+  },
+  {
+   "stem": "Kisawe cha neno 'tajiri' ni kipi?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 'mkwasi' na 'tajiri'; BAKITA, Kamusi ya Visawe"
+  },
+  {
+   "stem": "Kinyume cha neno 'mkarimu' ni kipi?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 'karimu' na 'bahili'"
+  },
+  {
+   "stem": "Neno 'kanga' lina maana mbili zisizohusiana: ndege wa porini mwenye madoadoa, na kitambaa cha kuvaa. Maneno ya aina hii huitwa nini?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 'kanga'; Massamba et al. (1999) Sarufi Miundo ya Kiswahili Sanifu (Sura ya Semantiki)"
+  },
+  {
+   "stem": "Neno 'shule' limetoholewa katika Kiswahili kutoka lugha ipi?",
+   "source": "Wiktionary, 'shule' (borrowed from German Schule, from Latin schola)"
+  },
+  {
+   "stem": "Neno la Kiingereza 'shilling' limekuwa 'shilingi' katika Kiswahili. Mabadiliko haya yanatokana na sifa ipi ya muundo wa silabi wa Kiswahili?",
+   "source": "Massamba et al. (1999) Sarufi Miundo ya Kiswahili Sanifu, Sura ya Fonolojia (muundo wa silabi); TUKI (2013) Kamusi ya Kiswahili Sanifu, 'shilingi'"
+  },
+  {
+   "stem": "Ni jozi ipi kati ya zifuatazo si jozi ya vinyume?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 'safi', 'nadhifu', 'ukweli', 'uongo', 'mwanga', 'giza'"
+  },
+  {
+   "stem": "Ni neno lipi kati ya haya limetoholewa katika Kiswahili kutoka Kiingereza?",
+   "source": "Wiktionary, 'baiskeli' (from English bicycle), 'kitabu', 'kahawa', 'baraka' (from Arabic)"
+  },
+  {
+   "stem": "Ni neno lipi kati ya haya si la mkopo kutoka Kiarabu?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 'kalamu', 'sabuni', 'dunia', 'mkono'; Mulokozi (2017) Kamusi ya Fasihi"
+  },
+  {
+   "stem": "Neno 'UKIMWI' (Upungufu wa Kinga Mwilini) liliundwa kwa njia ipi?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 'ukimwi'; Massamba et al. (1999) Sarufi Miundo ya Kiswahili Sanifu (uundaji wa istilahi)"
+  },
+  {
+   "stem": "Maneno 'kufa' na 'kufariki' yana maana ya msingi inayofanana, lakini 'kufariki' hutumika zaidi kwa heshima. Hali hii inaonyesha kwamba visawe:",
+   "source": "Massamba et al. (1999) Sarufi Miundo ya Kiswahili Sanifu, Sura ya Semantiki; Mulokozi (2017) Kamusi ya Fasihi"
+  },
+  {
+   "stem": "Methali 'Haraka haraka haina baraka' inafundisha nini?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 'haraka'; Mulokozi (2017) Kamusi ya Fasihi (methali)"
+  },
+  {
+   "stem": "Neno 'gereza' (jela) limetoholewa katika Kiswahili kutoka lugha ipi?",
+   "source": "Wiktionary, 'gereza' (from Portuguese igreja; citing Mugane 2015, The Story of Swahili); Wikipedia ya Kiswahili, 'Gereza'"
+  },
+  {
+   "stem": "At the start of the lesson you want learners to meet the target words in a meaningful context. Which presentation would be most suitable?",
+   "source": "Thornbury (2002) How to Teach Vocabulary, ch. 'Explaining meaning'; Harmer (2015) The Practice of English Language Teaching, ch. 'Teaching vocabulary'"
+  },
+  {
+   "stem": "Near the end of the lesson you want to find out whether learners can actually use the word-formation patterns. Which task is most suitable?",
+   "source": "Brown & Abeywickrama (2019) Language Assessment: Principles and Classroom Practices, ch. 'Assessing grammar and vocabulary'; REB (2015) Competence-Based Curriculum Framework (assessment)"
+  },
+  {
+   "stem": "While learners work in groups, one group finishes within minutes and another group is struggling. What should you do?",
+   "source": "REB (2015) Competence-Based Curriculum Framework for Pre-primary to Upper Secondary (learner-centred teaching); Tomlinson (2014) The Differentiated Classroom, ch. 1"
+  },
+  {
+   "stem": "Which of the following would NOT be good practice in this lesson on word families?",
+   "source": "REB (2015) Competence-Based Curriculum Framework (learner-centred, active learning); Nation (2001) Learning Vocabulary in Another Language, ch. 3"
+  },
+  {
+   "stem": "Which of the following words is formed by adding a suffix to a noun to make an adjective?",
+   "source": "Quirk et al. (1985) A Comprehensive Grammar of the English Language, App. I (derivational suffixes); Oxford Dictionary of English, '-ish'"
+  },
+  {
+   "stem": "At the start of the lesson you want learners to discover for themselves that Kiswahili has borrowed words from other languages. Which activity does this best?",
+   "source": "REB (2015) Competence-Based Curriculum Framework (learner-centred, active learning); Thornbury (1999) How to Teach Grammar (discovery learning)"
+  },
+  {
+   "stem": "Which resource would best let learners check which language a Kiswahili word was borrowed from?",
+   "source": "TUKI (2013) Kamusi ya Kiswahili Sanifu, 3rd ed., introduction (etymology of words given for entries)"
+  },
+  {
+   "stem": "Which end-of-lesson task best assesses whether learners can recognise and classify loanwords?",
+   "source": "Brown & Abeywickrama (2019) Language Assessment, ch. 'Designing classroom tests'; REB (2015) Competence-Based Curriculum Framework (assessment of competences)"
+  },
+  {
+   "stem": "A learner says: 'Words like daktari are not real Kiswahili because they came from another language.' What is the best response?",
+   "source": "REB (2015) Competence-Based Curriculum Framework (teacher as facilitator); TUKI (2013) Kamusi ya Kiswahili Sanifu (entries for loanwords)"
+  },
+  {
+   "stem": "Neno la Kiingereza 'computer' lilirekebishwa likawa 'kompyuta' ili lifuate matamshi na muundo wa Kiswahili. Mchakato huu huitwa nini?",
+   "source": "BAKITA, Kamusi ya Kiswahili Sanifu (utohozi wa maneno ya kigeni); Massamba et al. (1999) Sarufi Miundo ya Kiswahili Sanifu"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-7": [
+  {
+   "stem": "How many phonemes (distinct sounds) are there in the word \"thought\" in British English pronunciation?",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "Which of the following words contains a diphthong in British Received Pronunciation?",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "Which of the following words has its primary stress on the third syllable?",
+   "source": "Oxford Advanced Learner's Dictionary (British pronunciation and spelling)"
+  },
+  {
+   "stem": "Which of the following consonant sounds is NOT voiced?",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "The sound /p/ as in \"pen\" is best classified as ...",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "Which of the following pairs of words is NOT a minimal pair?",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "How many syllables does the word \"university\" have?",
+   "source": "Oxford Advanced Learner's Dictionary (British pronunciation and spelling)"
+  },
+  {
+   "stem": "In neutral (unmarked) British English intonation, which type of sentence normally ends with a rising tone?",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "Which of the following words is spelt INCORRECTLY?",
+   "source": "Oxford Advanced Learner's Dictionary (British pronunciation and spelling)"
+  },
+  {
+   "stem": "Which of the following words is spelt correctly after the suffix -ed is added to the verb?",
+   "source": "Oxford Advanced Learner's Dictionary (British pronunciation and spelling)"
+  },
+  {
+   "stem": "A phoneme is best defined as ...",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "The weak, central vowel /ə/ in the first syllable of \"about\" is called ...",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "Which of the following is a characteristic of the Grammar-Translation Method?",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "Which of the following is NOT a feature of the Direct Method?",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "The Audio-lingual Method is based mainly on which view of learning?",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "Which of the following is NOT a principle of Communicative Language Teaching?",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "Who introduced the term \"communicative competence\" in reaction to Chomsky's notion of linguistic competence?",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "Which sequence matches Jane Willis's framework for task-based learning?",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014); Willis (1996), A Framework for Task-Based Learning"
+  },
+  {
+   "stem": "According to Krashen's Input Hypothesis, learners progress when they receive input that is ...",
+   "source": "Krashen, Principles and Practice in Second Language Acquisition (1982)"
+  },
+  {
+   "stem": "In Krashen's theory, the \"affective filter\" refers to ...",
+   "source": "Krashen, Principles and Practice in Second Language Acquisition (1982)"
+  },
+  {
+   "stem": "Which of the following is NOT one of Krashen's five hypotheses of second language acquisition?",
+   "source": "Krashen, Principles and Practice in Second Language Acquisition (1982)"
+  },
+  {
+   "stem": "According to Krashen's Monitor Hypothesis, consciously learned knowledge of grammar rules functions mainly to ...",
+   "source": "Krashen (1982) Principles and Practice in Second Language Acquisition, ch. 2 (Monitor Model); Wikipedia, 'Input hypothesis'; Ludescher, 'The Natural Approach' summary of Krashen's five hypotheses"
+  },
+  {
+   "stem": "Learners respond with actions to the teacher's commands such as \"Stand up\" and \"Open the door\", and are not required to speak at first. This describes ...",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "In Anthony's (1963) distinction between approach, method and technique, an \"approach\" is ...",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "In content-based instruction, the target language is mainly learned ...",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "Which view of learners' errors is held in the Audio-lingual Method?",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014)"
+  },
+  {
+   "stem": "The term \"interlanguage\" (Selinker, 1972) refers to ...",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014); Selinker (1972), \"Interlanguage\""
+  },
+  {
+   "stem": "The lexical approach, associated with Michael Lewis, holds that language teaching should focus mainly on ...",
+   "source": "Richards & Rodgers, Approaches and Methods in Language Teaching (Cambridge UP, 3rd ed. 2014); Lewis (1993), The Lexical Approach"
+  },
+  {
+   "stem": "Methali \"Haba na haba hujaza kibaba\" ina maana gani?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; methali za Kiswahili"
+  },
+  {
+   "stem": "Kamilisha methali: \"Mwacha mila ni ____.\"",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; methali za Kiswahili"
+  },
+  {
+   "stem": "Ni methali ipi inahimiza ushirikiano na umoja?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; methali za Kiswahili"
+  },
+  {
+   "stem": "Nahau \"kupiga moyo konde\" ina maana gani?",
+   "source": "sublearn.com/learn/sw/phrases/kupiga-moyo-konde (meaning: be brave in a hard situation); TUKI, Kamusi ya Kiswahili Sanifu (not read directly)"
+  },
+  {
+   "stem": "Nahau \"kula chumvi nyingi\" ina maana gani?",
+   "source": "Wiktionary 'la chumvi nyingi' (idiom: live a long life; citing Johnson 1939, Luffin 2002); TUKI, Kamusi ya Kiswahili Sanifu"
+  },
+  {
+   "stem": "Ni sentensi ipi iliyotumia tashbihi?",
+   "source": "Mulokozi, Fasihi ya Kiswahili (TUKI / Dar es Salaam)"
+  },
+  {
+   "stem": "Ni methali ipi inafaa kusemwa kwa mtu asiyetii ushauri wa wazee?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; methali za Kiswahili"
+  },
+  {
+   "stem": "Katika uwasilishaji wa kawaida wa vitendawili vya Kiswahili, mtegaji anaposema \"Kitendawili!\", hadhira hujibu ...",
+   "source": "esomake.co.ke/secondary/kiswahili/fasihi-simulizi/semi (Mteguaji: Kitendawili / Tega); UDSM Kiswahili journal article on vitendawili (kutega/kutegua); Mulokozi, Fasihi ya Kiswahili"
+  },
+  {
+   "stem": "Ni kipi kati ya vifuatavyo SI utanzu wa semi katika fasihi simulizi?",
+   "source": "Mulokozi, Fasihi ya Kiswahili (Chuo Kikuu Huria cha Tanzania, 1996); esomake.co.ke/secondary/kiswahili/fasihi-simulizi/semi (semi = methali, vitendawili)"
+  },
+  {
+   "stem": "Tofauti kuu kati ya nahau na methali ni ipi?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu (2004), ufafanuzi wa 'nahau'; REB, Kiswahili S2 Teacher's Guide (nahau: fungu la maneno lenye maana maalumu isiyotokana na maana za kawaida)"
+  },
+  {
+   "stem": "Methali \"Mtaka cha mvunguni sharti ainame\" inafundisha nini?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; methali za Kiswahili"
+  },
+  {
+   "stem": "Kazi kuu ya vitendawili katika fasihi simulizi ni ipi?",
+   "source": "Mulokozi, Fasihi ya Kiswahili (TUKI / Dar es Salaam)"
+  },
+  {
+   "stem": "Which activity would best help the learners first to hear and then to produce the difference between the two sounds?",
+   "source": "Harmer, The Practice of English Language Teaching (5th ed.), chapter on pronunciation"
+  },
+  {
+   "stem": "Which of the following is the best learning objective for this lesson?",
+   "source": "REB, Competence-Based Curriculum Framework (2015); Anderson & Krathwohl (2001), Bloom's revised taxonomy"
+  },
+  {
+   "stem": "During a controlled drill a learner says \"sheep\" when asked to say \"ship\". What is the most appropriate response?",
+   "source": "Harmer, The Practice of English Language Teaching (5th ed.), chapter on correction"
+  },
+  {
+   "stem": "Which of the following would NOT give valid evidence of learners' pronunciation of the two sounds?",
+   "source": "Brown, Language Assessment: Principles and Classroom Practices; REB assessment guidelines"
+  },
+  {
+   "stem": "In British English, the vowel in \"sheep\" differs from the vowel in \"ship\" in that it is ...",
+   "source": "Roach, English Phonetics and Phonology (Cambridge UP, 4th ed.)"
+  },
+  {
+   "stem": "Which activity would best develop learners' ability to interpret the meaning of methali?",
+   "source": "REB, Competence-Based Curriculum Framework (2015); Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "Which action best builds on the learners' prior knowledge in this lesson?",
+   "source": "REB, Competence-Based Curriculum Framework (2015), learner-centred teaching principles"
+  },
+  {
+   "stem": "Learners are asked to \"explain in their own words the meaning of a methali\". At which level of Bloom's revised taxonomy is this task?",
+   "source": "Anderson & Krathwohl (2001), A Taxonomy for Learning, Teaching, and Assessing"
+  },
+  {
+   "stem": "Which of the following would NOT be suitable for assessing learners' mastery of methali after this lesson?",
+   "source": "Brown, Language Assessment: Principles and Classroom Practices; REB assessment guidelines"
+  },
+  {
+   "stem": "Methali \"Samaki mkunje angali mbichi\" inasisitiza nini kuhusu malezi?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; methali za Kiswahili"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-8": [
+  {
+   "stem": "Which figure of speech is used in the sentence 'The old clock stared down at us from the wall'?",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for personification"
+  },
+  {
+   "stem": "Which of the following sentences contains a simile?",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for simile and metaphor"
+  },
+  {
+   "stem": "Which of the following is an example of hyperbole?",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for hyperbole"
+  },
+  {
+   "stem": "The phrase 'deafening silence' is an example of which figure of speech?",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for oxymoron"
+  },
+  {
+   "stem": "A figure of speech in which a part is used to stand for the whole, as in 'All hands on deck!', is called",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for synecdoche"
+  },
+  {
+   "stem": "The repetition of the same vowel sound in neighbouring words, as in 'Hear the mellow wedding bells', is called",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for assonance"
+  },
+  {
+   "stem": "In poetry, the running on of a sentence or phrase from one line into the next, without a pause at the end of the line, is called",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for enjambment"
+  },
+  {
+   "stem": "Which rhyme scheme belongs to the Shakespearean (English) sonnet?",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for sonnet"
+  },
+  {
+   "stem": "A story is told in the third person by a narrator who knows the thoughts and feelings of every character. This point of view is called",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for point of view"
+  },
+  {
+   "stem": "A narrative technique in which the writer gives early hints of events that will happen later in the story is called",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for foreshadowing"
+  },
+  {
+   "stem": "Which of the following is NOT a figure of speech?",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for stanza, figurative language"
+  },
+  {
+   "stem": "Dramatic irony occurs when",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms (Cengage), entry for irony"
+  },
+  {
+   "stem": "Which statement best describes inclusive education?",
+   "source": "UNESCO, Guidelines for Inclusion (2005); MINEDUC Revised Special Needs and Inclusive Education Policy (2018)"
+  },
+  {
+   "stem": "A teacher gives the whole class the same poem but supplies a glossary and guiding questions to some learners and an extra analysis task to others. This is best described as",
+   "source": "Tomlinson, The Differentiated Classroom (ASCD, 2014); REB Special Needs and Inclusive Education unit (elearning.reb.rw)"
+  },
+  {
+   "stem": "Which of the following is NOT a suitable adaptation for a learner with low vision in a language class?",
+   "source": "REB elearning, Special Needs and Inclusive Education (differentiation and adapting learning resources); UNESCO inclusion guidelines"
+  },
+  {
+   "stem": "Which of Gardner's multiple intelligences is strongest in a learner who learns best by moving, acting things out and handling objects?",
+   "source": "Gardner, Frames of Mind (1983)"
+  },
+  {
+   "stem": "A Senior 1 learner chats fluently in English with friends on the playground but struggles to follow the English of Biology textbooks. In Cummins' terms, the learner has developed",
+   "source": "Cummins (1979), BICS and CALP, summarised in Cummins (2008), eclass.upatras.gr/modules/document/file.php/PDE1535/CumminsBICSCALPSpringer2007.pdf"
+  },
+  {
+   "stem": "In a class whose learners speak Kinyarwanda at home and learn through English, the teacher lets them discuss a text in Kinyarwanda before writing their answers in English. This strategy is best described as",
+   "source": "Garcia & Wei, Translanguaging (2014); Richards & Rodgers, Approaches and Methods in Language Teaching"
+  },
+  {
+   "stem": "Since the organic law of 2017, which set of languages is official in Rwanda?",
+   "source": "Organic Law N° 02/2017/OL of 20/04/2017 (Official Gazette no. 18 of 01/05/2017); Constitution of Rwanda 2003 revised 2015, official languages; https://www.newtimes.co.rw/article/137777/News/mps-approve-law-making-swahili-official-language"
+  },
+  {
+   "stem": "Learners learn English as the school language while their Kinyarwanda is kept and developed alongside it, so that the new language adds to what they already have. This situation is called",
+   "source": "Lambert (1974), Culture and language as factors in learning and education; Baker, Foundations of Bilingual Education and Bilingualism"
+  },
+  {
+   "stem": "In Jacob Kounin's research on classroom management, 'withitness' refers to",
+   "source": "Kounin, Discipline and Group Management in Classrooms (1970); https://www.ebsco.com/research-starters/education/jacob-kounins-classroom-management-research"
+  },
+  {
+   "stem": "Which of the following is NOT one of Dreikurs's four mistaken goals of learner misbehaviour?",
+   "source": "Dreikurs & Cassel, Discipline Without Tears; https://www.adlerpedia.org/concepts/96"
+  },
+  {
+   "stem": "Which of the following is NOT consistent with positive discipline in a classroom?",
+   "source": "Nelsen, Positive Discipline (1981); Rwanda Law No 71/2018 on the protection of the child (ban on degrading punishment)"
+  },
+  {
+   "stem": "Which of the following is NOT normally part of an Individual Education Plan (IEP) for a learner with special educational needs?",
+   "source": "REB elearning, Special Needs and Inclusive Education (IEP as a tool); UNESCO inclusion guidelines"
+  },
+  {
+   "stem": "Universal Design for Learning (UDL) asks teachers to plan lessons that offer multiple means of",
+   "source": "CAST, Universal Design for Learning Guidelines (cast.org)"
+  },
+  {
+   "stem": "Which of the following is a typical sign of dyslexia in a language learner?",
+   "source": "International Dyslexia Association, Definition of Dyslexia (2002); UNESCO inclusion guidelines"
+  },
+  {
+   "stem": "According to Cummins' linguistic interdependence hypothesis, the literacy and thinking skills a learner has developed in the first language",
+   "source": "Cummins, Bilingualism and Special Education (1984); Cummins (2000), Language, Power and Pedagogy"
+  },
+  {
+   "stem": "Errors that arise when a learner applies features of the mother tongue to the target language are called",
+   "source": "Richards, Error Analysis; Brown, Principles of Language Learning and Teaching, ch. on interlanguage"
+  },
+  {
+   "stem": "Kiswahili sanifu kina irabu ngapi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Massamba et al., Fonolojia ya Kiswahili Sanifu"
+  },
+  {
+   "stem": "Kwa kuzingatia sehemu ya ulimi inayoinuka mdomoni, ni irabu zipi kati ya zifuatazo ni za mbele?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Massamba et al., Fonolojia ya Kiswahili Sanifu"
+  },
+  {
+   "stem": "Ni kundi lipi la sauti halina sauti ghuna hata moja?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Massamba et al., Fonolojia ya Kiswahili Sanifu"
+  },
+  {
+   "stem": "Sauti /r/ katika Kiswahili huainishwa kama",
+   "source": "Mgullu (1999), Mtalaa wa Isimu: Fonetiki na Fonolojia ya Kiswahili; journals.udsm.ac.tz (Kiswahili consonant classes)"
+  },
+  {
+   "stem": "Neno 'mwanafunzi' lina silabi ngapi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); Massamba et al., Fonolojia ya Kiswahili Sanifu"
+  },
+  {
+   "stem": "Katika kitenzi 'anawapenda', mzizi ni upi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya Mofolojia"
+  },
+  {
+   "stem": "Kipi kati ya vifuatavyo SI mofimu tegemezi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya Mofolojia"
+  },
+  {
+   "stem": "Ni neno lipi kati ya yafuatayo limeundwa kwa njia ya uradidi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya Mofolojia; Massamba et al., Sarufi Miundo"
+  },
+  {
+   "stem": "Jina 'BAKITA' (Baraza la Kiswahili la Tanzania) liliundwa kwa njia ipi ya uundaji wa maneno?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006); bakita.go.tz"
+  },
+  {
+   "stem": "Ni neno lipi limeandikwa kwa usahihi kwa mujibu wa tahajia sanifu, lenye maana ya 'mnyama anayefugwa kwa ajili ya maziwa na nyama'?",
+   "source": "BAKITA / TUKI, Kamusi ya Kiswahili Sanifu (tahajia ya ng')"
+  },
+  {
+   "stem": "Katika muundo wa kawaida wa barua rasmi ya Kiswahili, kichwa cha barua (kinachoanza kwa YAH au KUH) huandikwa wapi?",
+   "source": "Mifano ya barua rasmi za Kiswahili (vitabu vya sekondari vya REB na barua rasmi za TAMISEMI zenye 'Ndugu' kisha 'YAH:')"
+  },
+  {
+   "stem": "Ni neno lipi kati ya yafuatayo lina sauti ya kikwamizo cha meno ghuna inayoandikwa kwa 'dh'?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu (herufi dh, th, gh, kh katika maneno ya Kiarabu)"
+  },
+  {
+   "stem": "How should the teacher form the groups for the poem task?",
+   "source": "REB Competence-Based Curriculum Framework (2015), learner-centred pedagogy; Harmer, The Practice of English Language Teaching (group work)"
+  },
+  {
+   "stem": "Which of the following is NOT an appropriate response to the two learners talking loudly at the back?",
+   "source": "Kounin, Discipline and Group Management in Classrooms (1970); Nelsen, Positive Discipline; Rwanda Law No 71/2018 on the protection of the child"
+  },
+  {
+   "stem": "How should the learner with low vision be assessed at the end of the lesson?",
+   "source": "REB elearning, Special Needs and Inclusive Education (adapting learning resources); MINEDUC Revised Special Needs and Inclusive Education Policy (2018)"
+  },
+  {
+   "stem": "Some learners cannot yet explain a simile alone but can do so with guidance. Which action by the teacher is an example of scaffolding?",
+   "source": "Vygotsky, Mind in Society (1978); Wood, Bruner & Ross (1976), The role of tutoring in problem solving"
+  },
+  {
+   "stem": "The sentence 'She is no fool', said of a very clever student, is an example of which figure of speech?",
+   "source": "Abrams & Harpham, A Glossary of Literary Terms, entry for litotes"
+  },
+  {
+   "stem": "How should the teacher use the learners' knowledge of Kinyarwanda in this lesson?",
+   "source": "Cummins, linguistic interdependence hypothesis (1979, 2000); García & Wei, Translanguaging (2014)"
+  },
+  {
+   "stem": "A few learners already speak Kiswahili fluently while most are beginners. Which of the following is NOT an effective way to organise the activity?",
+   "source": "Tomlinson, The Differentiated Classroom (ASCD, 2014); REB Special Needs and Inclusive Education unit (elearning.reb.rw)"
+  },
+  {
+   "stem": "For the part of the lesson on sounds and syllables, which of the following is NOT appropriate support for the learner with a hearing impairment?",
+   "source": "UNESCO, Guidelines for Inclusion (2005); REB elearning, Special Needs and Inclusive Education"
+  },
+  {
+   "stem": "How can the teacher best help the very shy learner take part in oral work in Kiswahili?",
+   "source": "Krashen, Principles and Practice in Second Language Acquisition (1982), affective filter hypothesis; Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "Katika kitenzi 'walipigana', mzizi ni upi?",
+   "source": "TUKI, Sarufi Miundo ya Kiswahili Sanifu (2006), sura ya Mofolojia (mzizi na mnyambuliko)"
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-9": [
+  {
+   "stem": "In Aristotle's Poetics, the term hamartia, applied to a tragic hero, refers to:",
+   "source": "Aristotle, Poetics (chs. 6-14); Britannica, 'hamartia'"
+  },
+  {
+   "stem": "In drama, a speech in which a character, alone on stage, voices private thoughts aloud is known as:",
+   "source": "Oxford Dictionary of Literary Terms (Baldick), \"soliloquy\" and \"aside\""
+  },
+  {
+   "stem": "In a printed play, the instructions about movement, tone, lighting or setting that the actors do not speak aloud are called:",
+   "source": "Baldick, Oxford Dictionary of Literary Terms, \"stage direction\""
+  },
+  {
+   "stem": "Which of the following is NOT typically a characteristic of a short story?",
+   "source": "Abrams and Harpham, A Glossary of Literary Terms, \"short story\"; Poe, review of Hawthorne (1842)"
+  },
+  {
+   "stem": "In Freytag's pyramid, the stage of a plot that comes immediately after the climax is the:",
+   "source": "Gustav Freytag, Die Technik des Dramas (1863); Britannica, \"Freytag's pyramid\""
+  },
+  {
+   "stem": "A fable is best described as:",
+   "source": "Oxford Dictionary of Literary Terms (Baldick), \"fable\"; Finnegan, Oral Literature in Africa (1970)"
+  },
+  {
+   "stem": "Which of the following is NOT a characteristic of oral literature?",
+   "source": "Ruth Finnegan, Oral Literature in Africa (1970), ch. 1"
+  },
+  {
+   "stem": "Which of the following is expressed as a THEME rather than a topic?",
+   "source": "Abrams and Harpham, A Glossary of Literary Terms, \"theme\""
+  },
+  {
+   "stem": "A novel told entirely through letters, diary entries or other documents is called:",
+   "source": "Baldick, Oxford Dictionary of Literary Terms, \"epistolary novel\", \"picaresque novel\", \"Bildungsroman\""
+  },
+  {
+   "stem": "A poem of mourning written for a person who has died is called:",
+   "source": "Oxford Dictionary of Literary Terms (Baldick), \"elegy\""
+  },
+  {
+   "stem": "According to E. M. Forster in Aspects of the Novel, a flat character is one who:",
+   "source": "E. M. Forster, Aspects of the Novel (1927), ch. 4 \"People\""
+  },
+  {
+   "stem": "Which of the following is NOT one of the six elements of tragedy listed by Aristotle in the Poetics?",
+   "source": "Aristotle, Poetics, ch. 6 (1449b-1450a)"
+  },
+  {
+   "stem": "Carter and Long (1991) describe three models for teaching literature. Which of the following is NOT one of them?",
+   "source": "Carter and Long, Teaching Literature (Longman, 1991)"
+  },
+  {
+   "stem": "After reading a poem about loss, a teacher asks learners to describe a time they felt similar emotions and to say how the poem made them feel. This mainly applies the:",
+   "source": "Carter and Long, Teaching Literature (1991); Lazar, Literature and Language Teaching (CUP, 1993)"
+  },
+  {
+   "stem": "A teacher is preparing a short-story lesson. Which of the following is NOT appropriate as a pre-reading activity?",
+   "source": "Lazar, Literature and Language Teaching (CUP, 1993), ch. 6; Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "Which activity best helps learners appreciate the rhythm, rhyme and sound effects of a poem?",
+   "source": "Lazar, Literature and Language Teaching (CUP, 1993), ch. 7 (teaching poetry); Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "In the drama technique called 'hot-seating', a learner:",
+   "source": "Neelands and Goode, Structuring Drama Work (CUP, 2000); Maley and Duff, Drama Techniques (CUP, 2005)"
+  },
+  {
+   "stem": "A teacher wants S2 learners to experience proverbs, riddles and folktales as living traditions rather than as texts to copy. Which activity is most suitable?",
+   "source": "Finnegan, Oral Literature in Africa (1970); REB, Competence-Based Curriculum Framework (2015), learner-centred approach"
+  },
+  {
+   "stem": "A teacher brings a real woven basket to class so that learners can describe it. This kind of teaching aid is called:",
+   "source": "Richards and Schmidt, Longman Dictionary of Language Teaching and Applied Linguistics, \"realia\""
+  },
+  {
+   "stem": "When choosing a teaching aid for a literature lesson, which of the following is NOT a sound criterion?",
+   "source": "Harmer, The Practice of English Language Teaching (2015), ch. on materials and resources"
+  },
+  {
+   "stem": "In Puentedura's SAMR model, a teacher has learners type a poem on a computer instead of writing it by hand, with no other change to the task. This level is:",
+   "source": "Puentedura, SAMR model (Hippasus, 2006 onwards)"
+  },
+  {
+   "stem": "Rwanda's ICT Essentials for Teachers course, developed by REB with partners, is based on which framework?",
+   "source": "REB eLearning, Rwanda ICT Essentials for Teachers Course overview (elearning.reb.rw, version 2, 2017); OER Commons group 'Rwanda ICT Essentials for Teachers Course'"
+  },
+  {
+   "stem": "Which online platform of the Rwanda Basic Education Board offers teachers downloadable textbooks, teachers' guides and syllabuses?",
+   "source": "https://elearning.reb.rw (REB eLearning home page)"
+  },
+  {
+   "stem": "In the 2025-2026 phase of REB's Digital Literacy Program, teachers who completed the training were certified as:",
+   "source": "REB news: \"Rwanda Basic Education Board certified 7,500 teachers in digital literacy\", reb.gov.rw"
+  },
+  {
+   "stem": "Which question about a novel assesses a higher-order thinking skill (evaluation) in Bloom's revised taxonomy?",
+   "source": "Anderson and Krathwohl (eds.), A Taxonomy for Learning, Teaching and Assessing (2001)"
+  },
+  {
+   "stem": "Learners choose short novels and read them at their own pace outside class, mainly for pleasure and general understanding. This is called:",
+   "source": "Harmer, The Practice of English Language Teaching (2015), ch. on reading; Day and Bamford, Extensive Reading in the Second Language Classroom (1998)"
+  },
+  {
+   "stem": "A class performs a dramatisation of a scene. Which of the following is NOT a suitable way to assess the learners' performance?",
+   "source": "Brown, Language Assessment: Principles and Classroom Practices (2nd ed.), ch. on performance-based assessment"
+  },
+  {
+   "stem": "TPACK (Mishra and Koehler) describes the integration of which three kinds of teacher knowledge?",
+   "source": "Mishra and Koehler (2006), \"Technological Pedagogical Content Knowledge\", Teachers College Record 108(6)"
+  },
+  {
+   "stem": "Katika ushairi wa Kiswahili, mizani ni:",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu, \"mizani\"; Massamba, Kiswahili: Misingi ya Ushairi"
+  },
+  {
+   "stem": "Shairi ambalo kila ubeti wake una mishororo mitatu huitwa:",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; Mulokozi, Utangulizi wa Ushairi wa Kiswahili"
+  },
+  {
+   "stem": "Mshororo \"Nakupenda mwanangu\" una mizani mingapi?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu (silabi na mizani); Massamba, Kiswahili: Misingi ya Ushairi"
+  },
+  {
+   "stem": "Ni ipi kati ya zifuatazo si tanzu ya fasihi andishi?",
+   "source": "Mulokozi, Fasihi ya Kiswahili (1996); Kiswahili 5 Sanifu kwa Shule za Sekondari (REB), fasihi andishi"
+  },
+  {
+   "stem": "Kipengele kipi kati ya vifuatavyo ni cha fani katika kazi ya fasihi?",
+   "source": "Wamitila, Kamusi ya Fasihi (2003); Mulokozi, Fasihi ya Kiswahili (1996)"
+  },
+  {
+   "stem": "Mshororo unaorudiwa mwishoni mwa kila ubeti wa shairi huitwa:",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu, \"kibwagizo\"; Massamba, Kiswahili: Misingi ya Ushairi"
+  },
+  {
+   "stem": "Mhusika wa riwaya anayempinga mhusika mkuu na kumzuia kufikia lengo lake huitwa mhusika:",
+   "source": "Wamitila, Kamusi ya Fasihi: Istilahi na Nadharia (2003), 'mhusika'; Mulokozi, Fasihi ya Kiswahili (1996), wahusika"
+  },
+  {
+   "stem": "Katika tamthilia, kitendo kimoja hugawanyika katika sehemu ndogo zinazoitwa:",
+   "source": "Wamitila, Kamusi ya Fasihi (2003); Mulokozi, Fasihi ya Kiswahili (1996)"
+  },
+  {
+   "stem": "Methali na vitendawili ni vipera vya tanzu ipi ya fasihi simulizi?",
+   "source": "Mulokozi, Fasihi ya Kiswahili (1996): uainishaji wa tanzu sita za fasihi simulizi"
+  },
+  {
+   "stem": "Ngomezi katika fasihi simulizi ni:",
+   "source": "Mulokozi, Fasihi ya Kiswahili (1996); Wamitila, Kamusi ya Fasihi (2003), \"ngomezi\""
+  },
+  {
+   "stem": "Wimbo unaoimbwa ili kumbembeleza mtoto apate usingizi huitwa:",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu, \"bembelezi\"; Wamitila, Kamusi ya Fasihi (2003)"
+  },
+  {
+   "stem": "Dhamira ya kazi ya fasihi ni:",
+   "source": "Wamitila, Kamusi ya Fasihi: Istilahi na Nadharia (2003), 'dhamira'; Mulokozi, Fasihi ya Kiswahili (1996)"
+  },
+  {
+   "stem": "Which of the following is NOT an appropriate way to deal with the shortage of copies?",
+   "source": "REB, Competence-Based Curriculum Framework (2015): learner-centred active learning"
+  },
+  {
+   "stem": "To check at the end of the lesson whether each learner can identify the theme, which formative activity is most suitable?",
+   "source": "Brown, Language Assessment (2nd ed.), ch. on formative assessment; Black and Wiliam (1998), Inside the Black Box"
+  },
+  {
+   "stem": "Before reading, the teacher gives learners a short glossary and guiding questions so that they can manage a text slightly above their current level. In sociocultural theory (Vygotsky's zone of proximal development), this temporary support is called:",
+   "source": "Vygotsky, Mind in Society (1978); Wood, Bruner and Ross (1976), \"The role of tutoring in problem solving\""
+  },
+  {
+   "stem": "Which of the following is a referential question (one to which the teacher does not already know the answer)?",
+   "source": "Long and Sato (1983), \"Classroom foreigner talk discourse\"; Richards and Schmidt, Longman Dictionary of Language Teaching, \"referential question\""
+  },
+  {
+   "stem": "In a short story, the central character around whom the main action develops is called the:",
+   "source": "Baldick, Oxford Dictionary of Literary Terms, \"protagonist\"; Abrams and Harpham, A Glossary of Literary Terms, \"character\""
+  },
+  {
+   "stem": "Which use of the projector would NOT help learners analyse the poem actively?",
+   "source": "Puentedura, SAMR model; Mishra and Koehler (2006), TPACK; REB, Rwanda ICT Essentials for Teachers"
+  },
+  {
+   "stem": "While learners recite the poem, the teacher hears several mispronounced words. Which is the most appropriate response?",
+   "source": "Harmer, The Practice of English Language Teaching (2015), ch. on correcting mistakes"
+  },
+  {
+   "stem": "Learners individually compose a four-line poem following given rules of vina and mizani. This task mainly develops which generic competence?",
+   "source": "REB, Competence-Based Curriculum Framework (2015): generic competences"
+  },
+  {
+   "stem": "To check the key unit competence and learning objectives that the poetry lesson must achieve, the teacher should consult:",
+   "source": "REB eLearning (elearning.reb.rw): syllabuses and teachers' guides; REB, Competence-Based Curriculum Framework (2015)"
+  },
+  {
+   "stem": "Mwalimu anawaonyesha wanafunzi shairi ambalo halifuati kanuni za vina wala za mizani. Shairi la aina hii huitwa:",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; Wamitila, Kamusi ya Fasihi (2003), \"shairi huru\""
+  }
+ ],
+ "english-and-kiswahili-teacher-reb-mock-exam-10": [
+  {
+   "stem": "Choose the discourse marker that best completes the text: \"The library has very few books. ______, the learners read widely.\"",
+   "source": "Swan, Practical English Usage (Oxford UP); Quirk et al., A Comprehensive Grammar of the English Language (linking adverbials)"
+  },
+  {
+   "stem": "Which of the following discourse markers does NOT signal the addition of a point?",
+   "source": "Swan, Practical English Usage (Oxford UP); Quirk et al., A Comprehensive Grammar of the English Language (otherwise; linking adverbials)"
+  },
+  {
+   "stem": "Which pair of expressions can both be used to introduce an example?",
+   "source": "Swan, Practical English Usage (Oxford UP); Quirk et al., A Comprehensive Grammar of the English Language (linking adverbials)"
+  },
+  {
+   "stem": "In traditional British formal letter conventions, a letter that opens with \"Dear Sir or Madam\" should close with:",
+   "source": "Swan, Practical English Usage (Oxford UP); Quirk et al., A Comprehensive Grammar of the English Language (letters: beginnings and endings)"
+  },
+  {
+   "stem": "In a formal letter, the abbreviation \"Enc.\" (or \"Encl.\") written at the bottom shows that:",
+   "source": "Oxford Dictionary of Abbreviations / Oxford Learner's Dictionaries (enc., encl.); Swan, Practical English Usage (letters); Cambridge Dictionary (cc)"
+  },
+  {
+   "stem": "A learner looks quickly through a text to find the year in which a school was founded, without reading the rest of it. This reading skill is called:",
+   "source": "Nuttall, Teaching Reading Skills in a Foreign Language (skimming, scanning, inference)"
+  },
+  {
+   "stem": "Read this sentence: \"When the headteacher walked in, the noisy classroom fell silent and every learner suddenly became busy with an open book.\" What can the reader reasonably infer?",
+   "source": "Nuttall, Teaching Reading Skills in a Foreign Language (skimming, scanning, inference)"
+  },
+  {
+   "stem": "Which of the following should NOT appear in a good summary of a passage?",
+   "source": "Swan, Practical English Usage; Hedge, Writing (Oxford UP), summary writing"
+  },
+  {
+   "stem": "An essay in which the writer takes a position and supports it with reasons and evidence in order to persuade the reader is called:",
+   "source": "Hedge, Writing (Oxford UP); Oshima & Hogue, Writing Academic English"
+  },
+  {
+   "stem": "In an essay, the sentence that states the main idea of a single paragraph is called the:",
+   "source": "Oshima & Hogue, Writing Academic English (paragraph structure)"
+  },
+  {
+   "stem": "The reading skill of working out the meaning of an unfamiliar word from the words and sentences around it is called:",
+   "source": "Nuttall, Teaching Reading Skills in a Foreign Language (skimming, scanning, inference)"
+  },
+  {
+   "stem": "Which sentence uses \"however\" correctly?",
+   "source": "Swan, Practical English Usage (Oxford UP); Quirk et al., A Comprehensive Grammar of the English Language (however; punctuation); Quirk et al."
+  },
+  {
+   "stem": "In a school, a school development plan (SDP) is best described as:",
+   "source": "REB, Leadership for learning: a headteacher's professional companion (2019); school improvement planning guidance on elearning.reb.rw"
+  },
+  {
+   "stem": "Which of the following is a SMART target that a school's English department could put in the school development plan?",
+   "source": "Doran (1981) on SMART objectives; REB school improvement planning guidance (elearning.reb.rw)"
+  },
+  {
+   "stem": "In school guidance and counselling, the principle of confidentiality means that a teacher:",
+   "source": "Egan, The Skilled Helper; Rwanda Law No 71/2018 on the protection of the child (child protection duties)"
+  },
+  {
+   "stem": "A Senior 3 learner tells you privately that some classmates bully her and that she wants to leave school. What should you do FIRST?",
+   "source": "Egan, The Skilled Helper (attending and listening); school guidance and counselling practice"
+  },
+  {
+   "stem": "Which statement correctly distinguishes guidance from counselling in a school?",
+   "source": "Gysbers & Henderson, Developing and Managing Your School Guidance and Counseling Program; standard school counselling texts"
+  },
+  {
+   "stem": "When advising a Senior 6 learner who is interested in careers connected with languages (for example teaching, translation or journalism), which approach is most appropriate?",
+   "source": "Careers guidance principles (Gysbers & Henderson); advert 2610000251 duty: guidance on further education and future careers"
+  },
+  {
+   "stem": "Which of the following is NOT a good practice in recording and reporting learners' progress?",
+   "source": "Black & Wiliam, Inside the Black Box (feedback); REB assessment guidance on recording and reporting"
+  },
+  {
+   "stem": "A university asks you to write a reference for a former Senior 6 learner. The reference should be:",
+   "source": "Advert 2610000251 duty: references relating to individual students; teachers' professional ethics (integrity)"
+  },
+  {
+   "stem": "Which marking practice best supports learning when assessing learners' Kiswahili compositions?",
+   "source": "Harmer, The Practice of English Language Teaching (correcting written work); Ur, A Course in Language Teaching"
+  },
+  {
+   "stem": "A teacher gives the end-of-term test questions in advance to learners who attend his paid private lessons. Which professional principle does this most directly violate?",
+   "source": "Teachers' professional code of conduct (fairness, integrity, conflict of interest); Rwanda public service ethics"
+  },
+  {
+   "stem": "Which of the following is NOT consistent with a teacher's professional code of ethics?",
+   "source": "Teachers' professional code of conduct; Rwanda Law No 71/2018 on the protection of the child"
+  },
+  {
+   "stem": "According to the REB School-Based Mentorship Programme framework, which of the following is NOT one of the roles of a school-based mentor?",
+   "source": "REB School-Based Mentorship Programme Framework, as quoted in VVOB, EMC booklet (2023): https://rwanda.vvob.org/sites/rwanda/files/20230130_emc_booklet_-_programme_description.pdf"
+  },
+  {
+   "stem": "For a language teacher, reflective practice means:",
+   "source": "Schön, The Reflective Practitioner; Richards & Lockhart, Reflective Teaching in Second Language Classrooms"
+  },
+  {
+   "stem": "A teacher notices that many learners confuse past and present tenses in writing, tries a new error-correction activity for a month, and then checks whether the errors have decreased. This is an example of:",
+   "source": "Burns, Doing Action Research in English Language Teaching; Richards & Farrell, Professional Development for Language Teachers"
+  },
+  {
+   "stem": "Peer observation of lessons contributes most to teachers' professional development when:",
+   "source": "Richards & Farrell, Professional Development for Language Teachers (peer observation)"
+  },
+  {
+   "stem": "Which action best shows that a language teacher is working towards the implementation of the school development plan?",
+   "source": "Advert 2610000251 duty: working towards the implementation of the school development plan; REB school improvement planning guidance"
+  },
+  {
+   "stem": "Kabla ya herufi za Kirumi kuanza kutumika, Kiswahili kiliandikwa kwa muda mrefu kwa kutumia herufi za:",
+   "source": "Mulokozi, Historia ya Kiswahili; Massamba et al., Historia ya Kiswahili (TUKI)"
+  },
+  {
+   "stem": "Lahaja ya Kiswahili inayojulikana kama Kimvita hutumika hasa katika:",
+   "source": "TUKI, Historia ya Kiswahili; Wikipedia: Swahili language, dialects"
+  },
+  {
+   "stem": "Kamati ya Lugha ya Maeneo ya Afrika Mashariki (Inter-Territorial Language Committee), iliyosimamia usanifishaji wa Kiswahili, ilianzishwa mwaka:",
+   "source": "https://en.wikipedia.org/wiki/Standard_Swahili_language ; https://en.wikipedia.org/wiki/Taasisi_ya_Taaluma_za_Kiswahili"
+  },
+  {
+   "stem": "Baraza la Kiswahili la Taifa (BAKITA) la Tanzania lilianzishwa kwa Sheria ya Bunge Na. 27 ya mwaka:",
+   "source": "https://en.wikipedia.org/wiki/Baraza_la_Kiswahili_la_Taifa ; BAKITA (bakita.or.tz)"
+  },
+  {
+   "stem": "Chombo cha Zanzibar kinachosimamia na kukuza maendeleo ya Kiswahili kinaitwa:",
+   "source": "BAKIZA (Baraza la Kiswahili la Zanzibar); https://en.wikipedia.org/wiki/Chama_cha_Kiswahili_cha_Taifa"
+  },
+  {
+   "stem": "Siku ya Kiswahili Duniani, iliyotangazwa na UNESCO mwaka 2021, huadhimishwa kila mwaka tarehe:",
+   "source": "UNESCO, 41 C/Resolution (World Kiswahili Language Day): https://unesdoc.unesco.org/ark:/48223/pf0000379702"
+  },
+  {
+   "stem": "Kiswahili kilitangazwa kuwa lugha rasmi ya nne ya Rwanda, pamoja na Kinyarwanda, Kiingereza na Kifaransa, kupitia sheria ya mwaka:",
+   "source": "Organic Law N° 02/2017/OL of 20/04/2017 (Official Gazette no. 18 of 01/05/2017); New Times 8 Feb 2017 (Parliament vote 7 Feb 2017)"
+  },
+  {
+   "stem": "Ipi kati ya zifuatazo SI lahaja ya Kiswahili?",
+   "source": "TUKI, Historia ya Kiswahili; Massamba, Misingi ya Isimu"
+  },
+  {
+   "stem": "Soma kifungu kifuatacho kisha ujibu swali. \"Kusoma vitabu kila siku humsaidia mwanafunzi kujifunza maneno mapya na kuelewa mawazo ya watu wengine. Mwanafunzi anayesoma mara kwa mara hupata ufasaha katika kuandika na kuzungumza. Hata hivyo, shule nyingi hazina vitabu vya kutosha, na maktaba nyingi hazijapokea vitabu vipya kwa muda mrefu. Kwa hiyo, shule na wazazi wanashauriwa kushirikiana kuanzisha vilabu vya usomaji ili kila mwanafunzi apate nafasi ya kusoma.\" Wazo kuu la kifungu hiki ni lipi?",
+   "source": "Kamusi ya Kiswahili Sanifu (TUKI/OUP); mbinu za ufahamu: Massamba, Kiswahili katika Elimu"
+  },
+  {
+   "stem": "Soma kifungu kifuatacho kisha ujibu swali. \"Kusoma vitabu kila siku humsaidia mwanafunzi kujifunza maneno mapya na kuelewa mawazo ya watu wengine. Mwanafunzi anayesoma mara kwa mara hupata ufasaha katika kuandika na kuzungumza. Hata hivyo, shule nyingi hazina vitabu vya kutosha, na maktaba nyingi hazijapokea vitabu vipya kwa muda mrefu. Kwa hiyo, shule na wazazi wanashauriwa kushirikiana kuanzisha vilabu vya usomaji ili kila mwanafunzi apate nafasi ya kusoma.\" Ipi kati ya zifuatazo HAIKUTAJWA katika kifungu kama faida ya kusoma vitabu kila siku?",
+   "source": "Mbinu za ufahamu (kutafuta taarifa iliyotajwa wazi kifunguni); Massamba, Kiswahili katika Elimu"
+  },
+  {
+   "stem": "Ipi kati ya sifa zifuatazo SI ya barua rasmi?",
+   "source": "TUKI, Kamusi ya Kiswahili Sanifu; vitabu vya uandishi wa barua rasmi (BAKITA, mtaala wa Kiswahili)"
+  },
+  {
+   "stem": "Insha inayomtaka mwandishi aeleze pande mbili za hoja kisha atoe msimamo wake huitwa:",
+   "source": "Mulokozi, Fasihi ya Kiswahili; vitabu vya uandishi wa insha vya sekondari"
+  },
+  {
+   "stem": "Which learning objective is best written for this lesson?",
+   "source": "REB Curriculum Framework (2015) and syllabus guidance on learning objectives; Anderson & Krathwohl (2001), revised Bloom's taxonomy"
+  },
+  {
+   "stem": "Which activity would be LEAST suitable for the main stage of this lesson in a competence-based classroom?",
+   "source": "REB Competence-Based Curriculum Framework (2015), learner-centred active learning; Harmer, The Practice of English Language Teaching"
+  },
+  {
+   "stem": "Which assessment tool would give the fairest marks and the most useful feedback on the letters learners write?",
+   "source": "REB assessment guidance (rubrics); Brown, Language Assessment: Principles and Classroom Practices"
+  },
+  {
+   "stem": "After marking the letters, which is the most useful way to record the results for later reporting on each learner's progress?",
+   "source": "Advert 2610000251 duty: assessing, recording and reporting on learners' progress; REB assessment guidance"
+  },
+  {
+   "stem": "Which of the following sentences is in the formal register suitable for a letter of application?",
+   "source": "Swan, Practical English Usage (Oxford UP); Quirk et al., A Comprehensive Grammar of the English Language (formal and informal style)"
+  },
+  {
+   "stem": "What is the best way to deal with the new words in the passage before the learners read it?",
+   "source": "Harmer, How to Teach English (reading: pre-, while- and post-reading); Nuttall, Teaching Reading Skills in a Foreign Language"
+  },
+  {
+   "stem": "Which teacher practice best matches Krashen's idea of comprehensible input (i + 1) for these beginner learners of Kiswahili?",
+   "source": "Krashen, Principles and Practice in Second Language Acquisition (1982); Richards & Rodgers, Approaches and Methods in Language Teaching"
+  },
+  {
+   "stem": "Which post-reading question requires the highest level of thinking in Bloom's revised taxonomy?",
+   "source": "Anderson & Krathwohl (2001), A Taxonomy for Learning, Teaching, and Assessing"
+  },
+  {
+   "stem": "During the reading, a shy learner refuses to read aloud and later tells you privately that she is afraid classmates will laugh at her Kiswahili. What is the most appropriate response?",
+   "source": "Krashen, affective filter hypothesis; Egan, The Skilled Helper; advert 2610000251 duty: guidance and advice to students"
+  },
+  {
+   "stem": "Kiswahili sanifu kimejengwa juu ya msingi wa lahaja ipi?",
+   "source": "https://en.wikipedia.org/wiki/Standard_Swahili_language ; TUKI, Historia ya Kiswahili"
+  }
  ]
 }
