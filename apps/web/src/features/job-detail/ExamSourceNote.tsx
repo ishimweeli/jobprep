@@ -30,7 +30,7 @@ export function licensingUsesPastPapers(jobName: string): boolean {
 /** The note for a council licensing exam (category "licensing-exams"). */
 export function licensingSourceLine(jobName: string): string {
   if (licensingUsesPastPapers(jobName)) {
-    return `The first ${jobName} mocks are mostly made of real questions that candidates reported from earlier council licensing exams. We checked each answer against current clinical guidance and corrected it where the reported answer was wrong. The later mocks are practice questions we wrote in the same style, on the exam's subject areas. We cannot promise the same questions will appear in your exam.`;
+    return `The past papers are real questions that candidates shared from earlier sittings of the ${jobName} (2015 to 2020), word for word and in the original order; the first mocks also mix in real questions from the 2018 and 2020 papers. We checked each answer against current clinical guidance and left out questions that are unreadable or have no single correct answer today. The other questions are practice questions we wrote in the same style, on the exam's subject areas. We cannot promise the same questions will appear in your exam.`;
   }
   return `Questions are written around the subject areas of the ${jobName}. They are practice questions, not real or past exam papers.`;
 }
