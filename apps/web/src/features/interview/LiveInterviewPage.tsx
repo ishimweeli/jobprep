@@ -372,10 +372,10 @@ function Live({ initial }: { initial: InterviewSessionView }) {
               </Button>
             )}
             {confirmEnd ? (
-              <span className="flex items-center gap-2">
-                <span className="text-sm font-semibold">End the interview and get feedback?</span>
-                <Button variant="final" onClick={() => void end()}>End now</Button>
-                <Button variant="plain" onClick={() => setConfirmEnd(false)}>Keep going</Button>
+              <span className="flex w-full flex-wrap items-center justify-center gap-2">
+                <span className="basis-full text-center text-sm font-semibold">End the interview and get feedback?</span>
+                <Button variant="final" className="whitespace-nowrap" onClick={() => void end()}>End now</Button>
+                <Button variant="plain" className="whitespace-nowrap" onClick={() => setConfirmEnd(false)}>Keep going</Button>
               </span>
             ) : (
               <Button variant="neutral" onClick={() => setConfirmEnd(true)}>End interview</Button>

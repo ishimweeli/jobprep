@@ -74,7 +74,7 @@ function ReviewForm({ jobId, initial, remainingSeconds }: { jobId: string; initi
         <p className={cx('m-0 text-[15px]', muted)}>This is what we read from the job description. Correct anything that is wrong: the interviewer uses it.</p>
       </header>
 
-      <section className={cx(card, 'grid gap-4 md:grid-cols-2')} aria-label="Job details">
+      <section className={cx(card, 'grid grid-cols-1 gap-4 md:grid-cols-2')} aria-label="Job details">
         <TextField label="Position" value={p.position} onChange={(v) => set('position', v)} />
         <TextField label="Organisation" value={p.organisation} onChange={(v) => set('organisation', v)} />
         <TextField label="Required experience" value={p.experience} onChange={(v) => set('experience', v)} />
