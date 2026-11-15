@@ -26,7 +26,7 @@ describe('job page parts', () => {
   });
 
   it('says real questions are included only for the jobs that have them, and promises nothing about the real exam', () => {
-    for (const job of ['Executive Secretary', 'Economic Development Officer', 'Human Capital & Social Development Officer']) {
+    for (const job of ['Executive Secretary of Cell', 'Executive Secretary', 'Economic Development Officer', 'Human Capital & Social Development Officer']) {
       const line = sourceLine(job, false);
       expect(usesPastPapers(job)).toBe(true);
       expect(line).toContain('real questions that candidates reported');

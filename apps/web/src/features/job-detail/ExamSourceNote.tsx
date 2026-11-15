@@ -10,7 +10,7 @@ export const HOW_WE_BUILD_PATH = '/how-we-build-exams';
  * The jobs whose exams include real questions that candidates reported from earlier MIFOTRA written exams. Every other
  * job's exams are written by us and must keep saying so.
  */
-const PAST_PAPER_JOBS = new Set(['executive secretary', 'economic development officer', 'human capital & social development officer']);
+const PAST_PAPER_JOBS = new Set(['executive secretary of cell', 'executive secretary', 'economic development officer', 'human capital & social development officer']);
 
 export function usesPastPapers(jobName: string): boolean {
   return PAST_PAPER_JOBS.has(jobName.trim().toLowerCase());

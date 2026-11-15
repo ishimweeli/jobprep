@@ -180,7 +180,7 @@ function JobPicker({ slug, onPick }: { slug: string; onPick: (examSlug: string) 
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="e.g. Accountant, Headteacher, Executive Secretary"
+        placeholder="e.g. Accountant, Headteacher, Executive Secretary of Cell"
         className="h-12 w-full rounded-control border border-input-border bg-surface px-3.5 text-[16px] text-ink dark:border-night-border dark:bg-night-surface dark:text-night-ink"
       />
       {jobs.isLoading ? (
