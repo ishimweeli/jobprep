@@ -2,18 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { ALL_TESTS } from '../../prisma/seed-lib';
 import { LICENSING_MOCKS, NCNM_PAST_PAPER_SLUGS } from '../../prisma/seed-data/licensing';
 import ncnmRevision from '../../prisma/content-revisions/2026-11-11-ncnm-original-wording.json';
+import cutRevision from '../../prisma/content-revisions/2026-11-11-licensing-100-questions.json';
 import { stemFingerprint } from '../../prisma/revise-content';
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-/** The council licensing exams and the shape of their practice mocks (questions per mock, minutes). */
-const EXAMS: Record<string, { questions: number; minutes: number }> = {
-  'ncnm-nurses-midwives-licensing-exam': { questions: 150, minutes: 180 },
-  'npc-pharmacists-pre-registration-exam': { questions: 100, minutes: 180 },
-  'rmdc-medical-doctors-licensing-exam': { questions: 100, minutes: 150 },
-  'rahpc-biomedical-laboratory-sciences-licensing-exam': { questions: 50, minutes: 60 },
-  'rahpc-clinical-medicine-licensing-exam': { questions: 50, minutes: 60 },
-  'rahpc-anaesthesia-licensing-exam': { questions: 50, minutes: 60 },
+/** Every licensing mock is 100 questions of 1 mark each (100 marks) in 2 hours (owner decision, 2026-11-11). */
+const SHAPE = { questions: 100, minutes: 120 };
+const EXAMS: Record<string, typeof SHAPE> = {
+  'ncnm-nurses-midwives-licensing-exam': SHAPE,
+  'npc-pharmacists-pre-registration-exam': SHAPE,
+  'rmdc-medical-doctors-licensing-exam': SHAPE,
+  'rahpc-biomedical-laboratory-sciences-licensing-exam': SHAPE,
+  'rahpc-clinical-medicine-licensing-exam': SHAPE,
+  'rahpc-anaesthesia-licensing-exam': SHAPE,
 };
 
 const pastSlugs = new Set(NCNM_PAST_PAPER_SLUGS);
@@ -33,7 +35,7 @@ describe('professional licensing exam mocks', () => {
     }
   });
 
-  it('give every council exam at least 5 full-length practice mocks with exactly one free', () => {
+  it('give every council exam at least 5 practice mocks of 100 questions in 2 hours with exactly one free', () => {
     for (const [profession, shape] of Object.entries(EXAMS)) {
       const all = LICENSING_MOCKS.filter((t) => t.profession.slug === profession);
       const mocks = PRACTICE.filter((t) => t.profession.slug === profession);
@@ -87,6 +89,14 @@ describe('professional licensing exam mocks', () => {
     }
   });
 
+  it('gives every licensing mock exactly 100 questions of one mark each (100 marks)', () => {
+    for (const t of LICENSING_MOCKS) {
+      expect(t.questions, t.slug).toHaveLength(100);
+      expect(t.minutes, t.slug).toBe(120);
+      expect(t.questions.every((q) => (q.marks ?? 1) === 1), t.slug).toBe(true);
+    }
+  });
+
   it('the 2026-11-11 revision archives only stems that left the NCNM mocks (the reworded real questions)', () => {
     const ncnm = new Map(PRACTICE.filter((t) => t.profession.slug === 'ncnm-nurses-midwives-licensing-exam').map((t) => [t.slug, t]));
     let archived = 0;
@@ -100,15 +110,31 @@ describe('professional licensing exam mocks', () => {
     expect(archived).toBe(195);
   });
 
-  it('publishes the NCNM past papers as locked, one-section papers timed at the NCNM pace', () => {
-    expect(PAST_PAPERS.length).toBeGreaterThanOrEqual(6);
+  it('the 100-question revision only archives questions cut from the five NCNM practice mocks (50 each)', () => {
+    const ncnm = new Map(PRACTICE.filter((t) => t.profession.slug === 'ncnm-nurses-midwives-licensing-exam').map((t) => [t.slug, t]));
+    const entries = Object.entries(cutRevision as Record<string, string[]>);
+    expect(entries).toHaveLength(5);
+    for (const [slug, prints] of entries) {
+      expect(prints, slug).toHaveLength(50);
+      const kept = new Set(ncnm.get(slug)!.questions.map((q) => stemFingerprint(q.stem)));
+      for (const p of prints) expect(kept.has(p), `${slug} ${p}`).toBe(false);
+    }
+  });
+
+  it('publishes the real NCNM past papers as locked sets of 100, in paper order, with real questions word for word', () => {
+    expect(PAST_PAPERS.length).toBeGreaterThanOrEqual(7);
+    const seen = new Set<string>();
     for (const t of PAST_PAPERS) {
       expect(t.profession.slug, t.slug).toBe('ncnm-nurses-midwives-licensing-exam');
       expect(t.free, t.slug).toBe(false);
-      expect(t.sections, t.slug).toHaveLength(1);
-      expect(t.questions.length, t.slug).toBeGreaterThan(0);
-      expect(t.questions.length, t.slug).toBeLessThanOrEqual(150);
-      expect(t.minutes, t.slug).toBe(Math.ceil((t.questions.length * 1.2) / 5) * 5);
+      expect(t.sections.length, t.slug).toBeGreaterThanOrEqual(1);
+      for (const q of t.questions) {
+        const k = norm(q.stem);
+        // a real question appears once across the sets (the extra practice questions are never real ones)
+        expect(seen.has(k), `${t.slug}: ${q.stem.slice(0, 60)}`).toBe(false);
+        seen.add(k);
+      }
     }
+    expect(seen.size).toBe(PAST_PAPERS.length * 100);
   });
 });
