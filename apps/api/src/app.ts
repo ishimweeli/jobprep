@@ -64,7 +64,18 @@ export function createApp(deps: AppDeps) {
     res.setHeader('X-Request-Id', req.id);
     next();
   });
-  app.use(helmet());
+  // Helmet's default CSP, plus Microsoft Clarity analytics (apps/web/public/clarity.js): its tag script, data uploads
+  // and pixel come from *.clarity.ms and c.bing.com.
+  const CLARITY = ['https://*.clarity.ms', 'https://c.bing.com'];
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'script-src': ["'self'", ...CLARITY],
+        'connect-src': ["'self'", ...CLARITY],
+        'img-src': ["'self'", 'data:', ...CLARITY],
+      },
+    },
+  }));
   app.use(cors({ origin: config.WEB_ORIGIN, credentials: true }));
   // Keep the raw body: payment webhooks are authenticated over the exact bytes received.
   app.use(express.json({ limit: '100kb', verify: (req, _res, buf) => { (req as express.Request).rawBody = buf.toString('utf8'); } }));

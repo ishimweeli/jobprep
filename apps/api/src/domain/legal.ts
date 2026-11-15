@@ -9,7 +9,7 @@ export type LegalSlug = (typeof LEGAL_SLUGS)[number];
 export interface LegalSection { id: string; heading: string; paragraphs: string[] }
 export interface LegalPage { slug: LegalSlug; title: string; lastUpdated: string; placeholder: boolean; intro: string; sections: LegalSection[] }
 
-export const PLACEHOLDER_UPDATED = '2026-11-05';
+export const PLACEHOLDER_UPDATED = '2026-11-15';
 const NOTE = 'Placeholder text, pending legal review.';
 
 export const DEFAULT_LEGAL: Record<LegalSlug, Omit<LegalPage, 'slug' | 'placeholder'>> = {
@@ -33,6 +33,7 @@ export const DEFAULT_LEGAL: Record<LegalSlug, Omit<LegalPage, 'slug' | 'placehol
       { id: 'collect', heading: 'What we keep', paragraphs: ['Your name, email address, country, exam goal, your answers and results, and your payment records (amount, status and the number you paid from).', 'We never ask for or store a mobile money PIN.'] },
       { id: 'use', heading: 'How we use it', paragraphs: ['To run your account, mark your tests, show your progress, take payments and answer support requests.'] },
       { id: 'share', heading: 'Who we share it with', paragraphs: ['Payment operators receive what they need to process a payment. We do not sell your data.'] },
+      { id: 'analytics', heading: 'Usage analytics', paragraphs: ['We use Microsoft Clarity to see how people use the site (pages visited, clicks, scrolling and anonymised session recordings), so we can fix problems and improve it. Clarity hides what you type in forms. Microsoft processes this data under its own privacy statement (privacy.microsoft.com).'] },
       { id: 'rights', heading: 'Your choices', paragraphs: ['You can ask us to correct or remove your data, or to take your address off a waiting list, by contacting support.'] },
     ],
   },
@@ -52,7 +53,8 @@ export const DEFAULT_LEGAL: Record<LegalSlug, Omit<LegalPage, 'slug' | 'placehol
     intro: `${NOTE} This page explains the cookies JobPrep uses.`,
     sections: [
       { id: 'session', heading: 'Sign-in cookie', paragraphs: ['JobPrep uses one cookie to keep you signed in. It is needed for the service to work and is not used for advertising.'] },
-      { id: 'storage', heading: 'Storage on your device', paragraphs: ['Your answers during an exam are also kept on your device so they survive a lost connection. Nothing else is tracked.'] },
+      { id: 'storage', heading: 'Storage on your device', paragraphs: ['Your answers during an exam are also kept on your device so they survive a lost connection.'] },
+      { id: 'analytics', heading: 'Analytics cookies', paragraphs: ['Microsoft Clarity sets cookies to understand how the site is used (for example which pages are visited and where people click). They are not used for advertising by JobPrep. You can block them in your browser settings without losing access to any feature.'] },
     ],
   },
 };
