@@ -49,7 +49,34 @@ function render(r: ResultResponse, route = '/rw/results/a1', signedIn = false) {
   );
 }
 
+const reviewItem = (n: number, status: 'correct' | 'incorrect', explanation: string) => ({
+  number: n, id: 'q' + n, topic: 'Topic a', type: 'SINGLE', multiple: false, status, flagged: false, stem: 'Stem ' + n,
+  options: [{ key: 'A', text: 'Right ' + n, isCorrect: true, isYourPick: status === 'correct' }, { key: 'B', text: 'Wrong ' + n, isCorrect: false, isYourPick: status === 'incorrect' }],
+  yourAnswer: [status === 'correct' ? 'A' : 'B'], marks: 1, marksAwarded: status === 'correct' ? 1 : 0, explanation, caseId: null,
+});
+
 describe('results edge states (C6)', () => {
+  it('lists every question, the ones answered right and the ones missed, each with its explanation', async () => {
+    mockFetch((url) => {
+      if (url === '/api/attempts/a1/result') return { body: result() };
+      if (url.startsWith('/api/attempts/a1/review')) {
+        return { body: { attempt: { id: 'a1', kind: 'FULL', status: 'SUBMITTED' }, mockTest: { slug: 'math', title: 'Maths mock' }, filter: 'all', counts: { incorrect: 1, flagged: 0, unanswered: 0, all: 2 }, grid: [], cases: [],
+          items: [reviewItem(1, 'correct', 'Because of rule one.'), reviewItem(2, 'incorrect', 'Because of rule two.')] } };
+      }
+      if (url === '/api/me') return { body: testSession() };
+      if (url === '/api/countries') return { body: { countries: [] } };
+      return undefined;
+    });
+    renderWithProviders(<Routes><Route path="/:country/results/:attemptId" element={<ResultsPage />} /></Routes>, { route: '/rw/results/a1' });
+    expect(await screen.findByRole('heading', { name: 'All your answers, with explanations' })).toBeTruthy();
+    expect(await screen.findByText('Stem 1')).toBeTruthy();
+    expect(screen.getByText('Stem 2')).toBeTruthy();
+    expect(screen.getByText('Because of rule one.')).toBeTruthy();
+    expect(screen.getByText('Because of rule two.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Right (1)' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Wrong (1)' })).toBeTruthy();
+  });
+
   it('a guest whose exam is locked sees "sign up to see your marks", with sign-up and sign-in that come back to the results', async () => {
     mockFetch((url) => {
       if (url === '/api/attempts/a1/result') return { status: 403, body: { error: 'sign_up_required', mockTest: { title: 'Maths mock', slug: 'math', countryCode: 'RW' } } };

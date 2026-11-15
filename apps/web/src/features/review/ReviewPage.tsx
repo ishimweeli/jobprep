@@ -259,7 +259,7 @@ function CheckBox({ on, small }: { on: boolean; small?: boolean }) {
   );
 }
 
-function QuestionCard({ item, shownOnPhone, caseData }: { item: ReviewItem; shownOnPhone: boolean; caseData?: ExamCase }) {
+export function QuestionCard({ item, shownOnPhone, caseData }: { item: ReviewItem; shownOnPhone: boolean; caseData?: ExamCase }) {
   const [view, setView] = useState<'question' | 'case'>('question');
   const kind = gridKind(item.status);
   const badge = BADGE[kind];

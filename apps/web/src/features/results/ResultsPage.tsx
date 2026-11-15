@@ -13,6 +13,7 @@ import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSession } from '../auth/session';
 import { countryPath, useActiveCountrySlug } from '../country/hooks';
 import { StartPracticeLink } from '../practice/StartPracticeLink';
+import { AllAnswers } from './AllAnswers';
 import { FeedbackCard } from './FeedbackCard';
 import { SignUpToSee } from './SignUpToSee';
 import { useStartPractice } from '../practice/useStartPractice';
@@ -383,6 +384,8 @@ function ResultsView({ r, slug, attemptId, justSaved }: { r: ResultResponse; slu
             </Link>
           </section>
         )}
+
+        <AllAnswers attemptId={attemptId} />
 
         <FeedbackCard attemptId={attemptId} saved={r.feedback ?? null} />
       </main>
