@@ -20,7 +20,7 @@ export function InfoPage({
       <PhoneBackHeader to={countryPath(slug)} label="Back to home" title={title} />
       <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-[1040px] flex-1 flex-col gap-4 px-4 pb-10 pt-5 outline-none md:flex-row md:items-start md:gap-10 md:px-6 md:pb-16 md:pt-10">
         {toc.length > 0 && (
-          <nav aria-label="On this page" className="hidden w-[240px] flex-none flex-col gap-1 md:sticky md:top-6 md:flex">
+          <nav aria-label="On this page" className="hidden w-[240px] flex-none flex-col gap-1 md:sticky md:top-16 md:flex">
             <span className="mb-1 text-[13px] font-semibold uppercase tracking-wide text-muted">On this page</span>
             {toc.map((t) => (
               <a key={t.id} href={`#${t.id}`} className="inline-flex min-h-[36px] items-center rounded-[8px] px-2 text-[15px] text-ink-2 no-underline hover:bg-soft hover:text-ink">

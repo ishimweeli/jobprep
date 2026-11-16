@@ -4,6 +4,7 @@ import { Link, useMatches } from 'react-router-dom';
 import { initials } from '../../lib/format';
 import { useSession } from '../../features/auth/session';
 import { PhoneMenu } from './PhoneMenu';
+import { DarkModeToggle, LanguageButton } from './TopBar';
 import type { RouteHandle } from './SiteLayout';
 
 /**
@@ -30,6 +31,10 @@ export function PhoneTopBar() {
         <Menu size={22} strokeWidth={2.2} aria-hidden="true" />
       </button>
       <span className="flex-1 truncate text-center text-[16px] font-semibold text-heading dark:text-night-heading">{title}</span>
+      <div className="flex flex-none items-center gap-1">
+        <DarkModeToggle />
+        <LanguageButton compact />
+      </div>
       {session ? (
         <Link
           to="/account"

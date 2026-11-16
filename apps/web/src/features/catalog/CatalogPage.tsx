@@ -100,7 +100,8 @@ export function CatalogPage() {
   return (
     <div>
       {/* Phone header: back, title, search + Filters, category chips */}
-      <header className="sticky top-0 z-20 flex flex-col gap-2.5 border-b border-border bg-surface px-4 pb-3 pt-2 md:hidden">
+      {/* Sticks just below the top bar: the 56px phone app bar when signed in, the 48px dark mode / language bar for guests. */}
+      <header className={`sticky ${user ? 'top-14' : 'top-12'} z-20 flex flex-col gap-2.5 border-b border-border bg-surface px-4 pb-3 pt-2 md:hidden`}>
         {!user && (
           <div className="flex items-center gap-1">
             <Link to={countryPath(slug)} aria-label="Back to home" className="-ml-3 inline-flex h-11 w-11 items-center justify-center text-ink no-underline hover:text-ink">

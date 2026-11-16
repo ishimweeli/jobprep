@@ -32,8 +32,8 @@ function RootLayout() {
     <>
       <MaintenanceWatcher />
       <SystemGate />
+      {!system && <AppearanceControls />}
       {!system && <Outlet />}
-      <AppearanceControls />
       <SignedOutNotice />
     </>
   );

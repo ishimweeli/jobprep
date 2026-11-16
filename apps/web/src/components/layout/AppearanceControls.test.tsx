@@ -33,6 +33,15 @@ describe('dark mode and language on every page', () => {
     localStorage.removeItem('jobprep.theme');
   });
 
+  it('sits at the top of the page and stays there, not floating in the bottom corner', () => {
+    server();
+    renderWithProviders(<AppearanceControls />, { route: '/rw' });
+    const bar = screen.getByRole('group', { name: 'Appearance and language' });
+    expect(bar.className).toContain('sticky');
+    expect(bar.className).toContain('top-0');
+    expect(bar.className).not.toMatch(/\bfixed\b|\bbottom-/);
+  });
+
   it('is left off the admin area and the exam, review and live interview screens', () => {
     server();
     for (const route of ['/admin/users', '/rw/exam/abc', '/rw/review/abc', '/rw/interview-live/abc']) {
