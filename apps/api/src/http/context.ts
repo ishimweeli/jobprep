@@ -45,13 +45,28 @@ export function isConsoleEmail(email: EmailProvider): email is ConsoleEmailProvi
   return typeof (email as ConsoleEmailProvider).lastCode === 'function';
 }
 
+/** "Last active" is refreshed at most this often per person, so it costs one small write every few minutes. */
+export const LAST_SEEN_REFRESH_MS = 5 * 60_000;
+
 /** Resolves the session cookie (if any) onto `req.user`. Never rejects; use requireUser for that. */
 export function attachUser(ctx: Ctx): RequestHandler {
   return async (req: Request, _res: Response, next: NextFunction) => {
     const token = parseCookies(req.headers.cookie)[SESSION_COOKIE];
     if (token) {
-      const found = await findSessionUser(ctx.prisma, ctx.config.SESSION_SECRET, token, ctx.now());
+      const now = ctx.now();
+      const found = await findSessionUser(ctx.prisma, ctx.config.SESSION_SECRET, token, now);
       if (found) {
+        // Signing in used to be the only thing that set lastSeenAt, so anyone who stayed signed in looked
+        // idle since their sign-in. Any request made with a live session now counts as being active.
+        const seen = found.user.lastSeenAt;
+        if (!seen || now.getTime() - seen.getTime() >= LAST_SEEN_REFRESH_MS) {
+          try {
+            await ctx.prisma.user.update({ where: { id: found.user.id }, data: { lastSeenAt: now } });
+            found.user.lastSeenAt = now;
+          } catch {
+            // Never fail a request because the activity stamp could not be written.
+          }
+        }
         req.user = found.user;
         req.userRoles = found.roles;
         req.sessionCreatedAt = found.session.createdAt;

@@ -404,6 +404,37 @@ describe('sign-in', () => {
     expect((await prisma.user.findUniqueOrThrow({ where: { email } })).lastSeenAt).toEqual(clock);
   });
 
+  it('keeps "last active" moving while a person stays signed in, refreshed at most every 5 minutes', async () => {
+    const email = nextEmail();
+    const { agent } = await signUp(email);
+    const seen = async () => (await prisma.user.findUniqueOrThrow({ where: { email } })).lastSeenAt;
+    const signedInAt = new Date(clock);
+    expect(await seen()).toEqual(signedInAt);
+
+    advance(4 * 60);
+    expect((await agent.get('/api/me')).status).toBe(200);
+    expect(await seen()).toEqual(signedInAt); // under 5 minutes: no write
+
+    advance(2 * 60); // 6 minutes after sign-in
+    expect((await agent.get('/api/me')).status).toBe(200);
+    expect(await seen()).toEqual(clock);
+
+    advance(15 * 86_400); // back after two weeks on the same 30-day session
+    expect((await agent.get('/api/me')).status).toBe(200);
+    expect(await seen()).toEqual(clock);
+  });
+
+  it('does not mark anyone active when the request carries no live session', async () => {
+    const email = nextEmail();
+    const { agent } = await signUp(email);
+    await agent.post('/api/auth/sign-out'); // still a live session, so this one counts
+    const before = (await prisma.user.findUniqueOrThrow({ where: { email } })).lastSeenAt;
+    advance(3600);
+    expect((await request(app).get('/api/me')).status).toBe(401); // no cookie
+    expect((await agent.get('/api/me')).status).toBe(401); // cookie of a destroyed session
+    expect((await prisma.user.findUniqueOrThrow({ where: { email } })).lastSeenAt).toEqual(before);
+  });
+
   it('treats the address case-insensitively', async () => {
     const { email } = await makeUser();
     expect((await signInRaw(request.agent(app), `  ${email.toUpperCase()} `)).status).toBe(200);
