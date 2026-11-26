@@ -7,6 +7,7 @@ import { MOCKS as m_english_and_kiswahili_teacher } from './english-and-kiswahil
 import { MOCKS as m_environmental_safeguards_specialist } from './environmental-safeguards-specialist';
 import { MOCKS as m_forest_extension_officer } from './forest-extension-officer';
 import { MOCKS as m_gender_specialist } from './gender-specialist';
+import { MOCKS as m_national_technical_advisor } from './national-technical-advisor';
 import { MOCKS as m_planning_specialist } from './planning-specialist';
 import { MOCKS as m_postgraduate_coordination_officer } from './postgraduate-coordination-officer';
 import { MOCKS as m_procurement_specialist } from './procurement-specialist';
@@ -20,4 +21,4 @@ import { MOCKS as m_transit_center_manager } from './transit-center-manager';
 import { MOCKS as m_urban_planner } from './urban-planner';
 
 /** Mocks written by the daily content pipeline (prisma/pipeline), one file per advertised job. Generated — do not edit. */
-export const AUTO_MOCKS: TestDef[] = [...m_administrative_assistant_to_the_spiu_coordinator, ...m_conservation_agriculture_field_specialist, ...m_conservation_agriculture_project_manager, ...m_cpd_coordination_officer, ...m_english_and_kiswahili_teacher, ...m_environmental_safeguards_specialist, ...m_forest_extension_officer, ...m_gender_specialist, ...m_planning_specialist, ...m_postgraduate_coordination_officer, ...m_procurement_specialist, ...m_protection_specialist, ...m_research_and_grant_management_specialist, ...m_senior_architect, ...m_senior_mechanical_engineer, ...m_social_affairs_officer, ...m_social_and_religious_education_teacher, ...m_transit_center_manager, ...m_urban_planner];
+export const AUTO_MOCKS: TestDef[] = [...m_administrative_assistant_to_the_spiu_coordinator, ...m_conservation_agriculture_field_specialist, ...m_conservation_agriculture_project_manager, ...m_cpd_coordination_officer, ...m_english_and_kiswahili_teacher, ...m_environmental_safeguards_specialist, ...m_forest_extension_officer, ...m_gender_specialist, ...m_national_technical_advisor, ...m_planning_specialist, ...m_postgraduate_coordination_officer, ...m_procurement_specialist, ...m_protection_specialist, ...m_research_and_grant_management_specialist, ...m_senior_architect, ...m_senior_mechanical_engineer, ...m_social_affairs_officer, ...m_social_and_religious_education_teacher, ...m_transit_center_manager, ...m_urban_planner];
